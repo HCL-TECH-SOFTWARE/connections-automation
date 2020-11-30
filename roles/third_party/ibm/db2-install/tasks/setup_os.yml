@@ -1,0 +1,157 @@
+- name:              Install pre-requisites Yum for CentOS 7 - epel-release
+  yum:
+    name:            ['epel-release']
+    enablerepo:      "extras"
+    state:           present
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- name:              Install Development Tools group
+  yum:
+    name:            "@Development tools"
+    state:           present
+
+- name:              Install pre-requisites Yum
+  yum:
+    name:            ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel.i686', 'numactl-libs.i686', 'numactl-libs.x86_64']
+    state:           present
+  when:
+    - ansible_os_family == "RedHat"
+    - (ansible_distribution == "RedHat"or ansible_distribution == "CentOS"or ansible_distribution == "Amazon")
+
+- name:              Install pre-requisites Yum
+  yum:
+    name:            ['pam.i686']
+    state:           present
+  when:
+    - ansible_os_family == "RedHat"
+    - (ansible_distribution == "RedHat"or ansible_distribution == "CentOS"or ansible_distribution == "Amazon")
+
+- name:              Disable SELinux
+  selinux:
+    state:           disabled
+  ignore_errors:     true
+
+- name:                     "Configure nproc soft = {{ __param_nproc_soft }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             soft
+    limit_item:             nproc
+    value:                  "{{ __param_nproc_soft }}"
+
+- name:                     "Configure nproc hard = {{ __param_nproc_hard }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             hard
+    limit_item:             nproc
+    value:                  "{{ __param_nproc_hard }}"
+
+- name:                     "Configure nofile soft = {{ __param_nofile_soft }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             soft
+    limit_item:             nofile
+    value:                  "{{ __param_nofile_soft }}"
+
+- name:                     "Configure nofile hard = {{ __param_nofile_hard }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             hard
+    limit_item:             nofile
+    value:                  "{{ __param_nofile_hard }}"
+
+- name:                     "Configure stack soft = {{ __param_stack_soft }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             soft
+    limit_item:             stack
+    value:                  "{{ __param_stack_soft }}"
+
+- name:                     Disable swap
+  command:                  swapoff -a
+  when:                     ansible_swaptotal_mb > 0
+
+- name:                     Tune net.ipv4.ip_forward
+  sysctl:
+    name:                   "net.ipv4.ip_forward"
+    value:                  '0'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.conf.default.rp_filter
+  sysctl:
+    name:                   "net.ipv4.conf.default.rp_filter"
+    value:                  '1'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.conf.default.accept_source_route
+  sysctl:
+    name:                   "net.ipv4.conf.default.accept_source_route"
+    value:                  '0'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.core.rmem_max
+  sysctl:
+    name:                   "net.core.rmem_max"
+    value:                  '16777216'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.core.wmem_max
+  sysctl:
+    name:                   "net.core.wmem_max"
+    value:                  '16777216'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.tcp_rmem
+  sysctl:
+    name:                   "net.ipv4.tcp_rmem"
+    value:                  '4096 87380 16777216'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.tcp_wmem
+  sysctl:
+    name:                   "net.ipv4.tcp_wmem"
+    value:                  '4096 87380 16777216'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.tcp_fin_timeout
+  sysctl:
+    name:                   "net.ipv4.tcp_fin_timeout"
+    value:                  '30'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.core.netdev_max_backlog
+  sysctl:
+    name:                   "net.core.netdev_max_backlog"
+    value:                  '3000'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.core.somaxconn
+  sysctl:
+    name:                   "net.core.somaxconn"
+    value:                  '10000'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.tcp_keepalive_intvl
+  sysctl:
+    name:                   "net.ipv4.tcp_keepalive_intvl"
+    value:                  '15'
+    sysctl_set:             yes
+    reload:                 yes
+
+- name:                     Tune net.ipv4.tcp_keepalive_probes
+  sysctl:
+    name:                   "net.ipv4.tcp_keepalive_probes"
+    value:                  '5'
+    sysctl_set:             yes
+    reload:                 yes

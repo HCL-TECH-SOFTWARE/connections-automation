@@ -1,0 +1,253 @@
+##{PropertiesConnector} savedBy=root, saveDate=Wed May 06 20:47:52 UTC 2020
+# *****************************************************************
+#
+# IBM Confidential
+#
+# OCO Source Materials
+#
+# Copyright IBM Corp. 2010, 2015
+#
+# The source code for this program is not published or otherwise
+# divested of its trade secrets, irrespective of what has been
+# deposited with the U.S. Copyright Office.
+#
+# *****************************************************************
+
+# The five properties below specify the LDAP branch.  Technically, the first two determine the branch
+# and the third is a filter.  The fourth and fifth supply credentials if authentication is needed.
+
+source_ldap_url=ldap://{{ ldap_server }}:389
+source_ldap_search_base={{ ldap_realm }}
+source_ldap_search_filter=(objectclass=inetOrgPerson)
+source_ldap_user_login={{ ldap_bind_user }}
+{protect}-source_ldap_user_password={{ ldap_bind_pass }}
+
+# The three "...visitor_confirm" properties below are used to indicate that members added from the LDAP branch
+# specified above are visitors.  Simply set the three confirm properties to the IDENTICAL value as the three standard
+# properties above to specify that members are visitors. WARNING: The "...visitor_confirm" properties
+# should ONLY have a value when populating/syncing visitors and doing so from a SEPERATE branch.  Note that this
+# approach is intentionally a bit cumbersome to make it difficult to populate employees as visitors.
+#
+# Note that when populating from seperate branches, in addition to specifying the values for the three confirm
+# properties below (as empty or identical), you must have uncommented the "mode={func_mode_visitor_branch}" line
+# in the file named map_dbrepos_from_source.properties (to execute the func_mode_visitor_branch() function per member).
+#
+# WHEN DONE POPULATING/SYNCING VISITOR members, YOU MUST RE-SET THE THREE '...visitor_confirm' properties to
+# the empty value (or comment them  out).
+#
+# A best practice is to use an additional solution directory for visitors.
+#
+# The following rules/restrictions must be observed at all times:
+# 1. A non-empty value for standard properties  source_ldap_url= and source_ldap_search_base= is required.
+#
+# 2. The three "visitor_confirm" properties below must be either be all null, or identical in value to the three
+#    standard properties above.  Null means either non-existent, e.g. commented out, or an empty value (as below).
+#
+# As stated above if the value is null, members are added as an employee; if the values are non-null (and correct),
+# members are added as visitors.
+
+source_ldap_url_visitor_confirm=
+source_ldap_search_base_visitor_confirm=
+source_ldap_search_filter_visitor_confirm=
+
+source_ldap_use_ssl=false
+source_ldap_authentication_method=Simple
+source_ldap_time_limit_seconds=0
+source_ldap_required_dn_regex=
+source_ldap_collect_dns_file=collect.dns
+source_ldap_map_functions_file=profiles_functions.js
+source_ldap_page_size=0
+source_ldap_logfile=logs/PopulateDBFromSource.log
+source_ldap_debug=false
+source_ldap_sort_attribute=
+source_ldap_sort_page_size=0
+source_ldap_escape_dns=false
+source_ldap_compute_function_for_givenName=
+source_ldap_compute_function_for_sn=
+source_ldap_collect_updates_file=employee.updates
+source_ldap_binary_attributes=GUID
+source_ldap_manager_lookup_field=
+source_ldap_secretary_lookup_field=
+
+
+# Setting source_ldap_iterate_with_filter=true (immediately below) indicates that the default iterations AL should use
+# the javascript functions in the file specified by the following property (source_ldap_iterate_with_filter_functions_file=)
+# to generate filters/bases that iterate over an LDAP in chunks smaller than the LDAP imposed limit per query.
+# If you use the default (collect_ldap_dns_chunk.js) you must have modified this file with the array of values that the logic uses.
+# See the comment with step1_iterate_chunk_... in it below and the documentation for how to run the command () that
+# generates this array.
+#
+# If you supply custom functions (in a custom file),
+# you must specify this file with the source_ldap_iterate_with_filter_functions_file property, e.g.,
+#      source_ldap_iterate_with_filter_functions_file=collect_ldap_dns_generator.js
+#
+source_ldap_iterate_with_filter=false
+source_ldap_iterate_with_filter_functions_file=collect_ldap_dns_by_chunks.js
+
+#  The five step1_iterate_chunk_... settings below are for the generate_chunk_array command, which invokes the
+#  generate_iterate_chunk_array assembly.  This assembly generates the array that
+#  the code in collect_ldap_dns_chunk.js (see above) needs to generate the filters that break
+#  up ldap requests into chunks.  You must copy the array (along with making other minor
+#  changes) into collect_ldap_dns_chunk.js.
+#
+#  It is recommended that you set the step1_iterate_chunk_size property below to 1/2 the
+#  ldap max request. 	Note that step1_iterate_chunk_attribute_name is the Profiles
+#  db attribute name, i.e., the property NAME in map_dbrepos_from_source.properties.
+#
+step1_iterate_chunk_array_output_file=chunk_iterate_file.out
+step1_iterate_chunk_size=
+# email, displayName, employeenumber, uid, guid, ...
+step1_iterate_chunk_attribute_name=
+step1_iterate_chunk_attribute_null_ok=false
+step1_iterate_chunk_sync_source_url=
+
+# Database settings
+dbrepos_jdbc_url=jdbc:db2://{{ db_hostname }}:{{ db_port }}/peopledb
+dbrepos_jdbc_driver=com.ibm.db2.jcc.DB2Driver
+dbrepos_username={{ db_username }}
+{protect}-dbrepos_password={{ db_password }}
+dbrepos_mark_manager_if_referenced=true
+
+monitor_changes_debug=false
+tds_changelog_debug=false
+tds_changelog_ldap_user_login=
+tds_changelog_ldap_url=ldap://localhost:636
+{protect}-tds_changelog_ldap_user_password={encr}
+tds_changelog_ldap_time_limit_seconds=30
+tds_changelog_ldap_use_ssl=true
+tds_changelog_ldap_authentication_method=Simple
+tds_changelog_ldap_changelog_base=cn=changelog
+tds_changelog_sleep_interval=300
+tds_changelog_use_notifications=true
+tds_changelog_start_at_changenumber=EOD
+tds_changelog_logfile=logs/ProcessTDSChanges.log
+
+monitor_changes_sleep_interval=120
+monitor_changes_map_functions_file=
+monitor_changes_logfile=logs/MonitorDraftUpdates.log
+
+monitor_changes_ldap_server_username=
+{protect}-monitor_changes_ldap_server_password={encr}
+
+monitor_changes_dsml_server_url=http://localhost:9996
+monitor_changes_dsml_server_authentication=HTTP basic authentication
+{protect}-monitor_changes_dsml_server_password={encr}
+monitor_changes_dsml_server_username=
+monitor_changes_dsml_add_batch_request_to_soap_header=false
+
+country_table_csv_separator=;
+country_table_csv_file=isocc.csv
+department_table_csv_separator=;
+department_table_csv_file=deptinfo.csv
+emp_type_table_csv_separator=;
+emp_type_table_csv_file=emptype.csv
+organization_table_csv_separator=;
+organization_table_csv_file=orginfo.csv
+workloc_table_csv_separator=;
+workloc_table_csv_file=workloc.csv
+
+load_photos_from_ldap_attr_name=
+load_photos_simple_file=collect_photos.in
+load_employees_simple_file=collect_employees.in
+load_pronounce_simple_file=collect_pronounce.in
+dump_photos_directory=./dump_photos
+dump_photos_file=collect_photos.in
+dump_pronounce_directory=./dump_pronounce
+dump_pronounce_file=collect_pronounce.in
+delete_or_inactivate_employees_simple_file=delete_or_inactivate_employees.in
+sync_dns_simple_file=sync_dns.in
+
+ad_changelog_debug=false
+ad_changelog_ldap_url=ldap://localhost:389
+ad_changelog_ldap_user_login=
+ad_changelog_ldap_user_password=
+ad_changelog_ldap_search_base=
+ad_changelog_ldap_use_ssl=false
+ad_changelog_timeout=0
+ad_changelog_sleep_interval=300
+ad_changelog_use_notifications=false
+ad_changelog_ldap_page_size=0
+ad_changelog_start_at=EOD
+ad_changelog_logfile=logs/ProcessADChanges.log
+ad_changelog_ldap_required_dn_regex=
+
+# Legal values for fileencoding= are: UTF-8, UTF-16, UTF-32, or UNICODE
+fileencoding=UTF-8
+
+# sync_updates_size_model=[single|multi4|multi6|multi8]
+sync_updates_size_model=single
+sync_updates_use_ldap_timestamp=false
+sync_updates_timestamp_table=EMP_UPDATE_TIMESTAMP
+
+sync_updates_show_summary_only=false
+perform_deletion_or_inactivate_for_sync=true
+perform_creation_for_sync=true
+
+# set sync_updates_double_check= to true to enable use of the sync_check_if_remove= assemblyline
+sync_updates_double_check=false
+# sync_check_if_remove is the assemblyLine's name which deal with the delete checking logic.
+# the simple string value 'sync_all_dns_check_if_remove' indicates that the assemblyline is internal, i.e., located in the
+# config file - profiles_tdi.xml.
+# This AL returns the values 'remove'; 'updated'
+sync_check_if_remove=sync_all_dns_check_if_remove
+# if you write your own check if remove assemblyline and publish it as a package, use this format:
+#sync_check_if_remove={name-of-your-adapter.xml}:/AssemblyLines/{name-of-your-check_if_remove-al}
+
+
+#sync_delete_or_inactivate can only be two values:  delete or inactivate, and it's case sensitive.
+sync_delete_or_inactivate=inactivate
+sync_updates_working_directory=sync_updates
+sync_updates_hash_partitions=10
+sync_updates_hash_field=uid
+sync_updates_ldap_filter_fields=
+sync_updates_clean_temp_files=true
+log_check_if_remove_prevents_delete=true
+
+sync_store_source_url=true
+sync_source_url_enforce=false
+sync_source_url_override=false
+
+# These settings are used for the 'Source Repository Connector' feature.  This feature is used to
+#  substitute the default LDAP data source used for data population with your own assembly lines.
+#  Please refer to the infocenter for details.
+#source_repository_lookup_assemblyline={name-of-your-adapter.xml}:/AssemblyLines/{name-of-your-LOOKUP-al}
+#source_repository_iterator_assemblyline={name-of-your-adapter.xml}:/AssemblyLines/{name-of-your-ITERATOR-al}
+
+# Linux / AIX users: change this setting to 'true' if you receive XTerminal related display connection issues
+# while attempting to run the scripts.
+headless_tdi_scripts=false
+
+
+debug_managers=false
+debug_photos=false
+debug_pronounce=false
+debug_fill_codes=false
+debug_draft=false
+debug_update_profile=false
+debug_collect=false
+debug_special=false
+
+
+# off (or false), severe, error, warning, info, debug, fine, finer, all
+trace_profile_tdi_javascript=off
+
+# The new properties below (ending in _state) are to control various component state for
+# sync_all_dns, and allow import of the config file.  These were added as part of of fixing
+# defect 173355 [TDI 5.5 config file does not fully import]
+#
+# They are here solely due to a defect in TDI.  The TDI setTDIProperties is documented to create or
+# update properties in the specified repository (.properties file).  However, it only update works.
+#
+# The values below (always Enabled) are immaterial because each value is updated in the course
+# of running sync_all_dns by js code in the prolog.  The updated value (Enabled or Disabled in all cases)
+# is determined by a property value in profiles_tdi_partitions.properties file that are set by
+# the sync_all_dns.[sh | bat] script.  The property indicates the current stage - hash db & ldap, update,
+# delete, or add.  Js code then sets the properties below to effect the specified stage.  Once again,
+# these properties would not be here except for the TDI defect.
+
+hash_db_entries_state=Enabled
+hash_source_entries_state=Enabled
+sync_all_dns_main_state=Enabled
+sync_all_dns_process_delete_state=Enabled
+sync_all_dns_process_add_state=Enabled
+LookupMemTimestampDb_state=Enabled

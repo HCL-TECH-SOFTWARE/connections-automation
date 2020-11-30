@@ -1,0 +1,7 @@
+# Install and setup Helm
+---
+- name:                    Setup Helm
+  hosts:                   k8s_admin
+  become:                  true
+  roles:
+    - roles/third_party/helm-install

@@ -1,0 +1,109 @@
+# Install Docs 2.0.1
+---
+- name:                    Setup NFS
+  hosts:                   docs_servers, conversion_servers, viewer_servers
+  become:                  true
+  roles:
+    - roles/third_party/nfs-install
+
+- name:                    Setup environment
+  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, db2_servers, dmgr, ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/docs/setup-environment
+
+- name:                    Setup Docs database
+  hosts:                   db2_servers
+  become:                  true
+  roles:
+    - roles/third_party/ibm/db2-connections
+
+- name:                    Start IHS
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - roles/third_party/ibm/ihs/ibm-http-server-start
+
+- name:                   Start Dmgr
+  hosts:                  dmgr
+  become:                 true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start
+
+- name:                   Start CNX Nodes
+  hosts:                  cnx_was_servers
+  serial:                 1
+  become:                 true
+  roles:
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+- name:                   Start CNX Cluster
+  hosts:                  dmgr
+  become:                 true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                   Install WebSphere Application Server on Docs servers
+  hosts:                  docs_servers, conversion_servers, viewer_servers, proxy_servers
+  become:                 true
+  roles:
+    - roles/third_party/ibm/installation-manager-install
+    - roles/third_party/ibm/wasnd/was-nd-install
+    - roles/third_party/ibm/wasnd/was-nd-fix-install
+    - roles/third_party/ibm/wasnd/was-java-install
+
+- name:                    Setup WAS Nodes
+  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-profile-create
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+    - roles/third_party/ibm/db2-install
+
+- name:                    Create Docs Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/docs/create_docs_clusters
+
+- name:                    Create Job Target
+  hosts:                   dmgr, docs_servers, conversion_servers, ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/docs/create_job_targets
+
+- name:                    Setup Docs
+  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, dmgr, cnx_was_servers, ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/docs
+
+- name:                    Restart WAS Nodes
+  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-nodeagent-stop
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+- name:                    Restart CNX Cluster
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Restart Docs Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/docs/stop_docs_clusters
+    - roles/hcl/docs/start_docs_clusters
+
+- name:                    Wait for Connections is up
+  hosts:                   dmgr
+  tasks:
+    - include:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
+      vars:
+        __cnx_url:         "{{ cnx_application_ingress }}"

@@ -1,0 +1,15 @@
+- name:                 Install pre requisites 
+  yum:
+    name:               ['gcc', 'pcre-devel', 'openssl-devel']
+    state:              present
+  when:
+    - ansible_os_family == "RedHat"
+    - (ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Amazon")
+
+- name:                 Install Development Tools group
+  yum:
+    name:               "@Development tools"
+    state:              present
+#  when:
+#    - ansible_distribution == "CentOS"
+#    - ansible_distribution_version >= "8.0"

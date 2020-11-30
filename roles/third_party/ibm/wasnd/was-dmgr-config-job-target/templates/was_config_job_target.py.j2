@@ -1,0 +1,8 @@
+# Create Job Target
+AdminTask.registerHost('[-host {{ __job_hostname }} -hostProps [ [ osType linux ] [ username {{ __job_admin }} ] [ privateKeyFile {{ __user_key }} ] [ passphrase {{ __job_admin_pwd }} ] [ saveSecurity true ] ]]')
+
+# Save and Synchronise
+AdminConfig.save()
+AdminNodeManagement.syncActiveNodes()
+
+# End of File

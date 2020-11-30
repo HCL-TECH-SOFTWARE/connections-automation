@@ -1,0 +1,143 @@
+- name:                             Generate hashed password for docker registry auth
+  shell:                            htpasswd -Bbn {{ __registry_user }} {{ __registry_password }}  > /etc/docker/auth/htpasswd
+  when:                             inventory_hostname == groups['docker_registry'][0]
+
+- name:                             Generate certificates for distributed environment
+  command:                          openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN=*.{{ groups['k8s_masters'][0].split('.', 1)[1] }}"
+  when:             
+    - inventory_hostname == groups['docker_registry'][0]
+    - single_node_installation is not defined
+
+- name:                             Generate certificate for self contained environment
+  command:                          openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN={{ inventory_hostname }}"
+  when:             
+    - inventory_hostname == groups['docker_registry'][0]
+    - single_node_installation is defined
+
+- name:                             Cleanup temp certificate
+  file:
+    path:                           "{{ item }}"
+    state:                          absent
+  with_items:
+   - /tmp/cert.pem
+   - /tmp/certs/
+
+- name:                             Copy certificate
+  copy:
+    src:                            "{{ __certs_folder }}/cert.pem"
+    dest:                           "{{ __registry_cert }}/ca.crt"
+    remote_src:                     yes
+  when:                             inventory_hostname == groups['docker_registry'][0]
+
+- name:                             Copy certificate to controller
+  fetch:
+    src:                            "{{ __certs_folder }}/cert.pem"
+    dest:                           /tmp/certs/
+  delegate_to:                      "{{ groups['docker_registry'][0] }}"
+  when:                             inventory_hostname == groups['docker_registry'][0]
+  become:                           false
+
+- name:                             Copy certificate to all the nodes
+  copy: 
+    src:                            "/tmp/certs/{{ groups['docker_registry'][0] }}/{{ __certs_folder }}/cert.pem"
+    dest:                           /tmp
+  when:                             inventory_hostname != groups['docker_registry'][0]
+  become:                           false
+  
+- name:                             Cleanup stuff on controller
+  local_action:
+    module:                         file
+    state:                          absent
+    path:                           /tmp/certs
+  become:                           false
+  ignore_errors:                    yes
+
+- name:                             Copy certificates to the trusted store
+  copy:
+    src:                            /tmp/cert.pem
+    dest:                           /etc/pki/ca-trust/source/anchors/
+    remote_src:                     yes
+  when:                             inventory_hostname != groups['docker_registry'][0]
+
+- name:                             Restart CA Trust Store
+  command:                          update-ca-trust
+  when:                             inventory_hostname != groups['docker_registry'][0]
+
+- name:                             Restart Docker service
+  service:
+    name:                           docker
+    state:                          restarted
+    daemon_reload:                  yes
+
+- name:                             Create Docker Registry on RHEL
+  vars:
+    ansible_python_interpreter:     /usr/bin/python3
+  docker_container:
+    name:                           registry
+    image:                          registry:2
+    state:                          started
+    restart_policy:                 unless-stopped
+    recreate:                       yes
+    volumes:
+      - /etc/docker/certs:/certs
+      - /etc/docker/registry:/var/lib/registry
+      - /etc/docker/auth:/auth
+    published_ports:
+      - "{{ __registry_port }}:5000"
+    env:
+        REGISTRY_AUTH: "htpasswd"
+        REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
+        REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
+        REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/cert.pem"
+        REGISTRY_HTTP_TLS_KEY: "/certs/key.pem"
+  when:
+   - inventory_hostname == groups['docker_registry'][0]
+   - ansible_os_family == "RedHat"
+
+- name:                             Create Docker Registry on CentOS
+  docker_container:
+    name:                           registry
+    image:                          registry:2
+    state:                          started
+    restart_policy:                 unless-stopped
+    recreate:                       yes
+    volumes:
+      - /etc/docker/certs:/certs
+      - /etc/docker/registry:/var/lib/registry
+      - /etc/docker/auth:/auth
+    published_ports:
+      - "{{ __registry_port }}:5000"
+    env:
+        REGISTRY_AUTH: "htpasswd"
+        REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
+        REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
+        REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/cert.pem"
+        REGISTRY_HTTP_TLS_KEY: "/certs/key.pem"
+  when:
+   - inventory_hostname == groups['docker_registry'][0]
+   - ansible_os_family == "CentOS"
+
+- name:                             Wait a bit, container is just starting
+  pause:
+    seconds:                        30
+
+- name:                             Test Docker Registry Login on RHEL
+  vars:
+    ansible_python_interpreter:     /usr/bin/python3
+  docker_login:
+    registry:                       "{{ docker_registry_url }}"
+    username:                       "{{ __registry_user }}"
+    password:                       "{{ __registry_password }}"
+    reauthorize:                    yes
+  when:
+   - ansible_os_family == "RedHat"
+
+- name:                             Test Docker Registry Login on CentOS
+  docker_login:
+    registry:                       "{{ docker_registry_url }}"
+    username:                       "{{ __registry_user }}"
+    password:                       "{{ __registry_password }}"
+    reauthorize:                    yes
+  when:
+   - ansible_os_family == "CentOS"
+

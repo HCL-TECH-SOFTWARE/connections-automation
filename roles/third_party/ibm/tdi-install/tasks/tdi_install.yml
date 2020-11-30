@@ -1,0 +1,45 @@
+- name:                 "Verifiy if TDI is already installed"
+  stat:
+    path:                "{{ __tdi_installed_success_file }}"
+  register:              tdi_already_installed
+
+- name:                  Clean up installation folder(s)
+  file:
+    path:                "{{ __extraction_folder }}"
+    state:               absent
+  when:
+    - tdi_already_installed.stat.exists == false
+
+- name:                  Create installation folder
+  file:
+    path:                "{{ __extraction_folder }}"
+    state:               directory
+  when:
+    - tdi_already_installed.stat.exists == false
+
+- name:                  Download and unzip installation {{ __package_name }} to the {{ __extraction_folder }}
+  unarchive:
+    src:                 "http://{{ __download_location }}/{{ __package_name }}"
+    dest:                "{{ __extraction_folder }}"
+    remote_src:          yes
+  when:
+    - tdi_already_installed.stat.exists == false
+
+- name:                  "Render {{ __tdi_rsp_location }}"
+  template:
+    src:                 "{{ __tdi_rsp_template }}"
+    dest:                "{{ __tdi_rsp_location }}"
+  when:
+    - tdi_already_installed.stat.exists == false
+
+- name:                  "Install TDI"
+  shell:                 "{{ __tdi_install_bin }} -f {{ __tdi_rsp_location }} -i silent"
+  register:              tdi_install
+  failed_when:           ( tdi_install.rc not in [0, 1] )
+  when:
+    - tdi_already_installed.stat.exists == false
+
+- name:                  "Create {{ __tdi_installed_success_file }} file"
+  file:
+    path:                "{{ __tdi_installed_success_file }}"
+    state:               touch

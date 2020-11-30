@@ -1,0 +1,11 @@
+- name:                     "Render {{ __customizer_conf_location }}"
+  template:
+    src:                    "{{ __customizer_conf_template }}"
+    dest:                   "{{ __customizer_conf_location }}"
+    backup:                 yes
+
+- name:                     Restart nginx service
+  service:
+    name:                   nginx
+    state:                  restarted
+    daemon_reload:          yes

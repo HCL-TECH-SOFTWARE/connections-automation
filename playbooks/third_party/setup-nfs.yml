@@ -1,0 +1,7 @@
+# Setup NFS
+---
+- name:                    Setup NFS
+  hosts:                   nfs_servers
+  become:                  true
+  roles:
+    - roles/third_party/nfs-install

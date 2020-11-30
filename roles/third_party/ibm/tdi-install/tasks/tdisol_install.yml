@@ -1,0 +1,112 @@
+- name:                 "Verifiy if tdisol is already installed"
+  stat:
+    path:                "{{ __tdi_sol_success_file }}"
+  register:              tdisol_already_installed
+
+- name:                  Clean up installation folder(s)
+  file:
+    path:                "{{ __cnx_extraction_folder }}"
+    state:               absent
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  Create installation folder
+  file:
+    path:                "{{ __cnx_extraction_folder }}"
+    state:               directory
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
+  unarchive:
+    src:                 "http://{{ __cnx_download_location }}/{{ __cnx_package_name }}"
+    dest:                "{{ __cnx_extraction_folder }}"
+    remote_src:          yes
+  when:
+    - tdisol_already_installed.stat.exists == false
+  register: download_and_unpack_tdisol_cnx
+  until: download_and_unpack_tdisol_cnx is succeeded
+  retries: 3
+
+- name:                  "Create {{ __tdi_sol_dest }} folder"
+  file:
+    path:                "{{ __tdi_sol_dest }}"
+    state:               directory
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  Set up tdisol
+  unarchive:
+    src:                 "{{ __tdi_sol_location }}"
+    dest:                "{{ __tdi_sol_dest }}"
+    remote_src:          yes
+  when:
+    - tdisol_already_installed.stat.exists == false
+  register: download_and_unpack_tdisol
+  until: download_and_unpack_tdisol is succeeded
+  retries: 3
+
+- name:                  "Render {{ __tdienv_sh_dest }}"
+  template:
+    src:                 "{{ __tdienv_sh_template }}"
+    dest:                "{{ __tdienv_sh_dest }}"
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  "Render {{ __tdi_properties_dest }}"
+  template:
+    src:                 "{{ __tdi_properties_template }}"
+    dest:                "{{ __tdi_properties_dest }}"
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  "Render {{ __tdi_mdbrfs_destination }}"
+  template:
+    src:                 "{{ __tdi_mdbrfs_template }}"
+    dest:                "{{ __tdi_mdbrfs_destination }}"
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  Make files executable
+  file:
+    dest:                "{{ __tdi_sol_dest }}/TDI/{{ item }}"
+    mode:                a+x
+  with_items:
+   - "clearRC.sh"
+   - "collect_dns.sh"
+   - "derby.sh"
+   - "netstore"
+   - "tdienv.sh"
+   - "populate_from_dn_file.sh"
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  "Copy JDBC files"
+  copy:
+    src:                 "{{ __db2_jdbc_location }}/{{ item }}"
+    dest:                "{{ __db2_jdbc_destination }}"
+    remote_src:          yes
+  with_items:
+   - "db2jcc.jar"
+   - "db2jcc_license_cu.jar"
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  "Run collect_dns.sh"
+  command:               "sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh"
+  register:              collectdns
+  failed_when:           collectdns.rc != 0
+  when:
+    - tdisol_already_installed.stat.exists == false
+
+- name:                  "Run populate_from_dn_file.sh"
+  command:               "sh {{ __tdi_sol_dest }}/TDI/populate_from_dn_file.sh"
+  register:              populatefromdnfile
+  failed_when:           populatefromdnfile.rc != 0
+#  when:
+#    - tdisol_already_installed.stat.exists == false
+
+- name:                  "Create {{ __tdi_sol_success_file }} file"
+  file:
+    path:                "{{ __tdi_sol_success_file }}"
+    state:               touch

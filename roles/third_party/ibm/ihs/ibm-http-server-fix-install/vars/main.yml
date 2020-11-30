@@ -1,0 +1,36 @@
+---
+__repository_url:       "{{ ihs_fixes_repository_url }}"
+__tmp_dir:              "{{ tmp_dir | default('/opt/IBM/Binaries') }}/wassup_fixes"
+__logs_dir:             "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
+__iim_install_location: "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__ihs_install_location: "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+__plg_install_location: "{{ plg_install_location  | default('/opt/IBM/WebSphere/Plugins') }}"
+__wct_install_location: "{{ wct_install_location  | default('/opt/IBM/WebSphere/Toolbox') }}"
+__imshared_location:    "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__now:                  "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__rsp_file:             "{{ __logs_dir }}/ihs_plg_wct_fixes.rsp"
+__log_file:             "{{ __logs_dir }}/ihs_fixes_install.{{ __now }}.log"
+__tpl_file:             "ihs_plg_wct_fixes.rsp.j2"
+
+__ihs_fp_version_latest: "{{ ihs_fp_version_latest | default( __ihs_fp_version_fp18 ) }}"
+__ihs_fp_files_latest:  "{{ ihs_fp_files_latest | default( __ihs_fp_files_fp18 ) }}"
+
+__ihs_fp_version_fp18: "8.5.5018.20200910_1821"
+__ihs_fp_files_fp18:
+  - { file_name: 8.5.5-WS-WASSupplements-FP018-part1.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP018-part2.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP018-part3.zip }
+
+__ihs_fp_version_fp16: "8.5.5016.20190801_0951"
+__ihs_fp_files_fp16:
+  - { file_name: 8.5.5-WS-WASSupplements-FP016-part1.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP016-part2.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP016-part3.zip }
+
+__ihs_version:         "{{ ihs_version | default( __ihs_fp_version_latest ) }}"
+__ihs_fp_files:        "{{ ihs_fp_files | default( __ihs_fp_files_latest ) }}"
+__ihs_version_check:   "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
+__ihs_version_id:      "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
+
+__iim_product_id:       "\"id='com.ibm.cic.agent\""
+__ihs_product_id:       "\"id='com.ibm.websphere.IHS.v85'\""

@@ -1,0 +1,35 @@
+---
+__download_location:           "{{ db2_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/DB2') }}"
+__package_name:                "{{ db2_package_name | default('v11.1.4fp5_linuxx64_universal_fixpack.tar.gz') }}"
+__license_file:                "{{ db2_license_file | default('CNB23ML.zip') }}"
+
+__extraction_folder:           "/opt/IBM/InstallBinaries"
+__installation_folder:         "{{ __extraction_folder }}/universal"
+
+__license_location:            "{{ __extraction_folder }}/ese_u/db2/license/db2ese_u.lic"
+
+__db2_installation_folder:     "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+__jdbc_package_name:           "{{ db2_jdbc_package_name | default('db2jdbc.tar') }}"
+
+__db2_server_rsp_template:     "db2server.rsp.j2"
+__db2_server_rsp_location:     "{{ __installation_folder }}/db2server.rsp"
+
+__db2_users:
+- db2fenc1
+- db2inst1
+- lcuser
+- docsuser
+
+__db2_users_password:          "{{ db2_users_password | default('password') }}"
+
+__db2_codepage_success_file:   "/home/db2inst1/codepage.success"
+
+__param_nproc_hard:            "{{ db2_nproc_hard | default('16384') }}"
+__param_nproc_soft:            "{{ db2_nproc_soft | default('2047') }}"
+
+__param_nofile_hard:           "{{ db2_nofile_hard | default('65536') }}"
+__param_nofile_soft:           "{{ db2_nofile_soft | default('1024') }}"
+
+__param_stack_soft:            "{{ db2_stack_soft | default('10240') }}"
+
+__db2_tunings_applied:          "/home/db2inst1/tunings.success"

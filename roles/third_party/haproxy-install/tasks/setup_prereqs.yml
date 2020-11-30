@@ -1,0 +1,5 @@
+- name:                     Create user haproxy
+  user:
+    name:                   "{{ __haproxy_user }}"
+    comment:                Haproxy run user, created by Ansible
+    uid:                    3033

@@ -1,0 +1,132 @@
+
+- name:                    Reset Kubernetes
+  command:                 kubeadm reset -f
+  ignore_errors:           true
+  tags:                    k8s_cleanup
+  when:
+   - __force_destroy_kubernetes == true
+
+- name:                    Cleanup K8S
+  command:                 sudo yum remove kubeadm kubectl kubelet kubernetes-cni kube* -y
+  ignore_errors:           true
+  tags:                    k8s_cleanup
+  when:
+   - __force_destroy_kubernetes == true
+
+- name:                    Unmount /mnt/customizations
+  command:                 umount -f /mnt/customizations
+  tags:                    k8s_cleanup
+  when: 
+   - inventory_hostname == groups['k8s_masters'][0]
+   - __force_destroy_kubernetes == true
+  ignore_errors:           true
+
+- name:                    Cleanup folders
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags:                    k8s_cleanup
+  when:
+   - __force_destroy_kubernetes == true
+  with_items:
+   - /tmp/k8s_ansible
+   - /opt/helm
+   - /root/.kube
+   - /pv-connections
+   - /etc/docker/registry
+   - /etc/kubernetes
+   - /var/lib/etcd
+
+- name:                    Stop db2fmcd process
+  systemd:
+    name:                  db2fmcd
+    state:                 stopped
+  ignore_errors:           true
+  tags:                    db2_cleanup
+  when:
+   - __force_destroy_db2 == true
+
+- name:                    Kill all db2 processes
+  shell:                   ps -ef | grep db2 | awk {'print $2'} | xargs kill -9
+  ignore_errors:           true
+  tags:                    db2_cleanup
+  when:
+   - __force_destroy_db2 == true
+
+- name:                    Cleanup DB2 folders
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags:                    db2_cleanup
+  when:
+   - __force_destroy_db2 == true
+  with_items:
+   - /home/db2fenc1
+   - /home/db2inst1
+   - /opt/IBM/db2
+
+- name:                    Kill all IHSs processes
+  shell:                   ps -ef | grep http | awk {'print $2'} | xargs kill -9
+  ignore_errors:           true
+  tags:                    ihs_cleanup
+  when:
+   - __force_destroy_ihs == true
+
+- name:                    Cleanup IHSs folders
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags:                    ihs_cleanup
+  ignore_errors:           true
+  when:
+   - __force_destroy_ihs == true
+  with_items:
+   - /opt/IBM/HTTPServer
+   - /opt/IBM/InstallationManager
+   - /var/ibm
+
+- name:                    Unmount /opt/IBM/SharedArea
+  command:                 umount -f /opt/IBM/SharedArea
+  ignore_errors:           true
+  tags: was_cleanup
+  when:
+   - __force_destroy_websphere == true
+
+- name:                    Cleanup /opt/HCL/MessageStore
+  file:
+    path:                  /opt/HCL/MessageStore/
+    state:                 absent
+  ignore_errors:           true
+  tags: was_cleanup
+  when:
+   - __force_destroy_websphere == true
+
+- name:                    Unmount /opt/HCL/MessageStore
+  command:                 umount -f /opt/HCL/MessageStore
+  ignore_errors:           true
+  tags: was_cleanup
+  when:
+   - __force_destroy_websphere == true
+
+- name:                    Kill all WebSphere/Connections processes
+  shell:                   ps -ef | grep java | awk {'print $2'} | xargs kill -9
+  ignore_errors:           true
+  tags: was_cleanup
+  when:
+   - __force_destroy_websphere == true
+
+- name:                    Cleanup WebSphere/Connections folders
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags: was_cleanup
+  ignore_errors:           true
+  when:
+   - __force_destroy_websphere == true
+  with_items:
+   - /opt/IBM/InstallationManager/
+   - /opt/HCL
+   - /var/ibm
+   - /opt/IBM/WebSphere
+   - /opt/IBM/SharedArea
+   - /opt/IBM/IMShared

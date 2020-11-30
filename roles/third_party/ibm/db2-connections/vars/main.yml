@@ -1,0 +1,24 @@
+---
+__db_version:                   "{{ db_version | default('7.0') }}"
+__download_location:            "{{ db2_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections6.5') }}"
+__package_name:                 "{{ db2_wizards_package_name | default('HCL_Connections_7.0_wizards_lin_aix.tar') }}"
+__extraction_folder:            "/opt/HCL/DB2Wizards"
+__installation_folder:          "{{ __extraction_folder }}/Wizards"
+
+__docs_download_location:       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
+__docs_package_name:            "{{ cnx_docs_package_name | default('IBMConnectionsDocs_2.0.1.zip') }}"
+__docs_extraction_folder:       "/opt/HCL/InstallBinaries/Docs"
+__docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB/db2"
+
+__db2_user:                     "db2inst1"
+__db2_migration_cmd:            "/opt/IBM/db2/V11.1/bin/db2 -td@ -vf"
+__db2_icec_migration_cmd:       "/opt/IBM/db2/V11.1/bin/db2 -tvf"
+
+__cnx_force_repopulation:       "{{ cnx_force_repopulation | default(false) }}"
+__cnx_docs_force_repopulation:  "{{ cnx_docs_force_repopulation | default(false)|bool }}"
+
+__success_file:                 "/home/{{ __db2_user }}/migration.success"
+__docs_success_file:            "/home/{{ __db2_user }}/docs.migration.success"
+
+__setup_connections_wizards:    "{{ setup_connections_wizards | default(true) }}"
+__setup_connections_docs:       "{{ setup_connections_docs | default(false)|bool}}"

@@ -1,0 +1,5 @@
+- name:                    Enable and start kubelet
+  service:
+    name:                  kubelet
+    state:                 restarted
+    daemon_reload:         yes

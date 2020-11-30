@@ -1,0 +1,19 @@
+# Configure Single Sign-on
+security = AdminConfig.getid('/Security:/')
+isEnabled = AdminTask.isGlobalSecurityEnabled()
+
+# before the update
+AdminTask.getSingleSignon()
+if isEnabled:
+    cmd='-requiresSSL true'
+{% if sso_domainname is defined %}
+    cmd=cmd+' -domainName {{ sso_domainname }}'
+{% endif %}
+    AdminTask.configureSingleSignon([cmd])
+    AdminConfig.save()
+else:
+    print "Global Security is not Enabled!"
+# end of if
+
+# after the update
+AdminTask.getSingleSignon()

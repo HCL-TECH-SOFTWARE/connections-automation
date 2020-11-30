@@ -1,0 +1,14 @@
+- name:               Render {{ __rbac_dest_file }}
+  template:
+    src:              "{{ __rbac_source_file }}"
+    dest:             "{{ __rbac_dest_file }}"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - enable_pod_security is defined
+
+- name:               Enable PodSecurity Policy
+  command:            kubectl apply -f {{ __rbac_dest_file }}
+  become:             false
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - enable_pod_security is defined

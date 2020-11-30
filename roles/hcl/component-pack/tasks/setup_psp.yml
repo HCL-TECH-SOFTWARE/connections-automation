@@ -1,0 +1,18 @@
+- name:                    Find PSP file
+  find:
+    paths:                 "{{ __helmbuilds_folder }}"
+    patterns:              "k8s-psp*.tgz"
+    file_type:             file
+  register:                psp_tgz
+
+- name:                    Found PSP file
+  debug:
+    msg:                   "{{ psp_tgz.files[0].path }}"
+
+- name:                    Upgrade PSP
+  command:                 "helm upgrade k8s-psp {{ psp_tgz.files[0].path }} -i --recreate-pods"
+  become:                  false
+
+- name:                    Give k8s-psp the couple of seconds
+  pause:
+    seconds:               10

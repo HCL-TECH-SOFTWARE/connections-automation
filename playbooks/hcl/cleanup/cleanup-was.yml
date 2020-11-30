@@ -1,0 +1,7 @@
+# Cleanup
+---
+- name:                    Cleanup WebSphere and Connections
+  hosts:                   dmgr, was_servers
+  become:                  true
+  roles:
+    - roles/hcl/cleanup

@@ -1,0 +1,3 @@
+---
+- name:          Check if kubelet is installed and running...
+  include_tasks: check_kubelet.yml

@@ -1,0 +1,7 @@
+# Cleanup
+---
+- name:                    Cleanup DB2
+  hosts:                   db2_servers
+  become:                  true
+  roles:
+    - roles/hcl/cleanup

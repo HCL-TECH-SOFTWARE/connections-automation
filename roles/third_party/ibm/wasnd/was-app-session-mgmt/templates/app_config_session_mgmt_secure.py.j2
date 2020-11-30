@@ -1,0 +1,6 @@
+server = AdminConfig.getid("/Server:{{ __serverName }}" + "/")
+sessman = AdminConfig.list("SessionManager",server)
+cookies = AdminConfig.showAttribute(sessman,'defaultCookieSettings')
+AdminConfig.modify(cookies, '[[maximumAge "-1"] [name "JSESSIONID"] [useContextRootAsPath "false"] [domain ""] [path "/"] [secure "true"] [httpOnly "true"]]')
+AdminConfig.save()
+

@@ -1,0 +1,25 @@
+- name:                      Find connections-env helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "connections-env-*.tgz"
+    file_type:               file
+  register:                  connectionsenv_tgz
+
+- name:                      Found connections-env file
+  debug:
+    msg:                     "{{ connectionsenv_tgz.files[0].path }}"
+
+- name:                      "Render {{ __connections_env_install_env }}"
+  template:
+    src:                     "helmvars/connections-env.yml.j2"
+    dest:                    "{{ __connections_env_install_env }}"
+  become:                    false
+
+- name:                      Setup connections-env
+  command:                   "helm upgrade connections-env {{ connectionsenv_tgz.files[0].path }} -i -f {{ __connections_env_install_env }} --recreate-pods"
+  become:                    false
+
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 10

@@ -1,0 +1,14 @@
+---
+- name:                        Add wkhtmltopdf to ic360 WAS resource environment entry set
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-create-res-env-prop
+    apply:
+      delegate_to:             "{{ dmgr_hostname }}"
+      become:                  true
+  vars:
+    __cluster_name:            "{{ __ic360_app.cluster_name }}"
+    __resource_env_provider:   "ic360"
+    __resource_env_entry:      "ic360"
+    __env_entry_name:          "wkhtmltopdf.command.exec"
+    __env_entry_value:         "{{ __os_bin }}/wkhtmltopdf"
+  when:                        __ic360_app.cluster_name is defined

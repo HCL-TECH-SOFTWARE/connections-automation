@@ -1,0 +1,50 @@
+---
+- name:              Disable Solr indexing and queries
+  xml:
+    path:            "{{ __searchcfg_full_path }}"
+    namespaces:      "{{ __searchcfg_namespaces }}"
+    xpath:           "{{ item.xpath }}"
+    attribute:       "{{ item.attribute }}"
+    value:           "{{ item.value }}"
+  with_items:
+    - { xpath: "{{ __searchcfg_qr_solr_xpath }}", attribute: "value", value: "false" }
+    - { xpath: "{{ __searchcfg_queries_solr_xpath }}", attribute: "value", value: "false" }
+  when:
+    - __enable_es7_r_and_w == true
+    - __cnx_major_version == '7'
+
+- name:              Enable ElasticSearch Indexing, Read, Write
+  xml:
+    path:            "{{ __searchcfg_full_path }}"
+    namespaces:      "{{ __searchcfg_namespaces }}"
+    xpath:           "{{ item.xpath }}"
+    attribute:       "{{ item.attribute }}"
+    value:           "{{ item.value }}"
+    pretty_print:    yes
+  with_items:
+    - { xpath: "{{ __searchcfg_es_index_xpath }}", attribute: "value", value: "true" }
+    - { xpath: "{{ __searchcfg_es_write_xpath }}", attribute: "value", value: "true" }
+    - { xpath: "{{ __searchcfg_es_read_xpath }}", attribute: "value", value: "true" }
+  when:
+    - __enable_es7_r_and_w == true
+    - __cnx_major_version == '7'
+
+- name:              Switch ES5 to ES7
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_es_version_xpath }}"
+    value:           "{{ __lcc_es_version }}"
+  when:
+    - __enable_major_es7 == true
+    - __cnx_major_version == '7'
+
+- name:              Enable Quick Results
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_qr_xpath }}"
+    value:           "true"
+  when:
+    - __enable_qr == true
+    - __cnx_major_version == '7'

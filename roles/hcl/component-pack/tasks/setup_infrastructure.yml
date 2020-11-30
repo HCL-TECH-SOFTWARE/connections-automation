@@ -1,0 +1,60 @@
+- name:                      Find infrastructure helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "infrastructure*.tgz"
+    file_type:               file
+  register:                  infrastructure_tgz
+
+- name:                      Found infrastructure file
+  debug:
+    msg:                     "{{ infrastructure_tgz.files[0].path }}"
+
+- name:                      "Render {{ __infrastructure_env }}"
+  template:
+    src:                     "helmvars/infrastructure.yml.j2"
+    dest:                    "{{ __infrastructure_env }}"
+  become:                    false
+
+- name:                      Setup infrastructure
+  command:                   "helm upgrade infrastructure {{ infrastructure_tgz.files[0].path }} -i -f {{ __infrastructure_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Wait for infrastructure to come up
+  pause:
+    seconds:                 300
+
+- name:                      Check if appregistry-client is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep appregistry-client | grep Running
+  changed_when:              true
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if appregistry-service is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep appregistry-service | grep Running
+  changed_when:              true
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if haproxy is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep haproxy | grep Running
+  changed_when:              true
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if mongo is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep mongo | grep Running
+  changed_when:              true
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if redis-sentinel is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep redis-sentinel | grep Running
+  changed_when:              true
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if redis-server is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep redis-server | grep Running
+  changed_when:              true
+  when:                      __skip_pod_checks == false
+  become:                    false

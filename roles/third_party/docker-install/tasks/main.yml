@@ -1,0 +1,10 @@
+---
+- name:                       Prepare Docker Registry
+  include_tasks:              setup_os.yml
+
+- name:                       Install Docker
+  include_tasks:              install_docker.yml
+
+- name:                       Run Docker Registry
+  include_tasks:              setup_docker_registry.yml
+  when:                       setup_docker_registry is defined

@@ -1,0 +1,20 @@
+---
+__kubernetes_version:           "{{ kubernetes_version | default('1.18.10') }}"
+
+__ansible_cache:                "/tmp/k8s_ansible"
+
+__kubeadm_config_template:      "kubeadm.config.{{ __kubernetes_version }}.j2"
+__kubeadm_config_location:      "{{ __ansible_cache }}/kubeadm-config.yaml"
+
+__master_certkey_template:      "master.certificate.key.j2"
+__master_certkey_location:      "{{ __ansible_cache }}/.mastercertificatekey"
+
+__join_command_template:        "join.command.j2"
+__join_command_location:        "{{ __ansible_cache }}/.join-command"
+
+__load_balancer_dns:            "{{ load_balancer_dns | default('localhost') }}"
+
+__kubeadm_init_success_file:    "{{ __ansible_cache }}/kubeadm.init.success"
+
+__pod_subnet:                   "{{ pod_subnet | default('192.168.0.0/16') }}"
+

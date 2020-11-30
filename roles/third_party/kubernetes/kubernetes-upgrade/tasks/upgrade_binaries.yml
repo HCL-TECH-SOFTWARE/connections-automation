@@ -1,0 +1,17 @@
+- name:                    Install Kubernetes binaries - kubelet
+  yum:
+    name:                  kubelet-{{ __kubernetes_version }}
+    state:                 present
+    disable_excludes:      all
+
+- name:                    Install Kubernetes binaries - kubeadm
+  yum:
+    name:                  kubeadm-{{ __kubernetes_version }}
+    state:                 present
+    disable_excludes:      all
+
+- name:                    Install Kubernetes binaries - kubectl
+  yum:
+    name:                  kubectl-{{ __kubernetes_version }}
+    state:                 present
+    disable_excludes:      all

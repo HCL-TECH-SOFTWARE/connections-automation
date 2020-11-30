@@ -1,0 +1,28 @@
+- name:                     Install nginx
+  package:
+    name:                   nginx
+    state:                  present
+    allow_downgrade:        yes
+
+- name:                     Create Nginx folders
+  file:
+    path:                   "{{ item }}"
+    state:                  directory
+  with_items:
+   - "/etc/nginx/ssl"
+
+- name:                     Apply nginx.conf
+  template:
+    src:                    "{{ __nginx_conf_template }}"
+    dest:                   "{{ __nginx_conf_location }}"
+
+- name:                     Create SSL certificates
+  command:                  "openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout {{ __nginx_key_file }} -out {{ __nginx_crt_file }} -batch"
+
+- name:                     Start Nginx service
+  service:
+    name:                   nginx
+    state:                  started
+    enabled:                yes
+    daemon_reload:          yes
+

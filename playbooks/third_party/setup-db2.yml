@@ -1,0 +1,5 @@
+---
+- hosts:                    db2_servers, was_servers
+  become:                   true
+  roles:
+    - roles/third_party/ibm/db2-install

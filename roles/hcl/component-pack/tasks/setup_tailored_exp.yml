@@ -1,0 +1,25 @@
+- name:                      Find tailored_exp helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "tailored-exp-*.tgz"
+    file_type:               file
+  register:                  tailored_exp_tgz
+
+- name:                      Found tailored_exp file
+  debug:
+    msg:                     "{{ tailored_exp_tgz.files[0].path }}"
+
+- name:                      "Render {{ __tailored_exp_env }}"
+  template:
+    src:                     "helmvars/tailoredexperience.yml.j2"
+    dest:                    "{{ __tailored_exp_env }}"
+  become:                    false
+
+- name:                      Setup tailored_exp
+  command:                   "helm upgrade tailored-exp {{ tailored_exp_tgz.files[0].path }} -i -f {{ __tailored_exp_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 60
+

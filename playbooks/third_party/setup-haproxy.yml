@@ -1,0 +1,8 @@
+# Setup load balancer for Kubernetes
+---
+- name:                    Install Haproxy
+  hosts:                   k8s_load_balancers
+  #  serial:                  2
+  become:                  true
+  roles:
+    - roles/third_party/haproxy-install

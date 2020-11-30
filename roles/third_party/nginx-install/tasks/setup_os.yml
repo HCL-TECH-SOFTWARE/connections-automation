@@ -1,0 +1,41 @@
+- name:                     Install pre-requisites Yum for CentOS 7 - epel-release
+  yum:
+    name:                   ['epel-release']
+    enablerepo:             "extras"
+    state:                  present
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- name:                     Apply repository for RHEL 7
+  template:
+    src:                    "{{ __nginx_repo_template }}"
+    dest:                   "{{ __nginx_repo_location }}"
+  when:
+   - ansible_distribution == "RedHat"
+
+- name:                     Disable SELinux
+  selinux:
+    state:                  disabled
+  ignore_errors:            true
+
+- name:                     Set httpd_can_network_connect flag on and keep it persistent across reboots
+  seboolean:
+    name:                   httpd_can_network_connect
+    state:                  yes
+    persistent:             yes
+  ignore_errors:            true
+
+- name:                     "Configure nofile soft = {{ __param_nofile_soft }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             soft
+    limit_item:             nofile
+    value:                  "{{ __param_nofile_soft }}"
+
+- name:                     "Configure nofile hard = {{ __param_nofile_hard }}"
+  pam_limits:
+    domain:                 '*'
+    limit_type:             hard
+    limit_item:             nofile
+    value:                  "{{ __param_nofile_hard }}"

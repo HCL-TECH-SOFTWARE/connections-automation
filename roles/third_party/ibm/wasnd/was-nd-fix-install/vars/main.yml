@@ -1,0 +1,33 @@
+---
+__tmp_dir:              "{{ tmp_dir | default('/opt/IBM/Binaries') }}/was_fixes"
+__logs_dir:             "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
+__iim_install_location: "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__imshared_location:    "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__now:                  "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__rsp_file:             "{{ __logs_dir }}/was_nd_fixes.rsp"
+__log_file:             "{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log"
+__tpl_file:             "was_nd_fixes.rsp.j2"
+
+__was_fp_version_latest: "{{ was_fp_version_latest | default( __was_fp_version_fp18 ) }}" 
+__was_fp_files_latest:   "{{ was_fp_files_latest | default( __was_fp_files_fp18 ) }}"
+
+__was_fp_version_fp18:  "8.5.5018.20200910_1821"
+__was_fp_files_fp18:
+  - { file_name: 8.5.5-WS-WAS-FP018-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP018-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP018-part3.zip }
+
+__was_fp_version_fp16:  "8.5.5016.20190801_0951"
+__was_fp_files_fp16:
+  - { file_name: 8.5.5-WS-WAS-FP016-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP016-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP016-part3.zip }
+
+__was_fixes_version:    "{{ was_fp_version | default( __was_fp_version_latest ) }}"
+__was_fixes_files:      "{{ was_fp_files | default( __was_fp_files_latest ) }}"
+__was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
+__was_fp_id:            "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+
+__iim_product_id:       "\"id='com.ibm.cic.agent\""
+__was_product_id:       "\"id='com.ibm.websphere.ND.v85'\""

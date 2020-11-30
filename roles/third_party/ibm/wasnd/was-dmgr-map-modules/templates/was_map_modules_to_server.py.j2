@@ -1,0 +1,11 @@
+# Compile servers path
+serversToMap='{{ __servers }}+{% for node in ihs_hostname_list %}WebSphere:cell={{ __was_cellname }},node={{ node.split('.')[0] }}-node,server={{ node.split('.')[0] }}+{% if loop.last %}WebSphere:cell={{ __was_cellname }},node={{ node.split('.')[0] }}-node,server={{ node.split('.')[0] }}{% endif %}{% endfor %}'
+
+# Map modules to server
+AdminApp.edit('{{ __app_name }}', ['-MapModulesToServers',[['.*', '{{ __module }}', serversToMap]]])
+
+# Save and Synchronise
+AdminConfig.save()
+AdminNodeManagement.syncActiveNodes()
+
+# End of File

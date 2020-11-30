@@ -1,0 +1,5 @@
+- name:                     Uncordon done
+  command:                  "{{ item }}"
+  with_items:
+   - "kubectl uncordon {{ inventory_hostname }}"
+  become:                   false

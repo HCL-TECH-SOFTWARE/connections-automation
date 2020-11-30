@@ -1,0 +1,62 @@
+- name:                   Create temporary folder
+  file:
+    path:                 "{{ item }}"
+    state:                directory
+  with_items:
+   - "/tmp/k8s_master_files/"
+   - "/tmp/k8s_master_files/pki"
+   - "/tmp/k8s_master_files/pki/etcd"
+  when:                   inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
+
+- name:                   Copy admin.conf to the temporary folder part
+  command:                cp -r /etc/kubernetes/{{ item }} /tmp/k8s_master_files/
+  when:                   inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
+  with_items:
+   - "admin.conf"
+
+- name:                   Copy pki config files to the temporary folder part
+  command:                cp -r /etc/kubernetes/pki/{{ item }} /tmp/k8s_master_files/pki
+  when:                   inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
+  with_items:
+   - "ca.crt"
+   - "ca.key"
+   - "sa.key"
+   - "sa.pub"
+   - "front-proxy-ca.crt"
+   - "front-proxy-ca.key"
+
+- name:                   Copy pki/etcd config files to the temporary folder part
+  command:                cp -r /etc/kubernetes/pki/etcd/{{ item }} /tmp/k8s_master_files/pki/etcd
+  when:                   inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
+  with_items:
+   - "ca.crt"
+   - "ca.key"
+
+- name:                   Create the archive
+  archive:
+    path:                 /tmp/k8s_master_files
+    dest:                 /tmp/k8s_master_files.zip
+    format:               zip
+  when:                   inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
+
+- name:                   Synchronize /tmp/k8s_master_files.zip with other masters
+  synchronize:
+    src:                  /tmp/k8s_master_files.zip
+    dest:                 /tmp/
+  delegate_to:            "{{ groups['k8s_masters'][0] }}"
+  when:                   single_node_installation is not defined
+  become:                 false
+
+- name:                   Extract config files on the masters
+  unarchive:
+    src:                  /tmp/k8s_master_files.zip
+    dest:                 /tmp/
+    remote_src:           yes
+  when:                   inventory_hostname != groups['k8s_masters'][0] and single_node_installation is not defined
+
+- name:                   Copy config files to the expected location on masters
+  command:                cp -rf /tmp/k8s_master_files/{{ item }} /etc/kubernetes/
+  when:                   inventory_hostname != groups['k8s_masters'][0] and single_node_installation is not defined
+  with_items:
+   - "pki"
+   - "admin.conf"

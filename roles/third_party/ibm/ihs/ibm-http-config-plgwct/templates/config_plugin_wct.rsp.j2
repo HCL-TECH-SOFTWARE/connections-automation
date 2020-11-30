@@ -1,0 +1,17 @@
+configType=remote
+enableAdminServerSupport=true
+enableUserAndPass=true
+enableWinService=false
+ihsAdminCreateUserAndGroup=true
+ihsAdminPassword={{ ihs_password }}
+ihsAdminPort={{ __ihs_admin_port }}
+ihsAdminUnixUserGroup={{ __ihs_admins_group }}
+ihsAdminUnixUserID={{ __ihs_username }}
+mapWebServerToApplications=true
+wasMachineHostname={{ hostvars[groups['was_servers'][0]]['inventory_hostname'] }}
+webServerConfigFile1={{ __ihs_install_location }}/conf/httpd.conf
+webServerSelected=ihs
+webServerDefinition={{ __ihs_hostname }}
+webServerHostName={{ __ihs_hostname_fqdn }}
+webServerInstallArch=64
+webServerPortNumber=80

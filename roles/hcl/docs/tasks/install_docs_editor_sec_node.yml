@@ -1,0 +1,68 @@
+---
+- name:               Verify if Docs Editor is already installed on the first node
+  stat:
+    path:             "{{ __editor_install_success_file }}"
+  register:           editor_first_already_installed
+  delegate_to:        "{{ groups['docs_servers'][0] }}"
+
+- name:               Verify if Docs Editor is already installed on subsequent node
+  stat:
+    path:             "{{ __editor_install_success_file }}"
+  register:           editor_current_already_installed
+
+- debug:               var=editor_first_already_installed.stat.exists
+  run_once:            true
+
+- debug:               var=editor_current_already_installed.stat.exists
+  run_once:            true
+
+# orig cfg.node.properties is missing properties, also documentation says use node.properties from 1st node and rename to cfg.node.properties
+- name:               Copy cfg.properties to cfg.node.properties
+  copy:
+    src:              "{{ __editor_cfg_prop_location }}/cfg.properties"
+    dest:             "{{ __editor_cfg_prop_location }}/cfg.node.properties"
+    remote_src:       yes
+  when:               editor_current_already_installed.stat.exists == false
+
+- name:               Edit cfg.node.properties
+  lineinfile:
+    path:            "{{ __editor_cfg_prop_location }}/cfg.node.properties"
+    regex:           "{{ item.prop_name }}"
+    line:            "{{ item.prop_value }}"
+    state:           present
+  with_items:
+    - { prop_name: "{{ __editor_install_root }}", prop_value: "{{ __editor_install_root_r }}" }
+    - { prop_name: "{{ __shared_data_dir }}", prop_value: "{{ __shared_data_dir_r }}" }
+    - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
+    - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
+    - { prop_name: "{{ __scope_name }}", prop_value: "{{ __editor_scope_name_r  }}" }
+    - { prop_name: "{{ __db_hostname }}", prop_value: "{{ __db_hostname_r }}" }
+    - { prop_name: "{{ __db_jdbc_driver_path }}", prop_value: "{{ __db_jdbc_driver_path_r }}" }
+    - { prop_name: "{{ __integrate_with_lc }}", prop_value: "{{ __integrate_with_lc_r }}" }
+    - { prop_name: "{{ __lc_config_xml_path }}", prop_value: "{{ __lc_config_xml_path_r }}" }
+    - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
+    - { prop_name: "{{ __conversion_url }}", prop_value: "{{ __conversion_url_r }}" }
+    - { prop_name: "{{ __files_url }}", prop_value: "{{ __files_url_r }}" }
+  when:              editor_current_already_installed.stat.exists == false
+
+- name:              Run the Docs Editor installer for the second node
+  shell:
+    chdir:           "{{ __extraction_folder }}/DocsEditor/installer"
+    cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -dbadminID {{ __db_concord_username }} -dbadminPW {{ db_concord_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
+  become:            true
+  when:
+    - editor_current_already_installed.stat.exists == false and editor_first_already_installed.stat.exists == true
+  register:          sec_install_performed
+
+- name:              Search for success message in install log
+  become:            yes
+  shell:             "grep -i '{{ __install_success_message_node }}' {{ __docs_editor_install_location }}/logs/docs_install_node.log"
+  register:          editor_success_message_found
+  failed_when:       editor_success_message_found.stdout == ""
+  when:              sec_install_performed is not skipped
+
+- name:              "Create {{ __editor_install_success_file }} file"
+  file:
+    path:            "{{ __editor_install_success_file }}"
+    state:           touch
+  when:              sec_install_performed is not skipped and editor_success_message_found.stdout != ""

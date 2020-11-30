@@ -1,0 +1,15 @@
+- name:                   Setting up kubectl for the list of users
+  command: "{{ item }}"  
+  with_items:
+   - mkdir -p /home/{{ __kubectl_user }}/.kube
+   - cp -rf /etc/kubernetes/admin.conf /home/{{ __kubectl_user }}/.kube/config
+   - chown {{ __kubectl_user }} /home/{{ __kubectl_user }}/.kube/config
+  when:               inventory_hostname == groups['k8s_masters'][0]
+
+- name:               Copy .kube to all hosts
+  synchronize:
+    src:              /home/{{ __kubectl_user }}/.kube
+    dest:             /home/{{ __kubectl_user }}/
+  delegate_to:        "{{ groups['k8s_masters'][0] }}"
+  when:               inventory_hostname != groups['k8s_masters'][0]
+  become:             false

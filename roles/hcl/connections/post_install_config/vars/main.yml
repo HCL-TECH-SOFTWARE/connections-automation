@@ -1,0 +1,20 @@
+---
+__profile_name:              "{{ profile_name | default('Dmgr01') }}"
+__was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
+__app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
+__tmp_dir:                   "{{ tmp_dir | default('/opt/IBM/Binaries') }}"
+__logs_dir:                  "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
+__iim_install_location:      "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__was_install_location:      "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__imshared_location:         "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__now:                       "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__bin_dir:                  "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
+# CNX front door
+__cnx_application_ingress:   "{{ cnx_application_ingress }}"
+
+__widgets_config_file:       "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/widgets-config.xml"
+__cec_search_str:            "url=\"{webresourcesSvcRef}/../../xcc/templates/iWidgetXCCCommunityDefinition.xml\""
+__cec_replace_str:           "url=\"https://{{ __cnx_application_ingress }}/xcc/templates/iWidgetXCCCommunityDefinition.xml\""
+
+__sp_lib_search_str:         "url=\"{webresourcesSvcRef}/../../spo/SharepointWidget.xml\""
+__sp_lib_replace_str:        "url=\"https://{{ __cnx_application_ingress }}/spo/SharepointWidget.xml\""

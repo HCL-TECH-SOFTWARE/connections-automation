@@ -1,0 +1,242 @@
+global
+   maxconn 20000
+   log /dev/log local0
+   log /dev/log local1 notice
+   chroot /var/lib/haproxy
+   stats timeout 30s
+   user haproxy
+   group haproxy
+   daemon
+
+defaults
+    mode                    tcp
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option                  http-server-close
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 20000
+
+frontend http_stats
+   bind *:8080
+   mode http
+   stats uri /haproxy?stats
+
+frontend localhost
+    bind *:{{ __main_port }}
+    bind *:{{ __main_ssl_port }} ssl crt /etc/haproxy/ssl/haproxy.pem
+    mode http
+
+frontend haproxy_mwproxy
+    bind *:30301
+    mode tcp
+    option tcplog
+    maxconn 100000
+    timeout client  10800s
+    default_backend masters_mwproxy
+
+backend masters_mwproxy
+    mode http
+    balance roundrobin
+    option forwardfor
+    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:30301 check
+    {% endfor %}
+    http-request set-header X-Forwarded-Port %[dst_port]
+    http-request add-header X-Forwarded-Proto https if { ssl_fc }
+
+frontend haproxy_kube
+    bind *:6443
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters
+
+backend masters
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:6443 check
+    {% endfor %}
+
+frontend haproxy_redis
+    bind *:30379
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_redis
+
+backend masters_redis
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:30379 check
+    {% endfor %}
+
+frontend haproxy_kibana
+    bind *:32333
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_kibana
+
+backend masters_kibana
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:32333 check
+    {% endfor %}
+
+frontend haproxy_elasticsearch
+    bind *:30099
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_elasticsearch
+
+backend masters_elasticsearch
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:30099 check
+    {% endfor %}
+
+frontend haproxy_elasticsearch7
+    bind *:30098
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_elasticsearch7
+
+backend masters_elasticsearch7
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:30098 check
+    {% endfor %}
+
+frontend cnx_ingress_http
+    bind *:32080
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_cnx_ingress_http
+
+backend masters_cnx_ingress_http
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:32080 check
+    {% endfor %}
+
+frontend cnx_ingress_https
+    bind *:32443
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_cnx_ingress_https
+
+backend masters_cnx_ingress_https
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:32443 check
+    {% endfor %}
+
+frontend grafana
+    bind *:32345
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_grafana
+
+backend masters_grafana
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:32345 check
+    {% endfor %}
+
+frontend community_template_service_frontend
+    bind *:30794
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend community_template_service_masters
+
+backend community_template_service_masters
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:30794 check
+    {% endfor %}
+
+frontend te_creation_wizard_frontend
+    bind *:30751
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend te_creation_wizard_masters
+
+backend te_creation_wizard_masters
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:30751 check
+    {% endfor %}
+
+frontend outlook_addin_frontend
+    bind *:31810
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend outlook_addin_masters
+
+backend outlook_addin_masters
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_masters %}
+    server {{ server }} {{ server }}:31810 check
+    {% endfor %}

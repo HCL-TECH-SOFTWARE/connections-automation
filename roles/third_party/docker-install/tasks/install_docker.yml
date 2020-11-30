@@ -1,0 +1,125 @@
+---
+- name:                     Show me Linux distribution
+  debug:
+    msg:                    "{{ ansible_distribution }}"
+
+- name:                     Show me Linux distribution version
+  debug:
+    msg:                    "{{ ansible_distribution_version }}"
+
+- name:                     Add Docker repo
+  get_url:
+    url:                    https://download.docker.com/linux/centos/docker-ce.repo
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+
+- name:                     Replace baseurl on RedHat
+  replace:
+    path:                   /etc/yum.repos.d/docker-ce.repo
+    regexp:                 '^baseurl.*$'
+    replace:                'baseurl=https://download.docker.com/linux/centos/7/x86_64/stable'
+  when:
+    - ansible_distribution == "RedHat"
+
+- name:                     Enable Docker stable repo
+  ini_file:
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    section:                'docker-ce-stable'
+    option:                 enabled
+    value:                  1
+
+- name:                     Disable Docker Edge repo
+  ini_file:
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    section:                'docker-ce-edge'
+    option:                 enabled
+    value:                  0
+
+- name:                     Disable Docker Test repo
+  ini_file:
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    section:                'docker-ce-test'
+    option:                 enabled
+    value:                  0
+
+- name:                     Install containerd {{ __containerdio_version }} from RPM
+  package:
+    name:                   https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-{{ __containerdio_version }}.x86_64.rpm
+    state:                  present
+  when:
+    - ansible_os_family == "CentOS"
+
+- name:                     Install container-selinux from RPM
+  package:
+    name:                   http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.119.2-1.911c772.el7_8.noarch.rpm
+    state:                  present
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Install containerd.io
+  package:
+    name:                   containerd.io
+    state:                  present
+    allow_downgrade:        yes
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Install docker-ce {{ __docker_version }}
+  package:
+    name:                   docker-ce-{{ __docker_version }}
+    state:                  present
+    allow_downgrade:        yes
+
+- name:                     Install docker-ce-cli {{ __docker_version }}
+  package:
+    name:                   docker-ce-cli-{{ __docker_version }}
+    state:                  present
+    allow_downgrade:        yes
+  when:
+    - ansible_os_family == "CentOS"
+
+- name:                     Install pip and passlib modules for Docker
+  pip:
+    name:                   ['docker', 'passlib']
+  when:
+    - ansible_os_family == "CentOS"
+
+- name:                     Install pip and passlib modules for Docker
+  vars:
+    ansible_python_interpreter:     /usr/bin/python3
+  pip:
+    name:                   ['docker', 'passlib']
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Prepare Docker folders
+  file:
+    path:                   "{{ item }}"
+    state:                  directory
+  with_items:
+   - "/etc/docker"
+   - "/etc/docker/auth"
+   - "/etc/docker/certs"
+   - "/etc/docker/registry"
+   - "/etc/docker/certs.d"
+   - "/etc/docker/certs.d/{{ inventory_hostname }}:5000"
+   - "/etc/systemd/system/docker.service.d"
+
+- name:                     Setup Docker daemon
+  template:
+    src:                    "{{ __docker_daemon_json_template }}"
+    dest:                   "{{ __docker_daemon_json_location }}"
+  when: 
+   - __overlay2_enabled == true
+
+- name:                     Add {{ __kubectl_user }} to the group docker
+  user:
+    name:                   "{{ __kubectl_user }}"
+    groups:                 docker
+    append:                 yes
+
+- name:                     Start Docker service
+  service:
+    name:                   docker
+    state:                  started
+    enabled:                yes
+    daemon_reload:          yes

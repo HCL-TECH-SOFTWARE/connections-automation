@@ -1,0 +1,27 @@
+---
+- name:                 Backup httpd.conf
+  command:              cp {{ __ihs_install_location }}/conf/httpd.conf {{ __ihs_install_location }}/conf/httpd.conf_{{ __now }}
+
+- name:                 Clean up old certificates
+  command:              "rm -rf {{ item }}"
+  with_items:
+   - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.crl }}"
+   - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.rdb }}"
+   - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.sth }}"
+   - "{{ __ihs_kdb_filename }}"
+
+- name:                 Generate key DB
+  shell:                "{{ __ihs_install_location }}/bin/gskcapicmd -keydb -create -db {{__ihs_kdb_filename }} -type cms -pw {{ __ihs_kdb_password }} -stash"
+  args:
+    chdir:              "{{ __ihs_bin_directory }}"
+    creates:            "{{ __ihs_kdb_filename }}"
+
+- name:                 Generate self signed certificate
+  shell:                "{{ __ihs_gsk_api }} -cert -create -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -size 2048 -dn \"{{ __ihs_cert_dn }}\" -label {{ __ihs_hostname_fqdn }} -default_cert yes"
+  args:
+    chdir:              "{{ __ihs_bin_directory }}"
+
+- name:                 "Generate httpd.conf"
+  template:
+    src:                "httpd.conf.j2"
+    dest:               "{{ __ihs_install_location }}/conf/httpd.conf"

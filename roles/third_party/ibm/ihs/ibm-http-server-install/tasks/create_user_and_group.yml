@@ -1,0 +1,13 @@
+---
+- name: Add ihsadmins group
+  group:
+    name: ihsadmins
+    gid: 2020
+    state: present
+
+- name: Add "{{ __ihs_username }}" user
+  user: 
+    name: "{{ __ihs_username }}"
+    uid: 2021
+    group: ihsadmins
+    append: yes    

@@ -1,0 +1,5 @@
+---
+- hosts:                    ldap_servers
+  become:                   true
+  roles:
+    - roles/third_party/ldap-install

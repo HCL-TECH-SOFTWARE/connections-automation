@@ -1,0 +1,62 @@
+# Install and set up Kubernetes
+---
+- name:                    Install Docker and/or Docker Registry
+  hosts:                   k8s_masters, k8s_workers, docker_registry
+  become:                  true
+  roles:
+    - roles/third_party/docker-install
+
+- name:                    Install Kubernetes
+  hosts:                   k8s_masters
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/kubernetes-install
+
+- name:                    Setup and initialize Kubernetes master node
+  hosts:                   k8s_masters
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/setup-master-node
+
+- name:                    Setup kubectl on master nodes
+  hosts:                   k8s_masters
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/setup-kubectl
+
+- name:                    Enable PodSecurity Policy
+  hosts:                   k8s_masters
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/enable-pod-security-policy
+
+- name:                    Install Kubernetes addons...
+  hosts:                   k8s_masters
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/install-network-addons
+
+- name:                    Allow pods to run on master in case of single node installation
+  hosts:                   k8s_masters
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/taint-all-nodes
+
+- name:                    Setup Helm
+  hosts:                   k8s_masters
+  become:                  true
+  roles:
+    - roles/third_party/helm-install
+
+- name:                    Setup NFS
+  hosts:                   nfs_servers
+  become:                  true
+  roles:
+    - roles/third_party/nfs-install
+
+#- name:                    Setup Component Pack
+#  hosts:                   component_pack_master
+#  become:                  true
+#  roles:
+#    - roles/hcl/component-pack

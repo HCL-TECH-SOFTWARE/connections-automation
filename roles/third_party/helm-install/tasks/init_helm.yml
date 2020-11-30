@@ -1,0 +1,35 @@
+- name:              Check Helm Version
+  shell:             helm version -c|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
+  changed_when:      true
+  register:          helm_version
+  become:            false
+  ignore_errors:     true
+
+- debug: var=helm_version.stdout
+
+- name:              Check if tiller is already initialized
+  shell:             kubectl get pods -n kube-system | grep tiller
+  changed_when:      true
+  register:          helm_already_initialized
+  become:            false
+  ignore_errors:     true
+
+- name:              Init Helm and create tiller service account
+  command:           "helm init --service-account tiller" 
+  when:
+    - (helm_already_initialized.rc != 0) and (helm_version.stdout == "v2")
+  become:            false
+  ignore_errors:     true
+
+- name:              Create Tiller service account
+  command:           "kubectl -n kube-system create sa tiller"
+  when:
+    - (helm_already_initialized.rc != 0) and (helm_version.stdout == "v2")
+  become:            false
+
+- name:              Apply clusterrolebinding
+  command:           "kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller"
+  when:
+    - (helm_already_initialized.rc != 0) and (helm_version.stdout == "v2")
+  become:            false
+

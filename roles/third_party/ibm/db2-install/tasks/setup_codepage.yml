@@ -1,0 +1,28 @@
+- name:                  "Verify if codepage is already configured"
+  stat:
+    path:                "{{ __db2_codepage_success_file }}"
+  register:              db2_codepage_already_set
+
+- name:                  Setup codepage
+  shell:                 "{{ item }}"
+  become_user:           "db2inst1"
+  environment:
+    DB2INSTANCE:         "db2inst1"
+    IBM_DB_LIB:          "/home/db2inst1/sqllib/lib"
+    IBM_DB_DIR:          "/home/db2inst1/sqllib"
+    LD_LIBRARY_PATH:     "/home/db2inst1/sqllib/lib64:/home/db2inst1/sqllib/lib64/gskit:/home/db2inst1/sqllib/lib32"
+    IBM_DB_INCLUDE:      "/home/db2inst1/sqllib/include"
+    DB2LIB:              "/home/db2inst1/sqllib/lib"
+    DB2_HOME:            "/home/db2inst1/sqllib"
+    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/db2inst1/sqllib/bin:/home/db2inst1/sqllib/adm:/home/db2inst1/sqllib/misc:/home/db2inst1/sqllib/gskit/bin:/home/db2inst1/.local/bin:/home/db2inst1/bin"
+  with_items:
+   - "db2set DB2CODEPAGE=1208"
+   - "db2stop force"
+   - "db2start"
+  when:
+    - db2_codepage_already_set.stat.exists == false
+
+- name:                  "Create {{ __db2_codepage_success_file }} file"
+  file:
+    path:                "{{ __db2_codepage_success_file }}"
+    state:               touch

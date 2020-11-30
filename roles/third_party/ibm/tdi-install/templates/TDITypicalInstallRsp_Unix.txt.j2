@@ -1,0 +1,182 @@
+################################################################################
+#
+# IBM Tivoli Directory Integrator v7.2 Response File
+# This file contains values that were specified during a recent execution of
+# the WBE install. It can be used to configure the WBE install with the options
+# specified below when the wizard is run with the "-f" command line option.
+#
+# A common use of a response file is to run the wizard in silent mode. This lets
+# the response file author specify wizard settings without having to run the
+# wizard in graphical or console mode. To use this response file for silent mode
+# execution, use the following command line arguments when running the wizard:
+#
+# -f "/tmp/tdi_respfile72.txt" -i silent
+#
+################################################################################
+################################################################################
+# Upgrade previous installation
+#
+# To upgrade a previously installed version of TDI to v7.2, set the variable
+# TDI_UPGRADEPREV to true and then set TDI_SELECTEDPREV to the install location
+# of the previous installation.  If you are not upgrading a previous installation, set
+# TDI_NEWINSTALL to true.  Only one of TDI_NEWINSTALL and TDI_UPGRADEPREV may be true.
+#
+# Example:
+#    TDI_UPGRADEPREV=true
+#    TDI_SELECTEDPREV=/opt/IBM/V7.1.1
+#    TDI_NEWINSTALL=false
+
+TDI_UPGRADEPREV=false
+
+################################################################################
+# License Accepted Panel
+#
+# The license must be accepted before installation so this value must be true
+# for the install to be successful.
+#
+# Example:
+#    LICENSE_ACCEPTED=true
+
+LICENSE_ACCEPTED=true
+
+################################################################################
+# Install Location Panel
+#
+# The install location of the product. Specify a valid directory into which the
+# product IBM Tivoli Directory Integrator v7.2 should be installed.
+#
+# Example:
+#    USER_INSTALL_DIR=/opt/IBM/TDI/V7.2
+
+USER_INSTALL_DIR={{ __tdi_user_install_dir }}
+
+################################################################################
+# Install Set Selection Panel
+#
+# The Install Set determines what features are available to be installed.
+# For IBM Tivoli Directory Integrator v7.2 the choices are "Default" or "Custom"
+#
+# Example:
+#    CHOSEN_INSTALL_SET=Typical/Custom
+
+CHOSEN_INSTALL_SET=Typical
+
+################################################################################
+# Feature Selection Panel
+#
+# The Install Feature List determines what features have been selected to be installed
+# during a Custom install.  For IBM Tivoli Directory Integrator v7.2 the choices are:
+#
+# Example:
+#    CHOSEN_INSTALL_FEATURE_LIST=Server,CE,Examples,JavaDocs,IEHS,amc,lwi,plugins,ceupdate
+
+CHOSEN_INSTALL_FEATURE_LIST=Server,CE,Examples,JavaDocs,amc,lwi
+
+################################################################################
+# Solution Directory Selection Panel
+#
+# The solution dir location used by TDI Server
+# This selection causes the Solutions directory to be created under the users
+# home/installed/user selected or in current directory.  If the user selected
+# option is set, you must specifiy the location of the solutions directory.
+# Only one of TDI_SOLDIR_HOME, TDI_SOLDIR_INSTALL, TDI_SOLDIR_SELECT, and TDI_SOLDIR_CWD
+# should be set to 1; the rest should be set to 0
+# Example:
+# TDI_SOLDIR_HOME=0
+# TDI_SOLDIR_INSTALL=0
+# TDI_SOLDIR_SELECT=1
+# TDI_SELECTED_SOLDIR=User Selected Directory
+# TDI_SOLDIR_CWD=0
+
+TDI_SOLDIR_HOME=0
+
+TDI_SOLDIR_INSTALL=1
+
+TDI_SOLDIR_SELECT=0
+
+TDI_SELECTED_SOLDIR=C:\\
+
+TDI_SOLDIR_CWD=0
+
+################################################################################
+# TDI Server Port Panel
+#
+# The Server, System Store, REST API and MQe System Queue ports used by Server.
+# Example:
+#    TDI_SERVER_PORT=1099
+#    TDI_SYSTEM_STORE_PORT=1527
+#    TDI_REST_API_PORT=1098
+#    TDI_MQE_SYSTEMQ_PORT=41001
+
+TDI_SERVER_PORT=1099
+
+TDI_SYSTEM_STORE_PORT=1527
+
+TDI_REST_API_PORT=1098
+
+TDI_MQE_SYSTEMQ_PORT=41001
+
+################################################################################
+# Register Server as a System Service Panel
+#
+# This selection indicates whether the Server should be registered
+# as a service and if so specifies a unique service name.  A value of
+# 1 means to register Server as a service, 0 means to no register Server as a service.
+# # Example:
+#    TDI_REGISTER_SERVER=1
+#    TDI_SERVER_SERVICENAME=tdisrv
+
+TDI_REGISTER_SERVER=0
+
+TDI_SERVER_SERVICENAME=tdisrv
+
+
+################################################################################
+# TDI ISC Selection Panel
+#
+# Specify whether to deplay AMC to the bundled ISC, an existing ISC,
+# of not to deploy at install time.  Only one of TDI_BUNDLED_ISC_CHOSEN,
+# TDI_CUSTOM_ISC_CHOSEN, and TDI_NO_ISC_CHOSEN should be 1; the rest should be 0.
+# If TDI_CUSTOM_ISC_CHOSEN is chosen, TDI_SELECTED_ISC must be set as well.
+# Example:
+#    TDI_BUNDLED_ISC_CHOSEN=0
+#    TDI_CUSTOM_ISC_CHOSEN=1
+#    TDI_SELECTED_ISC=$USER_INSTALL_DIR$\lwi
+#    TDI_NO_ISC_CHOSEN=0
+
+TDI_BUNDLED_ISC_CHOSEN=1
+
+TDI_CUSTOM_ISC_CHOSEN=0
+
+TDI_SELECTED_ISC=C:\\
+
+TDI_NO_ISC_CHOSEN=0
+
+################################################################################
+# TDI ISC Port Panel
+#
+# The HTTP, HTTPS, and AM ports used by AMC.
+# Example:
+#    TDI_HTTP_PORT=13100
+#    TDI_HTTPS_PORT=13101
+#    TDI_AM_API_PORT=13104
+
+TDI_HTTP_PORT=13100
+
+TDI_HTTPS_PORT=13101
+
+TDI_AM_API_PORT=13104
+
+################################################################################
+# Register AMC as a System Service Panel
+#
+# This selection indicates whether the AMC should be registered
+# as a service and if so specifies a unique service name.  A value of
+# 1 means to register AMC as a service, 0 means to no register AMC as a service
+# Example:
+#    TDI_REGISTER_AMC=1
+#    TDI_AMC_SERVICENAME=tdiamc
+
+TDI_REGISTER_AMC=0
+
+TDI_AMC_SERVICENAME=tdiamc

@@ -1,0 +1,15 @@
+# Create Resource environment entries
+
+# Get id for resource environment entry to create new custom property
+reeid = AdminConfig.getid('/ServerCluster:{{ __cluster_name }}/ResourceEnvironmentProvider:{{ __resource_env_provider }}/ResourceEnvEntry:{{ __resource_env_entry }}')
+
+# Get the property set for this resource environment entry
+propset = AdminConfig.showAttribute(reeid, 'propertySet')
+
+# Create custom property
+AdminConfig.create('J2EEResourceProperty', propset, '[[name "{{ __env_entry_name }}"] [type "{{ __env_entry_type }}"] [value "{{ __env_entry_value }}"] [required "{{ __env_entry_required }}"]]')
+
+# Save and Synchronise
+AdminConfig.save()
+
+# End of File

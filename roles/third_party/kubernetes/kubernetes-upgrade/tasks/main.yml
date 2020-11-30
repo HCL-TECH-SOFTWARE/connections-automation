@@ -1,0 +1,26 @@
+---
+- name:          Drain master node
+  include_tasks: drain_node.yml
+  when:          single_node_installation is not defined
+
+- name:          Upgrade kubeadm, kubectl and kubelet
+  include_tasks: upgrade_binaries.yml
+
+- name:          Upgrade kubelet config
+  include_tasks: upgrade_kubelet_config.yml
+  when:          (__kubernetes_version is version('1.14.10', '=')) and (single_node_installation is not defined)
+
+- name:          Upgrade control plane
+  include_tasks: upgrade_cluster_legacy.yml
+  when:          __kubernetes_version is version('1.15.0', '<')
+
+- name:          Upgrade control plane and workers
+  include_tasks: upgrade_cluster.yml
+  when:          __kubernetes_version is version('1.15.0', '>=')
+
+- name:          Upgrade kubelet
+  include_tasks: upgrade_kubelet.yml
+
+- name:          Uncordon node
+  include_tasks: uncordon_node.yml 
+  when:          single_node_installation is not defined

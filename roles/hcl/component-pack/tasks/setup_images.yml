@@ -1,0 +1,34 @@
+- name:                             Show me Linux distribution
+  debug:
+    msg:                            "{{ ansible_distribution }}"
+
+- name:                             Show me Linux OS family
+  debug:
+    msg:                            "{{ ansible_os_family }}"
+
+- name:                             Show me Linux distribution version
+  debug:
+    msg:                            "{{ ansible_distribution_version }}"
+
+- name:                             Test Docker Registry Login RHEL
+  vars:
+    ansible_python_interpreter:     /usr/bin/python3
+  docker_login:
+    registry:                       "{{ __docker_registry_url }}"
+    username:                       "{{ __docker_registry_username }}"
+    password:                       "{{ __docker_registry_password }}"
+    reauthorize:                    yes
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                             Test Docker Registry Login CentOS
+  docker_login:
+    registry:                       "{{ __docker_registry_url }}"
+    username:                       "{{ __docker_registry_username }}"
+    password:                       "{{ __docker_registry_password }}"
+    reauthorize:                    yes
+  when:
+    - ansible_os_family == "CentOS"
+
+- name:                             Setup images
+  command:                          "{{ __setup_images_bin }} -dr {{ __docker_registry_url }} -u {{ __docker_registry_username }} -p {{ __docker_registry_password }}"

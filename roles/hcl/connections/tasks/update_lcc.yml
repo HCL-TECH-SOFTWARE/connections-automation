@@ -1,0 +1,19 @@
+- name:              Enable dynamicHosts
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ item.xpath }}"
+    attribute:       "{{ item.attribute }}"
+    value:           "{{ item.value }}"
+  with_items:
+    - { xpath: "{{ __lcc_dynamic_host_xpath }}", attribute: "enabled", value: "true" }
+    - { xpath: "{{ __lcc_dynamic_host_href_xpath }}", attribute: "href", value: "{{ __lcc_dynamic_host_href }}" }
+    - { xpath: "{{ __lcc_dynamic_host_href_xpath }}", attribute: "ssl_href", value: "{{ __lcc_dynamic_host_ssl_href }}" }
+
+- name:              Enable forceConfidentalCommunication
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_force_comm_xpath }}"
+    attribute:       "enabled"
+    value:           "true"

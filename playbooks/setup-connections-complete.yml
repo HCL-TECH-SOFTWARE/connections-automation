@@ -1,0 +1,14 @@
+- name:                  Setup DB2
+  import_playbook:       third_party/setup-db2.yml
+
+- name:                  Setup Connections Wizards
+  import_playbook:       hcl/setup-connections-wizards.yml
+
+- name:                  Setup LDAP
+  import_playbook:       third_party/setup-ldap.yml
+
+- name:                  Setup IBM SDI
+  import_playbook:       third_party/setup-tdi.yml
+
+- name:                  Setup Connections
+  import_playbook:       hcl/setup-connections.yml

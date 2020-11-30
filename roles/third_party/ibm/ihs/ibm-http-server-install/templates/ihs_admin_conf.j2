@@ -1,0 +1,153 @@
+###############################################################################
+#                                                                             #
+# IBM Administration Server Unix Configuration File                           #
+#                                                                             #
+###############################################################################
+# Port used to access the Administration Server
+Listen {{ __ihs_admin_port }}
+
+# Directory where the Administration Server binaries are installed
+ServerRoot "/opt/IBM/HTTPServer"
+
+# Name and location of the sockets file.
+# This file is used for communication between IHS Admin Child process
+# and parent process required for handling Start and Stop requests.
+AdminSocketFile logs/adminSocket
+
+# Name and location of the process ID file
+PidFile logs/admin.pid
+
+# Basic settings used by the Administration Server
+HostnameLookups off
+#UseCanonicalName on
+Timeout 300
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 5
+
+# Worker MPM
+ThreadLimit          5
+ServerLimit          4
+StartServers         1
+MaxClients          20
+MinSpareThreads      5
+MaxSpareThreads     10
+ThreadsPerChild      5
+MaxRequestsPerChild  0
+
+#
+# Dynamic Shared Object (DSO) Support
+#
+# To be able to use the functionality of a module which was built as a DSO you
+# have to place corresponding `LoadModule' lines at this location so the
+# directives contained in it are actually available _before_ they are used.
+# Statically compiled modules (those listed by `httpd -l') do not need
+# to be loaded here.
+#
+# Example:
+# LoadModule foo_module modules/mod_foo.so
+#
+# Load only modules needed by the Administration Server
+LoadModule alias_module         modules/mod_alias.so
+LoadModule mime_module          modules/mod_mime.so
+LoadModule authz_host_module    modules/mod_authz_host.so
+LoadModule auth_basic_module    modules/mod_auth_basic.so
+LoadModule authn_file_module    modules/mod_authn_file.so
+LoadModule authz_user_module    modules/mod_authz_user.so
+LoadModule dir_module           modules/mod_dir.so
+LoadModule setenvif_module      modules/mod_setenvif.so
+LoadModule log_config_module 	modules/mod_log_config.so
+
+# Load Administration Server module
+LoadModule ibm_admin_module 	modules/mod_ibm_admin.so
+
+# Uncomment the following line to load the IBM SSL module.
+#LoadModule ibm_ssl_module     modules/mod_ibm_ssl.so
+
+#
+# First, configure the "default" to be completely restricted.
+#
+<Directory />
+    AllowOverride None
+    Order deny,allow
+    Deny from all
+</Directory>
+
+#
+# Next, configure the admin server to handle /wasadmin.
+#
+<Location /wasadmin>
+   SetHandler admin-sail
+   AuthName "IBM Administration Server"
+   AuthType Basic
+   AuthBasicProvider file
+   AuthUserFile "/opt/IBM/HTTPServer/conf/admin.passwd"
+   require valid-user
+   Allow from all
+</Location>
+
+# Directory and name of log files
+#
+# LogLevel: Control the number of messages logged to the error.log.
+# Possible values include: debug, info, warn
+#
+LogLevel warn
+
+# ErrorLog: The location of the error log file.
+# If you do not specify an ErrorLog directive within a <VirtualHost>
+# container, error messages relating to that virtual host will be
+# logged here.  If you *do* define an error logfile for a <VirtualHost>
+# container, that host's errors will be logged there and not here.
+#
+ErrorLog logs/admin_error.log
+
+#
+# The following directives define some format nicknames for use with
+# a CustomLog directive (see below).
+#
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+
+#
+# The location and format of the access logfile (Common Logfile Format).
+# If you do not define any access logfiles within a <VirtualHost>
+# container, they will be logged here.  Contrariwise, if you *do*
+# define per-<VirtualHost> access logfiles, transactions will be
+# logged therein and *not* in this file.
+#
+CustomLog logs/admin_access_log common
+
+# DefaultType is the default MIME type the server will use for a document
+# if it cannot otherwise determine one, such as from filename extensions.
+# If your server contains mostly text or HTML documents, "text/plain" is
+# a good value.  If most of your content is binary, such as applications
+# or images, you may want to use "application/octet-stream" instead to
+# keep browsers from trying to display binary files as though they are
+# text.
+DefaultType text/plain
+
+# Uncomment the following 2 lines to enable SSL and define a keyfile
+# to use.  The Keyfile directive must match the name and location of
+# a valid key file which is installed on your system.
+# Note: You must have installed the IBM SSL support for this to work
+#SSLEnable
+#Keyfile "/opt/IBM/HTTPServer/keys/keyfile.kdb"
+
+# Default user and group settings for the server
+User {{ __ihs_username }}
+Group {{ __ihs_admins_group }}
+
+# ServerName gives the name and port that the server uses to identify itself.
+# This can often be determined automatically, but we recommend you specify
+# it explicitly to prevent problems during startup.
+#
+# If this is not set to valid DNS name for your host, server-generated
+# redirections will not work.  See also the UseCanonicalName directive.
+#
+# If your host doesn't have a registered DNS name, enter its IP address here.
+# You will have to access it by its address anyway, and this will make
+# redirections work in a sensible way.
+#
+ServerName localhost:{{ __ihs_admin_port }}

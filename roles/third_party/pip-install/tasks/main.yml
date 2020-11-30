@@ -1,0 +1,16 @@
+- name:                       Check if pip is already installed 
+  shell:                      /usr/local/bin/pip --version
+  changed_when:               true
+  register:                   pip_already_installed
+  ignore_errors:              true
+
+- name:                       Download pip installer
+  get_url:
+    url:                      https://bootstrap.pypa.io/get-pip.py
+    dest:                     /tmp/get-pip.py
+    mode:                     '0777'
+  when:                       pip_already_installed.rc != 0
+
+- name:                       Install pip
+  command:                    /bin/python3 /tmp/get-pip.py
+  when:                       pip_already_installed.rc != 0

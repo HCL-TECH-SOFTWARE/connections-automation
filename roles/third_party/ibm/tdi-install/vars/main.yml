@@ -1,0 +1,34 @@
+---
+__download_location:            "{{ tdi_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/TDI') }}"
+__package_name:                 "{{ tdi_package_name | default('SDI_7.2_XLIN86_64_ML.tar') }}"
+__extraction_folder:            "/opt/IBM/InstallBinaries/TDI"
+
+__tdi_user_install_dir:         "/opt/IBM/TDI/V7.20"
+
+__tdi_installed_success_file:   "{{ __tdi_user_install_dir }}/tdi.installed.success"
+
+__tdi_rsp_template:             "TDITypicalInstallRsp_Unix.txt.j2"
+__tdi_rsp_location:             "{{ __extraction_folder }}/TDITypicalInstallRsp_Unix.txt"
+
+__tdi_install_bin:              "{{ __extraction_folder }}/linux_x86_64/install_sdiv72_linux_x86_64.bin"
+
+__cnx_download_location:        "{{ cnx_repository_url | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
+__cnx_package_name:             "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
+__cnx_extraction_folder:        "/opt/IBM/InstallBinaries/CNX"
+
+__tdi_sol_location:             "{{ __cnx_extraction_folder }}/HCL_Connections_Install/tools/tdisol.tar"
+__tdi_sol_dest:                 "/opt/IBM/TDI/tdisol"
+
+__tdienv_sh_template:           "tdienv.sh.j2"
+__tdienv_sh_dest:               "{{ __tdi_sol_dest }}/TDI/tdienv.sh"
+
+__tdi_properties_template:      "profiles_tdi.properties.j2"
+__tdi_properties_dest:          "{{ __tdi_sol_dest }}/TDI/profiles_tdi.properties"
+
+__db2_jdbc_location:            "{{ db2_jdbc_location | default('/opt/IBM/db2/V11.1/java') }}"
+__db2_jdbc_destination:         "{{ __tdi_user_install_dir }}/jvm/jre/lib/ext"
+
+__tdi_mdbrfs_template:          "map_dbrepos_from_source.properties.j2"
+__tdi_mdbrfs_destination:       "{{ __tdi_sol_dest }}/TDI/map_dbrepos_from_source.properties"
+
+__tdi_sol_success_file:         "{{ __tdi_user_install_dir }}/tdi.sol.installed.success"

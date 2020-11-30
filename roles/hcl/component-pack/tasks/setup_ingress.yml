@@ -1,0 +1,61 @@
+- name:                      Find cnx-ingress helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "cnx-ingress-*.tgz"
+    file_type:               file
+  register:                  cnxingress_tgz
+
+- name:                      Check if community cnx-ingress is already deployed
+  shell:                     helm ls | grep ingress-nginx | grep DEPLOYED
+  changed_when:              true
+  register:                  community_ingress_already_provisioned
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check if cnx-ingress-rule is already deployed
+  shell:                     helm ls | grep cnx-ingress-rule | grep DEPLOYED
+  changed_when:              true
+  register:                  cnx_ingress_rule_already_provisioned
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Delete community cnx-ingress if already exists
+  shell:                     helm del --purge cnx-ingress
+  become:                    false
+  when:
+   - community_ingress_already_provisioned.rc == 0
+  ignore_errors:             true
+
+- name:                      Delete cnx-ingress-rule if already exists
+  shell:                     helm del --purge cnx-ingress-rule
+  become:                    false
+  when:
+   - cnx_ingress_rule_already_provisioned.rc == 0
+  ignore_errors:             true
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 5
+
+- name:                      "Render {{ __cnxingress_env }}"
+  template:
+    src:                     "helmvars/cnxingress.yml.j2"
+    dest:                    "{{ __cnxingress_env }}"
+  become:                    false
+
+- name:                      Found cnx-ingress file
+  debug:
+    msg:                     "{{ cnxingress_tgz.files[0].path }}"
+
+- name:                      Setup cnx-ingress
+  command:                   "helm upgrade cnx-ingress {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingress_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 60
+
+- name:                      Check if cnx-ingress is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep cnx-ingress-controller | grep Running
+  when:                      __skip_pod_checks == false
+  become:                    false

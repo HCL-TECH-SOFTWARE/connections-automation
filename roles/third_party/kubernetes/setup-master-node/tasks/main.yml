@@ -1,0 +1,16 @@
+---
+- name:          Render Config File
+  include_tasks: render_config_file.yml
+#  when:          __kubernetes_version is version('1.14.0', '<')
+
+- name:          Prepare control plane and join commands
+  include_tasks: init_master.yml
+  when:          __kubernetes_version is version('1.14.0', '>=')
+
+- name:          Init master and create join commands
+  include_tasks: init_master_legacy.yml
+  when:          __kubernetes_version is version('1.14.0', '<')
+
+- name:          Synchronize with other masters
+  include_tasks: sync_masters.yml
+  when:          __kubernetes_version is version('1.14.0', '<')

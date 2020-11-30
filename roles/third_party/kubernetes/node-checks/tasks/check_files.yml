@@ -1,0 +1,30 @@
+---
+- name:            Check if /etc/kubernetes/admin.conf exists
+  stat:
+    path:          /etc/kubernetes/admin.conf
+  register:        admin_conf_exists
+
+- name:            Check if /etc/kubernetes/kubelet.conf exists
+  stat:
+    path:          /etc/kubernetes/kubelet.conf
+  register:        kubelet_conf_exists
+
+- name:            Check if /etc/kubernetes/bootstrap-kubelet.conf exists
+  stat:
+    path:          /etc/kubernetes/bootstrap-kubelet.conf
+  register:        bootstrap_kubelet_exists
+
+- name:            Check if /etc/kubernetes/controller-manager.conf exists
+  stat:
+    path:          /etc/kubernetes/controller-manager.conf
+  register:        controller_manager_exists
+
+- name:            Check if /etc/kubernetes/scheduler.conf exists
+  stat:
+    path:          /etc/kubernetes/scheduler.conf
+  register:        scheduler_conf_exists
+
+- name:            Fail if cluster looks to be already initialized
+  fail:
+    msg:           "Looks like the cluster is already initialized"
+  when:            admin_conf_exists.stat.exists and kubelet_conf_exists.stat.exists and bootstrap_kubelet_exists.stat.exists and controller_manager_exists.stat.exists and scheduler_conf_exists.stat.exists

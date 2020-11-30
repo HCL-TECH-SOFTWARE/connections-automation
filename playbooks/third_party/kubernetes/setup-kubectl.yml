@@ -1,0 +1,7 @@
+# Setup kubectl
+---
+- name:                    Setup kubectl on masters and workers
+  hosts:                   k8s_masters, k8s_workers
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/setup-kubectl

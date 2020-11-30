@@ -1,0 +1,14 @@
+env:
+  set_ic_admin_user: {{ __ic_admin_username }}
+  set_ic_admin_password: {{ __ic_admin_password }}
+  set_ic_internal: {{ __ic_internal }}
+  set_master_ip: {{ __master_ip }}
+  set_elasticsearch_ca_password: {{ __es_ca_password }}
+  set_elasticsearch_key_password: {{ __es_key_password }}
+  set_redis_secret: {{ __redis_secret }}
+  set_search_secret: {{ __search_secret }}
+  set_solr_secret: {{ __solr_secret }}
+  skip_configure_redis: {{ __skip_configure_redis }}
+image:
+  repository: {{ __docker_registry_url }}/connections
+replicaCount: {{ __replica_count }}

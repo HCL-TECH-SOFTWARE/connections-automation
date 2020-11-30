@@ -1,0 +1,3 @@
+# not needed the relative url seems to be working
+#- name:                 "Update widget-config.xml"
+#  include_tasks:        update_widgets_config.yml

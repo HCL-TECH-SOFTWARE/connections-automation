@@ -1,0 +1,8 @@
+- name:                 Label worker nodes as infrastructure for HA
+  command:              "kubectl label nodes {{ item }} type=infrastructure --overwrite"
+  with_items:
+   - "{{ groups['k8s_workers'] }}"
+  when:
+    - single_node_installation is not defined
+    - inventory_hostname in groups['k8s_workers']
+  become:               false

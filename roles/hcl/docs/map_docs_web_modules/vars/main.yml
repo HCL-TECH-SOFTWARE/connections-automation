@@ -1,0 +1,5 @@
+---
+__conversion_cluster_name:                   "HCLConversionCluster"
+__editor_cluster_name:                       "HCLEditorCluster"
+__viewer_cluster_name:                       "HCLViewerCluster"
+__docs_proxy_cluster_name:                   "HCLDocsProxyCluster"

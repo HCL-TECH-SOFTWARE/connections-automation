@@ -1,0 +1,3 @@
+---
+- name:          Check if kubeadm init created files are there...
+  include_tasks: check_files.yml

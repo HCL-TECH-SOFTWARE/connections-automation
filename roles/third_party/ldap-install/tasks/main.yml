@@ -1,0 +1,9 @@
+---
+- name:                      Install OpenLDAP
+  include_tasks:             install_openldap.yml
+
+- name:                      Configure OpenLDAP
+  include_tasks:             configure_openldap.yml
+
+- name:                      Configure SSL
+  include_tasks:             configure_ssl.yml

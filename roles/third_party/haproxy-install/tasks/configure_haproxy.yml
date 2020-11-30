@@ -1,0 +1,57 @@
+- name:                      Touch stat file
+  file:
+    path:                    "{{ __haproxy_stats_file }}"
+    state:                   touch
+
+- name:                      Link installed binary to expected location
+  file:
+    src:                     "{{ __haproxy_exec_src }}"
+    dest:                    "{{ __haproxy_exec_dest }}"
+    owner:                   "{{ __haproxy_user }}"
+    state:                   link
+
+- name:                      Copy init file to /etc/init.d/
+  copy:
+    src:                     "{{ __haproxy_init_src }}"
+    dest:                    "{{ __haproxy_init_dest }}"
+    mode:                    '0755'
+    remote_src:              yes
+
+- name:                      Reload systemd
+  systemd: 
+    daemon-reload:           yes
+
+- name:                      Enable Haproxy
+  systemd:
+    name:                    haproxy
+    enabled:                 yes
+    masked:                  no
+
+- name:                      Apply haproxy.cfg
+  template:
+    src:                     "{{ __haproxy_config_template }}"
+    dest:                    "{{ __haproxy_config_file }}"
+    owner:                   "{{ __haproxy_user }}"
+
+- name:                      Generate self signed certificates
+  command:                   "{{ item }}"
+  with_items:
+   - "openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout /etc/haproxy/ssl/nginx-selfsigned.key -out /etc/haproxy/ssl/nginx-selfsigned.crt -batch"
+  become:                    true
+
+- name:                      Generate pem 1
+  shell:                     "{{ item }}"
+  with_items:
+   - "/bin/cat /etc/haproxy/ssl/nginx-selfsigned.crt > /etc/haproxy/ssl/haproxy.pem"
+  become:                    true
+
+- name:                      Generate pem 2
+  shell:                     "{{ item }}"
+  with_items:
+   - "/bin/cat /etc/haproxy/ssl/nginx-selfsigned.key >> /etc/haproxy/ssl/haproxy.pem"
+  become:                    true
+
+- name:                      Start Haproxy
+  systemd:
+    name:                    haproxy
+    state:                   restarted

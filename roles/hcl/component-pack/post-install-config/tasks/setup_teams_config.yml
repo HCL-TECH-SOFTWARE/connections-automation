@@ -1,0 +1,7 @@
+---
+- name:                    Add root signing certificate of the Microsoft Certificate endpoint to the Default Trust Store
+  include_role:
+    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+  vars:
+    __trust_cert_host:     "login.microsoftonline.com"
+    __trust_cert_alias:    "Azure"

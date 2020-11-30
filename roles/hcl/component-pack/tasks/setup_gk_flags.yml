@@ -1,0 +1,38 @@
+# Create an item via API
+---
+  - name: "Enable the Community GK flags for te-wizard, comm-templates, comm-highlist"
+    uri:
+      url: https://{{ __frontend_fqdn }}/connections/config/basic/rest/gatekeeper/
+      validate_certs: false
+      user: "{{ was_username }}"
+      password: "{{ was_password }}"
+      method: POST
+      return_content: yes
+      headers:
+        Content-Type: application/json
+      body: "{
+        \"organization\": \"00000000-0000-0000-0000-000000000000\",
+        \"role\": \"read only\",
+        \"settings\": [
+            {
+                \"name\": \"COMMUNITIES_TEMPLATE\",
+                \"value\": true
+            },
+            {
+                \"name\": \"COMMUNITIES_TE_CREATION_WIZARD\",
+                \"value\": true
+            },
+            {
+                \"name\": \"COMMUNITIES_HIGHLIGHTS_AS_OVERVIEW\",
+                \"value\": true
+            }
+        ],
+        \"source\": \"highway\"
+    }"
+      body_format: json
+      force_basic_auth: yes
+    register: request_status
+
+  - name:  print status
+    debug:
+      msg: "{{ request_status.status }}"

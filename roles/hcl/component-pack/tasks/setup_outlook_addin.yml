@@ -1,0 +1,42 @@
+- name:                     "Render {{ __outlook_reg_destination }}"
+  template:
+    src:                    "{{ __outlook_reg_template }}"
+    dest:                   "{{ __outlook_reg_destination }}"
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     "Register Connections Outlook Desktop Addin"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __outlook_reg_destination }}
+  register:                 outlook_addin
+  changed_when:             outlook_addin.rc == 0
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     "Show me the secret"
+  debug:
+    msg:                    "{{ outlook_addin.stdout_lines | last }}"
+
+- name:                      Find connections-outlook-desktop helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "connections-outlook-desktop-*.tgz"
+    file_type:               file
+  register:                  outlook_tgz
+
+- name:                      Found connections-outlook-desktop file
+  debug:
+    msg:                     "{{ outlook_tgz.files[0].path }}"
+
+- name:                      "Render {{ __outlook_addin_destination }}"
+  template:
+    src:                     "{{ __outlook_addin_template }}"
+    dest:                    "{{ __outlook_addin_destination }}"
+  become:                    false
+
+- name:                      Setup connections-outlook-desktop
+  command:                   "helm upgrade connections-outlook-desktop {{ outlook_tgz.files[0].path }} -i -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }} --recreate-pods"
+  become:                    false
+
+- name:                      Wait for connections-outlook-desktop to come up
+  pause:
+    seconds:                 30

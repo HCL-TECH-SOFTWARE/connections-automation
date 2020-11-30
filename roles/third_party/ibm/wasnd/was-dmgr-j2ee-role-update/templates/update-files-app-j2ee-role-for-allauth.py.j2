@@ -1,0 +1,17 @@
+# Map Special Subjects to j2ee roles
+app = "Files"
+appName = AdminConfig.getid("/Deployment:"+ app +"/")
+AdminApp.edit('Files', '[ -MapRolesToUsers [[ "filesync-user" no yes "" "" no "" "" ]]]')
+AdminConfig.save()
+
+################################################################
+# which translates the filesync-user role to:
+
+# Everyone = no
+# AllAuthenticated = yes
+# "" - empty mapped users
+# "" - empty mapped groups
+# AllAuthenticatedInTrustedRealms - no
+# "" - empty MappedUsersAccessIDs
+# "" - empty MappedGroupsAccessIDs
+################################################################

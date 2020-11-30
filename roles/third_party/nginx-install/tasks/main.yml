@@ -1,0 +1,14 @@
+---
+- name:                       Prepare OS for Nginx
+  include_tasks:              setup_os.yml
+
+- name:                       Install Nginx
+  include_tasks:              install_nginx.yml
+
+- name:                       Configure virtual host
+  include_tasks:              configure_virtual_host.yml
+  when:                       __setup_file_server == true
+
+- name:                       Configure customizer
+  include_tasks:              configure_customizer.yml
+  when:                       __setup_customizer == true

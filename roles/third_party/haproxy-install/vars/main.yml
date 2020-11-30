@@ -1,0 +1,31 @@
+---
+__haproxy_version:                       "{{ haproxy_version | default('1.8.3') }}"
+__haproxy_major_version:                 "{{ haproxy_major_version | default('1.8') }}"
+__haproxy_url:                           "http://www.haproxy.org/download/{{ __haproxy_major_version }}/src/haproxy-{{ __haproxy_version }}.tar.gz"
+__haproxy_download_dir:                  "/tmp/haproxy-{{ __haproxy_version }}"
+
+__main_port:                             "{{ main_port | default('80') }}"
+__main_ssl_port:                         "{{ main_ssl_port | default('443') }}"
+
+__haproxy_user:                          "{{ haproxy_user | default('haproxy') }}"
+__haproxy_group:                         "{{ haproxy_group | default('haproxy') }}"
+
+__haproxy_config_dir:                    "/etc/haproxy"
+
+__haproxy_config_file:                   "{{ __haproxy_config_dir }}/haproxy.cfg"
+__haproxy_config_template:               "haproxy.cfg.j2"
+
+__haproxy_bin_dir:                       "/var/lib/haproxy"
+__haproxy_stats_file:                    "{{ __haproxy_bin_dir }}/stats"
+__haproxy_exec_src:                      "/usr/local/sbin/haproxy"
+__haproxy_exec_dest:                     "/usr/sbin/haproxy"
+__haproxy_init_src:                      "{{ __haproxy_download_dir }}/examples/haproxy.init"
+__haproxy_init_dest:                     "/etc/init.d/haproxy"
+__haproxy_ssl_dir:                       "/etc/haproxy/ssl"
+
+__haproxy_cert_key:                      "/etc/haproxy/ssl/nginx-selfsigned.key"
+__haproxy_cert_crt:                      "/etc/haproxy/ssl/nginx-selfsigned.crt"
+
+__haproxy_cert_pem:                      "{{ __haproxy_ssl_dir }}/haproxy.pem"
+
+__haproxy_install_success:               "{{ __haproxy_config_dir }}/haproxy_successfully_installed"

@@ -1,0 +1,3 @@
+---
+- name:          Join Kubernetes cluster as a node
+  include_tasks: join_cluster.yml

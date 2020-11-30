@@ -1,0 +1,21 @@
+{% for server in groups['was_servers'] %}
+{% for app in connections_jmx_clusters %}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  annotations:
+     prometheus.io/scrape: "true"
+  namespace: monitoring
+  name: connections-jmx-{{ server.split(".")[0] }}-{{ app.name | lower }}
+  labels:
+    app: connections-jmx-{{ server.split(".")[0] }}-{{ app.name | lower }}
+subsets:
+- addresses:
+  - ip: {{ hostvars[server]['ansible_default_ipv4']['address'] }}
+  ports:
+  - name: metrics
+    port: {{ app.port }}
+    protocol: TCP
+{% endfor %}
+{% endfor %}

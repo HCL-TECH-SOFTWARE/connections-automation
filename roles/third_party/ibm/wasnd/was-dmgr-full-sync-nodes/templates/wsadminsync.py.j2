@@ -1,0 +1,223 @@
+import time
+
+def listNodes():
+    """Return list of node names, excluding the dmgr node.
+       Beware, this list will include any existing IHS nodes."""
+    m = "listNodes:"
+    node_ids = _splitlines(AdminConfig.list( 'Node' ))
+    result = []
+    for node_id in node_ids:
+        nodename = getNodeName(node_id)
+        if not nodeIsDmgr(nodename):
+            result.append(nodename)
+    if 0 == len(result):
+        sop(m,"Warning. No non-manager nodes are defined!!!")
+    return result
+#endDef
+
+def nodeIsDmgr( nodename ):
+    """Return true if the node is the deployment manager"""
+    return nodeHasServerOfType( nodename, 'DEPLOYMENT_MANAGER' )
+#endDef
+
+def nodeIsUnmanaged( nodename ):
+    """Return true if the node is an unmanaged node."""
+    return not nodeHasServerOfType( nodename, 'NODE_AGENT' ) 
+#endDef
+
+def getCellName():
+    """Return the name of the cell we're connected to"""
+    # AdminControl.getCell() is simpler, but only
+    # available if we're connected to a running server.
+    cellObjects = getObjectsOfType('Cell')  # should only be one
+    cellname = getObjectAttribute(cellObjects[0], 'name')
+    return cellname       
+#endDef
+
+def getNodeName(node_id):
+    """Get the name of the node with the given config object ID"""
+    return getObjectAttribute(node_id, 'name')
+#endDef
+
+def getNodeId( nodename ):
+    """Given a node name, get its config ID"""
+    return AdminConfig.getid( '/Cell:%s/Node:%s/' % ( getCellName(), nodename ) )    
+#endDef
+
+def nodeHasServerOfType( nodename, servertype ):
+    node_id = getNodeId(nodename)
+    serverEntries = _splitlines(AdminConfig.list( 'ServerEntry', node_id ))
+    for serverEntry in serverEntries:
+        sType = AdminConfig.showAttribute( serverEntry, "serverType" )
+        if sType == servertype:
+            return 1
+    return 0    
+#endDef
+
+############################################################
+# misc methods
+############################################################
+def getSopTimestamp():
+    """Returns the current system timestamp in a nice internationally-generic format."""
+    # Assemble the formatting string in pieces, so that some code libraries do not interpret
+    # the strings as special keywords and substitute them upon extraction.
+    formatting_string = "[" + "%" + "Y-" + "%" + "m" + "%" + "d-" + "%" + "H" + "%" + "M-" + "%" + "S00]"
+    return time.strftime(formatting_string)    
+#endDef
+
+def sop(methodname,message):
+    """Prints the specified method name and message with a nicely formatted timestamp.
+    (sop is an acronym for System.out.println() in java)"""
+    global DEBUG_SOP
+    if(DEBUG_SOP):
+        timestamp = getSopTimestamp()
+        print "%s %s %s" % (timestamp, methodname, message)
+#endDef
+
+#-------------------------------------------------------------------------------
+# Misc methods
+#-------------------------------------------------------------------------------
+
+def _splitlist(s):
+    """Given a string of the form [item item item], return a list of strings, one per item.
+    WARNING: does not yet work right when an item has spaces.  I believe in that case we'll be
+    given a string like '[item1 "item2 with spaces" item3]'.
+    """
+    if s[0] != '[' or s[-1] != ']':
+        raise "Invalid string: %s" % s
+    # Remove outer brackets and strip whitespace
+    itemstr = s[1:-1].strip()
+    if itemstr == '':
+        itemarray = []
+    else:
+        itemarray = itemstr.split(' ')
+    return itemarray
+#endDef
+
+def _splitlines(s):
+  rv = [s]
+  if '\r' in s:
+    rv = s.split('\r\n')
+  elif '\n' in s:
+    rv = s.split('\n')
+  if rv[-1] == '':
+    rv = rv[:-1]
+  return rv
+#endDef
+
+#-------------------------------------------------------------------------------
+# check if base or nd environment
+#-------------------------------------------------------------------------------
+
+def getObjectsOfType(typename, scope = None):
+    """Return a python list of objectids of all objects of the given type in the given scope
+    (another object ID, e.g. a node's object id to limit the response to objects in that node)
+    Leaving scope default to None gets everything in the Cell with that type.
+    ALWAYS RETURNS A LIST EVEN IF ONLY ONE OBJECT.
+    """
+    m = "getObjectsOfType:"
+    if scope:
+        #sop(m, "AdminConfig.list(%s, %s)" % ( repr(typename), repr(scope) ) )
+        return _splitlines(AdminConfig.list(typename, scope))
+    else:
+        #sop(m, "AdminConfig.list(%s)" % ( repr(typename) ) )
+        return _splitlines(AdminConfig.list(typename))
+#endDef
+
+def getObjectAttribute(objectid, attributename):
+    """Return the value of the named attribute of the config object with the given ID.
+    If there's no such attribute, returns None.
+    If the attribute value looks like a list, converts it to a real python list.
+    TODO: handle nested "lists"
+    """
+    #sop("getObjectAttribute:","AdminConfig.showAttribute(%s, %s)" % ( repr(objectid), repr(attributename) ))
+    result = AdminConfig.showAttribute(objectid, attributename)
+    if result != None and result.startswith("[") and result.endswith("]"):
+        # List looks like "[value1 value2 value3]"
+        result = _splitlist(result)
+    return result
+#endDef
+
+def whatEnv():
+    """Returns 'nd' if connected to a dmgr, 'base' if connected to
+    an unmanaged server, and 'other' if connected to something else
+    (which shouldn't happen but could)"""
+    m = "whatEnv:"
+
+    # Simpler version - should work whether connected or not
+    servers = getObjectsOfType('Server')
+    for server in servers:
+        servertype = getObjectAttribute(server, 'serverType')
+        if servertype == 'DEPLOYMENT_MANAGER':
+            return 'nd'  # we have a deployment manager
+    return 'base'  # no deployment manager, must be base
+#endDef
+
+def syncall():
+    """Sync config to all nodes - return 0 on success, non-zero on error"""
+    m = "wsadminsync.syncall"
+
+    if whatEnv() == 'base':
+        sop(m,"WebSphere Base, not syncing")
+        return 0
+
+    sop(m, "Start")
+
+    returncode = 0
+
+    nodenames = listNodes()
+    for nodename in nodenames:
+        # Note: listNodes() doesn't include the dmgr node - if it did, we'd
+        # have to skip it
+        # We do, however, have to skip unmanaged nodes.  These will show up
+        # when there is a web server defined on a remote machine.
+        if not nodeIsDmgr( nodename ) and not nodeIsUnmanaged( nodename ):
+            sop(m,"Sync config to node %s" % nodename)
+            Sync1 = AdminControl.completeObjectName( "type=cellSync,node=%s,*" % nodename )
+            if Sync1:
+                rc = AdminControl.invoke( Sync1, 'sync' )
+                if rc != 'true':  # failed
+                    sop(m,"Sync of node %s FAILED" % nodename)
+                    returncode = 1
+            else:
+                sop(m,"WARNING: was unable to get sync object for node %s - is node agent running?" % nodename)
+                returncode = 2
+    if returncode != 0:
+        sop(m,"Syncall FAILED")
+    sop(m,"Done")
+    return returncode
+
+def saveAndSync():
+    """Save config changes and sync them - return 0 on sync success, non-zero on failure"""
+    m = "save:"
+    sop(m, "AdminConfig.queryChanges()")
+    changes = _splitlines(AdminConfig.queryChanges())
+    for change in changes:
+        sop(m, "  "+change)
+    rc = 0
+    sop(m, "AdminConfig.getSaveMode()")
+    mode = AdminConfig.getSaveMode()
+    sop(m, "  "+mode)
+    sop(m, "AdminConfig.save()")
+    AdminConfig.save()
+    sop(m, "  Save complete!")
+    rc = syncall()
+    return rc
+#endDef
+
+def saveAndSyncAndPrintResult():
+    """Save config changes and sync them - prints save.result(0) on sync success, save.result(non-zero) on failure"""
+    rc = saveAndSync()
+    print "save.result(%s)" % (rc)        
+#endDef
+
+def main():
+    saveAndSyncAndPrintResult()
+#endDef  
+
+DEBUG_SOP=1
+# Allow this file to be used as a module
+if __name__ == "__main__":
+	# Call the main function
+	main()
+#endif "__main__"

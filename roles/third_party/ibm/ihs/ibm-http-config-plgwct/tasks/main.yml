@@ -1,0 +1,15 @@
+---
+- name:          Check Vars
+  include_tasks: check_vars.yml
+  when:
+   - inventory_hostname != dmgr_hostname
+
+- name:          Define Vars
+  include_tasks: define_vars.yml
+  when:
+   - inventory_hostname != dmgr_hostname
+
+- name:          Config Plugin WCT
+  include_tasks: config_plgwct.yml
+  when:
+   - inventory_hostname != dmgr_hostname

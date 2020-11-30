@@ -1,0 +1,33 @@
+---
+- name:                    Setup WAS Application Session Management
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-app-session-mgmt
+
+- name:                    Update WAS SSO in Global Security
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
+
+- name:                    Update WAS SSO in Global Security
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+
+- name:                    Restart WAS Nodes
+  hosts:                   was_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-nodeagent-stop
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+- name:                    Restart CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

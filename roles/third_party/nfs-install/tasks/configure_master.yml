@@ -1,0 +1,72 @@
+- name:                                             Setup PV folders
+  file:
+    path:                                           "{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_items:
+   - "/pv-connections"
+   - "/pv-connections/mongo-node-0/data/db"
+   - "/pv-connections/mongo-node-1/data/db"
+   - "/pv-connections/mongo-node-2/data/db"
+   - "/pv-connections/solr-data-solr-0"
+   - "/pv-connections/solr-data-solr-1"
+   - "/pv-connections/solr-data-solr-2"
+   - "/pv-connections/zookeeper-data-zookeeper-0"
+   - "/pv-connections/zookeeper-data-zookeeper-1"
+   - "/pv-connections/zookeeper-data-zookeeper-2"
+   - "/pv-connections/esbackup"
+   - "/pv-connections/esdata-0"
+   - "/pv-connections/esdata-1"
+   - "/pv-connections/esdata-2"
+   - "/pv-connections/esbackup-7"
+   - "/pv-connections/esdata-7-0"
+   - "/pv-connections/esdata-7-1"
+   - "/pv-connections/esdata-7-2"
+   - "/pv-connections/esmaster-7-0"
+   - "/pv-connections/esmaster-7-1"
+   - "/pv-connections/esmaster-7-2"
+   - "/pv-connections/kudos-boards-minio"
+
+- name:                                             Setup Connections & Docs folders
+  file:
+    path:                                           "{{ item }}"
+    mode:                                           '0775'
+    state:                                          directory
+  with_items:
+   - "/nfs/docs_data" 
+   - "/nfs/viewer_data" 
+   - "/nfs/data/shared"
+   - "/nfs/data/messageStores"
+
+- name:                                             Setup PV folders - customizations
+  file:
+    path:                                           "{{ item }}"
+    mode:                                           '0005'
+    state:                                          directory
+  with_items:
+   - "/pv-connections/customizations"
+
+
+- name:                                             Render /etc/exports
+  template:
+    src:                                            "{{ __nfs_exports_template }}" 
+    dest:                                           "{{ __nfs_exports_destination }}"
+
+- name:                                             Enable and start nfs-server
+  systemd:
+    name:                                           nfs-server
+    enabled:                                        yes
+    daemon_reload:                                  yes
+
+- name:                                             Export file systems
+  command:                                          exportfs -ra
+
+- name:                                             Fail if there is nothing exported
+  shell:                                            exportfs -v | grep pv-connections
+
+- name:                                             Enable and start nfs-server
+  systemd:
+    name:                                           nfs-server
+    enabled:                                        yes
+    state:                                          restarted
+    daemon_reload:                                  yes

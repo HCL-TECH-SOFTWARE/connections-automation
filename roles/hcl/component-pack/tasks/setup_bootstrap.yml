@@ -1,0 +1,73 @@
+- name:                      Check if bootstrap can be deleted after all
+  shell:                     helm ls | grep bootstrap | grep DEPLOYED
+  changed_when:              true
+  register:                  bootstrap_already_provisioned
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Delete bootstrap if already exists
+  command:                   helm del --purge bootstrap
+  when:
+    - bootstrap_already_provisioned.rc == 0
+  become:                    false
+
+- name:                      Give it some space after eventual cleanup
+  pause:
+    seconds:                 10
+  when:
+    - bootstrap_already_provisioned.rc == 0
+
+- name:                      Check if bootstrap is already provisioned
+  shell:                     helm ls | grep bootstrap | grep DEPLOYED
+  changed_when:              true
+  register:                  bootstrap_completed
+  become:                    false
+  ignore_errors:             true
+
+- name:                      "Render {{ __bootstrap_install_env }}"
+  template:
+    src:                     "helmvars/bootstrap.yml.j2"
+    dest:                    "{{ __bootstrap_install_env }}"
+  become:                    false
+
+- name:                      Find bootstrap helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "bootstrap*.tgz"
+    file_type:               file
+  register:                  bootstrap_tgz
+
+- name:                      Found bootstrap file
+  debug:
+    msg:                     "{{ bootstrap_tgz.files[0].path }}"
+
+- name:                      Setup bootstrap
+  command:                   "helm upgrade bootstrap {{ bootstrap_tgz.files[0].path }} -i -f {{ __bootstrap_install_env }}"
+  when:
+    - bootstrap_completed.rc != 0
+  become:                    false
+
+- name:                      Wait for bootstrap to come up
+  pause:
+    seconds:                 60
+
+- name:                      Get bootstrap POD name
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep bootstrap | grep Completed | awk {'print $1'}  
+  changed_when:              true
+  register:                  bootstrap_successful
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Bootstrap's pod name is
+  debug:
+    msg:                     "{{ bootstrap_successful.stdout }}"
+
+- name:                      Check if pod {{ bootstrap_successful.stdout }} completed successfully
+  shell:                     kubectl logs {{ bootstrap_successful.stdout }} -n {{ __default_namespace }} | grep "Environment setup successfully complete"
+  changed_when:              true
+  register:                  bootstrap_success_message
+  become:                    false
+
+- name:                      Bootstrap succeed
+  debug: 
+    msg:                     "{{ bootstrap_success_message.stdout }}"

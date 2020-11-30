@@ -1,0 +1,99 @@
+- name:                      Add Community Helm Repo 
+  shell:                     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check cluster flavor Vannila/EKS/Openshift
+  shell:                     kubectl cluster-info | head -1
+  register:                  cluster_flavor_check
+  # grep will exit with 1 when no results found.
+  # This causes the task not to halt play.
+  become:                    false
+
+- debug: var=cluster_flavor_check
+  run_once: true
+
+- name:                      Check if cnx-ingress is already deployed
+  shell:                     helm ls | grep cnx-ingress | grep DEPLOYED
+  changed_when:              true
+  register:                  cnx_ingress_already_provisioned
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Delete cnx-ingress if already exists
+  shell:                     helm del --purge cnx-ingress
+  become:                    false
+  when:
+   - cnx_ingress_already_provisioned.rc == 0
+  ignore_errors:             true
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 15
+
+- name:                      Check if prom-operator is already deployed
+  shell:                     helm ls | grep prom-operator | grep DEPLOYED
+  changed_when:              true
+  register:                  prom_operator_already_provisioned
+  become:                    false
+  ignore_errors:             true
+
+- name: copy cnx_ingress_values.yml from local host to remote host (relative path, ./files/)
+  copy:
+    src: cnx-ingress-values.yml
+    dest: $HOME/
+    mode:                    '0777'
+  become:                    false
+
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communityingress_env_vanilla }} -f cnx-ingress-values.yml
+  when:
+   - prom_operator_already_provisioned.rc == 0
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communitying_ind_env_vanilla }}
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
+   - prom_operator_already_provisioned.rc == 0
+  become:                    false
+
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communitying_ind_env_eks_os }}
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
+   - prom_operator_already_provisioned != 0
+  become:                    false
+
+- name:                      Find cnx-ingress helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "cnx-ingress-*.tgz"
+    file_type:               file
+  register:                  cnxingress_tgz
+
+- name:                      Found cnx-ingress file
+  debug:
+    msg:                     "{{ cnxingress_tgz.files[0].path }}"
+
+- name:                      "Render {{ __cnxingressonly_env }}"
+  template:
+    src:                     "helmvars/communityingress.yml.j2"
+    dest:                    "{{ __cnxingressonly_env }}"
+  become:                    false
+
+- name:                      Setup cnx-ingress Ingress Rule Only
+  command:                   "helm upgrade cnx-ingress-rule {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingressonly_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 5

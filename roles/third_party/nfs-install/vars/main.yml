@@ -1,0 +1,5 @@
+---
+__nfs_exports_template:              "nfs.exports.j2"
+__nfs_exports_destination:           "/etc/exports"
+
+__nfs_docs_setup:                    "{{ nfs_docs_setup | default(true) }}"

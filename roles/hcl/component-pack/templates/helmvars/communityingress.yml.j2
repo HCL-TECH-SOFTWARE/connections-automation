@@ -1,0 +1,18 @@
+global:
+  onPrem: true
+  image:
+    repository: {{ __docker_registry_url }}/connections
+
+multiDomainEnabled: {{ __ingress_multi_domain_enabled  }}
+ingress:
+  hosts:
+    domain: {{ hostvars[inventory_hostname]['ansible_domain'] }}
+    publicdomain: {{ frontend_domain }}
+
+controller:
+  service:
+    type: ClusterIP
+
+setIngressOnly: false
+
+replicaCount: {{ __replica_count }}

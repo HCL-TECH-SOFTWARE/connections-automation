@@ -1,0 +1,2 @@
+---
+__kubectl_allow_pods_on_master: "/tmp/kubectl.allow.pods.on.master.success"

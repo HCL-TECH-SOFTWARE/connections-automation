@@ -1,0 +1,4 @@
+# Map j2ee roles
+
+AdminApp.edit( '{{ __app }}', '[ -MapRolesToUsers [[ {{ __role }} {{ __everyone }} {{ __allauth }} "{{ __users }}" "{{ __groups }}" no "" "" ]]]' )
+AdminConfig.save()

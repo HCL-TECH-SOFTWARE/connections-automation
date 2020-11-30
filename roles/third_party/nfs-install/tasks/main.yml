@@ -1,0 +1,11 @@
+---
+- name:                      Install NFS
+  include_tasks:             install_nfs.yml
+
+- name:                      Configure NFS master server
+  include_tasks:             configure_master.yml
+  when:                      inventory_hostname == groups['nfs_servers'][0]
+
+- name:                      Configure NFS clients
+  include_tasks:             configure_clients.yml
+  when:                      inventory_hostname != groups['nfs_servers'][0]

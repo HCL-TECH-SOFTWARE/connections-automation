@@ -1,0 +1,103 @@
+- name:                  "Delete {{ __docs_success_file }} file"
+  file:
+    path:                "{{ __docs_success_file }}"
+    state:               absent
+  when:
+    - __cnx_docs_force_repopulation == true
+
+- name:                 "Verify if migrations are already done"
+  stat:
+    path:                "{{ __docs_success_file }}"
+  register:              docs_migrations_already_done
+
+- name:                  Clean up installation folder(s)
+  file:
+    path:                "{{ __docs_extraction_folder }}"
+    state:               absent
+  when:
+    - docs_migrations_already_done.stat.exists == false
+
+- name:                  Create installation folder
+  file:
+    path:                "{{ __docs_extraction_folder }}"
+    state:               directory
+  when:
+    - docs_migrations_already_done.stat.exists == false
+
+- name:                  Download and unzip installation {{ __docs_package_name }} to the {{ __docs_extraction_folder }}
+  unarchive:
+    src:                 "{{ __docs_download_location }}/{{ __docs_package_name }}"
+    dest:                "{{ __docs_extraction_folder }}"
+    remote_src:          yes
+  when:
+    - docs_migrations_already_done.stat.exists == false
+
+- name:                  Disable fingerprinting
+  command:               authconfig --disablefingerprint --update
+  when:
+    - docs_migrations_already_done.stat.exists == false
+
+- name:                  Cleanup Docs database
+  shell:                 "chdir={{ __docs_installation_folder }} sh {{ item }}"
+  become_user:           "{{ __db2_user }}"
+  environment:
+    DB2INSTANCE:         "{{ __db2_user }}"
+    IBM_DB_LIB:          "/home/db2inst1/sqllib/lib"
+    IBM_DB_DIR:          "/home/db2inst1/sqllib"
+    LD_LIBRARY_PATH:     "/home/db2inst1/sqllib/lib64:/home/db2inst1/sqllib/lib64/gskit:/home/db2inst1/sqllib/lib32"
+    IBM_DB_INCLUDE:      "/home/db2inst1/sqllib/include"
+    DB2LIB:              "/home/db2inst1/sqllib/lib"
+    DB2_HOME:            "/home/db2inst1/sqllib"
+    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/db2inst1/sqllib/bin:/home/db2inst1/sqllib/adm:/home/db2inst1/sqllib/misc:/home/db2inst1/sqllib/gskit/bin:/home/db2inst1/.local/bin:/home/db2inst1/bin"
+  with_items:
+   - "dropDb.sh"
+  when:
+    - __cnx_docs_force_repopulation == true
+  ignore_errors:         yes
+
+- name:                 "Verify if should proceed with migrations if cleanup was done"
+  stat:
+    path:                "{{ __docs_success_file }}"
+  register:              docs_migrations_already_done
+
+- name:                  Create Docs database and update schema
+  shell:                 "chdir={{ __docs_installation_folder }} sh {{ item }}"
+  become_user:           "{{ __db2_user }}"
+  environment:
+    DB2INSTANCE:         "{{ __db2_user }}"
+    IBM_DB_LIB:          "/home/db2inst1/sqllib/lib"
+    IBM_DB_DIR:          "/home/db2inst1/sqllib"
+    LD_LIBRARY_PATH:     "/home/db2inst1/sqllib/lib64:/home/db2inst1/sqllib/lib64/gskit:/home/db2inst1/sqllib/lib32"
+    IBM_DB_INCLUDE:      "/home/db2inst1/sqllib/include"
+    DB2LIB:              "/home/db2inst1/sqllib/lib"
+    DB2_HOME:            "/home/db2inst1/sqllib"
+    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/db2inst1/sqllib/bin:/home/db2inst1/sqllib/adm:/home/db2inst1/sqllib/misc:/home/db2inst1/sqllib/gskit/bin:/home/db2inst1/.local/bin:/home/db2inst1/bin"
+  with_items:
+   - "createDb.sh"
+   - "updateDBSchema.sh"
+  when:
+    - docs_migrations_already_done.stat.exists == false
+
+- name:                  Run appGrants.sql
+  shell:                 "{{ __db2_migration_cmd }} {{ __docs_installation_folder }}/{{ item }}"
+  register:              result
+  failed_when:           ( result.rc not in [0, 1, 2, 3] )
+  become_user:           "{{ __db2_user }}"
+  environment:
+    DB2INSTANCE:         "{{ __db2_user }}"
+    IBM_DB_LIB:          "/home/db2inst1/sqllib/lib"
+    IBM_DB_DIR:          "/home/db2inst1/sqllib"
+    LD_LIBRARY_PATH:     "/home/db2inst1/sqllib/lib64:/home/db2inst1/sqllib/lib64/gskit:/home/db2inst1/sqllib/lib32"
+    IBM_DB_INCLUDE:      "/home/db2inst1/sqllib/include"
+    DB2LIB:              "/home/db2inst1/sqllib/lib"
+    DB2_HOME:            "/home/db2inst1/sqllib"
+    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/db2inst1/sqllib/bin:/home/db2inst1/sqllib/adm:/home/db2inst1/sqllib/misc:/home/db2inst1/sqllib/gskit/bin:/home/db2inst1/.local/bin:/home/db2inst1/bin"
+  with_items:
+   - "appGrants.sql"
+  when:
+    - docs_migrations_already_done.stat.exists == false
+
+- name:                  "Create {{ __docs_success_file }} file"
+  file:
+    path:                "{{ __docs_success_file }}"
+    state:               touch

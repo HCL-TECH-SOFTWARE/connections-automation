@@ -1,0 +1,61 @@
+- name:                     Install OpenLDAP and dependencies on CentOS
+  yum:
+    name:                   ['openldap', 'compat-openldap', 'openldap-clients', 'openldap-servers', 'openldap-servers-sql', 'openldap-devel']
+    state:                   present
+  when:
+    - ansible_os_family == "CentOS"
+
+- name:                     Install OpenLDAP and dependencies on RHEL
+  yum:
+    name:                   ['openldap', 'openldap-clients', 'openldap-servers', 'openldap-devel']
+    state:                   present
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Start slapd service
+  service:
+    name:                   slapd
+    state:                  started
+    enabled:                yes
+    daemon_reload:          yes
+
+- name:                     "Verify if database is already created"
+  stat:
+    path:                   "{{ __db_ldif_success_file }}"
+  register:                 ldap_database_already_created
+
+- name:                     Get me the slappasswd
+  command:                  "/sbin/slappasswd -h {SSHA} -s {{ __ldap_slappasswd }}"
+  register:                 slappasswd_output
+  when:
+    - ldap_database_already_created.stat.exists == false
+
+- name:
+  debug:
+    msg:                    "{{ slappasswd_output['stdout'] }}"
+  when:
+    - ldap_database_already_created.stat.exists == false
+
+- name:                     "Render {{ __db_ldif_location }}"
+  template:
+    src:                    "{{ __db_ldif_template }}"
+    dest:                   "{{ __db_ldif_location }}"
+  when:
+    - ldap_database_already_created.stat.exists == false
+
+- name:                     Create LDAP database
+  command:                  "{{ __ldap_modify_cmd }} {{ __db_ldif_location }}"
+  register:                 cout
+  failed_when:              ( cout.rc not in [0] )
+  when:
+    - ldap_database_already_created.stat.exists == false
+
+- name:                     "Cleanup {{ __db_ldif_location }}"
+  file:
+    path:                   "{{ __db_ldif_location }}"
+    state:                  absent
+
+- name:                     "Create {{ __db_ldif_success_file }} file"
+  file:
+    path:                   "{{ __db_ldif_success_file }}"
+    state:                  touch

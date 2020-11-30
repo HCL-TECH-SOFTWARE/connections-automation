@@ -1,0 +1,42 @@
+# Post Install Conenctions Configure
+---
+  - name:                 Verifiy if Profile already exists!!!
+    stat:
+      path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}"
+    register:             profile_already_exists
+
+  - name:                 "Verify if Dmgr01 is running"
+    shell:                ps -p `cat "{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid"`
+    register:             dmgr_is_running
+    ignore_errors:        true
+
+  - name:                 "Update files-conifg.xml to enable fileSync"
+    include_tasks:        update_files_config.yml
+
+  - name:                 "Update mobile-config.xml to enable Push and MobileAdmin"
+    include_tasks:        update_mobile_conifg.yml
+
+  - name:                 Verifiy if filesync-user J2EE Role is set to All Autheticated
+    stat:
+      path:               "{{ __success_file }}"
+    register:             map_j2ee_filesync_user_role_all_autheticated
+    when:                 profile_already_exists.stat.exists == true
+
+  - name:                 "Set filesync-user J2EE Role to All Autheticated"
+    include_tasks:        update-files-app-j2ee-role-for-allauth.yml
+    when:                 map_j2ee_filesync_user_role_all_autheticated.stat.exists == false
+
+  - name:                 Update applications J2EE reader role to All Authenticated Users
+    include_tasks:        map_j2ee_role.yml
+    vars:
+      __app:              "{{ item }}"
+      __role:             "reader"
+      __everyone:         "no"
+      __allauth:          "yes"
+      __users:            ""
+      __groups:           ""
+    with_items:
+      - Communities
+      - Profiles
+    when:
+      restrict_reader_access is defined and restrict_reader_access|bool == true

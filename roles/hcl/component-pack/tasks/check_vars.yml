@@ -1,0 +1,90 @@
+---
+- name: component_pack_download_location should be defined
+  assert:
+    that:
+    - component_pack_download_location is defined and component_pack_download_location != ''
+    msg: "Set the value of 'component_pack_download_location' in the inventory file."
+
+- name: dmgr_hostname should be defined
+  assert:
+    that:
+    - dmgr_hostname is defined and dmgr_hostname != ''
+    msg: "Set the value of 'dmgr_hostname' in the inventory file."
+
+- name: was_username should be defined
+  assert:
+    that:
+    - was_username is defined and was_username != ''
+    msg: "Set the value of 'was_username' in the inventory file."
+
+- name: was_password should be defined
+  assert:
+    that:
+    - was_password is defined and was_password != ''
+    msg: "Set the value of 'was_password' in the inventory file."
+
+- name: frontend_fqdn should be defined
+  assert:
+    that:
+    - frontend_fqdn is defined and frontend_fqdn != ''
+    msg: "Set the value of 'frontend_fqdn' in the inventory file."
+
+- name: ic_internal should be defined
+  assert:
+    that:
+    - ic_internal is defined and ic_internal != ''
+    msg: "Set the value of 'ic_internal' in the inventory file."
+
+- name: frontend_domain should be defined
+  assert:
+    that:
+    - frontend_domain is defined and frontend_domain != ''
+    msg: "Set the value of 'frontend_domain' in the inventory file."
+
+- name: load_balancer_dns should be defined
+  assert:
+    that:
+    - load_balancer_dns is defined and load_balancer_dns != ''
+    msg: "Set the value of 'load_balancer_dns' in the inventory file."
+
+- name: docker_registry_url should be defined
+  assert:
+    that:
+    - docker_registry_url is defined and docker_registry_url != ''
+    msg: "Set the value of 'docker_registry_url' in the inventory file."
+
+- name: db_server should be defined
+  assert:
+    that:
+    - db_server is defined and db_server != ''
+    msg: "Set the value of 'db_server' in the inventory file."
+
+- name: db_server_user should be defined
+  assert:
+    that:
+    - db_server_user is defined and db_server_user != ''
+    msg: "Set the value of 'db_server_user' in the inventory file."
+
+- name: db_server_password should be defined
+  assert:
+    that:
+    - db_server_password is defined and db_server_password != ''
+    msg: "Set the value of 'db_server_password' in the inventory file."
+
+- name: connections_auto_start_clusters should be defined
+  assert:
+    that:
+    - connections_auto_start_clusters is defined and connections_auto_start_clusters != ''
+    msg: "Set the value of 'connections_auto_start_clusters' in the inventory file."
+
+- name: connections_jmx_clusters should be defined
+  assert:
+    that:
+    - connections_jmx_clusters is defined and connections_jmx_clusters != ''
+    msg: "Set the value of 'connections_jmx_clusters' in the inventory file."
+
+- name: component_pack_package_name should be defined
+  assert:
+    that:
+    - component_pack_package_name is defined and component_pack_package_name != ''
+    msg: "Set the value of 'component_pack_package_name' in the inventory file."

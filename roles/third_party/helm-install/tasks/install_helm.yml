@@ -1,0 +1,57 @@
+---
+- name:           Going to try to download helm from
+  debug:
+    msg:          "{{ __helm_url }}"
+
+- name:           Check if helm "{{ __helm_version }}" is already installed
+  shell:          helm version | grep "{{ __helm_version }}"
+  changed_when:   true
+  register:       helm_already_installed
+  become:         false
+  ignore_errors:  true
+
+- name:              
+  debug:
+    msg:          "Helm {{ __helm_version }} is already installed"
+  when:
+    - helm_already_installed.rc == 0
+
+- name:            Download Helm
+  unarchive:
+    src:           "{{ __helm_url }}"
+    dest:          /tmp
+    copy:          no
+  tags:            download
+  when: 
+    - helm_already_installed.rc != 0
+
+- name:            Create Helm directory
+  file:
+    path:          "{{ __helm_install_dir }}/{{ __helm_version }}"
+    state:         directory
+  when: 
+    - helm_already_installed.rc != 0
+
+- name:            Copy Helm binary
+  copy:
+    src:           /tmp/linux-amd64/helm
+    dest:          "{{ __helm_install_dir }}/{{ __helm_version }}"
+    mode:          0755
+    remote_src:    yes
+  when: 
+    - helm_already_installed.rc != 0
+
+- name:            Create Helm symlink
+  file:
+    src:           "{{ __helm_install_dir }}/{{ __helm_version }}/helm"
+    dest:          "/usr/bin/helm"
+    state:         link
+  when: 
+    - helm_already_installed.rc != 0
+
+- name:            Clean up temp
+  file:
+    path:          "/tmp/linux-amd64/"
+    state:         absent
+  when: 
+    - helm_already_installed.rc != 0

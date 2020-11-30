@@ -1,0 +1,7 @@
+- name:              Update files-config.xml to enable fileSync
+  xml:
+    path:            "{{ __filescfg_full_path }}"
+    namespaces:      "{{ __filescfg_namespaces }}"
+    xpath:           "{{ __filescfg_filesync_xpath }}"
+    attribute:       "enabled"
+    value:           "true"

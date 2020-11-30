@@ -1,0 +1,24 @@
+- name:                      Find connections-volumes helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "connections-persistent-storage-nfs-*.tgz"
+    file_type:               file
+  register:                  connections_volumes_tgz
+
+- name:                      Found connections-volumes file
+  debug:
+    msg:                     "{{ connections_volumes_tgz.files[0].path }}"
+
+- name:                      "Render {{ __connections_volumes }}"
+  template:
+    src:                     "helmvars/connections-volumes.yml.j2"
+    dest:                    "{{ __connections_volumes }}"
+  become:                    false
+
+- name:                      Setup connections-volumes
+  command:                   "helm upgrade connections-volumes {{ connections_volumes_tgz.files[0].path }} -i -f {{ __connections_volumes }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 10

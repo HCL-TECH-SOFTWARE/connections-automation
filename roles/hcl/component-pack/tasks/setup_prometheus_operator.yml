@@ -1,0 +1,222 @@
+- name:                      Create namespace {{ __monitoring_namespace }}
+  command:                   kubectl create namespace {{ __monitoring_namespace }}
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Add Community Helm Repo
+  shell: |
+                             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                             helm repo add stable https://charts.helm.sh/stable
+                             helm repo update
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check cluster flavor Vannila/EKS/Openshift
+  shell:                     kubectl cluster-info | head -1
+  register:                  cluster_flavor_check
+  # grep will exit with 1 when no results found.
+  # This causes the task not to halt play.
+  become:                    false
+  ignore_errors:             true
+
+- debug: var=cluster_flavor_check
+  run_once: true
+
+- name:                      Check if prom-operator is already deployed
+  shell:                     helm ls | grep prom-operator | grep DEPLOYED
+  when:
+   - ("api." not in cluster_flavor_check.stdout)
+  changed_when:              true
+  register:                  prom_operator_already_provisioned
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check Helm Verion
+  shell:                     helm version -s|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
+  when:
+   - ("api." not in cluster_flavor_check.stdout)
+  changed_when:              true
+  register:                  helm_version
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Delete CRD if required
+  shell: |
+                             kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
+                             kubectl delete crd alertmanagers.monitoring.coreos.com
+                             kubectl delete crd podmonitors.monitoring.coreos.com
+                             kubectl delete crd probes.monitoring.coreos.com
+                             kubectl delete crd prometheuses.monitoring.coreos.com
+                             kubectl delete crd prometheusrules.monitoring.coreos.com
+                             kubectl delete crd servicemonitors.monitoring.coreos.com
+                             kubectl delete crd thanosrulers.monitoring.coreos.com
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+  ignore_errors:             true
+
+- name: Copy CRD files
+  copy: src={{ item }} dest=/$HOME/crds/
+  with_items:
+   - monitoring.coreos.com_alertmanagerconfigs.yaml
+   - monitoring.coreos.com_alertmanagers.yaml
+   - monitoring.coreos.com_podmonitors.yaml
+   - monitoring.coreos.com_probes.yaml
+   - monitoring.coreos.com_prometheuses.yaml
+   - monitoring.coreos.com_prometheusrules.yaml
+   - monitoring.coreos.com_servicemonitors.yaml
+   - monitoring.coreos.com_thanosrulers.yaml
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - helm_version.stdout == "v2"
+   - ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Create CRD if using Helm2
+  shell: |
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_alertmanagerconfigs.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_alertmanagers.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_podmonitors.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_probes.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_prometheuses.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_prometheusrules.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_servicemonitors.yaml
+                             kubectl apply -f $HOME/crds/monitoring.coreos.com_thanosrulers.yaml
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - helm_version.stdout == "v2"
+   - ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+  ignore_errors:             true
+
+- name: copy grafana-nginx.yml from local host to remote host (relative path, ./files/)
+  copy:
+    src: grafana-nginx.yml
+    dest: $HOME/
+    mode:                    '0777'
+  become:                    false
+
+- name: Removing existing kube-prometheus file with same name
+  file: 
+    path:                    $HOME/{{ __helm2_prometheus_chart }}
+    state:                   absent
+  #delegate_to: remote_server   
+  become:                    false
+  ignore_errors:             true
+
+- name: Download kube-prometheus-stack-12.0.4 if using helm2
+  become:                    false
+  get_url:
+    url:                     http://{{ __helm2_prometheus_url }}
+    dest:                    $HOME/
+    mode:                    777
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - helm_version.stdout == "v2"
+   - ("api." not in cluster_flavor_check.stdout)
+
+- name:                      Install prometheus-operaotor  - if Vannila Kubernetes
+  shell:                     helm upgrade --namespace {{ __monitoring_namespace }} prom-operator --set prometheusOperator.service.type=NodePort --set grafana.service.type=NodePort --set prometheus.service.type=NodePort --set alertmanager.service.type=NodePort --set grafana.adminPassword={{ __grafana_password }}  --set grafana.service.nodePort={{ __grafana_node_port }} --set grafana."grafana\.ini".server.domain={{ frontend_domain }} --set grafana."grafana\.ini".server.root_url={{ __grafana_root_url }} --set grafana."grafana\.ini".server.serve_from_sub_path={{ __grafana_serv_from_subpath }} --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false -i {{ __helm2_prometheus_chart }} -f grafana-nginx.yml
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+
+- name:                      Get Grafana Service URL  - if Vannila Kubernetes
+  shell:                     echo "https://{{ load_balancer_dns }}/grafana/"
+  when:
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+  register:                  GRAFANA_CAN_BE_ACCESSED_ON
+  changed_when:              true
+  become:                    false
+
+- set_fact: 
+    GRAFANA_CAN_BE_ACCESSED_ON={{ GRAFANA_CAN_BE_ACCESSED_ON.stdout }}
+  when:
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+
+- debug: var=GRAFANA_CAN_BE_ACCESSED_ON
+  run_once: true
+  when:
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+
+- name:                      Get Grafana Credentials... - if Vannila Kubernetes
+  shell:                     kubectl get secret --namespace {{ __monitoring_namespace }} prom-operator-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  register:                  GRAFANA_USER_admin_PASSWORD
+  become:                    false
+  when:
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+
+- set_fact:
+    GRAFANA_USER_admin_PASSWORD={{ GRAFANA_USER_admin_PASSWORD.stdout }}
+  when:
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+
+- debug: var=GRAFANA_USER_admin_PASSWORD
+  run_once: true
+  when:
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+
+- name:                      Install prometheus-operaotor  - if EKS
+  command:                   helm upgrade --namespace {{ __monitoring_namespace }} prom-operator --set prometheusOperator.service.type=NodePort --set grafana.service.type=LoadBalancer --set prometheus.service.type=NodePort --set alertmanager.service.type=NodePort --set grafana.adminPassword={{ __grafana_password }} --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false -i {{ __helm2_prometheus_chart }} -f grafana-nginx.yml
+  when:
+   - prom_operator_already_provisioned.rc != 0
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+  become:                    false
+
+- name:                      Get Grafana Service URL  - if EKS
+  shell:                     echo "http://"$(kubectl get svc -n {{ __monitoring_namespace }} prom-operator-grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+  register:                  GRAFANA_CAN_BE_ACCESSED_ON
+  changed_when:              true
+  become:                    false
+
+- set_fact:
+    GRAFANA_CAN_BE_ACCESSED_ON={{ GRAFANA_CAN_BE_ACCESSED_ON.stdout }}
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+
+- debug: var=GRAFANA_CAN_BE_ACCESSED_ON
+  run_once: true
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+
+- name:                      Grafana Credentials... - if EKS
+  shell:                     kubectl get secret --namespace {{ __monitoring_namespace }} prom-operator-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  register:                  GRAFANA_USER_admin_PASSWORD
+  become:                    false
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+
+- set_fact:
+    GRAFANA_USER_admin_PASSWORD={{ GRAFANA_USER_admin_PASSWORD.stdout }}
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+
+- debug: var=GRAFANA_USER_admin_PASSWORD
+  run_once: true
+  when:
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
+
+- name:                      "Render {{ __jmx_prometheus_service_destination }}"
+  template:
+    src:                     "{{ __jmx_prometheus_service_template }}"
+    dest:                    "{{ __jmx_prometheus_service_destination }}"
+
+- name:                      "Render {{ __jmx_prometheus_service_destination }}"
+  template:
+    src:                     "{{ __jmx_prometheus_sermonitor_template }}"
+    dest:                    "{{ __jmx_prometheus_sermonitor_destination }}"
+
+- name:                      "Render {{ __jmx_prometheus_endpoint_destination }}"
+  template:
+    src:                     "{{ __jmx_prometheus_endpoint_template }}"
+    dest:                    "{{ __jmx_prometheus_endpoint_destination }}"
+
+- name:                      Setup jmx service, SMonitor and EP
+  shell:                     "kubectl apply -f {{ __jmx_prometheus_service_destination }} -f {{ __jmx_prometheus_sermonitor_destination }} -f {{ __jmx_prometheus_endpoint_destination }}"
+  become:                    false
+  ignore_errors:             true

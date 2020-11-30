@@ -1,0 +1,12 @@
+---
+- include_tasks: check_vars.yml
+
+- name:          Setup Operating System
+  include_tasks: setup_os.yml
+
+- name:          Define Vars
+  include_tasks: define_vars.yml
+
+- name:          Install IBM Installation Manager
+  include_tasks: install_iim.yml
+  when:          version_already_installed.rc != 0

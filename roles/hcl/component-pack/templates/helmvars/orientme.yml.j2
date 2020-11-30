@@ -1,0 +1,16 @@
+global:
+  onPrem: true
+  image: 
+    repository: {{ __docker_registry_url }}/connections
+orient-web-client:
+  service:
+    nodePort: 32200
+orient-indexing-service:
+  indexing:
+    solr: false
+    elasticsearch: true
+orient-retrieval-service:
+  retrieval:
+    elasticsearch: true
+deploymentType: hybrid_cloud
+replicaCount: {{ __replica_count }}

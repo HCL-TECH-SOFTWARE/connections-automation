@@ -1,0 +1,5 @@
+---
+- name:          Enable PodSecurity Policy
+  include_tasks: enable_podsecurity_policy.yml
+  when:
+    - single_node_installation is not defined

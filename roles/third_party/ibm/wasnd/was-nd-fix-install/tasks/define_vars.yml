@@ -1,0 +1,27 @@
+---
+- name:              Use Fix Pack 8.5.5.18?
+  set_fact:
+    __was_fixes_files:    "{{ __was_fp_files_fp18 }}"
+    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
+    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when:              ( __was_fixes_version == __was_fp_version_fp18 )
+
+- name:              Use Fix Pack 8.5.5.16?
+  set_fact:
+    __was_fixes_files:    "{{ __was_fp_files_fp16 }}"
+    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
+    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when:              ( __was_fixes_version == __was_fp_version_fp16 )
+
+- name:              Is IIM Installed?
+  command:           "egrep {{ __iim_product_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          iim_already_installed
+
+- name:              Is WAS ND Installed?
+  command:           "egrep {{ __was_product_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          was_already_installed
+
+- name:              Is Product already Installed?
+  command:           "egrep {{ __was_fp_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          version_already_installed
+  ignore_errors:     true

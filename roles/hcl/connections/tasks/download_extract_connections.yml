@@ -1,0 +1,68 @@
+---
+- name:              Cleanup Binaries directory
+  file:              path={{ __tmp_dir }}/{{ item }} state=absent
+  ignore_errors:     true
+  with_items:
+    - "cnx"
+    - "cnx-cr"
+    - "CTemp"
+
+- name:              Create Binaries directory
+  file:              path={{ __tmp_dir }}/{{ item }} state=directory mode=0755
+  with_items:
+    - "cnx"
+    - "cnx-cr"
+    - "CTemp"
+
+- name:              Create Logs directory
+  file:              path={{ __logs_dir }} state=directory mode=0755
+
+- name:              Download Installer
+  get_url:
+    url:             "http://{{ cnx_repository_url }}/{{ __cnx_package }}"
+    dest:            "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
+    mode:            0755
+
+- name:              Extract Installer
+  unarchive:
+    src:             "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
+    dest:            "{{ __tmp_dir }}/cnx/"
+    copy:            no
+  register: download_and_unpack_connections
+  until: download_and_unpack_connections is succeeded
+  retries: 3
+
+- name:              Download Installer CCM
+  get_url:
+    url:             "{{ cnx_repository_url }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/cnx/{{ item.file_name }}"
+    mode:            0755
+  with_items:        "{{ __ccm_files }}"
+  when:              (ccm_install is defined)
+
+- name:              "Download Installer Connections CR Fixes"
+  get_url:
+    url:             "{{ cnx_fixes_repository_url }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}"
+    mode:            0755
+  with_items:        "{{ __cnx_fixes_files }}"
+  when:             (cnx_fixes_version is defined)
+
+- name:              "Extract Installer Connections CR Fixes"
+  unarchive:
+    src:             "{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/cnx-cr/"
+    copy:            no
+  with_items:        "{{ __cnx_fixes_files }}"
+  when:             (cnx_fixes_version is defined)
+  register: download_and_unpack_connections_crs
+  until: download_and_unpack_connections_crs is succeeded
+  retries: 3
+
+- name:              "Get the installation ID"
+  shell:             cat "{{ __tmp_dir }}/cnx/HCL_Connections_Install/HCLConnections/repository.xml" | grep "offering id" | grep version | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2
+  register:          cnx_upgrade_version
+
+
+- debug: var=cnx_upgrade_version.stdout
+  run_once: true

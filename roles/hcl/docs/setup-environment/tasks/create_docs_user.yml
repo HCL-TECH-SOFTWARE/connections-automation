@@ -1,0 +1,24 @@
+---
+- name:                       Create Docs user accounts and add them to the {{ sudo_group }} group
+  user:
+    name:                     "{{ docs_username }}"
+    password:                 "{{ docs_password | password_hash('sha512') }}"
+    groups:                   "{{ sudo_group }}"
+    generate_ssh_key:         yes
+    ssh_key_bits:             2048
+    ssh_key_file:             .ssh/id_rsa
+    ssh_key_passphrase:       "{{ docs_password }}"
+    shell:                    /bin/bash
+    append:                   yes
+    state:                    present
+  register:                   create_docs_user
+
+- name:                       Create authorized_keys for user
+  copy:
+    src:                      "/home/{{ docs_username }}/.ssh/id_rsa.pub"
+    dest:                     "/home/{{ docs_username }}/.ssh/authorized_keys"
+    owner:                    "{{ docs_username }}"
+    group:                    "{{ docs_username }}"
+    mode:                     '0600'
+    remote_src:               true
+  when:                       create_docs_user.changed

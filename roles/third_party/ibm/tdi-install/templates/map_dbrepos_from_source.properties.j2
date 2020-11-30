@@ -1,0 +1,120 @@
+# *****************************************************************
+#
+# IBM Confidential
+#
+# OCO Source Materials
+#
+# Copyright IBM Corp. 2009, 2014
+#
+# The source code for this program is not published or otherwise
+# divested of its trade secrets, irrespective of what has been
+# deposited with the U.S. Copyright Office.
+#
+# *****************************************************************
+
+alternateLastname=null
+blogUrl=null
+bldgId=null
+calendarUrl=null
+countryCode=c
+courtesyTitle=null
+deptNumber=null
+description=description
+
+# The property below - displayName - specifies that the display name is to be found in the LDAP
+# attribute named 'cn', which is short for Common Name. This common mapping is intended to be used
+# in the absence of utilizing the visitor model, i.e., specifying mode= below, AND decorating visitor
+# names.
+
+displayName=cn
+
+# If visitors are being populated (by any one of the three schemes shown below) AND you wish to
+# "decorate" the visitors display name, comment out the 'displayName=cn line above and un-comment
+# the three properties below.
+#
+# The function in the first property - func_decorate_displayName_if_visitor - is provided in
+# profiles_functions.js. The second property - displayNameLdapAttr - specifies the source of the
+# display name in the LDAP. The value can be a function. The third attribute - decorateVisitorDisplayName -
+# is the decorating text.  You should make sure that this file (the one you are looking at now) is
+# in UTF-8 if non-ascii characters are used.
+#
+#displayName={func_decorate_displayName_if_visitor}
+#displayNameLdapAttr=cn
+#decorateVisitorDisplayName= - External User
+
+distinguishedName=$dn
+email=mail
+employeeNumber=employeenumber
+employeeTypeCode=employeetype
+experience=businessCategory
+faxNumber=facsimiletelephonenumber
+freeBusyUrl=null
+floor=null
+givenName=givenName
+givenNames=givenName
+groupwareEmail=null
+guid=entryUUID
+ipTelephoneNumber=null
+#if there is no ldap attribute that denotes a person is a manager,
+#run the mark_manager script after population
+#isManager=
+jobResp=null
+loginId=null
+logins=null
+#$manager_uid represents lookup of UID of manager using DN in manager field
+managerUid=$manager_uid
+mobileNumber=mobile
+nativeFirstName=null
+nativeLastName=null
+orgId=ou
+pagerNumber=null
+pagerId=null
+pagerServiceProvider=null
+pagerType=null
+officeName=physicaldeliveryofficename
+preferredFirstName=null
+preferredLanguage=preferredlanguage
+preferredLastName=null
+#profileType corresponds to the layout sections in profiles-config.xml
+profileType=null
+#$secretary_uid represents lookup of UID of secretary using DN in secretary field
+secretaryUid=$secretary_uid
+shift=null
+surname=sn
+surnames=sn
+telephoneNumber=telephoneNumber
+tenantKey=null
+timezone=null
+title=null
+uid=uid
+workLocationCode=l
+
+mode=employeeType
+
+# mode= above is either a typical LDAP attribute or a Javascript (js) function that specifies
+# whether the member is an employee or visitor.
+
+# In all cases, the value of the LDAP attribute/js-function must be one of two strings.
+# either "internal" for employees or "external" for visitors.  Actually, any string other
+# than "external" is interpreted as employee.
+
+# mode= can specify (1) a standard LDAP attribute,(2) a customer supplied js function
+# that interprets one or more LDAP attributes (or anything else you can code in js - see
+# the sample function in file profiles_functions.js named func_mode_from_ldap_attr()),
+# or (3) the provided function func_mode_visitor_branch() when using SEPARATE LDAP BRANCHES
+# to distinguish between employees and visitors.
+
+# To populate/sync employees/visitors from a SEPARATE LDAP BRANCHES (3 above), comment out the
+# line mode= above and uncomment the mode={func_mode_visitor_branch} line below.  Then, to
+# populate visitors fill in the '...visitor_confirm' properties in the file profiles_tdi.properties.
+# The function func_mode_visitor_branch simply uses the '...visitor_confirm' properties to
+# determine a member's mode.
+#
+# WHEN DONE POPULATING/SYNCING A VISITOR BRANCH, you must re-set the three '...visitor_confirm'
+# properties to null/empty in profiles_tdi.properties.
+#
+# A best practice is to use an additional solution directory for visitors.  In this way,
+# you need not remember to reset the '...visitor_confirm' properties when you run sync_all_dns
+# for employees, and then visitors (or vice versa).
+
+#mode={func_mode_visitor_branch}

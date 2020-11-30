@@ -1,0 +1,12 @@
+---
+__setup_environment:           "{{ setup_environment | default(true) }}"
+__docs_viewer_files_mount:     "/mnt/viewer_data"
+__docs_viewer_files_nfs:       "/nfs/viewer_data"
+__docs_editor_files_mount:     "/mnt/docs_data"
+__docs_editor_files_nfs:       "/nfs/docs_data"
+__docs_editor_files_dest:      "{{ nfsMasterAddress }}:{{ __docs_editor_files_nfs }}"
+__docs_viewer_files_dest:      "{{ nfsMasterAddress }}:{{ __docs_viewer_files_nfs }}"
+
+__cnx_data_mount:              "/mnt/cnx_data"
+__cnx_data_nfs:                "{{ cnx_data_nfs | default('/nfs/data/shared') }}"
+__cnx_data_nfs_dest:           "{{ nfsMasterAddress }}:{{ __cnx_data_nfs }}"

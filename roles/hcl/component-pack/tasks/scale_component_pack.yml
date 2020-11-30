@@ -1,0 +1,3 @@
+- name:                    Scale Component Pack to the number of workers
+  shell:                   kubectl scale --replicas={{ groups['k8s_workers'] | length }} deployment $(kubectl get deployment -n connections | awk {'print $1'} | grep -v NAME) -n connections
+  become:                  false

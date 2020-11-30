@@ -1,0 +1,39 @@
+- name:                      Find elasticsearch helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "elasticsearch7-*.tgz"
+    file_type:               file
+  register:                  elasticsearch7_tgz
+
+- name:                      Found elasticsearch file
+  debug:
+    msg:                     "{{ elasticsearch7_tgz.files[0].path }}"
+
+- name:                      "Render {{ __elasticsearch_env }}"
+  template:
+    src:                     "helmvars/elasticsearch.yml.j2"
+    dest:                    "{{ __elasticsearch_env }}"
+  become:                    false
+
+- name:                      Setup elasticsearch7
+  command:                   "helm upgrade elasticsearch7 {{ elasticsearch7_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 300
+
+- name:                      Check if es-master is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep es-master | grep Running
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if es-client is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep es-client | grep Running
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if es-data is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep es-data | grep Running
+  when:                      __skip_pod_checks == false
+  become:                    false

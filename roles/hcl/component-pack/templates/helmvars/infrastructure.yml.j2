@@ -1,0 +1,9 @@
+global:
+  onPrem: true
+  image:
+    repository: {{ __docker_registry_url }}/connections
+mongodb:
+  createSecret: false
+appregistry-service:
+  deploymentType: hybrid_cloud
+replicaCount: {{ __replica_count }}

@@ -1,0 +1,49 @@
+- name:                      Find sanity helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "sanity-0*.tgz"
+    file_type:               file
+  register:                  sanity_tgz
+
+- name:                      Found sanity file
+  debug:
+    msg:                     "{{ sanity_tgz.files[0].path }}"
+
+- name:                      "Render {{ __sanity_env }}"
+  template:
+    src:                     "helmvars/sanity.yml.j2"
+    dest:                    "{{ __sanity_env }}"
+  become:                    false
+
+- name:                      Setup sanity
+  command:                   "helm upgrade sanity {{ sanity_tgz.files[0].path }} -i -f {{ __sanity_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Find sanity-watcher helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "sanity-watcher-*.tgz"
+    file_type:               file
+  register:                  sanity_watcher_tgz
+
+- name:                      Found sanity-watcher file
+  debug:
+    msg:                     "{{ sanity_watcher_tgz.files[0].path }}"
+
+- name:                      Setup sanity-watcher
+  command:                   "helm upgrade sanity-watcher {{ sanity_watcher_tgz.files[0].path }} -i -f {{ __sanity_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Get the port where Sanity is running
+  shell:                     kubectl get --namespace connections -o jsonpath="{.spec.ports[0].nodePort}" services sanity
+  register:                  sanity_external_port
+  become:                    false
+
+- name:                      Get the IP where Sanity is accessible
+  shell:                     kubectl get nodes --namespace connections -o jsonpath="{.items[0].status.addresses[0].address}"
+  register:                  sanity_external_ip
+  become:                    false
+
+- name:                      You can access Sanity here
+  debug:
+    msg:                     "http://{{ sanity_external_ip['stdout'] }}:{{ sanity_external_port['stdout'] }}"

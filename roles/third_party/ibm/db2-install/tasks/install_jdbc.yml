@@ -1,0 +1,13 @@
+- name:                "Create {{ __db2_installation_folder }}"
+  file:
+    path:              "{{ __db2_installation_folder }}"
+    state:             directory
+
+- name:                "Download and unzip drivers {{ __jdbc_package_name }} to the {{ __db2_installation_folder }}"
+  unarchive:
+    src:               "{{ __download_location }}/{{ __jdbc_package_name }}"
+    dest:              "{{ __db2_installation_folder }}"
+    remote_src:        yes
+  register: download_and_unpack_jdbc
+  until: download_and_unpack_jdbc is succeeded
+  retries: 3

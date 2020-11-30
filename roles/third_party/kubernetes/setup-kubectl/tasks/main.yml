@@ -1,0 +1,3 @@
+---
+- name:          Setup kubectl
+  include_tasks: setup_kubectl.yml

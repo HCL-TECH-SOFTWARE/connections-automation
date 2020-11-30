@@ -1,0 +1,7 @@
+# Taint nodes
+---
+- name:                    Taint nodes
+  hosts:                   k8s_masters, k8s_workers
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/taint-all-nodes

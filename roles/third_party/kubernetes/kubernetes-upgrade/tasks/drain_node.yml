@@ -1,0 +1,9 @@
+- name:                  Show me where I'm going to run
+  debug:
+    msg:                 "{{ inventory_hostname }}"
+
+- name:                  Drain the node
+  command:               "{{ item }}"
+  with_items:
+   - "kubectl drain {{ inventory_hostname }} --delete-local-data --ignore-daemonsets"
+  become:                false

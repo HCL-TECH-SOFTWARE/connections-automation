@@ -1,0 +1,25 @@
+- name:                      Find teams helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "teams-*.tgz"
+    file_type:               file
+  register:                  teams_tgz
+
+- name:                      Found teams file
+  debug:
+    msg:                     "{{ teams_tgz.files[0].path }}"
+
+- name:                      "Render {{ __teams_env }}"
+  template:
+    src:                     "helmvars/teams.yml.j2"
+    dest:                    "{{ __teams_env }}"
+  become:                    false
+
+- name:                      Setup teams
+  command:                   "helm upgrade teams {{ teams_tgz.files[0].path }} -i -f {{ __teams_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 60
+

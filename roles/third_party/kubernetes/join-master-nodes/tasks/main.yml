@@ -1,0 +1,12 @@
+---
+- name:          Join second master node to cluster
+  include_tasks: join_first_node.yml
+  when:          __kubernetes_version is version('1.12.0', '<')
+
+- name:          Join third master node to cluster
+  include_tasks: join_second_node.yml
+  when:          __kubernetes_version is version('1.12.0', '<')
+
+- name:          Join another control plane node
+  include_tasks: join_control_plane_node.yml
+  when:          __kubernetes_version is version('1.12.0', '>=')

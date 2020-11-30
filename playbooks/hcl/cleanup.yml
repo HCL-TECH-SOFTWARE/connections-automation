@@ -1,0 +1,8 @@
+# Cleanup
+---
+- name:                    Cleanup stuff
+  hosts:                   k8s_masters, k8s_workers
+  become:                  true
+  roles:
+    - roles/hcl/cleanup
+

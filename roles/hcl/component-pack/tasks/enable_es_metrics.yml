@@ -1,0 +1,243 @@
+- name:                      Run {{ __config_blue_metrics_cmd }} 
+  command:                   "{{ __config_blue_metrics_cmd }}"
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Cleanup {{ __es_certs_dir_temp }} if it already exists
+  file:
+    path:                    "{{ item }}"
+    state:                   absent
+  with_items:
+   - "{{ __es_certs_dir }}"
+   - "{{ __es_certs_dir_temp }}"
+   - "{{ __es_certs_dir_temp }}.zip"
+
+- name:                      Cleanup {{ __es_certs_dir_temp }} if it already exists
+  file:
+    path:                    "{{ item }}"
+    state:                   absent
+  with_items:
+   - "{{ __es_certs_dir }}"
+   - "{{ __es_certs_dir_temp }}"
+   - "{{ __es_certs_dir_temp }}.zip"
+  delegate_to:               "{{ dmgr_hostname }}"
+
+- name:                      Create temporary folder
+  file:
+    path:                    "{{ __es_certs_dir_temp }}"
+    state:                   directory
+  become:                    false
+
+- name:                      Create certs folder {{ __es_certs_dir }}
+  file:
+    path:                    "{{ __es_certs_dir }}"
+    state:                   directory
+  delegate_to:               "{{ dmgr_hostname }}"
+
+- name:                      Retrieve signer certificates for ES5
+  shell:                     "{{ item }}"
+  with_items:
+   - kubectl get secret elasticsearch-secret -n connections -o=jsonpath="{.data['chain-ca\.pem']}" | base64 -d > "{{ __es_certs_dir_temp }}"/chain-ca.pem
+   - kubectl get secret elasticsearch-secret -n connections -o=jsonpath="{.data['elasticsearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/elasticsearch-metrics.p12
+  become:                    false
+  when:                      __elasticsearch_default_version == "5"
+
+- name:                      Retrieve signer certificates for ES7
+  shell:                     "{{ item }}"
+  with_items:
+   - kubectl get secret elasticsearch-7-secret -n connections -o=jsonpath="{.data['chain-ca\.pem']}" | base64 -d > "{{ __es_certs_dir_temp }}"/chain-ca.pem
+   - kubectl get secret elasticsearch-7-secret -n connections -o=jsonpath="{.data['elasticsearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/elasticsearch-metrics.p12
+  become:                    false
+  when:                      __elasticsearch_default_version == "7"
+
+- name:                      Create the archive
+  archive:
+    path:                    "{{ __es_certs_dir_temp }}" 
+    dest:                    "{{ __es_certs_dir_temp }}.zip"
+    format:                  zip
+  become:                    false
+
+- name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
+  synchronize: 
+    src:                     "{{ __es_certs_dir_temp }}.zip"
+    dest:                    /tmp
+    mode:                    pull
+  delegate_to:               "{{ dmgr_hostname }}"
+  become:                    false
+
+- name:                      Cleanup {{ __es_certs_dir_temp }} on {{ dmgr_hostname }} if it already exists
+  file:
+    path:                    "{{ __es_certs_dir_temp }}"
+    state:                   absent
+  delegate_to:               "{{ dmgr_hostname }}"
+
+- name:                      Extract ES certificates on {{ dmgr_hostname }}
+  unarchive:
+    src:                     "{{ __es_certs_dir_temp }}.zip"
+    dest:                    /tmp
+    remote_src:              yes
+  delegate_to:               "{{ dmgr_hostname }}"
+
+- name:                     Copy certificates to the right location
+  copy:
+    src:                    "{{ __es_certs_dir_temp }}"
+    dest:                   "{{ __es_certs_dir }}"
+    remote_src:             yes
+  delegate_to:               "{{ dmgr_hostname }}"
+
+- name:                     "Render {{ __es_merge_template }} to {{ __es_merge_destination }} on {{ dmgr_hostname }}"
+  template:
+    src:                    "{{ __es_merge_template }}"
+    dest:                   "{{ __es_merge_destination }}"
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     "Merge certificates with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_merge_destination }}"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_merge_destination }}
+  register:                 es_certs_merged
+  changed_when:             es_certs_merged.rc == 0
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     Stop CNX cluster
+  include_role:
+    name:                   roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    apply:
+      delegate_to:          "{{ dmgr_hostname }}"
+      become:               true
+      ignore_errors:        yes
+
+- name:                     Start CNX cluster
+  include_role:
+    name:                   roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+    apply:
+      delegate_to:          "{{ dmgr_hostname }}"
+      become:               true
+      ignore_errors:        yes
+
+- name:                     "Render {{ __es_metrics_enable_template }} to {{ __es_metrics_enable_destination }} on {{ dmgr_hostname }}"
+  template:
+    src:                    "{{ __es_metrics_enable_template }}"
+    dest:                   "{{ __es_metrics_enable_destination }}"
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     "Enable/Switch (to) ES metrics with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_metrics_enable_destination }}"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_metrics_enable_destination }}
+  register:                 es_certs_enabled
+  changed_when:             es_certs_enabled.rc == 0
+  delegate_to:              "{{ dmgr_hostname }}"
+  ignore_errors:             yes
+
+- name:                     "Enable/Switch (to) ES metrics with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_metrics_enable_destination }}"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_metrics_enable_destination }}
+  register:                 es_certs_enabled
+  changed_when:             es_certs_enabled.rc == 0
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     Remove {{ __es_certs_dir }}/es_certs/ca-chain.pem on {{ dmgr_hostname }}
+  file:
+    path:                   "{{ __es_certs_dir }}/es_certs/chain-ca.pem"
+    state:                  absent
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     Cleanup {{ __es_certs_dir }}.zip on {{ dmgr_hostname }} if it already exists
+  file:
+    path:                   "{{ __es_certs_dir }}.zip"
+    state:                  absent
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     Create the archive
+  archive:
+    path:                   "{{ __es_certs_dir }}" 
+    dest:                   "{{ __es_certs_dir }}/es_certificates_signed.zip"
+    format:                 zip
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                     Copy {{ __es_certs_dir }} to controller
+  fetch:
+    src:                    "{{ __es_certs_dir }}/es_certificates_signed.zip"
+    dest:                   /tmp
+  delegate_to:              "{{ dmgr_hostname }}"
+
+- name:                      Cleanup {{ __es_certs_dir }} if it already exists
+  file:
+    path:                    "{{ __es_certs_dir }}"
+    state:                   absent
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  ignore_errors:             yes
+  when:                      
+   - inventory_hostname != dmgr_hostname
+
+- name:                      Cleanup /tmp/certs if it already exists
+  file:
+    path:                    "/tmp/certs"
+    state:                   absent
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  ignore_errors:             yes
+
+- name:                      Cleanup /tmp/es_certificates_signed.zip if it already exists
+  file:
+    path:                    "/tmp/es_certificates_signed.zip"
+    state:                   absent
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  ignore_errors:             yes
+
+- name:                      Copy the archive from controller
+  copy:
+    src:                     "/tmp/{{ groups['k8s_masters'][0] }}/{{ __es_certs_dir }}/es_certificates_signed.zip"
+    dest:                    "/tmp"
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  when:                      
+   - inventory_hostname != dmgr_hostname
+
+- name:                      Extract ES certificates on WAS hosts
+  unarchive:
+    src:                     "/tmp/es_certificates_signed.zip"
+    dest:                    /tmp
+    remote_src:              yes
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  when:                      
+   - inventory_hostname != dmgr_hostname
+
+- name:                      Copy /tmp/certs to the proper location
+  copy:
+    src:                     "/tmp/certs"
+    dest:                    "/opt/IBM"
+    remote_src:              yes
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  when:                      
+   - inventory_hostname != dmgr_hostname
+
+- name:                      Cleanup /tmp/certs if it already exists
+  file:
+    path:                    "/tmp/certs"
+    state:                   absent
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  ignore_errors:             yes
+
+- name:                      Cleanup /tmp/es_certificates_signed.zip if it already exists
+  file:
+    path:                    "/tmp/es_certificates_signed.zip"
+    state:                   absent
+  delegate_to:               "{{ item }}"
+  with_items:                "{{ groups['was_servers'] }}"
+  ignore_errors:             yes
+
+- name:                      Cleanup stuff on controller
+  local_action:
+    module:                  file
+    state:                   absent
+    path:                    "/tmp/{{ groups['k8s_masters'][0] }}"
+  become:                    false
+  ignore_errors:             yes

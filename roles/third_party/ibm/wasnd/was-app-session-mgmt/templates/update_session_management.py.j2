@@ -1,0 +1,132 @@
+import os
+
+
+def _splitlist(s):
+    """Given a string of the form [item item item], return a list of strings, one per item.
+    WARNING: does not yet work right when an item has spaces.  I believe in that case we'll be
+    given a string like '[item1 "item2 with spaces" item3]'.
+    """
+    if s[0] != '[' or s[-1] != ']':
+        raise "Invalid string: %s" % s
+    # Remove outer brackets and strip whitespace
+    itemstr = s[1:-1].strip()
+    if itemstr == '':
+        itemarray = []
+    else:
+        itemarray = itemstr.split(' ')
+    return itemarray
+
+def _splitlines(s):
+  rv = [s]
+  if '\r' in s:
+    rv = s.split('\r\n')
+  elif '\n' in s:
+    rv = s.split('\n')
+  if rv[-1] == '':
+    rv = rv[:-1]
+  return rv
+
+def getCellName():
+    """Return the name of the cell we're connected to"""
+    # AdminControl.getCell() is simpler, but only
+    # available if we're connected to a running server.
+    cellObjects = getObjectsOfType('Cell')  # should only be one
+    cellname = getObjectAttribute(cellObjects[0], 'name')
+    return cellname
+
+def nodeHasServerOfType( nodename, servertype ):
+    node_id = getNodeId(nodename)
+    serverEntries = _splitlines(AdminConfig.list( 'ServerEntry', node_id ))
+    for serverEntry in serverEntries:
+        sType = AdminConfig.showAttribute( serverEntry, "serverType" )
+        if sType == servertype:
+            return 1
+    return 0
+
+def nodeIsUnmanaged( nodename ):
+    """Return true if the node is an unmanaged node."""
+    return not nodeHasServerOfType( nodename, 'NODE_AGENT' )
+
+def nodeIsDmgr( nodename ):
+    """Return true if the node is the deployment manager"""
+    return nodeHasServerOfType( nodename, 'DEPLOYMENT_MANAGER' )
+
+def getNodeName(node_id):
+    """Get the name of the node with the given config object ID"""
+    return getObjectAttribute(node_id, 'name')
+
+def getNodeId( nodename ):
+    """Given a node name, get its config ID"""
+    return AdminConfig.getid( '/Cell:%s/Node:%s/' % ( getCellName(), nodename ) )    
+
+def getNodeHostname(nodename):
+    """Get the hostname of the named node"""
+    return AdminConfig.showAttribute(getNodeId(nodename),'hostName')    
+
+def getNodePlatformOS(nodename):
+    """Get the OS of the named node (not sure what format it comes back in).
+    Some confirmed values: 'linux', 'windows', 'os390', 'solaris', 'hpux'
+    I think these come from node-metadata.properties, com.ibm.websphere.nodeOperatingSystem;
+    on that theory, AIX should return 'aix'.
+    """
+    return AdminTask.getNodePlatformOS('[-nodeName %s]' % nodename)    
+
+def getObjectAttribute(objectid, attributename):
+    """Return the value of the named attribute of the config object with the given ID.
+    If there's no such attribute, returns None.
+    If the attribute value looks like a list, converts it to a real python list.
+    TODO: handle nested "lists"
+    """
+    #sop("getObjectAttribute:","AdminConfig.showAttribute(%s, %s)" % ( repr(objectid), repr(attributename) ))
+    result = AdminConfig.showAttribute(objectid, attributename)
+    if result != None and result.startswith("[") and result.endswith("]"):
+        # List looks like "[value1 value2 value3]"
+        result = _splitlist(result)
+    return result    
+
+def getObjectsOfType(typename, scope = None):
+    """Return a python list of objectids of all objects of the given type in the given scope
+    (another object ID, e.g. a node's object id to limit the response to objects in that node)
+    Leaving scope default to None gets everything in the Cell with that type.
+    ALWAYS RETURNS A LIST EVEN IF ONLY ONE OBJECT.
+    """
+    m = "getObjectsOfType:"
+    if scope:
+        #sop(m, "AdminConfig.list(%s, %s)" % ( repr(typename), repr(scope) ) )
+        return _splitlines(AdminConfig.list(typename, scope))
+    else:
+        #sop(m, "AdminConfig.list(%s)" % ( repr(typename) ) )
+        return _splitlines(AdminConfig.list(typename))
+
+
+def updateSessionManagement():
+    nodes = _splitlines(AdminConfig.list( 'Node' ))
+    for node_id in nodes:
+        nodename = getNodeName(node_id)
+        hostname = getNodeHostname(nodename)
+        platform = getNodePlatformOS(nodename)
+        if not nodeIsDmgr( nodename ) and not nodeIsUnmanaged( nodename ):
+            print "NODE %s on %s (%s)" % (nodename,hostname,platform)
+            serverEntries = _splitlines(AdminConfig.list( 'ServerEntry', node_id ))
+            for serverEntry in serverEntries:
+                sName = AdminConfig.showAttribute( serverEntry, "serverName" )
+                sType = AdminConfig.showAttribute( serverEntry, "serverType" )
+                if sType == "APPLICATION_SERVER":
+                    server = AdminConfig.getid("/Server:"+ sName +"/")
+                    sessman = AdminConfig.list("SessionManager",server)
+                    cookies = AdminConfig.showAttribute(sessman,'defaultCookieSettings')
+                    AdminConfig.modify(cookies, '[[maximumAge "-1"] [name "JSESSIONID"] [useContextRootAsPath "false"] [domain ""] [path "/"] [secure "true"] [httpOnly "true"]]')
+                    AdminConfig.save()
+                    print " " +nodename+ " -> SeesionManager: JSESSIONID, cookies restricted to HTTP/HTTPS sessions."       
+
+def main():
+    updateSessionManagement()
+#endDef  
+
+DEBUG_SOP=1
+# Allow this file to be used as a module
+if __name__ == "__main__":
+	# Call the main function
+	main()
+#endif "__main__"         
+

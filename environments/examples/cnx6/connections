@@ -1,0 +1,174 @@
+# Inventory file tested for Connections 6.5 and 6.5.0.1 (should work with older as well)
+# By default, WAS FP 18 gets installed with Connections 7. This file shows how to overwrite 
+# WAS FP to 16 and how to install Connections 6.5 instead.
+
+[dmgr]
+connections1.internal.cnx-dev.net
+
+[was_servers]
+connections1.internal.cnx-dev.net
+
+[nfs_servers]
+connections1.internal.cnx-dev.net
+
+[ihs_servers]
+connections1.internal.cnx-dev.net
+
+[db2_servers]
+db1.internal.cnx-dev.net
+
+[ldap_servers]
+db1.internal.cnx-dev.net
+
+[ihs_servers:vars]
+ihs_username=ihsadmin
+ihs_password=password
+
+[all:vars]
+db2_download_location=http://c7installer1.internal.cnx-dev.net:8001/DB2
+tdi_download_location=c7installer1.internal.cnx-dev.net:8001/TDI
+iim_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+was_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+ihs_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+cnx_docs_download_location=http://c7installer1.internal.cnx-dev.net:8001/Docs
+
+# Connections 6.5 and Wizards for 6.5 live in Connections6.5 subfolder on 
+# c7installer1.internal.cnx-dev.net:/data/packages/Connections6.5 
+cnx_repository_url=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+cnx_download_location=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+db2_wizards_download_location=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+
+# WAS FP 16 fixes live in c7installer1.internal.cnx-dev.net:/data/packages/was855FP16
+was_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP16
+ihs_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP16
+
+# WAS FP 18 live in c7installer1.internal.cnx-dev.net:/data/packages/was855FP18
+#was_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP18
+#ihs_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP18
+
+# The next two variables are fixing IBM Java version to one distributed with FP 16
+java_version="8.0.5017.20180726_2118"
+java_files={ 'file_name': '8.0.5.17-WS-IBMWASJAVA-Linux.zip' }
+
+# The variables bellow are specifying the specific version of FP16 and files needed
+# to install it. Those files live in the repositories mentioned above.
+was_fp_version="8.5.5016.20190801_0951"
+was_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part1.zip"}
+was_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part2.zip"}
+was_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part3.zip"}
+
+ihs_version="8.5.5016.20190801_0951"
+ihs_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part1.zip"}
+ihs_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part2.zip"}
+ihs_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part3.zip"}
+
+# This variable is used exclusively to decide which response file to render for pre version 7
+cnx_major_version="6"
+
+# Any package name can be specified here. This is how we call latest build for 6.5.0.1
+cnx_package="HCL_Connections_6.5_lin.tar"
+
+# This variable is used by Wizards to decide if IC360 DB is getting installed or not. For pre 7 it is not installed.
+db_version="6.5"
+
+# This variable specifies the package name of Connections Wizards being used to spin up the database.
+db2_wizards_package_name="HCL_Connections_6.5_wizards_lin_aix.tar"
+
+# This variable will let automation figure out specific product ID of the Connections that you are installing. Otherwise,
+# if disabled, automation is going to expect explicitely specified version that is being installed. This enables basically # running Connections updates/upgrades as well.
+cnx_updates_enabled=True
+
+was_username=wasadmin
+was_password=password
+#
+ldap_server=db1.internal.cnx-dev.net
+ldap_alias=db1
+ldap_repo=LDAP_PRODUCTION1
+ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
+ldap_bind_pass=password
+ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
+ldap_login_properties=uid;mail
+#
+dmgr_hostname=connections1.internal.cnx-dev.net
+was_domainname=.internal.cnx-dev.net
+domain_name=.internal.cnx-dev.net
+cnx_domainname=.internal.cnx-dev.net
+smtp_hostname=localhost
+#
+ihs_password=password
+
+cnx_webserver="connections1"
+cnx_component_pack_ingress="web1.internal.cnx-dev.net"
+cnx_application_ingress="web1.cnx-dev.net"
+
+connections_admin=jjones1
+
+cnx_deploy_type=small
+cnx_node_list=['connections1']
+cnx_hostname_list=['connections1.internal.cnx-dev.net']
+ihs_hostname_list=['connections1.internal.cnx-dev.net']
+
+common_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+communities_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+news_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+widgets_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+
+homepage_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+moderation_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+rte_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+
+activities_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+blogs_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+dogear_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+files_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+forums_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+metrics_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+mobile_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+wikis_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+
+push_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+
+profiles_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+
+search_app={ 'cluster_name': 'App', 'nodes':['connections1']}
+
+connections_auto_start_clusters='App'
+
+db_username=LCUSER
+db_password=password
+db_hostname=db1.internal.cnx-dev.net
+db_port=50000
+db_jdbc_file=/opt/IBM/db2/V11.1/java
+db_type=DB2
+
+# This variable, if uncommented, is used exclusively by Connections Wizards to recreate the databases; if uncommented and
+# Connections Wizards is invoked by this automation on the system which already has the databases properly set, automation
+# is going to invoke dropDb.sql scripts for the databases already created and recreate the schemas. Please use with cautio
+#cnx_force_repopulation=True
+
+activities_db={ 'server': 'db1.internal.cnx-dev.net' }
+blogs_db={ 'server': 'db1.internal.cnx-dev.net' }
+dogear_db={ 'server': 'db1.internal.cnx-dev.net' }
+communities_db={ 'server': 'db1.internal.cnx-dev.net' }
+files_db={ 'server': 'db1.internal.cnx-dev.net' }
+forums_db={ 'server': 'db1.internal.cnx-dev.net' }
+homepage_db={ 'server': 'db1.internal.cnx-dev.net' }
+metrics_db={ 'server': 'db1.internal.cnx-dev.net' }
+mobile_db={ 'server': 'db1.internal.cnx-dev.net' }
+profiles_db={ 'server': 'db1.internal.cnx-dev.net' }
+push_db={ 'server': 'db1.internal.cnx-dev.net' }
+wikis_db={ 'server': 'db1.internal.cnx-dev.net' }
+icec_db={ 'server': 'db1.internal.cnx-dev.net' }
+
+cnx_enable_moderation=true
+
+# The next three variables are intended only for development purposes and there is no guarantee what can be unintentionally broken if using automation to remove stuff in a very brute force way. Keep them false if possible.
+
+# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-db2.yml remove DB2 brute force from the system. If the variable is set to false, running those cleanup scripts would just skip doing anything.
+force_destroy_db2=True
+
+# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-ihs.yml remove IHS processes and related folders only. If set to false, running cleanup playbook will not do anything.
+force_destroy_ihs=True
+
+# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-was.yml remove WAS & Connections in a very brute force way. If variable is set to false, running playbook itself will not affect anything.
+force_destroy_websphere=True

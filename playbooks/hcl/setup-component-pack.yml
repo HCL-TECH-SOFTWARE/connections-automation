@@ -1,0 +1,38 @@
+# Setup Component Pack
+---
+- name:                    Gather facts
+  hosts:                   nfs_servers, was_servers
+  tasks:                   []
+
+- name:                    Setup Component Pack
+  hosts:                   component_pack_master
+  become:                  true
+  roles:
+    - roles/hcl/component-pack
+
+- name:                    CNX Post Install Config for Component Pack
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/component-pack/post-install-config
+
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+
+- name:                    Restart WAS Nodes
+  hosts:                   was_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-nodeagent-stop
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+- name:                    Restart CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

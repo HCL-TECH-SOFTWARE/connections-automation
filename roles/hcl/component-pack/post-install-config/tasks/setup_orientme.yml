@@ -1,0 +1,72 @@
+---
+- name:                                     Enable OrientMe serviceReference in LCC.xml
+  blockinfile:
+    path:                                   "{{ __lcc_full_path }}"
+    marker:                                 "<!-- {mark} Enabling OrientMe -->"
+    insertafter:                            "<!--Uncomment the following serviceReference definition if OrientMe feature is enabled-->"
+    block:                                  "{{ __lcc_orientme_serviceRef }}"
+
+- name:                                     Enable action center in LCC.xml
+  xml:
+    path:                                   "{{ __lcc_full_path }}"
+    namespaces:                             "{{ __lcc_namespaces }}"
+    xpath:                                  "{{ __lcc_action_center_xpath }}"
+    value:                                  "enabled"
+
+# Query element text using XPath
+- name:                                     Get current value of isHomepageSwitcherEnabled
+  xml:
+    path:                                   "{{ __lcc_full_path }}"
+    xpath:                                  "{{ __lcc_genprop_default_hpswitch_xpath }}"
+    content:                                text
+    namespaces:                             "{{ __lcc_namespaces }}"
+  register:                                 get_homepage_switcher
+
+# Update the property only if the result has 1 match
+- name:                                     Enable Homepage Switcher
+  block:
+    - name:                                 Set to true
+      set_fact:
+        new_version:                        "{{ 'true' }}"
+
+    - name:                                 Update isHomepageSwitcherEnabled
+      xml:
+        path:                               "{{ __lcc_full_path }}"
+        xpath:                              "{{ __lcc_genprop_default_hpswitch_xpath }}"
+        value:                              "{{ 'true' }}"
+        namespaces:                         "{{ __lcc_namespaces }}"
+      register:                             isHomepageSwitcherEnabled
+  when:                                     get_homepage_switcher.count == 1
+
+- name:                                     Check isHomepageSwitcherEnabled
+  debug:
+    msg:                                    "{{ isHomepageSwitcherEnabled.changed }}"
+
+# Query element text using XPath
+- name:                                     Get current value of isOrientHomepage
+  xml:
+    path:                                   "{{ __lcc_full_path }}"
+    xpath:                                  "{{ __lcc_genprop_default_ome_xpath }}"
+    content:                                text
+    namespaces:                             "{{ __lcc_namespaces }}"
+  register:                                 get_orientme_homepage
+
+# Update the property only if the result has 1 match
+- name:                                     Enable OrientMe page
+  block:
+    - name:                                 Set to true
+      set_fact:
+        new_version:                        "{{ 'true' }}"
+
+    - name:                                 Update isOrientHomepage
+      xml:
+        path:                               "{{ __lcc_full_path }}"
+        xpath:                              "{{ __lcc_genprop_default_ome_xpath }}"
+        value:                              "{{ 'true' }}"
+        namespaces:                         "{{ __lcc_namespaces }}"
+      register:                             isOrientHomepage
+  when:                                     get_orientme_homepage.count == 1
+
+- name:                                     print isOrientHomepage
+  debug:
+    msg:                                    "{{ isOrientHomepage.changed }}"

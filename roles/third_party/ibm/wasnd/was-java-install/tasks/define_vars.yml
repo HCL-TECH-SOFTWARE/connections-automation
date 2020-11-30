@@ -1,0 +1,17 @@
+---
+- name:              Use Fix Pack 8.5.5.18?
+  set_fact:
+    __was_java_files:    "{{ __files_fp18 }}"
+    __was_java_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_java_version }}"
+  when:              ( __was_java_version == __version_fp18 )
+
+- name:              Use Fix Pack 8.5.5.16?
+  set_fact:
+    __was_java_files:    "{{ __files_fp16 }}"
+    __was_java_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_java_version }}"
+  when:              ( __was_java_version == __version_fp16 )
+
+- name:              Is Product already Installed?
+  command:           egrep {{ __was_java_version }} /var/ibm/InstallationManager/installed.xml
+  register:          version_already_installed
+  ignore_errors:     true

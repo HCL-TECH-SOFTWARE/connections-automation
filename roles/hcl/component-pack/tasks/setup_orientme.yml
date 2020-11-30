@@ -1,0 +1,34 @@
+- name:                      Find orientme helm file
+  find:
+    paths:                   "{{ __helmbuilds_folder }}"
+    patterns:                "orientme-*.tgz"
+    file_type:               file
+  register:                  orientme_tgz
+
+- name:                      Found orientme file
+  debug:
+    msg:                     "{{ orientme_tgz.files[0].path }}"
+
+- name:                      "Render {{ __orientme_env }}"
+  template:
+    src:                     "helmvars/orientme.yml.j2"
+    dest:                    "{{ __orientme_env }}"
+  become:                    false
+
+- name:                      Setup orientme
+  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --recreate-pods"
+  become:                    false
+
+- name:                      Give it some space...
+  pause:
+    seconds:                 300
+
+- name:                      Run profile migrations for Orientme
+  shell:                     kubectl exec -n connections -it $(kubectl get pods -n connections | grep people-migrate | awk '{print $1}') -- sh -c "npm run start migrate"
+  become:                    false
+
+
+- name:                      Check if orientme is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep orient | grep Running
+  when:                      __skip_pod_checks == false
+  become:                    false

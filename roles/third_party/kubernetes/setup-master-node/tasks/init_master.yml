@@ -1,0 +1,81 @@
+- name:               Check if "{{ inventory_hostname }}" is already part of the cluster as master and in Ready status
+  shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep master | grep Ready
+  changed_when:       true
+  register:           master_already_initialized
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+  ignore_errors:      true
+
+- name:               Generate certificate key
+  command:            kubeadm alpha certs certificate-key
+  register:           master_certificate_key_json
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - single_node_installation is not defined
+
+- name:               Show me master_certificate_key_json
+  debug:
+    msg:              "{{ master_certificate_key_json }}"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - single_node_installation is not defined
+  ignore_errors:      true
+
+- name:               Show me master_certificate_key_json.stdout
+  debug:
+    msg:              "{{ master_certificate_key_json.stdout }}"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - single_node_installation is not defined
+  ignore_errors:      true
+  
+- name:               Save master certificate key
+  template:
+    src:              "{{ __master_certkey_template }}"             
+    dest:             "{{ __master_certkey_location }}"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - single_node_installation is not defined
+
+- name:               Read the certificate key and save it to the variable
+  slurp:
+    src:              "{{ __master_certkey_location }}"
+  register:           master_certificate_key
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - single_node_installation is not defined
+
+- name:               Show me master_certificate_key
+  debug:
+    msg:              "{{ master_certificate_key.content | b64decode | replace('\n', '') }}"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - single_node_installation is not defined
+  ignore_errors:      true
+
+- name:               Initialize master for single node installation
+  command:            kubeadm init --config={{ __kubeadm_config_location }}
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - single_node_installation is defined
+
+- name:               Initialize master for HA 
+  command:            kubeadm init --control-plane-endpoint "{{ __load_balancer_dns  }}:6443" --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key.content | b64decode | replace('\n', '') }}
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - single_node_installation is not defined
+  
+
+- name:               Generate join command
+  command:            kubeadm token create --print-join-command
+  register:           join_command
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - single_node_installation is not defined

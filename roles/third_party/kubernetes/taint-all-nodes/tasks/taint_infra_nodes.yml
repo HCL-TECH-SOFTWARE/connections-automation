@@ -1,0 +1,17 @@
+- name:                 Label worker nodes as type=infrastructure
+  command:              "kubectl label nodes {{ item }} type=infrastructure --overwrite"
+  with_items:
+   - "{{ groups['k8s_workers_infra'] }}"
+  when:                
+    - single_node_installation is not defined
+    - inventory_hostname in groups['k8s_workers_infra']
+  become:               false
+
+- name:                 Disable scheduling pods on infra worker nodes
+  command:              "kubectl taint nodes {{ item }} dedicated=infrastructure:NoSchedule --overwrite"
+  with_items:
+   - "{{ groups['k8s_workers_infra'] }}"
+  when:                
+    - single_node_installation is not defined
+    - inventory_hostname in groups['k8s_workers_infra']
+  become:               false

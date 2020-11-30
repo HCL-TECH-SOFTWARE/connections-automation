@@ -1,0 +1,42 @@
+# Start of File
+import time
+
+cellName=AdminControl.getCell()
+for clusterName in sys.argv :
+
+	##############################################################################
+	# Identify the ClusterMgr MBean and assign it to the clusterMgr variable.
+	##############################################################################
+	clusterMgr = AdminControl.completeObjectName('cell='+cellName+',type=ClusterMgr,*')
+
+	##############################################################################
+	# Refresh the list of clusters.
+	##############################################################################
+	AdminControl.invoke(clusterMgr, 'retrieveClusters')
+
+	##############################################################################
+	# Identify the Cluster MBean and assign it to the cluster variable.
+	#############################################################################
+	cluster = AdminControl.completeObjectName('cell='+cellName+',type=Cluster,name='+clusterName+',*')
+
+	if cluster == '':
+		continue
+
+	##############################################################################
+	# Check cluster state and stop cluster if needed
+	#############################################################################
+	status = AdminControl.getAttribute(cluster, 'state')
+	if status.find('.running') >=0 or status.find('partial.start') >=0 or status.find('partial.stop') >=0:
+		# wait max of 3 mins for cluster to stop
+		timeout=time.time() + 60*3
+
+		clusterStopped=-1
+		print "stopping cluster" + cluster
+		AdminControl.invoke(cluster, 'stop')
+		while time.time() < timeout and clusterStopped < 0:
+				status = AdminControl.getAttribute(cluster, 'state')
+				clusterStopped=status.find('websphere.cluster.stopped')
+
+		print "finish."
+
+# End of File

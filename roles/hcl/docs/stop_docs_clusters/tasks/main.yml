@@ -1,0 +1,28 @@
+---
+- include_vars:         ../../create_docs_clusters/vars/main.yml
+
+- name:                     Stop Editor Proxy Cluster
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+  vars:
+    __cluster_name:        "{{ __docs_proxy_cluster_name }}"
+
+- name:                     Stop Viewer Server Cluster
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+  vars:
+    __cluster_name:        "{{ __viewer_cluster_name }}"
+
+- name:                     Stop Editor Server Cluster
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+  vars:
+    __cluster_name:        "{{ __editor_cluster_name }}"
+
+- name:                     Stop Conversion Server Cluster
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+  vars:
+    __cluster_name:        "{{ __conversion_cluster_name }}"
+
+

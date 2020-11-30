@@ -1,0 +1,39 @@
+- name:                      Create local mount points
+  file:
+    path:                    "{{ item }}"
+    state:                   directory
+    mode:                    '0755'
+  with_items:
+   - "{{ __docs_editor_files_mount }}"
+   - "{{ __docs_viewer_files_mount }}"
+   - "{{ __cnx_data_mount }}"
+
+- name:                      Mount "{{ __docs_editor_files_dest }}" to "{{ __docs_editor_files_mount }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    dump:                    0
+    passno:                  0
+    state:                   mounted
+    src:                     "{{ __docs_editor_files_dest }}"
+    path:                    "{{ __docs_editor_files_mount }}"
+
+- name:                      Mount "{{ __docs_viewer_files_dest }}" to "{{ __docs_viewer_files_mount }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    dump:                    0
+    passno:                  0
+    state:                   mounted
+    src:                     "{{ __docs_viewer_files_dest }}"
+    path:                    "{{ __docs_viewer_files_mount }}"
+
+- name:                      Mount "{{ __cnx_data_nfs_dest }}" to "{{ __cnx_data_mount }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    dump:                    0
+    passno:                  0
+    state:                   mounted
+    src:                     "{{ __cnx_data_nfs_dest }}"
+    path:                    "{{ __cnx_data_mount }}"

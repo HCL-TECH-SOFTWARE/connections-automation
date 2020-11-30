@@ -1,0 +1,7 @@
+server {
+  listen *:{{ __packages_conf_port }};
+  server_name {{ inventory_hostname }};
+
+  root {{ __packages_location }};
+  autoindex on;
+}

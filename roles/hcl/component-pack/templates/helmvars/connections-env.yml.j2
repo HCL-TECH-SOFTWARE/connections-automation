@@ -1,0 +1,19 @@
+onPrem: {{ __ce_on_prem }}
+ic:
+  host: {{ __frontend_fqdn }}
+  internal: {{ __ic_internal }}
+  interserviceOpengraphPort: 443
+  interserviceConnectionsPort: 443
+  interserviceScheme: https
+integrations:
+  msteams:
+    enabled: {{ __setup_teams }}
+    tenant:
+      id: {{ __msteams_tenant_id }}
+    client:
+      id: {{ __msteams_client_id }}
+      secret: {{ __msteams_client_secret }}
+    auth:
+      schema: {{ __msteams_auth_schema}}
+createSecret: false
+replicaCount: {{ __replica_count }}

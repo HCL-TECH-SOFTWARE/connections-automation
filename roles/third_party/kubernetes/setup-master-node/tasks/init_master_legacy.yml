@@ -1,0 +1,20 @@
+- name:               Check if master was already initialized...
+  stat:
+    path:             "{{ __kubeadm_init_success_file }}"
+  when:               inventory_hostname == groups['k8s_masters'][0]
+  register:           master_already_initialized
+
+- name:               Initialize master
+  command:            kubeadm init --config={{ __kubeadm_config_location }}
+  when:               inventory_hostname == groups['k8s_masters'][0] and  master_already_initialized.stat.exists == false
+
+- name:               Generate join command
+  command:            kubeadm token create --print-join-command
+  register:           join_command
+  when:               inventory_hostname == groups['k8s_masters'][0] and master_already_initialized.stat.exists == false and single_node_installation is not defined
+
+- name:               Create {{ __kubeadm_init_success_file }} file
+  file:
+    path:             "{{ __kubeadm_init_success_file }}"
+    state:            touch
+  when:               inventory_hostname == groups['k8s_masters'][0]

@@ -1,0 +1,39 @@
+# Create Cluster
+AdminTask.createCluster('[-clusterConfig [-clusterName {{ __cluster_name }} -clusterType {{ __cluster_type }} ]]')
+
+# Compile the command to create the first cluster member
+cmd='[-clusterName {{ __cluster_name }} -memberConfig [-memberNode {{ __server_list[0].split('.')[0] }}-node  -memberName {{ __member_name }}1 '
+{% if __generate_port is defined and __generate_port == True %}
+cmd=cmd+' -genUniquePorts true'
+{% endif %}
+cmd=cmd+']'
+
+{% if __template_name is defined %}
+cmd=cmd+' -firstMember [-templateName {{ __template_name }} ]'
+{% endif %}
+cmd=cmd+']'
+
+# Execute the command to create the first cluster member
+AdminTask.createClusterMember(cmd)
+
+
+# Compile the command to create the second cluster member
+{% for docs_server in __server_list %}
+{% if loop.index > 1 %}
+cmd='[-clusterName {{ __cluster_name }} -memberConfig [-memberNode {{ docs_server.split('.')[0] }}-node -memberName {{ __member_name }}{{loop.index}}'
+{% if __generate_port is defined and __generate_port == True %}
+cmd=cmd+' -genUniquePorts true'
+{% endif %}
+cmd=cmd+']]'
+
+# Execute the command to create the second cluster member
+AdminTask.createClusterMember(cmd)
+{% endif %}
+{%- endfor %}
+
+
+# Save and Synchronise
+AdminConfig.save()
+AdminNodeManagement.syncActiveNodes()
+
+# End of File
