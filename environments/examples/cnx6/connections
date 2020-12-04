@@ -3,48 +3,48 @@
 # WAS FP to 16 and how to install Connections 6.5 instead.
 
 [dmgr]
-connections1.internal.domain.net
+connections1.internal.example.com
 
 [was_servers]
-connections1.internal.domain.net
+connections1.internal.example.com
 
 [nfs_servers]
-connections1.internal.domain.net
+connections1.internal.example.com
 
 [ihs_servers]
-connections1.internal.domain.net
+connections1.internal.example.com
 
 [db2_servers]
-db1.internal.domain.net
+db1.internal.example.com
 
 [ldap_servers]
-db1.internal.domain.net
+db1.internal.example.com
 
 [ihs_servers:vars]
 ihs_username=ihsadmin
 ihs_password=password
 
 [all:vars]
-db2_download_location=http://installer1.internal.domain.net:8001/DB2
-tdi_download_location=installer1.internal.domain.net:8001/TDI
-iim_repository_url=http://installer1.internal.domain.net:8001/was855
-was_repository_url=http://installer1.internal.domain.net:8001/was855
-ihs_repository_url=http://installer1.internal.domain.net:8001/was855
-cnx_docs_download_location=http://installer1.internal.domain.net:8001/Docs
+db2_download_location=http://installer1.internal.example.com:8001/DB2
+tdi_download_location=installer1.internal.example.com:8001/TDI
+iim_repository_url=http://installer1.internal.example.com:8001/was855
+was_repository_url=http://installer1.internal.example.com:8001/was855
+ihs_repository_url=http://installer1.internal.example.com:8001/was855
+cnx_docs_download_location=http://installer1.internal.example.com:8001/Docs
 
 # Connections 6.5 and Wizards for 6.5 live in Connections6.5 subfolder on 
-# installer1.internal.domain.net:/data/packages/Connections6.5 
-cnx_repository_url=installer1.internal.domain.net:8001/Connections6.5
-cnx_download_location=installer1.internal.domain.net:8001/Connections6.5
-db2_wizards_download_location=installer1.internal.domain.net:8001/Connections6.5
+# installer1.internal.example.com:/data/packages/Connections6.5 
+cnx_repository_url=installer1.internal.example.com:8001/Connections6.5
+cnx_download_location=installer1.internal.example.com:8001/Connections6.5
+db2_wizards_download_location=installer1.internal.example.com:8001/Connections6.5
 
-# WAS FP 16 fixes live in installer1.internal.domain.net:/data/packages/was855FP16
-was_fixes_repository_url=http://installer1.internal.domain.net:8001/was855FP16
-ihs_fixes_repository_url=http://installer1.internal.domain.net:8001/was855FP16
+# WAS FP 16 fixes live in installer1.internal.example.com:/data/packages/was855FP16
+was_fixes_repository_url=http://installer1.internal.example.com:8001/was855FP16
+ihs_fixes_repository_url=http://installer1.internal.example.com:8001/was855FP16
 
-# WAS FP 18 live in installer1.internal.domain.net:/data/packages/was855FP18
-#was_fixes_repository_url=http://installer1.internal.domain.net:8001/was855FP18
-#ihs_fixes_repository_url=http://installer1.internal.domain.net:8001/was855FP18
+# WAS FP 18 live in installer1.internal.example.com:/data/packages/was855FP18
+#was_fixes_repository_url=http://installer1.internal.example.com:8001/was855FP18
+#ihs_fixes_repository_url=http://installer1.internal.example.com:8001/was855FP18
 
 # The next two variables are fixing IBM Java version to one distributed with FP 16
 java_version="8.0.5017.20180726_2118"
@@ -81,7 +81,7 @@ cnx_updates_enabled=True
 was_username=wasadmin
 was_password=password
 #
-ldap_server=db1.internal.domain.net
+ldap_server=db1.internal.example.com
 ldap_alias=db1
 ldap_repo=LDAP_PRODUCTION1
 ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
@@ -89,10 +89,10 @@ ldap_bind_pass=password
 ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
 ldap_login_properties=uid;mail
 #
-dmgr_hostname=connections1.internal.domain.net
-was_domainname=.internal.domain.net
-domain_name=.internal.domain.net
-cnx_domainname=.internal.domain.net
+dmgr_hostname=connections1.internal.example.com
+was_domainname=.internal.example.com
+domain_name=.internal.example.com
+cnx_domainname=.internal.example.com
 smtp_hostname=localhost
 #
 ihs_password=password
@@ -101,16 +101,16 @@ ihs_password=password
 cnx_webserver="connections1"
 
 # This is the URL of load balancer pointing towards your Kubernetes cluster in case you are using or going to use Component Pack. Will be used inside httpd.conf
-cnx_component_pack_ingress="web1.internal.domain.net"
+cnx_component_pack_ingress="web1.internal.example.com"
 
 # This is the URL of your Connections installation. Will be used for setting dynamicHost. 
-cnx_application_ingress="web1.domain.net"
+cnx_application_ingress="web1.example.com"
 
 connections_admin=jjones1
 
 cnx_node_list=['connections1']
-cnx_hostname_list=['connections1.internal.domain.net']
-ihs_hostname_list=['connections1.internal.domain.net']
+cnx_hostname_list=['connections1.internal.example.com']
+ihs_hostname_list=['connections1.internal.example.com']
 
 common_app={ 'cluster_name': 'App', 'nodes':['connections1']}
 communities_app={ 'cluster_name': 'App', 'nodes':['connections1']}
@@ -147,7 +147,7 @@ connections_jmx_clusters=[{"name":"App","port":"8080"}]
 
 db_username=LCUSER
 db_password=password
-db_hostname=db1.internal.domain.net
+db_hostname=db1.internal.example.com
 db_port=50000
 db_jdbc_file=/opt/IBM/db2/V11.1/java
 db_type=DB2
@@ -157,19 +157,19 @@ db_type=DB2
 # is going to invoke dropDb.sql scripts for the databases already created and recreate the schemas. Please use with caution.
 #cnx_force_repopulation=True
 
-activities_db={ 'server': 'db1.internal.domain.net' }
-blogs_db={ 'server': 'db1.internal.domain.net' }
-dogear_db={ 'server': 'db1.internal.domain.net' }
-communities_db={ 'server': 'db1.internal.domain.net' }
-files_db={ 'server': 'db1.internal.domain.net' }
-forums_db={ 'server': 'db1.internal.domain.net' }
-homepage_db={ 'server': 'db1.internal.domain.net' }
-metrics_db={ 'server': 'db1.internal.domain.net' }
-mobile_db={ 'server': 'db1.internal.domain.net' }
-profiles_db={ 'server': 'db1.internal.domain.net' }
-push_db={ 'server': 'db1.internal.domain.net' }
-wikis_db={ 'server': 'db1.internal.domain.net' }
-icec_db={ 'server': 'db1.internal.domain.net' }
+activities_db={ 'server': 'db1.internal.example.com' }
+blogs_db={ 'server': 'db1.internal.example.com' }
+dogear_db={ 'server': 'db1.internal.example.com' }
+communities_db={ 'server': 'db1.internal.example.com' }
+files_db={ 'server': 'db1.internal.example.com' }
+forums_db={ 'server': 'db1.internal.example.com' }
+homepage_db={ 'server': 'db1.internal.example.com' }
+metrics_db={ 'server': 'db1.internal.example.com' }
+mobile_db={ 'server': 'db1.internal.example.com' }
+profiles_db={ 'server': 'db1.internal.example.com' }
+push_db={ 'server': 'db1.internal.example.com' }
+wikis_db={ 'server': 'db1.internal.example.com' }
+icec_db={ 'server': 'db1.internal.example.com' }
 
 cnx_enable_moderation=true
 cnx_enable_invite=true

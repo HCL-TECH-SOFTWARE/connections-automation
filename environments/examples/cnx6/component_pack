@@ -1,43 +1,43 @@
 # Kubernetes masters. First in the group will become primary Kubernetes master, and used later through the scripts as such.
 [k8s_masters]
-cp1.internal.domain.net
+cp1.internal.example.com
 
 # List of all Kubernetes workers. Those workers will be joined to cluster of masters. 
 [k8s_workers]
-cp1worker1.internal.domain.net
-cp1worker2.internal.domain.net
+cp1worker1.internal.example.com
+cp1worker2.internal.example.com
 
 # On this host (those hosts) Helm will be set. By default 3.4.1
 [k8s_admin]
-cp1.internal.domain.net
+cp1.internal.example.com
 
 # If you are setting up Docker Registry, first node on the list will get the registry set, certificates created, and all the rest will trust this certificate
 # and be able to docker login to the Registry itself.
 [docker_registry]
-cp1.internal.domain.net
-cp1worker1.internal.domain.net
-cp1worker2.internal.domain.net
+cp1.internal.example.com
+cp1worker1.internal.example.com
+cp1worker2.internal.example.com
 
 # If used, this is where your Haproxy lives.
 [k8s_load_balancers]
-web1.internal.domain.net
+web1.internal.example.com
 
 # Here will all Component Pack installation steps happen. Can be same as K8S master if masters are available, otherwise any host with kubectl and helm
 [component_pack_master]
-cp1.internal.domain.net
+cp1.internal.example.com
 
 # If you are setting NFS as well for your PV(C)s, first server on the list is going to be NFS master. Add all Kubernetes nodes to the list. 
 [nfs_servers]
-cp1.internal.domain.net
-cp1worker1.internal.domain.net
-cp1worker2.internal.domain.net
+cp1.internal.example.com
+cp1worker1.internal.example.com
+cp1worker2.internal.example.com
 
 # DMGR and WAS nodes are needed for some of installation and post installation steps which include Connections configuration changes.
 [dmgr]
-connections1.internal.domain.net
+connections1.internal.example.com
 
 [was_servers]
-connections1.internal.domain.net
+connections1.internal.example.com
 
 # This will ensure that Haproxy doesn't clash with Nginx ports when collocated.
 [k8s_load_balancers:vars]
@@ -52,7 +52,7 @@ setup_docker_registry=true
 # If set to true, number of pods in connections namespace will be scaled to the number of total workers in k8s_workers
 enable_pod_auto_scaling=True
 # Location and name of Component Pack package
-component_pack_download_location="installer1.internal.domain.net:8001/cp"
+component_pack_download_location="installer1.internal.example.com:8001/cp"
 component_pack_package_name="hybridcloud_6501.zip"
 # If you are using different domains, this is needed to set up ingresses properly.
 ce_on_prem=False
@@ -91,15 +91,15 @@ setup_ms_teams_extensions=false
 
 [all:vars]
 # URL of Docker Registry
-docker_registry_url="cp1.internal.domain.net:5000"
+docker_registry_url="cp1.internal.example.com:5000"
 # Address of Kubernetes load balancer 
-load_balancer_dns=web1.internal.domain.net
+load_balancer_dns=web1.internal.example.com
 # Address of IHS (if one IHS) or DNS name pointing to load balancer pointing to IHSs. 
-ic_internal="connections1.internal.domain.net"
+ic_internal="connections1.internal.example.com"
 # dynamicHost
-frontend_fqdn="web1.domain.net"
-frontend_domain="domain.net"
-db_server="db1.internal.domain.net"
+frontend_fqdn="web1.example.com"
+frontend_domain="example.com"
+db_server="db1.internal.example.com"
 db_server_user="db2inst1"
 db_server_password="password"
 # This version was officially announced for CNX 6.5.0.1. If removed, default it 1.18.10
@@ -109,7 +109,7 @@ calico_install_latest=True
 helm_version=2.16.3
 
 # Those variables are needed for installation and postinstallation tasks
-dmgr_hostname="connections1.internal.domain.net"
+dmgr_hostname="connections1.internal.example.com"
 was_username=wasadmin
 was_password=password
 connections_auto_start_clusters='App'
