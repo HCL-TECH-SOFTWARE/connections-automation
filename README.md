@@ -400,7 +400,7 @@ For HCL Connections Docs itself it means:
 * If HCL Connections Docs will be installed on a domain different from the external URL, setup an external route to connect to the load balances for the HCL Connections Docs.
 
 ### Have files ready for download
-* See [Have files ready for download](https://https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/master/ansible#have-files-ready-for-download) above.
+* See [Have files ready for download](https://github.com/HCL-TECH-SOFTWARE/connections-automation#have-files-ready-for-download) above.
 
 ### Installing HCL Connections Docs
 
@@ -416,7 +416,7 @@ ansible-playbook -i environments/examples/connections_docs playbooks/hcl/setup-c
 
 ## Acknowledgments
 
-This project was inspired by the (Ansible WebSphere/Connections 6.0 automation done by Enio Basso)[https://github.com/ebasso/ansible-ibm-websphere]. It is done in a way that it can interoperate with the mentioned project or parts of it. 
+This project was inspired by the [Ansible WebSphere/Connections 6.0 automation done by Enio Basso](https://github.com/ebasso/ansible-ibm-websphere). It is done in a way that it can interoperate with the mentioned project or parts of it. 
 
 ## License
 
