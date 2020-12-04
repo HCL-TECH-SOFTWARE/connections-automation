@@ -251,12 +251,12 @@ To install WebSphere, you should alraedy have either LDAP installed all LDAP dat
 
 ```
 # This is just an example!
-ldap_server=ldap1.internal.cnx-dev.net
+ldap_server=ldap1.internal.example.com
 ldap_alias=ldap1
 ldap_repo=LDAP_PRODUCTION1
-ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
+ldap_bind_user=cn=Admin,dc=cxn,dc=example,dc=com
 ldap_bind_pass=password
-ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
+ldap_realm=dc=cxn,dc=example,dc=com
 ldap_login_properties=uid;mail
 ```
 
@@ -400,7 +400,7 @@ For HCL Connections Docs itself it means:
 * If HCL Connections Docs will be installed on a domain different from the external URL, setup an external route to connect to the load balances for the HCL Connections Docs.
 
 ### Have files ready for download
-* See [Have files ready for download](https://git.cwp.pnp-hcl.com/conn-automation/deployment-ansible/tree/master/ansible#have-files-ready-for-download) above.
+* See [Have files ready for download](https://https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/master/ansible#have-files-ready-for-download) above.
 
 ### Installing HCL Connections Docs
 
