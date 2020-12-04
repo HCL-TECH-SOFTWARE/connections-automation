@@ -1,62 +1,62 @@
 # This is Websphere DMGR. It can be only one node.
 [dmgr]
-dmgr1.internal.cnx-dev.net
+dmgr1.internal.domain.net
 
 # One or multiple nodeagents for each Docs component
 [was_servers]
-docs1.internal.cnx-dev.net
-docs2.internal.cnx-dev.net
-conversion1.internal.cnx-dev.net
-conversion2.internal.cnx-dev.net
-viewer1.internal.cnx-dev.net
-viewer2.internal.cnx-dev.net
-proxy1.internal.cnx-dev.net
-proxy2.internal.cnx-dev.net
+docs1.internal.domain.net
+docs2.internal.domain.net
+conversion1.internal.domain.net
+conversion2.internal.domain.net
+viewer1.internal.domain.net
+viewer2.internal.domain.net
+proxy1.internal.domain.net
+proxy2.internal.domain.net
 
 # One or multiple application servers for Connections
 [cnx_was_servers]
-connections1.internal.cnx-dev.net
-connections2.internal.cnx-dev.net
+connections1.internal.domain.net
+connections2.internal.domain.net
 
 [ihs_servers]
-ihs1.internal.cnx-dev.net
-ihs2.internal.cnx-dev.net
+ihs1.internal.domain.net
+ihs2.internal.domain.net
 
 # Server hosting DB2. Automation currently doesn't support any HA on DB2 side.
 [db2_servers]
-db1.internal.cnx-dev.net
+db1.internal.domain.net
 
 # One or multiple application servers for Docs Editor
 [docs_servers]
-docs1.internal.cnx-dev.net
-docs2.internal.cnx-dev.net
+docs1.internal.domain.net
+docs2.internal.domain.net
 
 # One or multiple application servers for Document Format Conversion
 [conversion_servers]
-conversion1.internal.cnx-dev.net
-conversion2.internal.cnx-dev.net
+conversion1.internal.domain.net
+conversion2.internal.domain.net
 
 # One or multiple application servers for Viewer
 [viewer_servers]
-viewer1.internal.cnx-dev.net
-viewer2.internal.cnx-dev.net
+viewer1.internal.domain.net
+viewer2.internal.domain.net
 
 # One or multiple servers for Editor Proxy Filter
 [proxy_servers]
-proxy1.internal.cnx-dev.net
-proxy2.internal.cnx-dev.net
+proxy1.internal.domain.net
+proxy2.internal.domain.net
 
 # First node on the list is the NFS server (same as Connections).  Other hosts become clients.
 [nfs_servers]
-dmgr1.internal.cnx-dev.net
-connections1.internal.cnx-dev.net
-connections2.internal.cnx-dev.net
-docs1.internal.cnx-dev.net
-docs2.internal.cnx-dev.net
-conversion1.internal.cnx-dev.net
-conversion2.internal.cnx-dev.net
-viewer1.internal.cnx-dev.net
-viewer2.internal.cnx-dev.net
+dmgr1.internal.domain.net
+connections1.internal.domain.net
+connections2.internal.domain.net
+docs1.internal.domain.net
+docs2.internal.domain.net
+conversion1.internal.domain.net
+conversion2.internal.domain.net
+viewer1.internal.domain.net
+viewer2.internal.domain.net
 
 # Those variables will be used for IHS
 [ihs_servers:vars]
@@ -65,28 +65,28 @@ ihs_password=password
 
 [all:vars]
 # Download location of DB2 driver zip
-db2_download_location=http://installer1.internal.cnx-dev.net:8001/DB2
+db2_download_location=http://installer1.internal.domain.net:8001/DB2
 
 # Download location of Connections Wizards for DB population
-db2_wizards_download_location=installer1.internal.cnx-dev.net:8001/Connections7
+db2_wizards_download_location=installer1.internal.domain.net:8001/Connections7
 
 # Download location for IBM Installation manager
-iim_repository_url=http://installer1.internal.cnx-dev.net:8001/was855
+iim_repository_url=http://installer1.internal.domain.net:8001/was855
 
 # Download location for IBM WebSphere ND & IBM Java
-was_repository_url=http://installer1.internal.cnx-dev.net:8001/was855
+was_repository_url=http://installer1.internal.domain.net:8001/was855
 
 # Download location of IBM WAS ND Fixpack 18
-was_fixes_repository_url=http://installer1.internal.cnx-dev.net:8001/was855FP18
+was_fixes_repository_url=http://installer1.internal.domain.net:8001/was855FP18
 
 # Download location of IBM HTTP Server
-ihs_repository_url=http://installer1.internal.cnx-dev.net:8001/was855
+ihs_repository_url=http://installer1.internal.domain.net:8001/was855
 
 # Download location of IBM HTTP Server fixpacks
-ihs_fixes_repository_url=http://installer1.internal.cnx-dev.net:8001/was855FP18
+ihs_fixes_repository_url=http://installer1.internal.domain.net:8001/was855FP18
 
 # Download location of HCL Connections Docs 2.0.1
-cnx_docs_download_location=http://installer1.internal.cnx-dev.net:8001/Docs
+cnx_docs_download_location=http://installer1.internal.domain.net:8001/Docs
 
 # If set to true, database for Docs will be created. Recommended to keep it this way.
 setup_connections_docs=true
@@ -109,8 +109,8 @@ docs_password=password
 sudo_group=mygroup
 
 # These hostname will be used to load Connections Files and Docs from browser
-cnx_application_ingress=ihs1.cnx-dev.net
-docs_url=ihs1.cnx-dev.net
+cnx_application_ingress=ihs1.domain.net
+docs_url=ihs1.domain.net
 
 # This username and password are going to be set as administrative for IBM WebSphere ND and used as such accross whenever
 # needed.
@@ -118,22 +118,22 @@ was_username=wasadmin
 was_password=password
 
 # Websphere DMGR for Docs. It can be only one node.
-dmgr_hostname=dmgr1.internal.cnx-dev.net
+dmgr_hostname=dmgr1.internal.domain.net
 
 # IHS servers for Docs
-ihs_hostname_list=['ihs1.internal.cnx-dev.net', 'ihs2.internal.cnx-dev.net']
+ihs_hostname_list=['ihs1.internal.domain.net', 'ihs2.internal.domain.net']
 
 # Docs Editor servers
-docs_servers_list=['docs1.internal.cnx-dev.net', 'docs2.internal.cnx-dev.net']
+docs_servers_list=['docs1.internal.domain.net', 'docs2.internal.domain.net']
 
 # Document Format Conversion servers
-conversion_servers_list=['conversion1.internal.cnx-dev.net', 'conversion2.internal.cnx-dev.net']
+conversion_servers_list=['conversion1.internal.domain.net', 'conversion2.internal.domain.net']
 
 # Docs Editor servers
-viewer_servers_list =['viewer1.internal.cnx-dev.net', 'viewer2.internal.cnx-dev.net']
+viewer_servers_list =['viewer1.internal.domain.net', 'viewer2.internal.domain.net']
 
 # Editor Proxy Filter
-proxy_servers_list=['proxy1.internal.cnx-dev.net', 'proxy2.internal.cnx-dev.net']
+proxy_servers_list=['proxy1.internal.domain.net', 'proxy2.internal.domain.net']
 
 # This username and password will be used to setup Docs database. Recommended to keep username this way.
 db_concord_username=docsuser
