@@ -20,19 +20,11 @@
   when:
    - (version_already_installed.rc != 0) or (cnx_updates_enabled == true)
 
-- include_tasks: update_lcc.yml
-#  when:          version_already_installed.rc != 0
-
 - include_tasks: update_was_resource.yml
 
 - name:          Enable Prometheus JMX exporter
   include_tasks: enable_prometheus_jmx_exporter.yml
   when:          __enable_prometheus_jmx_exporter == true
-
-
-- name:          Enable Moderation
-  include_tasks: setup_moderation.yml
-  when:          cnx_enable_moderation is defined and cnx_enable_moderation|bool == true
 
 - name:          Clean CNX temp folder (if upgrade)
   include_tasks: clean_was_temp.yml

@@ -5,32 +5,49 @@
     file_type:               file
   register:                  cnxingress_tgz
 
-- name:                      Check if community cnx-ingress is already deployed
-  shell:                     helm ls | grep ingress-nginx | grep DEPLOYED
+- name:                      Check if community cnx-ingress is already deployed helm-2
+  shell:                     helm ls | grep ingress-nginx | grep -i DEPLOYED
   changed_when:              true
-  register:                  community_ingress_already_provisioned
+  register:                  community_ingress_already_provisioned_helm2
   become:                    false
   ignore_errors:             true
 
-- name:                      Check if cnx-ingress-rule is already deployed
-  shell:                     helm ls | grep cnx-ingress-rule | grep DEPLOYED
+- name:                      Check if community cnx-ingress is already deployed helm-3
+  shell:                     helm ls --all-namespaces | grep ingress-nginx | grep -i DEPLOYED
   changed_when:              true
-  register:                  cnx_ingress_rule_already_provisioned
+  register:                  community_ingress_already_provisioned_helm3
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check if cnx-ingress-rule is already deployed helm2
+  shell:                     helm ls | grep cnx-ingress-rule | grep -i DEPLOYED
+  changed_when:              true
+  register:                  cnx_ingress_rule_already_provisioned_helm2
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check if cnx-ingress-rule is already deployed helm3
+  shell:                     helm ls --all-namespaces | grep cnx-ingress-rule | grep -i DEPLOYED
+  changed_when:              true
+  register:                  cnx_ingress_rule_already_provisioned_helm3
   become:                    false
   ignore_errors:             true
 
 - name:                      Delete community cnx-ingress if already exists
-  shell:                     helm del --purge cnx-ingress
+  shell: |
+                             helm del --purge cnx-ingress
+                             helm uninstall cnx-ingress --namespace connections
   become:                    false
   when:
-   - community_ingress_already_provisioned.rc == 0
+   - (community_ingress_already_provisioned_helm2.rc == 0) or (community_ingress_already_provisioned_helm3.rc == 0)
   ignore_errors:             true
 
 - name:                      Delete cnx-ingress-rule if already exists
   shell:                     helm del --purge cnx-ingress-rule
+  shell:                     helm uninstall cnx-ingress-rule --namespace default
   become:                    false
   when:
-   - cnx_ingress_rule_already_provisioned.rc == 0
+   - (cnx_ingress_rule_already_provisioned_helm2.rc == 0) or (cnx_ingress_rule_already_provisioned_helm3.rc == 0)
   ignore_errors:             true
 
 - name:                      Give it some space...
@@ -56,6 +73,6 @@
     seconds:                 60
 
 - name:                      Check if cnx-ingress is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep cnx-ingress-controller | grep Running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i cnx-ingress-controller | grep -i Running
   when:                      __skip_pod_checks == false
   become:                    false

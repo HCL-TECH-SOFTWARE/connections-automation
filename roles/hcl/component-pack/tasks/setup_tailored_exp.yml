@@ -23,3 +23,17 @@
   pause:
     seconds:                 60
 
+- name:                      Check if tailored experience admin portal is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i admin-portal | grep -i Running
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if tailored experience community template service is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i community-template-service | grep -i Running
+  when:                      __skip_pod_checks == false
+  become:                    false
+
+- name:                      Check if tailored experience creation wizard is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i te-creation-wizard | grep -i Running
+  when:                      __skip_pod_checks == false
+  become:                    false

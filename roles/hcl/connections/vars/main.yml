@@ -36,27 +36,6 @@ __this_version:              "{{ cnx_version | default('6.5.0.0_20191121_2323') 
 __product_id:                "\"id='com.ibm.connections'\""
 __version_check:             "Installed com.ibm.connections.{{ cnx_version }}"
 
-__lcc_full_path:             "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/LotusConnections-config.xml"
-
-# LCC configuration namepspaces
-__lcc_namespaces:
-  xmlns="http://www.ibm.com/LotusConnections-config"
-  xsi="http://www.w3.org/2001/XMLSchema-instance"
-  sloc="http://www.ibm.com/service-location"
-  tns="http://www.ibm.com/LotusConnections-config"
-
-# Dynamic Host
-__lcc_dynamic_host_xpath:       "/tns:config/tns:dynamicHosts"
-__lcc_dynamic_host_href_xpath:  "{{ __lcc_dynamic_host_xpath }}/tns:host"
-__lcc_dynamic_host_href:        "http://{{ cnx_application_ingress }}"
-__lcc_dynamic_host_ssl_href:    "https://{{ cnx_application_ingress }}"
-
-# forceConfidentialCommunications
-__lcc_force_comm_xpath:        "/tns:config/tns:forceConfidentialCommunications"
-
-__cnx_enable_moderation:     "{{ cnx_enable_moderation | default('false') }}"
-__contentreview_full_path:   "/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/{{ __was_cellname }}/LotusConnections-config/contentreview-config.xml"
-
 __enable_prometheus_jmx_exporter: "{{ enable_prometheus_jmx_exporter | default(false) }}"
 __dmgr_bin_dir:                   "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
 __dmgr_soap_port:                 "{{ dmgr_soap_port | default(8879) }}"
@@ -160,6 +139,3 @@ __cnx_db_info:
   - { app: 'pushNotification', name: "{{ push_db.name | default('PNS') }}", server: '{{ push_db.server  | default( __db_hostname ) }}', port: '{{ push_db.port  | default(  __db_port ) }}', jdbc_file: '{{ push_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ push_db.type  | default(  __db_type ) }}', user: '{{ push_db.user  | default(  __db_username ) }}', pw: '{{ push_db.pw  | default(  __db_password ) }}' }
   - { app: 'icec', name: "{{ icec_db.name | default('XCC') }}", server: '{{ icec_db.server  | default( __db_hostname ) }}', port: '{{ icec_db.port  | default(  __db_port ) }}', jdbc_file: '{{ icec_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ icec_db.type  | default(  __db_type ) }}', user: '{{ icec_db.user  | default(  __db_username ) }}', pw: '{{ icec_db.pw  | default(  __db_password ) }}' }
   - { app: 'ic360', name: "{{ ic360_db.name | default('ESSAPPS') }}", server: '{{ ic360_db.server  | default( __db_hostname ) }}', port: '{{ ic_db.port  | default(  __db_port ) }}', jdbc_file: '{{ ic360_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ ic360_db.type  | default(  __db_type ) }}', user: '{{ ic360_db.user  | default(  __db_username ) }}', pw: '{{ ic360_db.pw  | default(  __db_password ) }}' }
-
-
-

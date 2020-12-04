@@ -3,3 +3,9 @@ __nfs_exports_template:              "nfs.exports.j2"
 __nfs_exports_destination:           "/etc/exports"
 
 __nfs_docs_setup:                    "{{ nfs_docs_setup | default(true) }}"
+
+__nfs_export_netmask:                "{{ nfs_export_netmask | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['netmask'] ) }}"
+
+__cnx_data_shared:                   "{{ cnx_shared_area | default('/nfs/data/shared') }}"
+
+__cnx_message_stores:                "{{ cnx_message_store | default('/nfs/data/messageStores') }}"

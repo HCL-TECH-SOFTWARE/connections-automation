@@ -23,17 +23,17 @@
   pause:
     seconds:                 300
 
-- name:                      Check if es-master is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep es-master | grep Running
+- name:                      Check if elasticsearch master is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-master-7 | grep -i Running
   when:                      __skip_pod_checks == false
   become:                    false
 
-- name:                      Check if es-client is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep es-client | grep Running
+- name:                      Check if elasticsearch data is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-data-7 | grep -i Running
   when:                      __skip_pod_checks == false
   become:                    false
 
-- name:                      Check if es-data is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep es-data | grep Running
+- name:                      Check if elasticsearch client is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-client-7 | grep -i Running
   when:                      __skip_pod_checks == false
   become:                    false

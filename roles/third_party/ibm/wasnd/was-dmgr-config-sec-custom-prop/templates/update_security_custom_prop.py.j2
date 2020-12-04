@@ -1,0 +1,18 @@
+import re
+from exceptions import Exception
+
+# Configure Global Security -> Custom properties
+{% if __sec_custom_prop_append|bool %}
+allsettings=AdminTask.getActiveSecuritySettings();
+pattern=re.compile("{{ __sec_custom_prop }}.*?value(.*?)\]");
+match=pattern.search(allsettings)
+if match:
+  prop="{{ __sec_custom_prop }}="+str(match.groups()[0]).strip()+"{{ __sec_custom_prop_value }}"
+else:
+  raise Exception("custom property {{ __sec_custom_prop }} not found.")
+{% else %}
+prop="{{ __sec_custom_prop }}={{ __sec_custom_prop_value }}"
+{% endif %}
+
+AdminTask.setAdminActiveSecuritySettings("[-customProperties [\""+prop+"\"]]")
+AdminConfig.save()

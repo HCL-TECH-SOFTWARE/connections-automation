@@ -60,6 +60,12 @@
   roles:
     - roles/hcl/connections
 
+- name:                    Connections Post Install Config
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/post_install_config
+
 - name:                    Start CNX Clusters
   hosts:                   dmgr
   become:                  true

@@ -27,14 +27,18 @@ webfront:
   env:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
   ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    path: /boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
-      - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
-{% if  frontend_fqdn != frontend_fqdn %}
+      - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
       - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
 {% endif %}
+
 
 core:
   image:
@@ -47,12 +51,15 @@ core:
     # NOTIFIER_EMAIL_FROM_NAME: Kudos Boards
     # NOTIFIER_EMAIL_FROM_EMAIL: boards@connections.example.com
   ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    path: /api-boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
-      - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
-{% if  frontend_fqdn != frontend_fqdn %}
+      - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
       - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
 {% endif %}
 
@@ -75,7 +82,7 @@ user:
   env:
     # CONNECTIONS_NAME: HCL Connections
     CONNECTIONS_CLIENT_ID: kudosboards
-    CONNECtioNS_URL: {{ frontend_fqdn }}
+    CONNECTIONS_URL: {{ ic_internal }}
     CONNECTIONS_CLIENT_SECRET: {{ kudosboards_secret.stdout_lines | last }} 
     CONNECTIONS_ADMINS: "[\"admin1@company.example.com\", \"boss2@company.example.com\", \"PROF_GUID_3\"]"
 

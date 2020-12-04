@@ -35,8 +35,8 @@
   with_items:
    - "/nfs/docs_data" 
    - "/nfs/viewer_data" 
-   - "/nfs/data/shared"
-   - "/nfs/data/messageStores"
+   - "{{ __cnx_data_shared }}"
+   - "{{ __cnx_message_stores }}"
 
 - name:                                             Setup PV folders - customizations
   file:

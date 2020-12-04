@@ -25,26 +25,26 @@ ihs_username=ihsadmin
 ihs_password=password
 
 [all:vars]
-db2_download_location=http://c7installer1.internal.cnx-dev.net:8001/DB2
-tdi_download_location=c7installer1.internal.cnx-dev.net:8001/TDI
-iim_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
-was_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
-ihs_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
-cnx_docs_download_location=http://c7installer1.internal.cnx-dev.net:8001/Docs
+db2_download_location=http://installer1.internal.cnx-dev.net:8001/DB2
+tdi_download_location=installer1.internal.cnx-dev.net:8001/TDI
+iim_repository_url=http://installer1.internal.cnx-dev.net:8001/was855
+was_repository_url=http://installer1.internal.cnx-dev.net:8001/was855
+ihs_repository_url=http://installer1.internal.cnx-dev.net:8001/was855
+cnx_docs_download_location=http://installer1.internal.cnx-dev.net:8001/Docs
 
 # Connections 6.5 and Wizards for 6.5 live in Connections6.5 subfolder on 
-# c7installer1.internal.cnx-dev.net:/data/packages/Connections6.5 
-cnx_repository_url=c7installer1.internal.cnx-dev.net:8001/Connections6.5
-cnx_download_location=c7installer1.internal.cnx-dev.net:8001/Connections6.5
-db2_wizards_download_location=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+# installer1.internal.cnx-dev.net:/data/packages/Connections6.5 
+cnx_repository_url=installer1.internal.cnx-dev.net:8001/Connections6.5
+cnx_download_location=installer1.internal.cnx-dev.net:8001/Connections6.5
+db2_wizards_download_location=installer1.internal.cnx-dev.net:8001/Connections6.5
 
-# WAS FP 16 fixes live in c7installer1.internal.cnx-dev.net:/data/packages/was855FP16
-was_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP16
-ihs_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP16
+# WAS FP 16 fixes live in installer1.internal.cnx-dev.net:/data/packages/was855FP16
+was_fixes_repository_url=http://installer1.internal.cnx-dev.net:8001/was855FP16
+ihs_fixes_repository_url=http://installer1.internal.cnx-dev.net:8001/was855FP16
 
-# WAS FP 18 live in c7installer1.internal.cnx-dev.net:/data/packages/was855FP18
-#was_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP18
-#ihs_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP18
+# WAS FP 18 live in installer1.internal.cnx-dev.net:/data/packages/was855FP18
+#was_fixes_repository_url=http://installer1.internal.cnx-dev.net:8001/was855FP18
+#ihs_fixes_repository_url=http://installer1.internal.cnx-dev.net:8001/was855FP18
 
 # The next two variables are fixing IBM Java version to one distributed with FP 16
 java_version="8.0.5017.20180726_2118"
@@ -97,13 +97,17 @@ smtp_hostname=localhost
 #
 ihs_password=password
 
+# This needs to be a name of at least one IHS server already added as a node to DMGR. 
 cnx_webserver="connections1"
+
+# This is the URL of load balancer pointing towards your Kubernetes cluster in case you are using or going to use Component Pack. Will be used inside httpd.conf
 cnx_component_pack_ingress="web1.internal.cnx-dev.net"
+
+# This is the URL of your Connections installation. Will be used for setting dynamicHost. 
 cnx_application_ingress="web1.cnx-dev.net"
 
 connections_admin=jjones1
 
-cnx_deploy_type=small
 cnx_node_list=['connections1']
 cnx_hostname_list=['connections1.internal.cnx-dev.net']
 ihs_hostname_list=['connections1.internal.cnx-dev.net']
@@ -132,7 +136,14 @@ profiles_app={ 'cluster_name': 'App', 'nodes':['connections1']}
 
 search_app={ 'cluster_name': 'App', 'nodes':['connections1']}
 
+# The list of clusters that will start automatically. 
 connections_auto_start_clusters='App'
+
+# The list of clusters for which you want to enable Prometheus JMX exporter. Choose different port for each cluster. Be careful not to clash with WAS ports. 
+connections_jmx_clusters=[{"name":"App","port":"8080"}]
+
+# If enabled, Prometheus JMX reported will be installed and set for connections_jmx_clusters
+# enable_prometheus_jmx_exporter=True
 
 db_username=LCUSER
 db_password=password
@@ -143,7 +154,7 @@ db_type=DB2
 
 # This variable, if uncommented, is used exclusively by Connections Wizards to recreate the databases; if uncommented and
 # Connections Wizards is invoked by this automation on the system which already has the databases properly set, automation
-# is going to invoke dropDb.sql scripts for the databases already created and recreate the schemas. Please use with cautio
+# is going to invoke dropDb.sql scripts for the databases already created and recreate the schemas. Please use with caution.
 #cnx_force_repopulation=True
 
 activities_db={ 'server': 'db1.internal.cnx-dev.net' }
@@ -161,14 +172,15 @@ wikis_db={ 'server': 'db1.internal.cnx-dev.net' }
 icec_db={ 'server': 'db1.internal.cnx-dev.net' }
 
 cnx_enable_moderation=true
+cnx_enable_invite=true
 
 # The next three variables are intended only for development purposes and there is no guarantee what can be unintentionally broken if using automation to remove stuff in a very brute force way. Keep them false if possible.
 
-# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-db2.yml remove DB2 brute force from the system. If the variable is set to false, running those cleanup scripts would just skip doing anything.
-force_destroy_db2=True
+# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-db2.yml remove DB2 brute force from the system. If the variable is set to false, running those cleanup scripts would just skip doing anything. This is intended for development purposes only!
+#force_destroy_db2=True
 
-# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-ihs.yml remove IHS processes and related folders only. If set to false, running cleanup playbook will not do anything.
-force_destroy_ihs=True
+# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-ihs.yml remove IHS processes and related folders only. If set to false, running cleanup playbook will not do anything. This is intended for development purposes only!
+#force_destroy_ihs=True
 
-# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-was.yml remove WAS & Connections in a very brute force way. If variable is set to false, running playbook itself will not affect anything.
-force_destroy_websphere=True
+# This variable, if enabled, is letting playbooks/hcl/cleanup/cleanup-was.yml remove WAS & Connections in a very brute force way. If variable is set to false, running playbook itself will not affect anything. This is intended for development purposes only!
+#force_destroy_websphere=True

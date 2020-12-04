@@ -414,17 +414,13 @@ ansible-playbook -i environments/examples/connections_docs playbooks/hcl/setup-c
 * If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [here](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/text/functional_verification_of_installation.html) to check if the HCL Docs and File Viewer extensions are installed and active within HCL Connections. If the modules are not listed, on the HCL Connections server, use the `findmnt` command to locate the mount target of `{{nfsMasterAddress}}:{{cnx_data_nfs}}` based on the inventory file, then go to `/provision/webresources` in that location to make sure the jars are there. If not present, try to locate them in `{{cnx_data_nfs}}` as local path and move them to the correct location (i.e. `<Connections shared data>/provision/webresources`). You'll need to restart Connections to see the modules listed.
 * If you wish to reinstall a HCL Docs components, cd to `/opt/HCL/<component>/installer` then run `sudo ./uninstall.sh`.  Delete the .success file in `/opt/HCL/<component>/` then run the playbook again.  It's recommended to comment out the prior steps in the playbook to save time.
 
+## Acknowledgments
 
+This project was inspired by the (Ansible WebSphere/Connections 6.0 automation done by Enio Basso)[https://github.com/ebasso/ansible-ibm-websphere]. It is done in a way that it can interoperate with the mentioned project or parts of it. 
 
 ## License
 
-HCL Confidential
-
-OCO Source Materials
-
-Copyright HCL Technologies Limited 2009, 2020
-
-The source code for this program is not published or otherwise divested of its trade secrets, irrespective of what has been deposited with the U.S. Copyright Office.
+This project is licensed under Apache 2.0 license. 
 
 ## Disclaimer
 

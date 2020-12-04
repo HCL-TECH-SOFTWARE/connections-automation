@@ -76,6 +76,6 @@
     seconds:                 30
 
 - name:                      Check if customizer is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep mw-proxy | grep Running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mw-proxy | grep -i Running
   when:                      __skip_pod_checks == false
   become:                    false

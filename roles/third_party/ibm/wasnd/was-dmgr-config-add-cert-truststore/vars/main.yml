@@ -16,3 +16,5 @@
     __retrieve_cert_port:       "{{ retrieve_cert_port | default('443') }}"
     __trust_cert_host:          "{{ trust_cert_host | default( cnx_application_ingress ) }}"
     __trust_cert_alias:         "{{ trust_cert_alias | default( __trust_cert_host ) }}"
+
+    __msteams_login_host:       "{{ integrations_msteams_login_host | default('login.microsoftonline.com') }}"

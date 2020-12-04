@@ -1,3 +1,15 @@
+---
+- include_tasks:             update_lcc.yml
+
+- name:                      Enable Moderation
+  include_tasks:             setup_moderation.yml
+  when:                      cnx_enable_moderation is defined and cnx_enable_moderation|bool == true
+
+- name:                      Setup Invite config
+  include_tasks:             setup_invite_config.yml
+  when:                      __cnx_enable_invite|bool == true
+
+
 # not needed the relative url seems to be working
 #- name:                 "Update widget-config.xml"
 #  include_tasks:        update_widgets_config.yml

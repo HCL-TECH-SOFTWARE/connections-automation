@@ -174,7 +174,7 @@ backend masters_cnx_ingress_https
     {% endfor %}
 
 frontend grafana
-    bind *:32345
+    bind *:31111
     mode tcp
     option tcplog
     timeout client  10800s
@@ -187,7 +187,7 @@ backend masters_grafana
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
     {% for server in groups.k8s_masters %}
-    server {{ server }} {{ server }}:32345 check
+    server {{ server }} {{ server }}:31111 check
     {% endfor %}
 
 frontend community_template_service_frontend

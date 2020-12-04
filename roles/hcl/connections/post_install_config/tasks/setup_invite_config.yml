@@ -1,0 +1,62 @@
+---
+- name:                                     Enable Invite pre-register in selfregistration-config.xml
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_prereg_xpath }}"
+    value:                                  "true"
+    attribute:                              "ui-enabled"
+
+- name:                                     Set Invite registration base url
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_reg_url_xpath }}"
+    value:                                  "https://{{ cnx_application_ingress }}/"
+
+- name:                                     Enable Invite hide login field
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_hide_login_field_xpath }}"
+    value:                                  "true"
+
+- name:                                     Disable Invite editable display name field
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_displayname_field_xpath }}"
+    value:                                  "false"
+
+- name:                                     Set Invite user type
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_invite_usertype_xpath }}"
+    value:                                  "{{ invite_user_type | default('internal') }}"
+
+
+- name:                                     Set Invite LDAP server href and ssl_href
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_ldap_server_xpath }}"
+    value:                                  "{{ item.protocol }}://{{ ldap_server }}:{{ item.port }}"
+    attribute:                              "{{ item.prop }}"
+  with_items:
+    - { protocol: 'ldap', prop: 'href', port: "{{ ldap_href_port | default('389') }}" }
+    - { protocol: 'ldaps', prop: 'ssl_href', port: "{{ ldap_ssl_port  | default('636') }}" }
+
+
+- name:                                     Set Invite LDAP server authentication
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ item.prop }}"
+    value:                                  "{{ item.value }}"
+  with_items:
+    - { prop: "{{ __selfreg_ldap_auth_user_xpath }}", value: "{{ ldap_bind_user }}" }
+    - { prop: "{{ __selfreg_ldap_auth_pwd_xpath }}", value: "{{ ldap_bind_pass }}" }
+    - { prop: "{{ __selfreg_ldap_parent_dn_xpath }}", value: "{{ ldap_realm }}" }
+    - { prop: "{{ __selfreg_ldap_guid_xpath }}", value: "{{ ldap_guid_field  | default('entryUUID') }}" }
+
+- name:                                     Set Invite Profile base guid
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_profile_base_guid_xpath }}"
+    value:                                  "{{ item }}"
+  with_items:
+    - "${ldap:{{ ldap_guid_field | default('entryUUID') }}}"

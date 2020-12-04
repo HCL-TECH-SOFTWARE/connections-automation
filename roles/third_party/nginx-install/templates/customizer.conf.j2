@@ -48,7 +48,7 @@ server {
                 }
 
                 location /grafana/ {
-                    proxy_pass http://{{ __mw_proxy_address }}:32345;
+                    proxy_pass http://{{ __mw_proxy_address }}:31111;
                 }
 
                 location /api-boards/ {

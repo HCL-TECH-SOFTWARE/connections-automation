@@ -22,3 +22,8 @@
 - name:                      Give it some space...
   pause:
     seconds:                 10
+
+- name:                      Check if connections-volumes pv are bound
+  shell:                     kubectl get pv -n {{ __default_namespace }} | grep -i connections | grep -i Bound
+  when:                      __skip_pod_checks == false
+  become:                    false

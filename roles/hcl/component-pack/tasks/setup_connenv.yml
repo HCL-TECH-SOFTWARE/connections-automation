@@ -23,3 +23,8 @@
 - name:                      Give it some space...
   pause:
     seconds:                 10
+
+- name:                      Check if connections-env configmap is created
+  shell:                     kubectl get configmap -n {{ __default_namespace }} | grep -i connections-env
+  when:                      __skip_pod_checks == false
+  become:                    false

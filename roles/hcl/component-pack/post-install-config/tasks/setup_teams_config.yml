@@ -1,7 +1,61 @@
 ---
-- name:                    Add root signing certificate of the Microsoft Certificate endpoint to the Default Trust Store
+- name:                        Add com.ibm.ws.security.oidc.client.RelyingParty interceptor
   include_role:
-    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-config-interceptor
   vars:
-    __trust_cert_host:     "login.microsoftonline.com"
-    __trust_cert_alias:    "Azure"
+    __trust_interceptor_name:  "com.ibm.ws.security.oidc.client.RelyingParty"
+    __trust_interceptor_prop:
+      - { name: "provider_1.useJwtFromRequest", value: "required" }
+      - { name: "provider_1.identifier", value: "{{ inventory_hostname_short }}" }
+      - { name: "provider_1.issuerIdentifier", value: "https://{{ __msteams_issuer_host }}/{{ __msteams_tenant_id }}/" }
+      - { name: "provider_1.jwkEndpointUrl", value: "https://{{ __msteams_login_host }}/{{ __msteams_tenant_id }}/{{ __msteams_jwk_endpoint }}"}
+      - { name: "provider_1.interceptedPathFilter", value: "/profiles/oidc/session" }
+      - { name: "provider_1.audiences", value: "ALL_AUDIENCES" }
+      - { name: "provider_1.setLtpaCookie", value: "true" }
+      - { name: "provider_1.userIdentifier", value: "email" }
+      - { name: "provider_1.useRealm", value: "defaultWIMFileBasedRealm" }
+
+- name:                        Add the OpenID Connect Relying Party TAI class to com.ibm.websphere.security.InvokeTAIbeforeSSO
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-config-sec-custom-prop
+  vars:
+    __sec_custom_prop:         "com.ibm.websphere.security.InvokeTAIbeforeSSO"
+    __sec_custom_prop_value:   ",com.ibm.ws.security.oidc.client.RelyingParty"
+    __sec_custom_prop_append:  true
+
+- name:                        Configure the trusted realms to include the JWT issuer
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-add-trusted-realms
+  vars:
+    __trusted_realm_name:      "https://{{ __msteams_login_host }}/{{__msteams_tenant_id}}/{{ __msteams_login_version }}"
+
+- name:                        Add root signing certificate of the Microsoft Certificate endpoint to the Default Trust Store
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+  vars:
+    __trust_cert_host:         "{{ __msteams_login_host }}"
+    __trust_cert_alias:        "Azure"
+
+- name:                        Disable com.ibm.websphere.security.disableGetTokenFromMBean
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-config-sec-custom-prop
+  vars:
+    __sec_custom_prop:         "com.ibm.websphere.security.disableGetTokenFromMBean"
+    __sec_custom_prop_value:   "false"
+    __sec_custom_prop_append:  false
+
+- name:                        Stop CNX cluster
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    apply:
+      delegate_to:             "{{ dmgr_hostname }}"
+      become:                  true
+      ignore_errors:           yes
+
+- name:                        Start CNX cluster
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+    apply:
+      delegate_to:             "{{ dmgr_hostname }}"
+      become:                  true
+      ignore_errors:           yes

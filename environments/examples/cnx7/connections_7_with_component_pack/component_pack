@@ -1,85 +1,69 @@
-# This can be one or multiple Kubernetes masters. The first node of the list becomes primary master
+# Kubernetes masters. First in the group will become primary Kubernetes master, and used later through the scripts as such.
 [k8s_masters]
-cp1master1.internal.cnx-dev.net
+cp1.internal.cnx-dev.net
 
+# List of all Kubernetes workers. Those workers will be joined to cluster of masters.
 [k8s_workers]
 cp1worker1.internal.cnx-dev.net
 cp1worker2.internal.cnx-dev.net
-cp1worker3.internal.cnx-dev.net
 
-# This is where Helm gets set up. Normaly we do it on the master node. 
+# On this host (those hosts) Helm will be set. By default 3.4.1
 [k8s_admin]
-cp1master1.internal.cnx-dev.net
+cp1.internal.cnx-dev.net
 
-# This is the list of all Kubernetes nodes. The first node on the list will get Docker Registry set up and the rest of the
-# nodes will have certificate distributed and be configured the way they can log in to the Docker Registry. Docker Registry
-# will not be set up if setup_docker_registry is not set up to true, see the section below
+# If you are setting up Docker Registry, first node on the list will get the registry set, certificates created, and all the rest will trust this certificate
+# and be able to docker login to the Registry itself.
 [docker_registry]
-cp1master1.internal.cnx-dev.net
+cp1.internal.cnx-dev.net
 cp1worker1.internal.cnx-dev.net
 cp1worker2.internal.cnx-dev.net
-cp1worker3.internal.cnx-dev.net
 
-# This is the node where Haproxy gets set. Normally we colocate it with Nginx
+# If used, this is where your Haproxy lives.
 [k8s_load_balancers]
 web1.internal.cnx-dev.net
 
+# Here will all Component Pack installation steps happen. Can be same as K8S master if masters are available, otherwise any host with kubectl and helm
+[component_pack_master]
+cp1.internal.cnx-dev.net
+
+# If you are setting NFS as well for your PV(C)s, first server on the list is going to be NFS master. Add all Kubernetes nodes to the list.
+[nfs_servers]
+cp1.internal.cnx-dev.net
+cp1worker1.internal.cnx-dev.net
+cp1worker2.internal.cnx-dev.net
+
+[nfs_servers:vars]
+nfs_export_netmask=255.255.255.0
+
+# DMGR and WAS nodes are needed for some of installation and post installation steps which include Connections configuration changes.
 [dmgr]
-dmgr1.internal.cnx-dev.net
+connections1.internal.cnx-dev.net
 
 [was_servers]
 connections1.internal.cnx-dev.net
-connections2.internal.cnx-dev.net
 
-# If you want, this automation can also set up file server for you using Nginx. This is the node where it would happen.
-# It will work only if setup_file_server is set to true.
-# Use with caution: Nginx can have issues with serving huge files! 
-[installer]
-c7installer1.internal.cnx-dev.net
-
-# This is the node where Component Pack gets download and installation handled. Should be the same as the one under k8s_admin
-# section.
-[component_pack_master]
-cp1master1.internal.cnx-dev.net
-
-# If you are setting up NFS server, the first node in the list will become NFS master, get folders needed for PVs created,
-# and export proper paths on the same network on which your master NFS lives. Other servers will be set up as clients.
-[nfs_servers]
-cp1master1.internal.cnx-dev.net
-cp1worker1.internal.cnx-dev.net
-cp1worker2.internal.cnx-dev.net
-cp1worker3.internal.cnx-dev.net
-
-# main_port and main_ssl_port ensure that Haproxy doesn't clashes with Nginx. 
+# This will ensure that Haproxy doesn't clash with Nginx ports when collocated.
 [k8s_load_balancers:vars]
 main_port='81'
 main_ssl_port='444'
 
-# See the installer section above.
-[installer:vars]
-setup_file_server=True
-
-# See docker_registry section above.
+# Ensures if you are setting up DR or not. In any case, it will use docker_registry_url as the URL to your Docker Registry.
 [docker_registry:vars]
 setup_docker_registry=true
 
-# Those are the variables needed for setting up Component Pack.
 [component_pack_master:vars]
-# If set to true, it will scale the number of pods to the number of servers in k8s_workers section. 
+# If set to true, number of pods in connections namespace will be scaled to the number of total workers in k8s_workers
 enable_pod_auto_scaling=True
-# The location from where Component Pack package can be downloaded
+# Location and name of Component Pack package
 component_pack_download_location="c7installer1.internal.cnx-dev.net:8001/cp"
-# The name of Component Pack package on the URL from above
 component_pack_package_name="hybridcloud_latest.zip"
-# Next two variables are used for connections-env configmap; if you have more then one domain, as most of production
-# installations do (for example, your dynamicHost is connections.cnx-dev.net, and all your nodes are on *.internal.cnx-dev.net
-# you need to set it this way.
+# If you are using different domains, this is needed to set up ingresses properly.
 ce_on_prem=False
 ingress_multi_domain_enabled=true
-# This is for development purposes only
+# If set to true, Ansible will not check if expected pods are in Running state
 skip_pod_checks=true
-# Everything bellow is using its defaults and is set to false. By default ES7 will be installed. You can uncomment one or more
-# things if you want to skip them for some reason.
+
+# Variables bellow are enabling only the steps needed (and existing) in Component Pack for 7.
 #setup_installation=false
 #setup_images=false
 #setup_credentials=false
@@ -89,48 +73,56 @@ skip_pod_checks=true
 #setup_connections_env=false
 #setup_infrastructure=false
 #setup_customizer=false
-#setup_elasticsearch=True
 #setup_elasticsearch7=false
-#setup_teams=false
+# Teams is here disabled by default due to issues with compatibility with Helm v3. Talk to HCL support to get the fix. 
+setup_teams=false
 #setup_tailored_exp=false
-#setup_ingress=false
-#setup_ingress_rule=false
+# cnx-ingress controller is disabled; instead of that, community one (latest stable one) is being installed.
+setup_ingress=false
+# This is setting up Nginx ingress from Google's Github, and applying ingress rules from cnx-ingress charts. 
 #setup_community_ingress=false
 #setup_orientme=false
 #setup_dashboards=false
-#setup_elasticstack=false
+# Elasticstack Helm charts are, in the current CNX 7 version of Component Pack broken. Reach out to HCL support to get working ones if needed. 
+setup_elasticstack=false
 #setup_sanity=false
 #setup_kudosboards=false
+# This will set up Prometheus and Grafana. It is not mandatory, but good to have.
 #setup_prometheus_operator=false
 #setup_outlook_addin=false
 #enable_es_metrics=false
 #enable_gk_flags=false
-#setup_ms_teams_extensions=false
-# If uncommented (or set to True) this will instruct bootstrap job not to configure Redis and OrientMe will not work. Use with
-# extreme caution!
+# This step is needed if setting up Teams. if setup_teams=false then this also should stay false.
+setup_ms_teams_extensions=false
 #skip_configure_redis=True
 
 [all:vars]
-# The address of your Docker Registry. Will be passed as value to all Helm charts on installation, and is where from 
-# Kubernetes workers are going to try to pull the images.
-docker_registry_url="cp1master1.internal.cnx-dev.net:5000"
-# The address of your Haproxy
+# URL of Docker Registry
+docker_registry_url="cp1.internal.cnx-dev.net:5000"
+# Address of Kubernetes load balancer
 load_balancer_dns=web1.internal.cnx-dev.net
-# The address of internal load balancer behind which are IHSs. In case there is no HA here, this is the address of IHS.
-ic_internal="ihsvip.cnx-dev.net"
-# This is the same what gets set as dynamicHost. This is the front gateway your requests are comming to the system.
+# Address of IHS (if one IHS) or DNS name pointing to load balancer pointing to IHSs.
+ic_internal="connections1.internal.cnx-dev.net"
+# dynamicHost
 frontend_fqdn="web1.cnx-dev.net"
-# This is the domain of your dynamicHost. Used for ingress purposes, otherwise ingress will give you 404 in most of production
-# situations.
 frontend_domain="cnx-dev.net"
-# DB information is needed for running the migration on OrientMe postinstall. It will migrate the profiles from DB2 to MongoDB
 db_server="db1.internal.cnx-dev.net"
 db_server_user="db2inst1"
 db_server_password="password"
-# This is needed for different installation and post installation tasks for Component Pack. 
-dmgr_hostname="dmgr1.internal.cnx-dev.net"
+# Latest tested Kubernetes and Docker versions by HCL on the latest stable branch. 
+kubernetes_version=1.18.12
+docker_version=19.03.13
+calico_install_latest=True
+
+# Those variables are needed for installation and postinstallation tasks
+dmgr_hostname="connections1.internal.cnx-dev.net"
 was_username=wasadmin
 was_password=password
-connections_auto_start_clusters='Apps Push Util Infra'
-# This hash is used by Prometheus and Grafana, to map CNX apps and ports. 
-connections_jmx_clusters=[{"name":"Apps","port":"8080"}, {"name":"Infra","port":"8081"}, {"name":"Util","port":"8082"}, {"name":"Push","port":"8083"}]
+connections_auto_start_clusters='App'
+
+# This needs to match the same variable in your connections inventory file. This will instruct the automation what to map when setting up Prometheus
+# and Grafana (controlled with setup_prometheus_operator)
+connections_jmx_clusters=[{"name":"App","port":"8080"}]
+
+# This is only for development and playing purposes! This will remove Kubernetes fully from k8s_masters and k8s_workers, including Helm, Docker Registry, NFS folders.
+force_destroy_kubernetes=True

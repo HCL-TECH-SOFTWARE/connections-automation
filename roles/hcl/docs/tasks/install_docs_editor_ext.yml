@@ -4,7 +4,7 @@
   register:           editor_ext_already_installed
 
 - name:               Get CNX shared data mount target for {{ nfsMasterAddress }}:{{ cnx_data_nfs }}
-  shell:              "findmnt --source {{ nfsMasterAddress }}:{{ cnx_data_nfs }} -o target -n"
+  shell:              "findmnt --source {{ nfsMasterAddress }}:{{ cnx_data_nfs }} -o target -n | head -n 1" 
   register:           cnx_data_mount_target
   when:
     - editor_ext_already_installed.stat.exists == false
@@ -19,7 +19,7 @@
 
 - debug:                    var=local_cnx_data_path
   when:
-    - editor_ext_already_installed.stat.exists == false  
+    - editor_ext_already_installed.stat.exists == false
 
 - name:               Edit cfg.properties
   lineinfile:

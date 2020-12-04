@@ -13,30 +13,89 @@
 - debug: var=cluster_flavor_check
   run_once: true
 
-- name:                      Check if cnx-ingress is already deployed
-  shell:                     helm ls | grep cnx-ingress | grep DEPLOYED
+- name:                      Check Helm Verion
+  shell:                     helm version -s|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
+  when:
+   - ("api." not in cluster_flavor_check.stdout)
   changed_when:              true
-  register:                  cnx_ingress_already_provisioned
+  register:                  helm_version
   become:                    false
   ignore_errors:             true
 
-- name:                      Delete cnx-ingress if already exists
-  shell:                     helm del --purge cnx-ingress
-  become:                    false
+- name:                      Check if cnx-ingress is already deployed helm-2
+  shell:                     helm ls | grep cnx-ingress | grep -i DEPLOYED
   when:
-   - cnx_ingress_already_provisioned.rc == 0
+   - helm_version.stdout == "v2"
+  changed_when:              true
+  register:                  cnx_ingress_already_provisioned_helm2
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Check if cnx-ingress is already deployed helm-3
+  shell:                     helm ls --all-namespaces | grep cnx-ingress | grep -i DEPLOYED
+  when:
+   - helm_version.stdout != "v2"
+  changed_when:              true
+  register:                  cnx_ingress_already_provisioned_helm3
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Delete cnx-ingress if already exists helm-2
+  shell:                     helm del --purge cnx-ingress
+  when:
+   - helm_version.stdout == "v2"
+   - cnx_ingress_already_provisioned_helm2.rc == 0
+  become:                    false
+  ignore_errors:             true
+
+- name:                      Delete cnx-ingress if already exists helm-3
+  shell:                      helm uninstall cnx-ingress --namespace default
+  when:
+   - helm_version.stdout != "v2"
+   - cnx_ingress_already_provisioned_helm3.rc == 0
+  become:                    false
   ignore_errors:             true
 
 - name:                      Give it some space...
   pause:
     seconds:                 15
 
-- name:                      Check if prom-operator is already deployed
-  shell:                     helm ls | grep prom-operator | grep DEPLOYED
+- name:                      Check if prom-operator is already deployed helm-2
+  shell:                     helm ls | grep prom-operator | grep -i DEPLOYED
+  when:
+   - helm_version.stdout == "v2"
   changed_when:              true
-  register:                  prom_operator_already_provisioned
+  register:                  prom_operator_already_provisioned_helm2
   become:                    false
   ignore_errors:             true
+
+- name:                      Check if prom-operator is already deployed helm-3
+  shell:                     helm ls --all-namespaces | grep prom-operator | grep -i DEPLOYED
+  when:
+   - helm_version.stdout != "v2"
+  changed_when:              true
+  register:                  prom_operator_already_provisioned_helm3
+  become:                    false
+  ignore_errors:             true
+
+- name: Removing existing ingress-nginx file with same name for helm-2
+  file:
+    path:                    $HOME/{{ __helm2_ingress_chart }}
+    state:                   absent
+  when:
+   - helm_version.stdout == "v2"
+  become:                    false
+  ignore_errors:             true
+
+- name: Download ingress-nginx-3.9.0.tgz if using helm2
+  become:                    false
+  get_url:
+    url:                     http://{{ __helm2_ingress_url }}
+    dest:                    $HOME/
+    mode:                    777
+  when:
+   - helm_version.stdout == "v2"
+   - ("api." not in cluster_flavor_check.stdout)
 
 - name: copy cnx_ingress_values.yml from local host to remote host (relative path, ./files/)
   copy:
@@ -45,32 +104,68 @@
     mode:                    '0777'
   become:                    false
 
-- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed helm-2
+  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace connections --set {{ __communityingress_env_vanilla }} -f cnx-ingress-values.yml
+  when:
+   - helm_version.stdout == "v2"
+   - prom_operator_already_provisioned_helm2.rc == 0
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed helm-3
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communityingress_env_vanilla }} -f cnx-ingress-values.yml
   when:
-   - prom_operator_already_provisioned.rc == 0
+   - helm_version.stdout != "v2"
+   - prom_operator_already_provisioned_helm3.rc == 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   become:                    false
 
-- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed helm-2
+  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace connections --set {{ __communitying_ind_env_vanilla }}
+  when:
+   - helm_version.stdout == "v2"
+   - prom_operator_already_provisioned_helm2.rc != 0 
+   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
+  become:                    false
+
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed helm-3
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communitying_ind_env_vanilla }}
   when:
-   - prom_operator_already_provisioned.rc != 0
+   - helm_version.stdout != "v2"
+   - prom_operator_already_provisioned_helm3.rc != 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   become:                    false
 
-- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed helm-2
+  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace connections --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml
   when:
+   - helm_version.stdout == "v2"
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
-   - prom_operator_already_provisioned.rc == 0
+   - prom_operator_already_provisioned_helm2.rc == 0
   become:                    false
 
-- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed helm-3
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml
+  when:
+   - helm_version.stdout != "v2"
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
+   - prom_operator_already_provisioned_helm3.rc == 0
+  become:                    false
+
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed helm-2
+  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace connections --set {{ __communitying_ind_env_eks_os }}
+  when:
+   - helm_version.stdout == "v2"
+   - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
+   - prom_operator_already_provisioned_helm2.rc != 0
+  become:                    false
+
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed helm-3
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace connections --set {{ __communitying_ind_env_eks_os }}
   when:
+   - helm_version.stdout != "v2"
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
-   - prom_operator_already_provisioned != 0
+   - prom_operator_already_provisioned_helm3.rc != 0
   become:                    false
 
 - name:                      Find cnx-ingress helm file
