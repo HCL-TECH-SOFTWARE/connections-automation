@@ -1,0 +1,5 @@
+.vagrant
+cnx-automation
+
+.DS_Store
+environments/hcl

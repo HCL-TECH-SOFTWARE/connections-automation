@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
   end
 
   boxes = [
-    { :name => "cdemo3cp", :ip => "10.172.13.3" },
+    { :name => "hclcnx", :ip => "10.172.13.3" },
   ]
 
   # Provision each of the VMs.
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
       config.vm.network :private_network, ip: opts[:ip]
 
       # Provision all the VMs in parallel using Ansible after last VM is up.
-      if opts[:name] == "cdemo3cp"
+      if opts[:name] == "hclcnx"
         config.vm.provision "ansible" do |ansible|
           ansible.compatibility_mode = "2.0"
           #ansible.playbook = "playbooks/third_party/kubernetes/upgrade-single-node.yml"
@@ -36,23 +36,22 @@ Vagrant.configure("2") do |config|
           ansible.limit = "all"
           ansible.become = true
           ansible.groups = {
-            "k8s_masters" => ["cdemo3cp"],
-            "k8s_workers" => ["cdemo3cp"],
-            "docker_registry" => ["cdemo3cp"],
-            "k8s_load_balancers" => ["cdemo3cp"],
-            "nfs_servers" => ["cdemo3cp"],
-            "component_pack_master" => ["cdemo3cp"],
+            "k8s_masters" => ["hclcnx"],
+            "k8s_workers" => ["hclcnx"],
+            "docker_registry" => ["hclcnx"],
+            "k8s_load_balancers" => ["hclcnx"],
+            "nfs_servers" => ["hclcnx"],
+            "component_pack_master" => ["hclcnx"],
             "k8s_masters:vars" => {
-              kubernetes_version: "1.18.1",
-              upgrade_version: "1.18.0",
+              kubernetes_version: "1.18.12",
               single_node_installation: true,
-              docker_version: "19.03.8",
+              docker_version: "19.03.13",
               calico_install_latest: "True"
             },
             "component_pack_master:vars" => {
-              component_pack_download_location: "cntr-builder1.cnx.cwp.pnp-hcl.com:8000/cp",
+              component_pack_download_location: "installer1.internal.example.com:8000/cp",
               component_pack_package_name: "hybridcloud_20200321-175618.zip",
-              ic_internal: "cdemo2.cnx.cwp.pnp-hcl.com",
+              ic_internal: "connections1.internal.example.com",
               skip_pod_checks: true
             },
             "docker_registry:vars" => {
