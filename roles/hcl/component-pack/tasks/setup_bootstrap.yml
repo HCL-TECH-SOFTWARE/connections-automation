@@ -1,28 +1,38 @@
-- name:                      Check if bootstrap can be deleted after all
-  shell:                     helm ls | grep bootstrap | grep DEPLOYED
+- name:                      Check Helm Version
+  shell:                     helm version -c|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
+  changed_when:              true
+  register:                  helm_version
+  become:                    false
+  ignore_errors:             true
+
+- debug: var=helm_version.stdout
+
+- name:                      Check if bootstrap can be deleted after all with Helm
+  shell:                     helm ls | grep bootstrap | grep -i DEPLOYED
   changed_when:              true
   register:                  bootstrap_already_provisioned
   become:                    false
   ignore_errors:             true
 
-- name:                      Delete bootstrap if already exists
+- name:                      Delete bootstrap if already exists - Helm v2
   command:                   helm del --purge bootstrap
   when:
-    - bootstrap_already_provisioned.rc == 0
+   - bootstrap_already_provisioned.rc == 0
+   - helm_version.stdout == "v2"
+  become:                    false
+
+- name:                      Delete bootstrap if already exists - Helm v3
+  command:                   helm uninstall bootstrap
+  when:
+   - bootstrap_already_provisioned.rc == 0
+   - helm_version.stdout != "v2"
   become:                    false
 
 - name:                      Give it some space after eventual cleanup
   pause:
-    seconds:                 10
+    seconds:                 5
   when:
-    - bootstrap_already_provisioned.rc == 0
-
-- name:                      Check if bootstrap is already provisioned
-  shell:                     helm ls | grep bootstrap | grep DEPLOYED
-  changed_when:              true
-  register:                  bootstrap_completed
-  become:                    false
-  ignore_errors:             true
+   - bootstrap_already_provisioned.rc == 0
 
 - name:                      "Render {{ __bootstrap_install_env }}"
   template:
@@ -43,8 +53,6 @@
 
 - name:                      Setup bootstrap
   command:                   "helm upgrade bootstrap {{ bootstrap_tgz.files[0].path }} -i -f {{ __bootstrap_install_env }}"
-  when:
-    - bootstrap_completed.rc != 0
   become:                    false
 
 - name:                      Wait for bootstrap to come up

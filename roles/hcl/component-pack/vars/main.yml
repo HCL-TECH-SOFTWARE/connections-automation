@@ -64,8 +64,8 @@ __msteams_client_secret:        "{{ integrations_msteams_client_secret | default
 __msteams_auth_schema:          "{{ integrations_msteams_auth_schema | default('0') }}"
 
 __ce_on_prem:                   "{{ ce_on_prem | default('true') }}" 
-__ic_admin_username:            "{{ ic_admin_username | default('wasadmin') }}"
-__ic_admin_password:            "{{ ic_admin_password | default('password') }}"
+__ic_admin_username:            "{{ was_username | default('wasadmin') }}"
+__ic_admin_password:            "{{ was_password | default('password') }}"
 __frontend_fqdn:                "{{ frontend_fqdn | default(localhost) }}"
 __ic_internal:                  "{{ ic_internal | default('localhost') }}"
 __k8s_master_ip:                "{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}"
@@ -102,6 +102,7 @@ __customizer_helloworld_js_dest:  "{{ __customizer_js_files_mount }}/helloWorld/
 __elasticsearch_env:            "{{ __ansible_cache_charts }}/elasticsearch.yml"
 #__elasticsearch_env:            "image.repository={{ __docker_registry_url }}/connections,nodeAffinityRequired=true,createSecret=false"
 
+__om__max_conc_users:           "{{ om_max_conc_users | default(50) }}"
 __orientme_env:                 "{{ __ansible_cache_charts }}/orientme.yml"
 #__orientme_env:                 "global.onPrem=true,global.image.repository={{ __docker_registry_url }}/connections,orient-web-client.service.nodePort=30001,itm-services.service.nodePort=31100,mail-service.service.nodePort=32721,community-suggestions.service.nodePort=32200,deploymentType=hybrid_cloud,orient-indexing-service.indexing.solr=false,orient-indexing-service.indexing.elasticsearch=true,orient-retrieval-service.retrieval.elasticsearch=true,replicaCount={{ __replica_count }}"
 

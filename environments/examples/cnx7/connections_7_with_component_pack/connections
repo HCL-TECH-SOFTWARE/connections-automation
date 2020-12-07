@@ -20,6 +20,17 @@ db1.internal.example.com
 [ldap_servers]
 ldap1.internal.example.com
 
+[ldap_servers:vars]
+# Set to false if you want to skip adding fake LDAP users (for example, if you are setting up production environment and you don't need them)
+setup_fake_ldap_users=True
+# Number of fake users that will be created.
+ldap_nr_of_users=2500
+# ID of user(s) if creating dummy users for the demo purposes. First one becomes Connections admin, and gets ldap_user_admin_password. All others get
+# ldap_user_password as password. Users will be enumerated from ldap_userid1 to ldap_userid2500. Enough for simple performance testing.
+ldap_userid="fakeuser"
+ldap_user_password="password"
+ldap_user_admin_password="password"
+
 # Those variables will be used to set up admin user and password on IHS nodes for IHS itself.
 [ihs_servers:vars]
 ihs_username=ihsadmin
@@ -110,7 +121,7 @@ cnx_application_ingress="web1.example.com"
 sso_domainname=.internal.example.com;.example.com
 
 # Connections admin user. By default it is this one. Doesn't have to exist in the moment of cluster setup.
-connections_admin=jjones1
+connections_admin=fakeuser1
 
 cnx_node_list=['connections1', 'connections2']
 cnx_hostname_list=['connections1.internal.example.com', 'connections2.internal.example.com']

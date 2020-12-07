@@ -6,5 +6,5 @@
     validate_certs: false
   register: _result
   until: _result.status == 200
-  retries: 20   
+  retries: 20
   delay: 30

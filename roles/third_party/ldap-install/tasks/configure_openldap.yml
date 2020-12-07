@@ -48,6 +48,8 @@
   stat:
     path:                   "{{ __users_ldif_success_file }}"
   register:                 ldap_users_already_created
+  when:
+    - __setup_fake_ldap_users
 
 - name:                     "Render {{ __users_ldif_location }}"
   template:
@@ -55,6 +57,7 @@
     dest:                   "{{ __users_ldif_location }}"
   when:
     - ldap_users_already_created.stat.exists == false
+    - __setup_fake_ldap_users
 
 - name:                     "Create users from {{ __users_ldif_location }}"
   command:                  "{{ __ldap_add_users }}"
@@ -62,6 +65,7 @@
   failed_when:              ( users.rc not in [0] )
   when:
     - ldap_users_already_created.stat.exists == false
+    - __setup_fake_ldap_users
 
 - name:                     "Cleanup {{ __users_ldif_location }}"
   file:
@@ -69,8 +73,11 @@
     state:                  absent
   when:
     - ldap_users_already_created.stat.exists == false
+    - __setup_fake_ldap_users
   
 - name:                     "Create {{ __users_ldif_success_file }} file"
   file:
     path:                   "{{ __users_ldif_success_file }}"
     state:                  touch
+  when:
+    - __setup_fake_ldap_users

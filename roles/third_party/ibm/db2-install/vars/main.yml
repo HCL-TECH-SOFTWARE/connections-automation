@@ -20,7 +20,7 @@ __db2_users:
 - lcuser
 - docsuser
 
-__db2_users_password:          "{{ db2_users_password | default('password') }}"
+__db2_users_password:          "{{ db_password | default('password') }}"
 
 __db2_codepage_success_file:   "/home/db2inst1/codepage.success"
 

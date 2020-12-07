@@ -16,7 +16,7 @@
   hosts:                   db2_servers
   become:                  true
   roles:
-    - roles/third_party/ibm/db2-connections
+    - roles/hcl/connections-wizards
 
 - name:                    Start IHS
   hosts:                   ihs_servers

@@ -1,4 +1,30 @@
 ---
+- name:              Check if Helm is installed
+  shell:             helm version
+  changed_when:      true
+  register:          helm_installed
+  become:            false
+  ignore_errors:     true
+
+- name:              Fail if Helm is not installed
+  fail:
+    msg:             "Can not find Helm installed for the user running this script, failing here." 
+  when:
+   - helm_installed.rc != 0
+
+- name:              Check if kubectl is configured for the user
+  shell:             kubectl get nodes
+  changed_when:      true
+  register:          kubectl_configured
+  become:            false
+  ignore_errors:     true
+
+- name:              Fail if kubectl is not configured
+  fail:
+    msg:             "kubectl seems not to be configured for your user, failing here."
+  when:
+   - kubectl_configured.rc != 0
+
 - name: component_pack_download_location should be defined
   assert:
     that:

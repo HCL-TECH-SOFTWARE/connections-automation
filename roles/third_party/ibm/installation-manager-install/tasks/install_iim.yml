@@ -10,7 +10,6 @@
     url:         "{{ iim_repository_url }}/{{ __bin_file }}"
     dest:        "{{ __tmp_dir }}/{{ __bin_file }}"
     mode:        0755
-    checksum:    sha256:{{ __bin_file_sha256 }}
 
 - name:          Extract IBM Installation Manager
   unarchive:

@@ -8,14 +8,14 @@
     path:                "{{ __extraction_folder }}"
     state:               absent
   when:
-    - (migrations_already_done.stat.exists == false) and (__cnx_force_repopulation == true)
+    - (migrations_already_done.stat.exists == false) or (__cnx_force_repopulation == true)
 
 - name:                  Create installation folder
   file:
     path:                "{{ __extraction_folder }}"
     state:               directory
   when:
-    - (migrations_already_done.stat.exists == false) and (__cnx_force_repopulation == true)
+    - (migrations_already_done.stat.exists == false) or (__cnx_force_repopulation == true)
 
 
 - name:                  Download and unzip installation "http://{{ __download_location}}/{{ __package_name }}" to the {{ __extraction_folder }}

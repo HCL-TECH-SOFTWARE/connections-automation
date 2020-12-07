@@ -20,6 +20,17 @@ db1.internal.example.com
 [ldap_servers]
 db1.internal.example.com
 
+[ldap_servers:vars]
+# Set to false if you want to skip adding fake LDAP users (for example, if you are setting up production environment and you don't need them)
+setup_fake_ldap_users=True
+# Number of fake users that will be created.
+ldap_nr_of_users=2500
+# ID of user(s) if creating dummy users for the demo purposes. First one becomes Connections admin, and gets ldap_user_admin_password. All others get
+# ldap_user_password as password. Users will be enumerated from ldap_userid1 to ldap_userid2500. Enough for simple performance testing.
+ldap_userid="fakeuser"
+ldap_user_password="password"
+ldap_user_admin_password="password"
+
 [ihs_servers:vars]
 ihs_username=ihsadmin
 ihs_password=password
@@ -106,7 +117,7 @@ cnx_component_pack_ingress="web1.internal.example.com"
 # This is the URL of your Connections installation. Will be used for setting dynamicHost. 
 cnx_application_ingress="web1.example.com"
 
-connections_admin=jjones1
+connections_admin=fakeuser1
 
 cnx_node_list=['connections1']
 cnx_hostname_list=['connections1.internal.example.com']

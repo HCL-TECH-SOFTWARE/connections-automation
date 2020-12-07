@@ -4,8 +4,6 @@
   register:          __xor_encoded_password
   changed_when:      ( __xor_encoded_password.rc == 0)
 
-#- debug: var=__xor_encoded_password
-
 - name:              Encode WAS Password
   command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ was_password }} -silent -noSplash"
   register:          __was_encoded_password
@@ -14,16 +12,13 @@
 - name:              Encode DB Passwords
   command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }} -silent -noSplash"
   register:          __cnx_db_info_results
-  #changed_when:      ( item.encoded_pw.rc == 0)
   with_items:        "{{ __cnx_db_info }}"
 
-- name:              Encode CCM Password 
+- name:              Encode CCM Password
   command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ ccm_password }} -silent -noSplash"
   register:          __ccm_encoded_password
   changed_when:      ( __ccm_encoded_password.rc == 0)
   when:              ( ccm_install is defined )
-
-- debug: var=__ccm_encoded_password
 
 - name:              Encode DB Passwords for CCM
   command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }} -silent -noSplash"

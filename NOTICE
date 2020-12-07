@@ -1,5 +1,8 @@
 Connections Ansible Automation
 Copyright 2020 HCL Software
 
-Includes content from https://github.com/ebasso/ansible-ibm-websphere Apache License 2.0
+Includes content from https://github.com/ebasso/ansible-ibm-websphere under Apache License 2.0
 Copyright Enio Basso
+
+Includes content from https://github.com/wsadminlib/wsadminlib under Apache License 2.0
+Copyright IBM Corp. 1996, 2012

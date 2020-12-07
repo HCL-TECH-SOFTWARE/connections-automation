@@ -225,15 +225,42 @@ If you want to recreate the databases, uncomment:
 #cnx_force_repopulation=True
 ```
 
-in your inventory file. This will then drop all the databases and recreate them again. Don't forget to run TDI afterwards.
+If you are upgrading from Connections 6.5.0.1 to 7 and want to only create IC360 database and run needed migrations, uncomment:
+
+```
+#db_enable_upgrades=True
+```
+
+in your inventory file. This will then drop all the databases and recreate them again. Don't forget to run TDI afterwards. Be sure to comment it again once you do it. 
 
 ### Setting up OpenLDAP with SSL and amount of fake users
 
-To install OpenLDAP with SSL enabled and generate of fake users, execute:
+To install OpenLDAP with SSL enabled and generate fake users, execute:
 
 ```
 ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/third_party/setup-ldap.yml
 ```
+
+You can turn on or off creating any of fake users by manipulating:
+
+```
+setup_fake_ldap_users=True
+```
+
+If you are creating them, you can manipulate the details using next set of variables:
+
+```
+ldap_nr_of_users=2500
+ldap_userid="fakeuser"
+ldap_user_password="password"
+ldap_user_admin_password="password"
+```
+
+This will create 2500 fake accounts, starting with user id 'fakeuser1' and going to 'fakeuser2499'. First of them in this case (fakeuser1) will get 'ldap_user_admin_password' set, and all others are going to get 'ldap_user_password'. On top of that, it you will get automatically 10 more users created being set as external. Be sure to set in this case one of those users as HCL Connections admin user before the Connections installation like here:
+
+```
+connections_admin=fakeuser1
+``` 
 
 This comes in handy if you don't have any other LDAP server ready and you want to quickly get to the point where you can test HCL Connections. You can later replace this LDAP with any other one.
 
@@ -262,6 +289,28 @@ ldap_login_properties=uid;mail
 
 LDAP should also have SSL enabled as IBM WebSphere Application Server is going to try to import its TLS certificate and fail if there is none.
 
+Be sure that you also have proper values here:
+```
+dmgr_hostname=dmgr1.internal.example.com
+was_domainname=.internal.example.com
+domain_name=.internal.example.com
+cnx_domainname=.internal.example.com
+smtp_hostname=localhost
+```
+
+If you have more then one domain (for example, you dynamicHost is connections.example.com but all your servers live in DMZ on *.internal.example.com) be sure to also set:
+
+```
+sso_domainname=.internal.example.com;.example.com
+```
+
+And in the end, you need to create WebSphere user account by setting this:
+
+```
+was_username=wasadmin
+was_password=password
+```
+
 To install IBM WebSphere Application Server, IBM HTTP Server and configure it, execute:
 
 ```
@@ -274,6 +323,34 @@ To install the WebSphere-side of Connections only, on an already prepared enviro
 
 ```
 ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/hcl/setup-connections-only.yml
+```
+
+To enable Moderation and Invites, set:
+
+```
+cnx_enable_moderation=true
+cnx_enable_invite=true
+```
+
+To ensure that you don't have to pin specific offering version yourself, make sure that the next variable is set:
+
+```
+cnx_updates_enabled=True
+```
+
+You can also rewrite locations of message and shared data stores by manipulating next two variables before you hit install:
+
+```
+cnx_shared_area="/nfs/data/shared"
+cnx_message_store="/nfs/data/messageStores"
+```
+
+### Running post installation tasks
+
+Once your Connections installation is done, run this playbook to set up some post installation bits and pieces needed for Connections 7 on WebSphere:
+
+```
+ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/hcl/connections-post-install.yml
 ```
 
 ## Setting up Component Pack for HCL Connections 7 with its dependencies
@@ -294,6 +371,15 @@ This playbook will:
 * Set up Docker and Docker Registry
 * Set up Kubernetes
 * Install and configure Component Pack to work with Connections
+
+By default, Component Pack will consider first node in [nfs_servers] to be your NFS master also, and by default it will consider that on NFS master, all needed folders for Component Pack live in /pv-connections. You can rewrite it with:
+
+```
+nfsMasterAddress="172.29.31.1"
+persistentVolumePath="nfs"
+```
+
+This translates to //172.29.31.1:/nfs
 
 Note: The Component Pack installation and configuration contains tasks with an impact on the WebSphere-side of Connections side which require restarts of WebSphere and Connections itself, and which will be executed.
 
@@ -332,6 +418,13 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 ```
 
 This will set up the NFS master, create and export needed folders for Component Pack components, and set up the clients so they can connect to it.
+
+By default, NFS master will export the folders for its own network. If you want to change the netmask, be sure to set:
+
+```
+[nfs_servers:vars]
+nfs_export_netmask=255.255.0.0
+```
 
 ### Setting up Docker and Docker Registry
 
@@ -410,7 +503,7 @@ ansible-playbook -i environments/examples/connections_docs playbooks/hcl/setup-c
 ```
 
 ### HCL Connections Docs Troubleshooting
-* If HCL Connections Docs configuration adjustment is needed after the install, it can be done in `/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/${CELLNAME}/IBMDocs-config` on the WebSphere deployment manager.  Make sure to do a full re-synchronize to propagate any changes to all Docs nodes.
+* If HCL Connections Docs configuration adjustment is needed after the install, it can be done in `/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/${CELLNAME}/IBMDocs-config` on the WebSphere Deployment Manager.  Make sure to do a full re-synchronize to propagate any changes to all Docs nodes.
 * If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [here](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/text/functional_verification_of_installation.html) to check if the HCL Docs and File Viewer extensions are installed and active within HCL Connections. If the modules are not listed, on the HCL Connections server, use the `findmnt` command to locate the mount target of `{{nfsMasterAddress}}:{{cnx_data_nfs}}` based on the inventory file, then go to `/provision/webresources` in that location to make sure the jars are there. If not present, try to locate them in `{{cnx_data_nfs}}` as local path and move them to the correct location (i.e. `<Connections shared data>/provision/webresources`). You'll need to restart Connections to see the modules listed.
 * If you wish to re-install a HCL Connections Docs components, cd to `/opt/HCL/<component>/installer` then run `sudo ./uninstall.sh`.  Delete the .success file in `/opt/HCL/<component>/` then run the playbook again.  It is recommended to comment out the prior steps in the playbook to save time.
 

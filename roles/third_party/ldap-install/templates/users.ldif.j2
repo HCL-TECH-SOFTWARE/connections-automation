@@ -18,7 +18,8 @@ telephoneNumber: 1-978-399-0000
 employeeType: internal
 
 
-{% for counter in range(2, 2500) %}
+{% set total_users = __ldap_nr_of_users | int %}
+{% for counter in range(2, total_users) %}
 dn: uid={{ __ldap_userid }}{{ counter }},{{ __ldap_olc_suffix }}
 objectClass: inetOrgPerson
 objectClass: top
@@ -41,7 +42,10 @@ manager: uid={{ __ldap_userid }}300,{{ __ldap_olc_suffix }}
 
 {% endfor %}
 
-{% for counter in range(2501, 2510) %}
+{% set total_users = __ldap_nr_of_users | int %}
+{% set external_users = 10 %}
+{% set total_external_users = total_users + external_users %}
+{% for counter in range(total_users, total_external_users) %}
 dn: uid={{ __ldap_userid }}{{ counter }},{{ __ldap_olc_suffix }}
 objectClass: inetOrgPerson
 objectClass: top

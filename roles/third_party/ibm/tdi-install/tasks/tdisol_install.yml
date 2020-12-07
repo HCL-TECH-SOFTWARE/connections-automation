@@ -50,22 +50,22 @@
   template:
     src:                 "{{ __tdienv_sh_template }}"
     dest:                "{{ __tdienv_sh_dest }}"
-  when:
-    - tdisol_already_installed.stat.exists == false
+#  when:
+#    - tdisol_already_installed.stat.exists == false
 
 - name:                  "Render {{ __tdi_properties_dest }}"
   template:
     src:                 "{{ __tdi_properties_template }}"
     dest:                "{{ __tdi_properties_dest }}"
-  when:
-    - tdisol_already_installed.stat.exists == false
+#  when:
+#    - tdisol_already_installed.stat.exists == false
 
 - name:                  "Render {{ __tdi_mdbrfs_destination }}"
   template:
     src:                 "{{ __tdi_mdbrfs_template }}"
     dest:                "{{ __tdi_mdbrfs_destination }}"
-  when:
-    - tdisol_already_installed.stat.exists == false
+#  when:
+#    - tdisol_already_installed.stat.exists == false
 
 - name:                  Make files executable
   file:
@@ -78,8 +78,8 @@
    - "netstore"
    - "tdienv.sh"
    - "populate_from_dn_file.sh"
-  when:
-    - tdisol_already_installed.stat.exists == false
+#  when:
+#    - tdisol_already_installed.stat.exists == false
 
 - name:                  "Copy JDBC files"
   copy:
