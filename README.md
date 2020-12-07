@@ -4,7 +4,7 @@ This set of scripts is able to spin up end-to-end HCL Connections 7 with Compone
 
 For HCL Connections 7 dependencies this means that:
 
-* IBM DB2 will be installed, configured as per Performance tunning guide for HCL \, and license applied.
+* IBM DB2 will be installed, configured as per Performance tunning guide for HCL Connections, and license applied.
 * HCL Connections Wizard will populate the database with needed schemas and grants.
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
