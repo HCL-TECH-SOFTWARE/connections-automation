@@ -48,8 +48,8 @@ To learn more about how to install Ansible on your local machine or Ansible cont
 
 Supported OSs:
 
-* CentOS 7.1+
-* CentOS 8.0+
+* CentOS 7+
+* RHEL 7+
 
 NOTE: The supported operating systems listed above have been tested by HCL. These scripts may run on other operating systems as well.
 
@@ -128,6 +128,7 @@ drwxr-xr-x. 13 root    orion        192 Nov 18 08:33 ..
 -rw-r--r--.  1 dmenges orion 1056708869 Apr 23  2020 WAS_V8.5.5_SUPPL_2_OF_3.zip
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
 -rw-r--r--.  1 dmenges orion  171921530 Apr 23  2020 agent.installer.linux.gtk.x86_64_1.8.9006.20190918_1303.zip
+-rw-r--r--.  1 root    root   215292676 Aug 12 22:52 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
 was855FP16:
 total 7391380
