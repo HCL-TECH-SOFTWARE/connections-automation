@@ -1,0 +1,11 @@
+# Configure [ic360 nodes] > Process definition > Java Virtual Machine > Custom properties
+
+{% for node in __nodes_name %}
+property = ['-serverName', '{{ __cluster_name }}-{{ node }}',  '-nodeName', '{{ node }}-node']
+propvalue = AdminTask.showJVMSystemProperties('[-serverName {{ __cluster_name }}-{{ node }} -nodeName {{ node }}-node -propertyName {{ __prop_name }} ]')
+if not propvalue:
+  property.extend(['-propertyName', '{{ __prop_name }}' , '-propertyValue', '{{ __prop_value }}'])
+  AdminTask.setJVMSystemProperties(property)
+  AdminConfig.save()
+
+{% endfor %}

@@ -11,9 +11,5 @@
     __was_password:             "{{ was_password }}"
     __bin_dir:                  "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
 
-    __tpl_file:                 "was-dmgr-add-trusted-realms.py.j2"
-    __rsp_file:                 "{{ __bin_dir }}/was-dmgr-add-trusted-realms.py"
-
-    __msteams_tenant_id:        "{{ integrations_msteams_tenant_id | default('changeme') }}"
-    __msteams_login_host:       "{{ integrations_msteams_login_host | default('login.microsoftonline.com') }}"
-    __msteams_login_version:    "{{ integrations_msteams_login_version | default('v2.0') }}"
+    __tpl_file:                 "was-dmgr-add-jvm-prop.py.j2"
+    __rsp_file:                 "{{ __bin_dir }}/was-dmgr-add-jvm-prop.py"

@@ -6,14 +6,25 @@ ic:
   interserviceConnectionsPort: 443
   interserviceScheme: https
 integrations:
+  msgraph:
+    client:
+      id: 'changeme'
+      secret: 'changeme'
+    redirect:
+      uri: 'changeme'
+    secret:
+      name: 'changeme'
   msteams:
-    enabled: {{ __setup_teams }}
-    tenant:
-      id: {{ __msteams_tenant_id }}
+    auth:
+      schema: {{ __msteams_auth_schema }}
     client:
       id: {{ __msteams_client_id }}
       secret: {{ __msteams_client_secret }}
-    auth:
-      schema: {{ __msteams_auth_schema}}
+    enabled: {{ __setup_teams }}
+    redirect:
+      uri: 'changeme'
+    tenant:
+      id: {{ __msteams_tenant_id }}
+
 createSecret: false
 replicaCount: {{ __replica_count }}

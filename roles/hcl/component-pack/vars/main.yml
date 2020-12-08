@@ -102,7 +102,7 @@ __customizer_helloworld_js_dest:  "{{ __customizer_js_files_mount }}/helloWorld/
 __elasticsearch_env:            "{{ __ansible_cache_charts }}/elasticsearch.yml"
 #__elasticsearch_env:            "image.repository={{ __docker_registry_url }}/connections,nodeAffinityRequired=true,createSecret=false"
 
-__om__max_conc_users:           "{{ om_max_conc_users | default(50) }}"
+__om_max_conc_users:            "{{ om_max_conc_users | default(50) }}"
 __orientme_env:                 "{{ __ansible_cache_charts }}/orientme.yml"
 #__orientme_env:                 "global.onPrem=true,global.image.repository={{ __docker_registry_url }}/connections,orient-web-client.service.nodePort=30001,itm-services.service.nodePort=31100,mail-service.service.nodePort=32721,community-suggestions.service.nodePort=32200,deploymentType=hybrid_cloud,orient-indexing-service.indexing.solr=false,orient-indexing-service.indexing.elasticsearch=true,orient-retrieval-service.retrieval.elasticsearch=true,replicaCount={{ __replica_count }}"
 
