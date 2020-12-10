@@ -129,7 +129,7 @@ docs_servers_list=['docs1.internal.example.com', 'docs2.internal.example.com']
 # Document Format Conversion servers
 conversion_servers_list=['conversion1.internal.example.com', 'conversion2.internal.example.com']
 
-# Docs Editor servers
+# Docs Viewer servers
 viewer_servers_list =['viewer1.internal.example.com', 'viewer2.internal.example.com']
 
 # Editor Proxy Filter
