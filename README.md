@@ -162,6 +162,20 @@ Of course, you can drop it all to a single folder, or restructure it whatever wa
 
 Inventory files live in environments folder. In general all the variables are separated in two files - connections and component_pack. It could be merged of course, as lot of stuff is overlapping, but be careful if merging not to overlap stuff that eventually shouldn't be (like if you are using different NFSs for the WebSphere-side of Connections and Component Pack).
 
+### SSH User
+
+If you run the Ansible playbooks from a Mac or Linux host, you need to specify the `remote_user` for the SSH connection, or it will default to your local username.
+
+Edit `ansible.cfg` and remove the comment `#` from the line and set your user:
+
+    # remote_user = root
+
+Example:
+
+    remote_user = sysadmin
+
+The `ansible.cfg` allows a lot of settings, see the example file at https://github.com/ansible/ansible/blob/devel/examples/ansible.cfg and it can stay in the root of your Ansible project, or can be placed in `~/.ansible.cfg`, then it will work for all of your Ansible projects.
+
 ### Supported layouts
 
 Those scripts should be able to support both single node installations and HA environments, specifically:
