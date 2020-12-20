@@ -1,4 +1,4 @@
 ---
 # Those variables will be used to set up admin user and password on IHS nodes for IHS itself.
-ihs_username=ihsadmin
-ihs_password=password
+ihs_username: ihsadmin
+ihs_password: password

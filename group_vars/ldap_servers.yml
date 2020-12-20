@@ -1,10 +1,10 @@
 ---
 # Set to false if you want to skip adding fake LDAP users (for example, if you are setting up production environment and you don't need them)
-setup_fake_ldap_users=True
+setup_fake_ldap_users: True
 # Number of fake users that will be created.
-ldap_nr_of_users=2500
+ldap_nr_of_users: 2500
 # ID of user(s) if creating dummy users for the demo purposes. First one becomes Connections admin, and gets ldap_user_admin_password. All others get
 # ldap_user_password as password. Users will be enumerated from ldap_userid1 to ldap_userid2500. Enough for simple performance testing.
-ldap_userid="fakeuser"
-ldap_user_password="password"
-ldap_user_admin_password="password"
+ldap_userid: "fakeuser"
+ldap_user_password: "password"
+ldap_user_admin_password: "password"
