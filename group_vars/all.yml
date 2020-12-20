@@ -1,6 +1,6 @@
-
+--- 
 # Download location of DB2 and the licence file
-db2_download_locatio: "http://192.168.137.1:8001/"
+db2_download_location: "http://192.168.137.1:8001/"
 
 # Download location of TDI
 tdi_download_location: 192.168.137.1:8001/
