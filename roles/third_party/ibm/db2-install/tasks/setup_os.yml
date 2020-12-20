@@ -14,7 +14,13 @@
 
 - name:              Install pre-requisites Yum
   yum:
-    name:            ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel.i686', 'numactl-libs.i686', 'numactl-libs.x86_64']
+    name:           
+      # - 'kernel-devel'
+      # - 'kernel-headers'
+      - 'libaio'
+      - 'libstdc++-devel.i686'
+      # - 'numactl-libs.i686'
+      # - 'numactl-libs.x86_64'
     state:           present
   when:
     - ansible_os_family == "RedHat"
