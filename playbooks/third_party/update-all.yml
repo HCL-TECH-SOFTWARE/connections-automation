@@ -1,0 +1,7 @@
+# Install and set up Kubernetes
+---
+- name:                    Update all installed packages
+  hosts:                   all
+  become:                  true
+  roles:
+    - roles/third_party/package

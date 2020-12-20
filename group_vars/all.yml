@@ -1,33 +1,33 @@
 
 # Download location of DB2 and the licence file
-db2_download_location=http://192.168.137.1:8001/DB2
+db2_download_location=http://192.168.137.1:8001/
 
 # Download location of TDI
-tdi_download_location=192.168.137.1:8001/TDI
+tdi_download_location=192.168.137.1:8001/
 
 # Download location of Connections Wizards for DB population
-db2_wizards_download_location=192.168.137.1:8001/Connections7
+db2_wizards_download_location=192.168.137.1:8001/
 
 # Download location for IBM Installation manager
-iim_repository_url=http://192.168.137.1:8001/was855
+iim_repository_url=http://192.168.137.1:8001/
 
 # Download location for IBM WebSphere ND & IBM Java
-was_repository_url=http://192.168.137.1:8001/was855
+was_repository_url=http://192.168.137.1:8001/
 
 # Download location of IBM WAS ND Fixpack 18
-was_fixes_repository_url=http://192.168.137.1:8001/was855FP18
+was_fixes_repository_url=http://192.168.137.1:8001/
 
 # Download location of IBM HTTP Server
-ihs_repository_url=http://192.168.137.1:8001/was855
+ihs_repository_url=http://192.168.137.1:8001/
 
 # Download location of IBM HTTP Server fixpacks
-ihs_fixes_repository_url=http://192.168.137.1:8001/was855FP18
+ihs_fixes_repository_url=http://192.168.137.1:8001/
 
 # Download location of HCL Connections Docs 2.0.1
-cnx_docs_download_location=http://192.168.137.1:8001/Docs
+cnx_docs_download_location=http://192.168.137.1:8001/
 
 # Download location for HCL Connections zip file. Used by Connections installation and TDI to get tdisol archive.
-cnx_repository_url=192.168.137.1:8001/Connections7
+cnx_repository_url=192.168.137.1:8001/
 
 # Folder used for the shared data. If setting up NFS using using automation, it will be created on NFS master and exported, and then mounted by Connections
 # installation and used inside response file. 

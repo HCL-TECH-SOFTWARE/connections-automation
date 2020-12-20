@@ -1,3 +1,6 @@
+- name:                  Update CentOS / Red Hat packages
+  import_playbook:       third_party/update-all.yml
+  
 - name:                  Setup DB2
   import_playbook:       third_party/setup-db2.yml
 
