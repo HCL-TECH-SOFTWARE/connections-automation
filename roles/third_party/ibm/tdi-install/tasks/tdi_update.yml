@@ -1,0 +1,26 @@
+---
+# Check installed fixpack with queryreg
+- name:                  "Verifiy if TDI is already installed"
+  shell:                 "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh -queryreg | grep SDI-7.2-FP0006"
+  register:              tdifp_installed
+  failed_when:           tdifp_installed.rc == 2
+
+- name:                  "Download and unzip installation {{ __fixpack_name }} to the {{ __extraction_folder }}"
+  unarchive:
+    src:                 "http://{{ __download_location }}/{{ __fixpack_name }}"
+    dest:                "{{ __extraction_folder }}"
+    remote_src:          yes
+  when:
+    - tdifp_installed.rc == 1
+
+- name:                  "Copy UpdateInstaller.jar to {{ __tdi_user_install_dir }}/maintenance }}"
+  file:
+    remote_src:          yes
+    src:                 "{{ __extraction_folder }}/7.2.0-ISS-SDI-FP0006/UpdateInstaller.jar"
+    dest:                "{{ __tdi_user_install_dir }}/maintenance/UpdateInstaller.jar"
+
+- name:                  "Install SDI Fixpack" 
+  shell:                 "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh -update SDI-7.2-FP0006.zip"
+  when:
+    - tdifp_installed.rc == 1
+

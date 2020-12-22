@@ -17,7 +17,7 @@
   when:
     - tdi_already_installed.stat.exists == false
 
-- name:                  Download and unzip installation {{ __package_name }} to the {{ __extraction_folder }}
+- name:                  "Download and unzip installation {{ __package_name }} to the {{ __extraction_folder }}"
   unarchive:
     src:                 "http://{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __extraction_folder }}"

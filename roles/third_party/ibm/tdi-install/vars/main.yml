@@ -1,6 +1,7 @@
 ---
 __download_location:            "{{ tdi_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/TDI') }}"
 __package_name:                 "{{ tdi_package_name | default('SDI_7.2_XLIN86_64_ML.tar') }}"
+__fixpack_name:                 "{{ tdi_fixpack_name | default('7.2.0-ISS-SDI-FP0006.zip') }}"
 __extraction_folder:            "/opt/IBM/InstallBinaries/TDI"
 
 __tdi_user_install_dir:         "/opt/IBM/TDI/V7.20"

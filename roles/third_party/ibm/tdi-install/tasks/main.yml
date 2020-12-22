@@ -7,3 +7,6 @@
 
 - name:                       Download and install tdisol
   include_tasks:              tdisol_install.yml
+
+- name:                       Update SDI to FP6
+    include_tasks:              tdi_update.yml
