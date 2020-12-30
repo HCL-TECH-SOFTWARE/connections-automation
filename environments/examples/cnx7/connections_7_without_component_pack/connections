@@ -73,6 +73,17 @@ cnx_docs_download_location=http://installer1.internal.example.com:8001/Docs
 # Download location for HCL Connections zip file. Used by Connections installation and TDI to get tdisol archive.
 cnx_repository_url=installer1.internal.example.com:8001/Connections7
 
+# Change to Filenames used in Flexnet
+was_files:
+  - { file_name: CIK2HML.zip, check_sum: b1333962ba4b25c8632c7e4c82b472350337e99febac8f70ffbd551ca3905e83 }
+  - { file_name: CIK2JML.zip, check_sum: b73ae070656bed6399a113c2db9fb0abaf5505b0d41c564bf2a58ce0b1e0dcd2 }
+  - { file_name: CIK2IML.zip, check_sum: 440b7ed82089d43b1d45c1e908bf0a1951fed98f2542b6d37c8b5e7274c6b1c9 }
+  
+ihs_files:
+  - { file_name: CIK1VML.zip, check_sum: d63c59de4a5548e3d26e71fefb76193d41ac7585bc450c1e504287e0a6f746c9 }
+  - { file_name: CIK1WML.zip, check_sum: ac00e7ab43cc528fe7f3ccd69aeb6564a2e738e7bc6e30e71fd2e0d4bd64f39e }
+  - { file_name: CIK1XML.zip, check_sum: 94e3d9b70b139ad5fa0578da6857b295c5d2370c1b6ecb544c1e5757406fec90 }
+
 # Folder used for the shared data. If setting up NFS using using automation, it will be created on NFS master and exported, and then mounted by Connections
 # installation and used inside response file. 
 cnx_shared_area="/nfs/data/shared"
