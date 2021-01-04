@@ -6,4 +6,4 @@
 
 - name:          "Create DMGR Profile"
   include_tasks: create_profile.yml
-  when:          profile_already_exists.stat.exists != true
+  when:          not profile_already_exists.stat.exists

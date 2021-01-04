@@ -33,8 +33,8 @@
     mode:                                           '0775'
     state:                                          directory
   with_items:
-   - "/nfs/docs_data" 
-   - "/nfs/viewer_data" 
+   - "/nfs/docs_data"
+   - "/nfs/viewer_data"
    - "{{ __cnx_data_shared }}"
    - "{{ __cnx_message_stores }}"
 
@@ -49,7 +49,7 @@
 
 - name:                                             Render /etc/exports
   template:
-    src:                                            "{{ __nfs_exports_template }}" 
+    src:                                            "{{ __nfs_exports_template }}"
     dest:                                           "{{ __nfs_exports_destination }}"
 
 - name:                                             Enable and start nfs-server

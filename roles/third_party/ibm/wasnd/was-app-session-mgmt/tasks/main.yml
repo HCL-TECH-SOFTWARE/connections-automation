@@ -13,8 +13,8 @@
   stat:
     path:               "{{ __success_file }}"
   register:             app_sec_already_configured
-  when:                 profile_already_exists.stat.exists == true
+  when:                 profile_already_exists.stat.exists |bool
 
 - name:                 "Session Management - Restrict cookies to HTTPS sessions"
   include_tasks:        was_app_config_session_mgmt.yml
-  when:                 app_sec_already_configured.stat.exists == false
+  when:                 not app_sec_already_configured.stat.exists

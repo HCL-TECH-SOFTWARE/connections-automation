@@ -15,7 +15,7 @@
       - "<genericProperty name=\"appreg.hostname\">{{ dmgr_hostname }}</genericProperty>"
       - "<genericProperty name=\"appreg.protocol\">https</genericProperty>"
   register:                                 add_node
-  when:                                     lcc_props_added.stat.exists == false
+  when:                                     not lcc_props_added.stat.exists
 
 - name:                                     print node
   debug:
@@ -25,7 +25,7 @@
   file:
     path:                                   "{{ __success_file }}"
     state:                                  touch
-  when:                                     add_node.changed == true
+  when:                                     add_node.changed |bool
 
 # Query element text using XPath
 - name:                                     Enable service extensionRegistry

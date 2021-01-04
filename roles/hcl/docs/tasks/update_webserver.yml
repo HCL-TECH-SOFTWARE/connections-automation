@@ -9,7 +9,7 @@
     cmd:              "./update_webserver.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense"
   become:             true
   when:
-    - editor_proxy_already_installed.stat.exists == true
+    - editor_proxy_already_installed.stat.exists |bool
 
 - name:                 Create temporary folder
   file:

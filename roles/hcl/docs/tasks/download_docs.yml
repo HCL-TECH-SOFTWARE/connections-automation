@@ -63,4 +63,4 @@
   vars:
     __app_name:          ViewerCnxExtension
     __zip_prefix:        ViewerLCCustomizeApp
-  when:                  inventory_hostname in groups["cnx_was_servers"]    
+  when:                  inventory_hostname in groups["cnx_was_servers"]

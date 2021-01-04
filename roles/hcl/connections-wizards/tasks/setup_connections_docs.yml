@@ -3,7 +3,7 @@
     path:                "{{ __docs_success_file }}"
     state:               absent
   when:
-    - __cnx_docs_force_repopulation == true
+    - __cnx_docs_force_repopulation |bool
 
 - name:                 "Verify if migrations are already done"
   stat:
@@ -15,14 +15,14 @@
     path:                "{{ __docs_extraction_folder }}"
     state:               absent
   when:
-    - docs_migrations_already_done.stat.exists == false
+    - not docs_migrations_already_done.stat.exists
 
 - name:                  Create installation folder
   file:
     path:                "{{ __docs_extraction_folder }}"
     state:               directory
   when:
-    - docs_migrations_already_done.stat.exists == false
+    - not docs_migrations_already_done.stat.exists
 
 - name:                  Download and unzip installation {{ __docs_package_name }} to the {{ __docs_extraction_folder }}
   unarchive:
@@ -30,12 +30,12 @@
     dest:                "{{ __docs_extraction_folder }}"
     remote_src:          yes
   when:
-    - docs_migrations_already_done.stat.exists == false
+    - not docs_migrations_already_done.stat.exists
 
 - name:                  Disable fingerprinting
   command:               authconfig --disablefingerprint --update
   when:
-    - docs_migrations_already_done.stat.exists == false
+    - not docs_migrations_already_done.stat.exists
 
 - name:                  Cleanup Docs database
   shell:                 "chdir={{ __docs_installation_folder }} sh {{ item }}"
@@ -52,7 +52,7 @@
   with_items:
    - "dropDb.sh"
   when:
-    - __cnx_docs_force_repopulation == true
+    - __cnx_docs_force_repopulation |bool
   ignore_errors:         yes
 
 - name:                 "Verify if should proceed with migrations if cleanup was done"
@@ -76,7 +76,7 @@
    - "createDb.sh"
    - "updateDBSchema.sh"
   when:
-    - docs_migrations_already_done.stat.exists == false
+    - not docs_migrations_already_done.stat.exists
 
 - name:                  Run appGrants.sql
   shell:                 "{{ __db2_migration_cmd }} {{ __docs_installation_folder }}/{{ item }}"
@@ -95,7 +95,7 @@
   with_items:
    - "appGrants.sql"
   when:
-    - docs_migrations_already_done.stat.exists == false
+    - not docs_migrations_already_done.stat.exists
 
 - name:                  "Create {{ __docs_success_file }} file"
   file:

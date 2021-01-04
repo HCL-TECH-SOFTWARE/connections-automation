@@ -15,7 +15,7 @@
 - name:                 "Configure WebSphere Plugin {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }}"
   command:
     chdir={{ __wct_install_location }}
-    {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }} 
+    {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }}
   register:             cout
   changed_when:         cout.rc == 0
 #  when:                 plugin_already_configured.stat.exists == false
@@ -41,7 +41,7 @@
     path:               "/tmp/wct_plugins_{{ __ihs_hostname }}"
     dest:               "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
     format:             zip
-  
+
 - name:                 Synchronize /tmp/wct_plugins_{{ __ihs_hostname }}.zip with {{ dmgr_hostname }}
   synchronize:
     src:                "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
@@ -51,7 +51,7 @@
   become:               false
 
 - name:                 Remove /tmp/wct_plugins_{{ __ihs_hostname }} if it already exists
-  file:                 
+  file:
     path:               "/tmp/wct_plugins_{{ __ihs_hostname }}"
     state:              absent
   delegate_to:          "{{ dmgr_hostname }}"

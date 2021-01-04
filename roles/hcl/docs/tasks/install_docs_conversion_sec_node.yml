@@ -38,7 +38,7 @@
     - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
     - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
     - { prop_name: "{{ __viewer_url }}", prop_value: "{{ __viewer_url_r }}" }
-  when:               conversion_current_node_already_installed.stat.exists == false
+  when:               not conversion_current_node_already_installed.stat.exists
 
 - name:              Run the Docs Conversion installer for the second node
   shell:
@@ -46,18 +46,19 @@
     cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - conversion_current_node_already_installed.stat.exists == false and conversion_first_already_installed.stat.exists == true
+    - not conversion_current_node_already_installed.stat.exists
+    - conversion_first_already_installed.stat.exists |bool
   register:          sec_install_performed
 
 - name:              Search for success message in install log
   become:            yes
   shell:             "grep -i '{{ __install_success_message_node }}' {{ __docs_conversion_install_location }}/logs/conversion_install_node.log"
   register:          conversion_success_message_found
-  failed_when:       conversion_success_message_found.stdout == ""
+  failed_when:       conversion_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
 
 - name:              "Create {{ __conversion_install_success_file }} file"
   file:
     path:            "{{ __conversion_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and conversion_success_message_found.stdout != ""
+  when:              sec_install_performed is not skipped and conversion_success_message_found.stdout|length > 0

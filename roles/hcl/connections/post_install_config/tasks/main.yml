@@ -3,11 +3,11 @@
 
 - name:                      Enable Moderation
   include_tasks:             setup_moderation.yml
-  when:                      cnx_enable_moderation is defined and cnx_enable_moderation|bool == true
+  when:                      cnx_enable_moderation is defined and cnx_enable_moderation|bool
 
 - name:                      Setup Invite config
   include_tasks:             setup_invite_config.yml
-  when:                      __cnx_enable_invite|bool == true
+  when:                      __cnx_enable_invite|bool
 
 
 # not needed the relative url seems to be working

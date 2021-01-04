@@ -8,14 +8,14 @@
     path:                "{{ __cnx_extraction_folder }}"
     state:               absent
   when:
-    - tdisol_already_installed.stat.exists == false
+    - not tdisol_already_installed.stat.exists
 
 - name:                  Create installation folder
   file:
     path:                "{{ __cnx_extraction_folder }}"
     state:               directory
   when:
-    - tdisol_already_installed.stat.exists == false
+    - not tdisol_already_installed.stat.exists
 
 - name:                  Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
   unarchive:
@@ -23,7 +23,7 @@
     dest:                "{{ __cnx_extraction_folder }}"
     remote_src:          yes
   when:
-    - tdisol_already_installed.stat.exists == false
+    - not tdisol_already_installed.stat.exists
   register: download_and_unpack_tdisol_cnx
   until: download_and_unpack_tdisol_cnx is succeeded
   retries: 3
@@ -33,7 +33,7 @@
     path:                "{{ __tdi_sol_dest }}"
     state:               directory
   when:
-    - tdisol_already_installed.stat.exists == false
+    - not tdisol_already_installed.stat.exists
 
 - name:                  Set up tdisol
   unarchive:
@@ -41,7 +41,7 @@
     dest:                "{{ __tdi_sol_dest }}"
     remote_src:          yes
   when:
-    - tdisol_already_installed.stat.exists == false
+    - not tdisol_already_installed.stat.exists
   register: download_and_unpack_tdisol
   until: download_and_unpack_tdisol is succeeded
   retries: 3
@@ -82,7 +82,7 @@
    - "db2jcc.jar"
    - "db2jcc_license_cu.jar"
   when:
-    - tdisol_already_installed.stat.exists == false
+    - not tdisol_already_installed.stat.exists
 
 - name:                  "Run collect_dns.sh"
   command:               "sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh"

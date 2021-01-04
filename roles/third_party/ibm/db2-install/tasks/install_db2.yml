@@ -1,4 +1,4 @@
-- name:                     "Render {{ __db2_server_rsp_location }}" 
+- name:                     "Render {{ __db2_server_rsp_location }}"
   template:
     src:                    "{{ __db2_server_rsp_template }}"
     dest:                   "{{ __db2_server_rsp_location }}"
@@ -9,7 +9,7 @@
   register:                 db2_running
   ignore_errors:            true
 
-- debug: 
+- debug:
     msg:                    "DB2 is already up and running"
   when:
     - db2_running.rc == 0

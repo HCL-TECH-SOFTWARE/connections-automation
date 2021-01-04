@@ -10,4 +10,4 @@
 
 - name:                      Setup Teams config
   include_tasks:             setup_teams_config.yml
-  when:                      __setup_teams|bool == true
+  when:                      __setup_teams|bool

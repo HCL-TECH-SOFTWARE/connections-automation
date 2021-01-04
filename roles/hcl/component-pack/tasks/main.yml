@@ -4,105 +4,105 @@
 
 - name:                      Prepare Component Pack
   include_tasks:             setup_installation.yml
-  when:                      __setup_installation == true
+  when:                      __setup_installation |bool
 
 - name:                      Setup images
   include_tasks:             setup_images.yml
-  when:                      __setup_images == true
+  when:                      __setup_images |bool
 
 - name:                      Configure credentials
   include_tasks:             configure_credentials.yml
-  when:                      __setup_credentials == true
+  when:                      __setup_credentials |bool
 
 - name:                      Setup PSP
   include_tasks:             setup_psp.yml
-  when:                      __setup_psp == true
+  when:                      __setup_psp |bool
 
 - name:                      Setup Dashboards
   include_tasks:             setup_dashboards.yml
-  when:                      __setup_dashboards == true
+  when:                      __setup_dashboards |bool
 
 - name:                      Setup Prometheus Operator
   include_tasks:             setup_prometheus_operator.yml
-  when:                      __setup_prometheus_operator == true
+  when:                      __setup_prometheus_operator |bool
 
 - name:                      Setup connections-volumes
   include_tasks:             setup_connections_volumes.yml
-  when:                      __setup_connections_volumes == true
+  when:                      __setup_connections_volumes |bool
 
 - name:                      Setup Bootstrap
   include_tasks:             setup_bootstrap.yml
-  when:                      __setup_bootstrap == true
+  when:                      __setup_bootstrap |bool
 
 - name:                      Setup connections-env
   include_tasks:             setup_connenv.yml
-  when:                      __setup_connections_env == true
+  when:                      __setup_connections_env |bool
 
 - name:                      Setup infrastructure
   include_tasks:             setup_infrastructure.yml
-  when:                      __setup_infrastructure == true
+  when:                      __setup_infrastructure |bool
 
 - name:                      Setup customizer
   include_tasks:             setup_customizer.yml
-  when:                      __setup_customizer == true
+  when:                      __setup_customizer |bool
 
 - name:                      Setup elasticsearch
   include_tasks:             setup_elasticsearch.yml
-  when:                      __setup_elasticsearch == true
+  when:                      __setup_elasticsearch |bool
 
 - name:                      Setup elasticsearch 7
   include_tasks:             setup_elasticsearch7.yml
-  when:                      __setup_elasticsearch7 == true
+  when:                      __setup_elasticsearch7 |bool
 
 - name:                      Setup ingress controller
   include_tasks:             setup_ingress.yml
-  when:                      __setup_ingress == true
+  when:                      __setup_ingress |bool
 
 - name:                      Setup Community Ingress Controller
   include_tasks:             setup_community_ingress.yml
-  when:                      __setup_community_ingress == true
+  when:                      __setup_community_ingress |bool
 
 - name:                      Setup Teams
   include_tasks:             setup_teams.yml
-  when:                      __setup_teams == true
+  when:                      __setup_teams |bool
 
 - name:                      Setup Tailored Experience
   include_tasks:             setup_tailored_exp.yml
-  when:                      __setup_tailored_exp == true
+  when:                      __setup_tailored_exp |bool
 
 - name:                      Setup ELK
   include_tasks:             setup_elasticstack.yml
-  when:                      __setup_elasticstack == true
+  when:                      __setup_elasticstack |bool
 
 - name:                      Setup orientme
   include_tasks:             setup_orientme.yml
-  when:                      __setup_orientme == true
+  when:                      __setup_orientme |bool
 
 - name:                      Setup Sanity
   include_tasks:             setup_sanity.yml
-  when:                      __setup_sanity == true
+  when:                      __setup_sanity |bool
 
 - name:                      Setup Activities Plus
   include_tasks:             setup_kudosboards.yml
-  when:                      __setup_kudosboards == true
+  when:                      __setup_kudosboards |bool
 
 - name:                      Setup Outlook Desktop Plugin
   include_tasks:             setup_outlook_addin.yml
-  when:                      __setup_outlook_addin == true
+  when:                      __setup_outlook_addin |bool
 
 - name:                      Scale to the number of nodes
   include_tasks:             scale_component_pack.yml
-  when:                      __enable_pod_auto_scaling == true
+  when:                      __enable_pod_auto_scaling |bool
 
 - name:                      Enable ES metrics
   include_tasks:             enable_es_metrics.yml
-  when:                      __enable_es_metrics == true
+  when:                      __enable_es_metrics |bool
   ignore_errors:             true
 
 - name:                      Setup GK flags
   include_tasks:             setup_gk_flags.yml
-  when:                      __enable_gk_flags == true
+  when:                      __enable_gk_flags |bool
 
 - name:                      Setup MS Teams Extensions
   include_tasks:             setup_ms_teams_extensions.yml
-  when:                      __setup_ms_teams_extensions == true
+  when:                      __setup_ms_teams_extensions |bool
