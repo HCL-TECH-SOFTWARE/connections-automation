@@ -2,8 +2,8 @@
 __setup_fake_ldap_users:        "{{ setup_fake_ldap_users | default(true) }}"
 __ldap_slappasswd:              "{{ ldap_bind_pass | default('password') }}"
 
-__ldap_tld:                     "{{ __ldap_olc_suffix.split(',')[0].split('=')[1] }}"
 __ldap_olc_suffix:              "{{ ldap_realm | default('dc=cxn,dc=pnp-hcl,dc=com') }}"
+__ldap_tld:                     "{{ __ldap_olc_suffix.split(',')[0].split('=')[1] }}"
 __ldap_admin_user:              "{{ ldap_admin_user | default('Admin') }}"
 
 __db_ldif_template:             "db.ldif.j2"
