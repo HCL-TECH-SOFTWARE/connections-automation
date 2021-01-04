@@ -1,10 +1,10 @@
 ---
-- name:                 "<<<<<<<<<<<< Debuging __profile_name variable >>>>>>>>>>>" 
-  debug:                
+- name:                 "<<<<<<<<<<<< Debuging __profile_name variable >>>>>>>>>>>"
+  debug:
     msg:                "{{ __profile_name }}"
- 
-- name:                 "<<<<<<<<<<<< Debuging __was_nodename variable >>>>>>>>>>>" 
-  debug:                
+
+- name:                 "<<<<<<<<<<<< Debuging __was_nodename variable >>>>>>>>>>>"
+  debug:
     msg:                "{{ __was_nodename }}"
 
 - name:                 "Generate Response file"

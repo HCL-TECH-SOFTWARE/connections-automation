@@ -13,13 +13,13 @@
   stat:
     path:               "{{ __success_file }}"
   register:             tls_already_configured
-  when:                 profile_already_exists.stat.exists == true
+  when:                 profile_already_exists.stat.exists |bool
 
 - name:                 "Generate Response file"
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-  when:                 tls_already_configured.stat.exists == false
+  when:                 not tls_already_configured.stat.exists
 
 - name:                 "Add TLS Signer Certificate for AD to Cell Default Trust Store"
   command:
@@ -28,7 +28,7 @@
   register:             cout
   changed_when:         cout.rc == 0
   #changed_when:         ( cout.stdout.find('INSTCONFSUCCESS') != -1)
-  when:                 tls_already_configured.stat.exists == false
+  when:                 not tls_already_configured.stat.exists
 
 - name:                 "Create was-dmgr-import-tls-cert.success file"
   file:

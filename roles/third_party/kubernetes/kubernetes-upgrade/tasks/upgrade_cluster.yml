@@ -8,17 +8,17 @@
   pause:
     seconds:          30
 
-- name:               Upgrade Kubernetes control plane - {{ inventory_hostname }}
+- name:               "Upgrade Kubernetes control plane - {{ inventory_hostname }}"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config={{ __kubeadm_config_location }} -f"
   when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
 
-- name:               Upgrade Kubernetes {{ inventory_hostname }} - self contained environment
+- name:               "Upgrade Kubernetes {{ inventory_hostname }} - self contained environment"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} -y"
   when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and single_node_installation is defined
 
-- name:               Upgrade Kubernetes cluster secondary master and workers - {{ inventory_hostname }}
+- name:               "Upgrade Kubernetes cluster secondary master and workers - {{ inventory_hostname }}"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade node"
   when:               inventory_hostname != groups['k8s_masters'][0]

@@ -22,5 +22,5 @@
   include_tasks: upgrade_kubelet.yml
 
 - name:          Uncordon node
-  include_tasks: uncordon_node.yml 
+  include_tasks: uncordon_node.yml
   when:          single_node_installation is not defined

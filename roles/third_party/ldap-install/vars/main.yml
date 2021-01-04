@@ -2,7 +2,7 @@
 __setup_fake_ldap_users:        "{{ setup_fake_ldap_users | default(true) }}"
 __ldap_slappasswd:              "{{ ldap_bind_pass | default('password') }}"
 
-__ldap_tld:                     "{{ ldap_tld | default('cxn') }}"
+__ldap_tld:                     "{{ __ldap_olc_suffix.split(',')[0].split('=')[1] }}"
 __ldap_olc_suffix:              "{{ ldap_realm | default('dc=cxn,dc=pnp-hcl,dc=com') }}"
 __ldap_admin_user:              "{{ ldap_admin_user | default('Admin') }}"
 
@@ -20,13 +20,14 @@ __certs_ldif_rev_template:      "certsrev.ldif.j2"
 __db_ldif_success_file:         "/etc/openldap/db.ldif.success"
 __schema_ldif_success_file:     "/etc/openldap/schema.ldif.success"
 __users_ldif_success_file:      "/etc/openldap/users.ldif.success"
+__custom_users_ldif_success_file:  "/etc/openldap/custom.users.ldif.success"
 
 __ldap_cmd_opts:                "-Y EXTERNAL  -H ldapi:/// -f"
 __ldap_modify_cmd:              "ldapmodify {{ __ldap_cmd_opts }}"
 __ldap_add_cmd:                 "ldapadd {{ __ldap_cmd_opts }}"
 
 __ldap_add_users_dn:            "cn={{ __ldap_admin_user  }},{{ __ldap_olc_suffix }}"
-__ldap_add_users:               "ldapadd -x -w {{ __ldap_slappasswd  }} -D {{ __ldap_add_users_dn }} -f {{ __users_ldif_location }} -v"
+__ldap_add_users:               "ldapadd -x -w {{ __ldap_slappasswd  }} -D {{ __ldap_add_users_dn }} -v -f "
 
 __ldap_nr_of_users:             "{{ ldap_nr_of_users | default(2500) }}"
 __ldap_userid:                  "{{ ldap_userid | default('jjones') }}"

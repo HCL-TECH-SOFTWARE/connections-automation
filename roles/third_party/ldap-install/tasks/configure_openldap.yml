@@ -11,11 +11,11 @@
 - name:                     Copy DB_CONFIG
   copy:
     src:                    "/usr/share/openldap-servers/DB_CONFIG.example"
-    dest:                   "/var/lib/ldap/DB_CONFIG" 
-    remote_src:             yes 
+    dest:                   "/var/lib/ldap/DB_CONFIG"
+    remote_src:             yes
   when:
-    - ldap_database_already_created.stat.exists == true
-    - ldap_schema_already_created.stat.exists == false
+    - ldap_database_already_created.stat.exists |bool
+    - not ldap_schema_already_created.stat.exists
 
 - name:                     Set up ownership
   file:
@@ -24,8 +24,8 @@
     group:                  "ldap"
     recurse:                yes
   when:
-    - ldap_database_already_created.stat.exists == true
-    - ldap_schema_already_created.stat.exists == false
+    - ldap_database_already_created.stat.exists |bool
+    - not ldap_schema_already_created.stat.exists
 
 - name:                     Add the cosine and nis LDAP schemas
   command:                  "{{ __ldap_add_cmd }} {{ item }}"
@@ -36,8 +36,8 @@
    - "/etc/openldap/schema/nis.ldif"
    - "/etc/openldap/schema/inetorgperson.ldif"
   when:
-    - ldap_database_already_created.stat.exists == true
-    - ldap_schema_already_created.stat.exists == false
+    - ldap_database_already_created.stat.exists |bool
+    - not ldap_schema_already_created.stat.exists
 
 - name:                     "Create {{ __schema_ldif_success_file }} file"
   file:
@@ -49,35 +49,68 @@
     path:                   "{{ __users_ldif_success_file }}"
   register:                 ldap_users_already_created
   when:
-    - __setup_fake_ldap_users
+    - __setup_fake_ldap_users |bool
 
 - name:                     "Render {{ __users_ldif_location }}"
   template:
     src:                    "{{ __users_ldif_template }}"
     dest:                   "{{ __users_ldif_location }}"
   when:
-    - ldap_users_already_created.stat.exists == false
-    - __setup_fake_ldap_users
+    - __setup_fake_ldap_users |bool
+    - not ldap_users_already_created.stat.exists
 
 - name:                     "Create users from {{ __users_ldif_location }}"
-  command:                  "{{ __ldap_add_users }}"
+  command:                  "{{ __ldap_add_users }} {{ __users_ldif_location }}"
   register:                 users
   failed_when:              ( users.rc not in [0] )
   when:
-    - ldap_users_already_created.stat.exists == false
-    - __setup_fake_ldap_users
+    - __setup_fake_ldap_users |bool
+    - not ldap_users_already_created.stat.exists
 
 - name:                     "Cleanup {{ __users_ldif_location }}"
   file:
     path:                   "{{ __users_ldif_location }}"
     state:                  absent
   when:
-    - ldap_users_already_created.stat.exists == false
-    - __setup_fake_ldap_users
-  
+    - __setup_fake_ldap_users |bool
+    - not ldap_users_already_created.stat.exists
+
 - name:                     "Create {{ __users_ldif_success_file }} file"
   file:
     path:                   "{{ __users_ldif_success_file }}"
     state:                  touch
   when:
-    - __setup_fake_ldap_users
+    - __setup_fake_ldap_users |bool
+
+- name:                     "Verify if custom users are already created"
+  stat:
+    path:                   "{{ __custom_users_ldif_success_file }}"
+  register:                 custom_ldap_users_already_created
+
+- name:                     "Copy additional users ldif if provided"
+  copy:
+    src:                    "{{ custom_ldap_users_location }}"
+    dest:                   "/tmp/custom_ldap_user.ldif"
+  when:
+    - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists
+
+- name:                     "Create additional users if provided"
+  command:                  "{{ __ldap_add_users }} /tmp/custom_ldap_user.ldif"
+  register:                 extra_users
+  failed_when:              ( extra_users.rc not in [0] )
+  when:
+    - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists
+
+- name:                     "Cleanup /tmp/custom_ldap_user.ldif"
+  file:
+    path:                   "/tmp/custom_ldap_user.ldif"
+    state:                  absent
+  when:
+    - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists
+
+- name:                     "Create {{ __custom_users_ldif_success_file }} file"
+  file:
+    path:                   "{{ __custom_users_ldif_success_file }}"
+    state:                  touch
+  when:
+    - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists

@@ -7,19 +7,19 @@
   shell:              "findmnt --source {{ nfsMasterAddress }}:{{ cnx_data_nfs }} -o target -n | head -n 1"
   register:           cnx_data_mount_target
   when:
-    - viewer_ext_already_installed.stat.exists == false
+    - not viewer_ext_already_installed.stat.exists
 
 - set_fact:
     local_cnx_data_path:    "{{ cnx_data_nfs }}"
-  when:                     cnx_data_mount_target.stdout == ""
+  when:                     cnx_data_mount_target.stdout|length == 0
 
 - set_fact:
     local_cnx_data_path:    "{{ cnx_data_mount_target.stdout }}"
-  when:                     cnx_data_mount_target.stdout != ""
+  when:                     cnx_data_mount_target.stdout|length > 0
 
 - debug:                    var=local_cnx_data_path
   when:
-    - viewer_ext_already_installed.stat.exists == false
+    - not viewer_ext_already_installed.stat.exists
 
 - name:               Edit cfg.properties
   lineinfile:
@@ -40,7 +40,7 @@
     - { prop_name: "{{ __enable_upload_conversion }}", prop_value: "{{ __enable_upload_conversion_r }}" }
     - { prop_name: "{{ __viewer_admin_j2c_alias }}", prop_value: "{{ __viewer_admin_j2c_alias_r }}" }
   when:
-    - viewer_ext_already_installed.stat.exists == false
+    - not viewer_ext_already_installed.stat.exists
 
 # Note: Documentation says it can be installed on one of the HCL Connections server
 - name:              Run the Docs Viewer Extension installer
@@ -49,18 +49,18 @@
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -acceptLicense"
   become:            true
   when:
-    - viewer_ext_already_installed.stat.exists == false
+    - not viewer_ext_already_installed.stat.exists
   register:          sec_install_performed
 
 - name:              Search for success message in install log
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_viewer_ext_install_location }}/logs/extensionInstall.log"
   register:          viewer_ext_success_message_found
-  failed_when:       viewer_ext_success_message_found.stdout == ""
+  failed_when:       viewer_ext_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
 
 - name:              "Create {{ __docs_viewer_ext_install_success_file }} file"
   file:
     path:            "{{ __docs_viewer_ext_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and viewer_ext_success_message_found.stdout != ""
+  when:              sec_install_performed is not skipped and viewer_ext_success_message_found.stdout|length > 0

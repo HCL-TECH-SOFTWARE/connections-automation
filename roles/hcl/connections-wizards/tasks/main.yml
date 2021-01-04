@@ -1,8 +1,8 @@
 ---
 - name:                       Setup Connections Wizards
   include_tasks:              setup_connections_wizards.yml
-  when:                       __setup_connections_wizards == true
+  when:                       __setup_connections_wizards |bool
 
 - name:                       Setup Connections Docs Database
   include_tasks:              setup_connections_docs.yml
-  when:                       __setup_connections_docs == true
+  when:                       __setup_connections_docs |bool

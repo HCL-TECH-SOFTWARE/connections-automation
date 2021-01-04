@@ -25,21 +25,21 @@
 
 - name:                      Check if teams share service is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-share-service | grep -i Running
-  when:                      __skip_pod_checks == false
+  when:                      not __skip_pod_checks
   become:                    false
 
 - name:                      Check if teams share ui is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-share-ui | grep -i Running
-  when:                      __skip_pod_checks == false
+  when:                      not __skip_pod_checks
   become:                    false
 
 - name:                      Check if teams tab api is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-tab-api | grep -i Running
-  when:                      __skip_pod_checks == false
+  when:                      not __skip_pod_checks
   become:                    false
 
 - name:                      Check if teams tab ui is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-tab-ui | grep -i Running
-  when:                      __skip_pod_checks == false
+  when:                      not __skip_pod_checks
   become:                    false
 

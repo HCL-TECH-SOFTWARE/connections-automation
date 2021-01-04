@@ -10,7 +10,7 @@
     - { xpath: "{{ __searchcfg_qr_solr_xpath }}", attribute: "value", value: "false" }
     - { xpath: "{{ __searchcfg_queries_solr_xpath }}", attribute: "value", value: "false" }
   when:
-    - __enable_es7_r_and_w == true
+    - __enable_es7_r_and_w |bool
     - __cnx_major_version == '7'
 
 - name:              Enable ElasticSearch Indexing, Read, Write
@@ -26,7 +26,7 @@
     - { xpath: "{{ __searchcfg_es_write_xpath }}", attribute: "value", value: "true" }
     - { xpath: "{{ __searchcfg_es_read_xpath }}", attribute: "value", value: "true" }
   when:
-    - __enable_es7_r_and_w == true
+    - __enable_es7_r_and_w |bool
     - __cnx_major_version == '7'
 
 - name:              Switch ES5 to ES7
@@ -36,7 +36,7 @@
     xpath:           "{{ __lcc_es_version_xpath }}"
     value:           "{{ __lcc_es_version }}"
   when:
-    - __enable_major_es7 == true
+    - __enable_major_es7 |bool
     - __cnx_major_version == '7'
 
 - name:              Enable Quick Results
@@ -46,5 +46,5 @@
     xpath:           "{{ __lcc_qr_xpath }}"
     value:           "true"
   when:
-    - __enable_qr == true
+    - __enable_qr |bool
     - __cnx_major_version == '7'

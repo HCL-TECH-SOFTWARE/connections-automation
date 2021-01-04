@@ -13,13 +13,13 @@
       stat:
         path:               "{{ __bin_dir }}/{{ __app }}_role_mapping.success"
       register:             role_already_mapped
-      when:                 profile_already_exists.stat.exists == true
+      when:                 profile_already_exists.stat.exists |bool
 
     - name:                 "Generate Response file"
       template:
         src:                "{{ __tpl_j2ee_role_file }}"
         dest:               "{{ __rsp_j2ee_role_file }}"
-      when:                 role_already_mapped.stat.exists == false
+      when:                 not role_already_mapped.stat.exists
 
     - name:                 "Map application J2EE role"
       command:
@@ -27,7 +27,7 @@
         {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_j2ee_role_file }}
       register:             cout
       changed_when:         cout.rc == 0
-      when:                 role_already_mapped.stat.exists == false
+      when:                 not role_already_mapped.stat.exists
 
     - name:                 "Create {{ __bin_dir }}/{{ __app }}_role_mapping.success file"
       file:

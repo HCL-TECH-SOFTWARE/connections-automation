@@ -22,7 +22,7 @@
     src:              "{{ __editor_cfg_prop_location }}/cfg.properties"
     dest:             "{{ __editor_cfg_prop_location }}/cfg.node.properties"
     remote_src:       yes
-  when:               editor_current_already_installed.stat.exists == false
+  when:               not editor_current_already_installed.stat.exists
 
 - name:               Edit cfg.node.properties
   lineinfile:
@@ -43,7 +43,7 @@
     - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
     - { prop_name: "{{ __conversion_url }}", prop_value: "{{ __conversion_url_r }}" }
     - { prop_name: "{{ __files_url }}", prop_value: "{{ __files_url_r }}" }
-  when:              editor_current_already_installed.stat.exists == false
+  when:              not editor_current_already_installed.stat.exists
 
 - name:              Run the Docs Editor installer for the second node
   shell:
@@ -51,18 +51,19 @@
     cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -dbadminID {{ __db_concord_username }} -dbadminPW {{ db_concord_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - editor_current_already_installed.stat.exists == false and editor_first_already_installed.stat.exists == true
+    - not editor_current_already_installed.stat.exists
+    - editor_first_already_installed.stat.exists |bool
   register:          sec_install_performed
 
 - name:              Search for success message in install log
   become:            yes
   shell:             "grep -i '{{ __install_success_message_node }}' {{ __docs_editor_install_location }}/logs/docs_install_node.log"
   register:          editor_success_message_found
-  failed_when:       editor_success_message_found.stdout == ""
+  failed_when:       editor_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
 
 - name:              "Create {{ __editor_install_success_file }} file"
   file:
     path:            "{{ __editor_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and editor_success_message_found.stdout != ""
+  when:              sec_install_performed is not skipped and editor_success_message_found.stdout|length > 0
