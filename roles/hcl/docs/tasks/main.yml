@@ -4,7 +4,9 @@
 
 - name:                    Download Docs installer to Docs env
   include_tasks:           download_docs.yml
-  when:                    __setup_environment == true and (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname in groups["proxy_servers"][0])
+  when:
+   - __setup_environmenti |bool
+   - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname in groups["proxy_servers"][0])
 
 - name:                    Install Docs Conversion (first node)
   include_tasks:           install_docs_conversion.yml
@@ -32,7 +34,9 @@
 
 - name:                    Download Docs installer to Connections env
   include_tasks:           download_docs.yml
-  when:                    __setup_environment == true and inventory_hostname in groups["cnx_was_servers"][0]
+  when:
+   - __setup_environment |bool
+   - inventory_hostname in groups["cnx_was_servers"][0]
 
 - name:                    Start CNX Clusters
   include_role:

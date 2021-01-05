@@ -6,37 +6,37 @@
 - name:                     "Generate {{ __ldap_cert_path }} and {{ __ldap_cert_key_path }}"
   command:                  openssl req -new -x509 -nodes -newkey rsa:2048 -out {{ __ldap_cert_path }} -keyout {{ __ldap_cert_key_path }} -days 1460 -batch
   when:
-    - ldap_ssl_already_created.stat.exists == false
+    - not ldap_ssl_already_created.stat.exists
 
-- name:                     Set up ownership 
-  file: 
+- name:                     Set up ownership
+  file:
     dest:                   "/etc/openldap/certs"
     owner:                  "ldap"
     group:                  "ldap"
     recurse:                yes
   when:
-    - ldap_ssl_already_created.stat.exists == false
+    - not ldap_ssl_already_created.stat.exists
 
 - name:                     "Render {{ __certs_ldif_location }}"
   template:
     src:                    "{{ __certs_ldif_template }}"
     dest:                   "{{ __certs_ldif_location }}"
   when:
-    - ldap_ssl_already_created.stat.exists == false
+    - not ldap_ssl_already_created.stat.exists
 
 - name:                     "Render {{ __certs_ldif_location }}"
   template:
     src:                    "{{ __certs_ldif_rev_template }}"
     dest:                   "{{ __certs_ldif_location }}"
   when:
-    - ldap_ssl_already_created.stat.exists == false
+    - not ldap_ssl_already_created.stat.exists
 
 - name:                     Configure SSL
   command:                  "{{ __ldap_modify_cmd }} {{ __certs_ldif_location }}"
   register:                 ldapssl
   failed_when:              ( ldapssl.rc not in [0] )
   when:
-    - ldap_ssl_already_created.stat.exists == false
+    - not ldap_ssl_already_created.stat.exists
 
 - name:                     "Create {{ __ldap_ssl_success_file }} file"
   file:

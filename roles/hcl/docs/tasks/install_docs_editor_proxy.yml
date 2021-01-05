@@ -16,7 +16,7 @@
     - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
     - { prop_name: "{{ __docs_scope_name }}", prop_value: "{{ __docs_scope_name_r  }}" }
   when:
-    - editor_proxy_already_installed.stat.exists == false
+    - not editor_proxy_already_installed.stat.exists
 
 # Note: Documentation says only need to install on one of the HCL Docs Proxy server nodes.
 - name:              Run the Docs Editor Proxy installer
@@ -25,18 +25,18 @@
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -acceptLicense"
   become:            true
   when:
-    - editor_proxy_already_installed.stat.exists == false
+    - not editor_proxy_already_installed.stat.exists
   register:          sec_install_performed
 
 - name:              Search for success message in install log
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_editor_install_location }}/proxy/logs/proxy_install.log"
   register:          editor_proxy_success_message_found
-  failed_when:       editor_proxy_success_message_found.stdout == ""
+  failed_when:       editor_proxy_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
 
 - name:              "Create {{ __editor_proxy_install_success_file }} file"
   file:
     path:            "{{ __editor_proxy_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and editor_proxy_success_message_found.stdout != ""
+  when:              sec_install_performed is not skipped and editor_proxy_success_message_found.stdout|length > 0

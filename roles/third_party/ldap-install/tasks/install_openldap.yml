@@ -28,27 +28,27 @@
   command:                  "/sbin/slappasswd -h {SSHA} -s {{ __ldap_slappasswd }}"
   register:                 slappasswd_output
   when:
-    - ldap_database_already_created.stat.exists == false
+    - not ldap_database_already_created.stat.exists
 
 - name:
   debug:
     msg:                    "{{ slappasswd_output['stdout'] }}"
   when:
-    - ldap_database_already_created.stat.exists == false
+    - not ldap_database_already_created.stat.exists
 
 - name:                     "Render {{ __db_ldif_location }}"
   template:
     src:                    "{{ __db_ldif_template }}"
     dest:                   "{{ __db_ldif_location }}"
   when:
-    - ldap_database_already_created.stat.exists == false
+    - not ldap_database_already_created.stat.exists
 
 - name:                     Create LDAP database
   command:                  "{{ __ldap_modify_cmd }} {{ __db_ldif_location }}"
   register:                 cout
   failed_when:              ( cout.rc not in [0] )
   when:
-    - ldap_database_already_created.stat.exists == false
+    - not ldap_database_already_created.stat.exists
 
 - name:                     "Cleanup {{ __db_ldif_location }}"
   file:

@@ -27,7 +27,7 @@
   include_role:
     name:                      roles/third_party/ibm/wasnd/was-dmgr-add-trusted-realms
   vars:
-    __trusted_realm_name:      "https://{{ __msteams_login_host }}/{{__msteams_tenant_id}}/{{ __msteams_login_version }}"
+    __trusted_realm_name:      "https://{{ __msteams_login_host }}/{{ __msteams_tenant_id }}/{{ __msteams_login_version }}"
 
 - name:                        Add root signing certificate of the Microsoft Certificate endpoint to the Default Trust Store
   include_role:

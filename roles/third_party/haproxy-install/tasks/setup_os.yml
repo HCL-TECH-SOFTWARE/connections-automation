@@ -1,4 +1,4 @@
-- name:                 Install pre requisites 
+- name:                 Install pre requisites
   yum:
     name:               ['gcc', 'pcre-devel', 'openssl-devel']
     state:              present

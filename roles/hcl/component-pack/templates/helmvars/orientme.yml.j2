@@ -8,10 +8,12 @@ orient-web-client:
 orient-indexing-service:
   indexing:
     solr: false
-    elasticsearch: true
+    elasticsearch: {{ __setup_elasticsearch }}
+    elasticsearch7: {{ __setup_elasticsearch7 }}
 orient-retrieval-service:
   retrieval:
-    elasticsearch: true
+    elasticsearch: {{ __setup_elasticsearch }}
+    elasticsearch7: {{ __setup_elasticsearch7 }}
 people-datamigration:
   migrate:
     maxConcurrentUser: {{ __om_max_conc_users }}

@@ -26,5 +26,5 @@
 
 - name:                      Check if connections-env configmap is created
   shell:                     kubectl get configmap -n {{ __default_namespace }} | grep -i connections-env
-  when:                      __skip_pod_checks == false
+  when:                      not __skip_pod_checks
   become:                    false

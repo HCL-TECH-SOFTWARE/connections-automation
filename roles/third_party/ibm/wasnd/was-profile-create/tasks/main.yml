@@ -17,11 +17,11 @@
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-  when:                 profile_already_exists.stat.exists != true
+  when:                 not profile_already_exists.stat.exists
 
 - name:                 "Create Was Profile"
   command:              "{{ __was_install_location }}/bin/manageprofiles.sh -response {{ __rsp_file }}"
   register:             cout
   changed_when:         ( cout.stdout.find('INSTCONFSUCCESS') != -1)
   failed_when:          ( cout.stdout.find('INSTCONFFAILED') != -1)
-  when:                 profile_already_exists.stat.exists != true
+  when:                 not profile_already_exists.stat.exists

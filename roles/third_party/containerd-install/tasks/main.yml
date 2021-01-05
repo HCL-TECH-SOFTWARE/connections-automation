@@ -1,0 +1,6 @@
+---
+- name:                       Prepare the system for containerd
+  include_tasks:              setup_os.yml
+
+- name:                       Install containerd
+  include_tasks:              install_containerd.yml

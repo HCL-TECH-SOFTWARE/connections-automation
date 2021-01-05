@@ -108,8 +108,8 @@
   template:
     src:                    "{{ __docker_daemon_json_template }}"
     dest:                   "{{ __docker_daemon_json_location }}"
-  when: 
-   - __overlay2_enabled == true
+  when:
+   - __overlay2_enabled |bool
 
 - name:                     Add {{ __kubectl_user }} to the group docker
   user:

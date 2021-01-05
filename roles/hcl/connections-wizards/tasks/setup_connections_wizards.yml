@@ -8,14 +8,14 @@
     path:                "{{ __extraction_folder }}"
     state:               absent
   when:
-    - (migrations_already_done.stat.exists == false) or (__cnx_force_repopulation == true)
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
 
 - name:                  Create installation folder
   file:
     path:                "{{ __extraction_folder }}"
     state:               directory
   when:
-    - (migrations_already_done.stat.exists == false) or (__cnx_force_repopulation == true)
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
 
 
 - name:                  Download and unzip installation "http://{{ __download_location}}/{{ __package_name }}" to the {{ __extraction_folder }}
@@ -24,13 +24,13 @@
     dest:                "{{ __extraction_folder }}"
     remote_src:          yes
   when:
-    - (migrations_already_done.stat.exists == false) or (__cnx_force_repopulation == true) or (__db_enable_upgrades == true)
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
   retries:               3
 
 - name:                  Disable fingerprinting
   command:               authconfig --disablefingerprint --update
   when:
-    - migrations_already_done.stat.exists == false
+    - not migrations_already_done.stat.exists
 
 - name:                  Stop CNX cluster for database cleanup
   include_role:
@@ -39,7 +39,7 @@
       delegate_to:       "{{ dmgr_hostname }}"
       become:            true
       ignore_errors:     yes
-  when:                  __cnx_force_repopulation == true
+  when:                  __cnx_force_repopulation |bool
 
 # Observed lingering connections even after CNX is stopped so do a force application.
 - name:                   Force application to disconnect for database cleanup
@@ -55,7 +55,7 @@
     DB2_HOME:             "/home/db2inst1/sqllib"
     PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/db2inst1/sqllib/bin:/home/db2inst1/sqllib/adm:/home/db2inst1/sqllib/misc:/home/db2inst1/sqllib/gskit/bin:/home/db2inst1/.local/bin:/home/db2inst1/bin"
   when:
-    - __cnx_force_repopulation == true
+    - __cnx_force_repopulation |bool
   ignore_errors:         yes
 
 - name:                  Cleanup Databases
@@ -84,7 +84,7 @@
    - "connections.sql/pushnotification/db2/dropDb.sql"
    - "connections.sql/wikis/db2/dropDb.sql"
   when:
-    - __cnx_force_repopulation == true
+    - __cnx_force_repopulation |bool
   ignore_errors:         yes
 
 
@@ -103,7 +103,7 @@
   with_items:
    - "connections.sql/ic360/db2/dropDb.sql"
   when:
-    - __cnx_force_repopulation == true
+    - __cnx_force_repopulation |bool
     - __db_version == '7.0'
   ignore_errors:         yes
 
@@ -124,7 +124,7 @@
   with_items:
    - "connections.sql/icec/db2/dropDb.sql"
   when:
-    - __cnx_force_repopulation == true
+    - __cnx_force_repopulation |bool
   ignore_errors:         yes
 
 - name:                  "Delete {{ __success_file }} file"
@@ -132,7 +132,7 @@
     path:                "{{ __success_file }}"
     state:               absent
   when:
-    - __cnx_force_repopulation == true
+    - __cnx_force_repopulation |bool
 
 - name:                 "Verify if should proceed with migrations if cleanup was done"
   stat:
@@ -184,7 +184,7 @@
    - "connections.sql/wikis/db2/createDb.sql"
    - "connections.sql/wikis/db2/appGrants.sql"
   when:
-    - migrations_already_done.stat.exists == false
+    - not migrations_already_done.stat.exists
 
 - name:                  "Verifiy if Sharepoint migration has already run"
   stat:
@@ -208,9 +208,9 @@
   with_items:
    - "connections.sql/homepage/db2/upgrade-60CR4-70.sql"
   when:
-    - sharepoint_migrations_already_done.stat.exists == false
+    - not sharepoint_migrations_already_done.stat.exists
     - __db_version == '7.0'
-    - __db_enable_upgrades == true
+    - __db_enable_upgrades |bool
 
 - name:                  "Verifiy if IC360 DB is already created"
   stat:
@@ -235,7 +235,7 @@
    - "connections.sql/ic360/db2/createDb.sql"
    - "connections.sql/ic360/db2/appGrants.sql"
   when:
-    - ic360_migrations_already_done.stat.exists == false
+    - not ic360_migrations_already_done.stat.exists
     - __db_version == '7.0'
 
 - name:                  Run migrations for ICEC only
@@ -256,7 +256,7 @@
    - "connections.sql/icec/db2/createDb.sql"
    - "connections.sql/icec/db2/appGrants.sql"
   when:
-    - migrations_already_done.stat.exists == false
+    - not migrations_already_done.stat.exists
 
 - name:                  Run runstats.sql and reorg.sql everywhere
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
@@ -293,7 +293,7 @@
    - "connections.sql/pushnotification/db2/reorg.sql"
    - "connections.sql/wikis/db2/reorg.sql"
   when:
-    - migrations_already_done.stat.exists == true
+    - migrations_already_done.stat.exists |bool
 
 - name:                  "Create {{ __success_file }} file"
   file:

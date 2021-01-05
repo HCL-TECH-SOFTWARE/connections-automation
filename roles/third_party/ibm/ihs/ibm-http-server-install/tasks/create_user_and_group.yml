@@ -6,8 +6,8 @@
     state: present
 
 - name: Add "{{ __ihs_username }}" user
-  user: 
+  user:
     name: "{{ __ihs_username }}"
     uid: 2021
     group: ihsadmins
-    append: yes    
+    append: yes

@@ -20,11 +20,11 @@
     stat:
       path:               "{{ __success_file }}"
     register:             map_j2ee_filesync_user_role_all_autheticated
-    when:                 profile_already_exists.stat.exists == true
+    when:                 profile_already_exists.stat.exists |bool
 
   - name:                 "Set filesync-user J2EE Role to All Autheticated"
     include_tasks:        update-files-app-j2ee-role-for-allauth.yml
-    when:                 map_j2ee_filesync_user_role_all_autheticated.stat.exists == false
+    when:                 not map_j2ee_filesync_user_role_all_autheticated.stat.exists
 
   - name:                 Update applications J2EE reader role to All Authenticated Users
     include_tasks:        map_j2ee_role.yml
@@ -39,4 +39,4 @@
       - Communities
       - Profiles
     when:
-      restrict_reader_access is defined and restrict_reader_access|bool == true
+      restrict_reader_access is defined and restrict_reader_access |bool

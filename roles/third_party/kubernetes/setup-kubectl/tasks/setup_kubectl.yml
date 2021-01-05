@@ -1,5 +1,5 @@
 - name:                   Setting up kubectl for the list of users
-  command: "{{ item }}"  
+  command: "{{ item }}"
   with_items:
    - mkdir -p /home/{{ __kubectl_user }}/.kube
    - cp -rf /etc/kubernetes/admin.conf /home/{{ __kubectl_user }}/.kube/config

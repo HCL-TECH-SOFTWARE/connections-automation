@@ -1,6 +1,9 @@
 - name:                  Setup DB2
   import_playbook:       third_party/setup-db2.yml
 
+- name:                  Setup NFS
+  import_playbook:       third_party/setup-nfs.yml
+
 - name:                  Setup Connections Wizards
   import_playbook:       hcl/setup-connections-wizards.yml
 

@@ -20,7 +20,7 @@
    - "db2stop force"
    - "db2start"
   when:
-    - db2_codepage_already_set.stat.exists == false
+    - not db2_codepage_already_set.stat.exists
 
 - name:                  "Create {{ __db2_codepage_success_file }} file"
   file:

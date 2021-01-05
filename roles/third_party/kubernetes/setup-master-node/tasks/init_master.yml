@@ -32,10 +32,10 @@
     - master_already_initialized.rc != 0
     - single_node_installation is not defined
   ignore_errors:      true
-  
+
 - name:               Save master certificate key
   template:
-    src:              "{{ __master_certkey_template }}"             
+    src:              "{{ __master_certkey_template }}"
     dest:             "{{ __master_certkey_location }}"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
@@ -65,13 +65,12 @@
     - master_already_initialized.rc != 0
     - single_node_installation is defined
 
-- name:               Initialize master for HA 
+- name:               Initialize master for HA
   command:            kubeadm init --control-plane-endpoint "{{ __load_balancer_dns  }}:6443" --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key.content | b64decode | replace('\n', '') }}
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
     - single_node_installation is not defined
-  
 
 - name:               Generate join command
   command:            kubeadm token create --print-join-command

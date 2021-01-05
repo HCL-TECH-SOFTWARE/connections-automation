@@ -1,0 +1,6 @@
+---
+__modules_containerd_conf_template:                    "containerd.conf.j2"
+__modules_containerd_conf_location:                    "/etc/modules-load.d/containerd.conf"
+
+__kubernetes_cri_conf_template:                        "99-kubernetes-cri.conf.j2"
+__kubernetes_cri_conf_location:                        "/etc/sysctl.d/99-kubernetes-cri.conf"
