@@ -13,6 +13,7 @@
   command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }} -silent -noSplash"
   register:          __cnx_db_info_results
   with_items:        "{{ __cnx_db_info }}"
+  changed_when:      false
 
 - name:              Encode CCM Password
   command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ ccm_password }} -silent -noSplash"
@@ -47,15 +48,25 @@
     backup:          yes
   ignore_errors:     true
 
+- name:              Clean Connections Install Dir
+  file:
+    state:           absent
+    path:            "{{ __cnx_install_location }}/"
+  ignore_errors:     true
+  when:              not cnx_updates_enabled
+
+- name:              Create Connections CTEMP dir if it does not exist
+  file:
+    path:            "{{ __cnx_tempdir }}"
+    state:           directory
+    mode:            '0755'
+    
 # Changed for shell for CCM
 - name:              Install Connections Software
-  shell: |
-    mkdir -p /opt/IBM/CTemp
-    export IATEMPDIR=/opt/IBM/CTemp
-    export CHECK_DISK_SPACE=OFF
-    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense -sVP -log {{ __log_file }} input {{ __rsp_file }}
+  shell: "{{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense -sVP -log {{ __log_file }} input {{ __rsp_file }}"
   environment:
-    IATEMPDIR: "/opt/IBM/CTemp"
+    IATEMPDIR: "{{ __cnx_tempdir }}"
+    CHECK_DISK_SPACE: OFF
   register:          cout
 
 

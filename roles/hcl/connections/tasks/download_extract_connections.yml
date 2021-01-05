@@ -60,9 +60,11 @@
   retries: 3
 
 - name:              "Get the installation ID"
-  shell:             cat "{{ __tmp_dir }}/cnx/HCL_Connections_Install/HCLConnections/repository.xml" | grep "offering id" | grep version | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2
+  shell: "set -o pipefail && cat {{ __tmp_dir }}/cnx/HCL_Connections_Install/HCLConnections/repository.xml | grep 'offering id' | awk '/version/{print $3}' | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2"
   register:          cnx_upgrade_version
-
+  args:
+    executable:      /usr/bin/bash
+  changed_when:      false
 
 - debug: var=cnx_upgrade_version.stdout
   run_once: true

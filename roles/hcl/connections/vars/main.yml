@@ -50,7 +50,7 @@ __cnx_prom_jmx_destination:       "{{ __was_install_location }}/profiles/{{ __pr
 __cnx_prom_cfg_template:          "prometheus_config.j2"
 __cnx_prom_cfg_destination:       "{{ __jmx_install_location }}/config.yml"
 
-
+__cnx_tempdir:               "{{ cnx_tempdir | default('/opt/IBM/CTemp') }}"
 
 # Connections Files
 __cnx_package:               "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
