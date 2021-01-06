@@ -1,13 +1,13 @@
 # Install Docs 2.0.1
 ---
 - name:                    Setup NFS
-  hosts:                   docs_servers, conversion_servers, viewer_servers
+  hosts:                   docs_servers:conversion_servers:viewer_servers
   become:                  true
   roles:
     - roles/third_party/nfs-install
 
 - name:                    Setup environment
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, db2_servers, dmgr, ihs_servers
+  hosts:                   docs_servers:conversion_servers:viewer_servers:proxy_servers:db2_servers:dmgr:ihs_servers
   become:                  true
   roles:
     - roles/hcl/docs/setup-environment
@@ -44,7 +44,7 @@
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
 
 - name:                   Install WebSphere Application Server on Docs servers
-  hosts:                  docs_servers, conversion_servers, viewer_servers, proxy_servers
+  hosts:                  docs_servers:conversion_servers:viewer_servers:proxy_servers
   become:                 true
   roles:
     - roles/third_party/ibm/installation-manager-install
@@ -53,7 +53,7 @@
     - roles/third_party/ibm/wasnd/was-java-install
 
 - name:                    Setup WAS Nodes
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
+  hosts:                   docs_servers:conversion_servers:viewer_servers:proxy_servers
   serial:                  1
   become:                  true
   roles:
@@ -68,19 +68,19 @@
     - roles/hcl/docs/create_docs_clusters
 
 - name:                    Create Job Target
-  hosts:                   dmgr, docs_servers, conversion_servers, ihs_servers
+  hosts:                   dmgr:docs_servers:conversion_servers:ihs_servers
   become:                  true
   roles:
     - roles/hcl/docs/create_job_targets
 
 - name:                    Setup Docs
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, dmgr, cnx_was_servers, ihs_servers
+  hosts:                   docs_servers:conversion_servers:viewer_servers:proxy_servers:dmgr:cnx_was_servers:ihs_servers
   become:                  true
   roles:
     - roles/hcl/docs
 
 - name:                    Restart WAS Nodes
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
+  hosts:                   docs_servers:conversion_servers:viewer_servers:proxy_servers
   serial:                  1
   become:                  true
   roles:
