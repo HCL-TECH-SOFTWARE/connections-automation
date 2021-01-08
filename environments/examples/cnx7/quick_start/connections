@@ -21,6 +21,8 @@ ldap_user_password="password"
 ldap_user_admin_password="password"
 
 [ihs_servers:vars]
+iim_bin_file="agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
+iim_version="1.9.1003.20200730_2125"
 ihs_username=ihsadmin
 ihs_password=password
 
