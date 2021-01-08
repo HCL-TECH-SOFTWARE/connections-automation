@@ -940,9 +940,9 @@ ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 
-# teams-tab-api
-ProxyPass "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-ProxyPassReverse "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
+# teams-tab/api
+ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
+ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
 
 
 # teams-share-service
@@ -953,9 +953,9 @@ ProxyPassReverse "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080
 ProxyPass "/teams-share-ui" "http://{{ __load_balancer_fqdn }}:32080/teams-share-ui"
 ProxyPassReverse "/teams-share-ui" "http://{{ __load_balancer_fqdn }}:32080/teams-share-ui"
 
-# teams-tab-api
-ProxyPass "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-ProxyPassReverse "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
+# teams-tab/api
+ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
+ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
 
 # proxy rules for admin-portal
 ProxyPass "/cnxadmin" "http://{{ __load_balancer_fqdn }}:32080/cnxadmin"
@@ -1023,9 +1023,9 @@ ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boar
 ProxyPass "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 ProxyPassReverse "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 
-# teams-tab-api
-ProxyPass "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-ProxyPassReverse "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
+# teams-tab/api
+ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
+ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
 
 # teams-share-service
 ProxyPass "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080/teams-share-service"

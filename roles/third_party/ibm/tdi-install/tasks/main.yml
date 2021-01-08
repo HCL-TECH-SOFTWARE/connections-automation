@@ -5,5 +5,9 @@
 - name:                       Download and install TDI
   include_tasks:              tdi_install.yml
 
+- name:                       Download and upgrade TDI
+  include_tasks:              tdi_upgrade.yml
+  when:                       __tdi_upgrade | bool
+
 - name:                       Download and install tdisol
   include_tasks:              tdisol_install.yml

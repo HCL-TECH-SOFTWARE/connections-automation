@@ -31,6 +31,8 @@ __lcc_dynamic_host_ssl_href:    "https://{{ cnx_application_ingress }}"
 
 # forceConfidentialCommunications
 __lcc_force_comm_xpath:        "/tns:config/tns:forceConfidentialCommunications"
+# LanguageSelector
+__lcc_languageselector_xpath:  "/tns:config/tns:languageSelector"
 
 # Moderation - contentreview-config.xml
 __cnx_enable_moderation:     "{{ cnx_enable_moderation | default('false') }}"
