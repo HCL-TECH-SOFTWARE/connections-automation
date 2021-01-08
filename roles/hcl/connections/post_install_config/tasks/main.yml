@@ -1,5 +1,6 @@
 ---
-- include_tasks:             update_lcc.yml
+- name:                      Update LotusConnections-config.xml
+  include_tasks:             update_lcc.yml
 
 - name:                      Enable Moderation
   include_tasks:             setup_moderation.yml

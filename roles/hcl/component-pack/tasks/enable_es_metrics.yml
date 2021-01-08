@@ -241,3 +241,8 @@
     path:                    "/tmp/{{ groups['k8s_masters'][0] }}"
   become:                    false
   ignore_errors:             yes
+
+- name:                      Run {{ __config_blue_metrics_cmd }} 
+  command:                   "{{ __config_blue_metrics_cmd }}"
+  become:                    false
+  ignore_errors:             true
