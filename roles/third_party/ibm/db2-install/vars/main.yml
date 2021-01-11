@@ -9,7 +9,10 @@ __installation_folder:         "{{ __extraction_folder }}/universal"
 __license_location:            "{{ __extraction_folder }}/ese_u/db2/license/db2ese_u.lic"
 
 __db2_installation_folder:     "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
-__jdbc_package_name:           "{{ db2_jdbc_package_name | default('db2jdbc.tar') }}"
+
+__jdbc_installation_folder:    "{{ db_jdbc_file | default('/opt/IBM/db2/V11.1/java') }}"
+__jdbc_package_name:           "{{ db2_jdbc_package_name | default('v11.1.4fp5_jdbc_sqlj.tar.gz') }}"
+__jdbc_bin_package_name:       "{{ db2_jdbc_bin_package_name | default('db2_db2driver_for_jdbc_sqlj.zip') }}"
 
 __db2_server_rsp_template:     "db2server.rsp.j2"
 __db2_server_rsp_location:     "{{ __installation_folder }}/db2server.rsp"

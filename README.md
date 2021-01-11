@@ -85,7 +85,7 @@ total 2067052
 drwxr-xr-x.  2 dmenges orion           96 Nov 19 11:01 .
 drwxr-xr-x. 13 root    orion          192 Nov 18 08:33 ..
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 CNB23ML.zip
--rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 db2jdbc.tar
+-rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 v11.1.4fp5_jdbc_sqlj.tar.gz
 -rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.1.4fp5_linuxx64_universal_fixpack.tar.gz
 
 Docs:
