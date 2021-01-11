@@ -4,7 +4,7 @@
     dest:                   "{{ __db2_server_rsp_location }}"
 
 - name:                     Check if DB2 is already up and running
-  shell:                    ps -ef | grep db2 | grep -v root
+  shell:                    ps -ef | grep db2inst1 | grep -v root
   changed_when:             true
   register:                 db2_running
   ignore_errors:            true
