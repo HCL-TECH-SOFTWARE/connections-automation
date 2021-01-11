@@ -109,8 +109,8 @@
 
 - name:                  Clenaup ICEC database only
   shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0] )
+  register:              icec_cleanup_result
+  failed_when:           ( icec_cleanup_result.rc not in [0] )
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
@@ -129,20 +129,24 @@
 
 - name:                  "Delete {{ __success_file }} file"
   file:
-    path:                "{{ __success_file }}"
+    path:                "{{ item }}"
     state:               absent
+  with_items:
+    - "{{ __success_file }}"
+    - "{{ __ic360_success_file }}"
+    - "{{ __sharepoint_success_file }}"
   when:
     - __cnx_force_repopulation |bool
 
-- name:                 "Verify if should proceed with migrations if cleanup was done"
+- name:                  "Verify if should proceed with migrations if cleanup was done"
   stat:
     path:                "{{ __success_file }}"
   register:              migrations_already_done
 
 - name:                  Run migrations for everything but ICEC
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0, 1, 2, 3] )
+  register:              all_migrations_result
+  failed_when:           ( all_migrations_result.rc not in [0, 1, 2, 3] )
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
@@ -186,15 +190,15 @@
   when:
     - not migrations_already_done.stat.exists
 
-- name:                  "Verifiy if Sharepoint migration has already run"
+- name:                  "Verify if Sharepoint migration has already run"
   stat:
     path:                "{{ __sharepoint_success_file }}"
   register:              sharepoint_migrations_already_done
 
 - name:                  Run Sharepoint migration for Connections 7
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0, 1, 2, 3] )
+  register:              sharepoint_migration_result
+  failed_when:           ( sharepoint_migration_result.rc not in [0, 1, 2, 3] )
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
@@ -212,15 +216,15 @@
     - __db_version == '7.0'
     - __db_enable_upgrades |bool
 
-- name:                  "Verifiy if IC360 DB is already created"
+- name:                  "Verify if IC360 DB is already created"
   stat:
     path:                "{{ __ic360_success_file }}"
   register:              ic360_migrations_already_done
 
 - name:                  Run migrations for IC360
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0, 1, 2, 3] )
+  register:              ic360_migration_result
+  failed_when:           ( ic360_migration_result.rc not in [0, 1, 2, 3] )
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
@@ -240,8 +244,8 @@
 
 - name:                  Run migrations for ICEC only
   shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0] )
+  register:              icec_migrations_result
+  failed_when:           ( icec_migrations_result.rc not in [0] )
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
@@ -299,13 +303,22 @@
   file:
     path:                "{{ __success_file }}"
     state:               touch
+  when: 
+   - all_migrations_result is defined
+   - not migrations_already_done.stat.exists
 
 - name:                  "Create {{ __ic360_success_file }} file"
   file:
     path:                "{{ __ic360_success_file }}"
     state:               touch
+  when:
+   - ic360_migration_result is defined
+   - not ic360_migrations_already_done.stat.exists
 
 - name:                  "Create {{ __sharepoint_success_file }} file"
   file:
     path:                "{{ __sharepoint_success_file }}"
     state:               touch
+  when:
+   - sharepoint_migration_result is defined
+   - not sharepoint_migrations_already_done.stat.exists
