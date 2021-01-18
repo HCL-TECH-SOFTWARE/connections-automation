@@ -46,22 +46,12 @@ viewer2.internal.example.com
 proxy1.internal.example.com
 proxy2.internal.example.com
 
-# First node on the list is the NFS server (same as Connections).  Other hosts become clients.
+# NFS server (same as Connections) if install on distributed environment
 [nfs_servers]
 dmgr1.internal.example.com
-connections1.internal.example.com
-connections2.internal.example.com
-docs1.internal.example.com
-docs2.internal.example.com
-conversion1.internal.example.com
-conversion2.internal.example.com
-viewer1.internal.example.com
-viewer2.internal.example.com
 
 # Those variables will be used for IHS
 [ihs_servers:vars]
-iim_bin_file="agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
-iim_version="1.9.1003.20200730_2125"
 ihs_username=ihsadmin
 ihs_password=password
 
@@ -99,11 +89,30 @@ setup_connections_wizards=false
 # If uncommented (enabled), it would drop your Docs databases and recreate it. Use with extreme caution!
 #cnx_docs_force_repopulation=true
 
-# IP address for the NFS server for Connections shared data and Docs data
-nfsMasterAddress="172.11.1.111"
+# IP address for the NFS server for Connections shared data and Docs data, if install on distributed environment.
+# Leave blank if NFS is not used.
+nfsMasterAddress="181.10.1.100"
 
-# NFS share of the Connections shared data
-cnx_data_nfs=/nfs/data/shared
+# docs_shared_storage_type - if Conversion server will be on the same machine as Docs server, set as local
+# docs_data_remote_path - the NFS share of the Docs data dir
+# docs_data_local_path - the local dir (if docs_shared_storage_type=local) or the local mount point of the Docs data dir to be created
+docs_shared_storage_type=nfs
+docs_data_remote_path=/nfs/docs_data
+docs_data_local_path=/mnt/docs_data
+# viewer_shared_storage_type - if Conversion server is on the same machine as Viewer server, set as local
+# viewer_data_remote_path - the NFS share of the Viewer data dir
+# viewer_data_local_path - the local dir (if viewer_shared_storage_type =local) or the local mount point of the Viewer data dir to be created
+viewer_shared_storage_type=nfs
+viewer_data_remote_path=/nfs/viewer_data
+viewer_data_local_path=/mnt/viewer_data
+# cnx_shared_storage_type - if Viewer server is on the same machine as Connections server, set as local
+# cnx_data_remote_path - the NFS share of the Connections shared data dir
+# cnx_data_local_path - the local dir (if cnx_shared_storage_type=local) or the local mount point of the Connections data dir to be created
+cnx_shared_storage_type=nfs
+cnx_data_remote_path=/nfs/data/shared
+cnx_data_local_path=/mnt/cnx_data
+# cnx_data_path_on_cnx_server - the local path of the Connections shared data dir on the Connections server
+cnx_data_path_on_cnx_server=/opt/IBM/SharedArea
 
 # This user will be created on each instance required by the WebSphere job targets
 docs_username=docsuser
@@ -114,10 +123,12 @@ sudo_group=mygroup
 cnx_application_ingress=ihs1.example.com
 docs_url=ihs1.example.com
 
-# This username and password are going to be set as administrative for IBM WebSphere ND and used as such accross whenever
-# needed.
+# This username and password are going to be set as administrative for IBM WebSphere ND and used as such across whenever needed.
 was_username=wasadmin
 was_password=password
+
+# Set when Docs is installed on a domain different from the frontend domain
+# sso_domainname=.internal.example.com;.example.com
 
 # Websphere DMGR for Docs. It can be only one node.
 dmgr_hostname=dmgr1.internal.example.com

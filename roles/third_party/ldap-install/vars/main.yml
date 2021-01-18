@@ -33,6 +33,7 @@ __ldap_nr_of_users:             "{{ ldap_nr_of_users | default(2500) }}"
 __ldap_userid:                  "{{ ldap_userid | default('jjones') }}"
 __ldap_user_password:           "{{ ldap_user_password | default('password') }}"
 __ldap_user_admin_password:     "{{ ldap_user_admin_password | default('password') }}"
+__ldap_user_mail_domain:        "{{ ldap_user_mail_domain | default('connections.example.com') }}"
 
 __ldap_ssl_success_file:        "/etc/openldap/certs.ldif.success"
 

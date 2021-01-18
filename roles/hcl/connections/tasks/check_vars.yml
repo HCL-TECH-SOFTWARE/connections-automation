@@ -58,3 +58,9 @@
     that:
     - connections_admin|length > 0
     msg: "Set the value of 'connections_admin' in the inventory file."
+
+- name: ldap_user_mail_domain should be defined
+  assert:
+    that:
+    - ldap_user_mail_domain|length > 0
+    msg: "Set the value of 'ldap_user_mail_domain' in the inventory file."

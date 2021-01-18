@@ -75,6 +75,10 @@ ihs_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part1.zip"}
 ihs_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part2.zip"}
 ihs_fp_files[]={"file_name":"8.5.5-WS-WASSupplements-FP016-part3.zip"}
 
+# Uncomment this if you don't want to attempt NFS mounts for your HCL Connections installation. 
+# By default, this is set to false.
+#skip_nfs_mount_for_connections=true
+
 # This variable is used exclusively to decide which response file to render for pre version 7
 cnx_major_version="6"
 
@@ -119,7 +123,14 @@ cnx_component_pack_ingress="web1.internal.example.com"
 # This is the URL of your Connections installation. Will be used for setting dynamicHost. 
 cnx_application_ingress="web1.example.com"
 
+# This is the mandatory variable. This user doesn't have to exist, but is mandatory during HCL Connections response
+# file generation. connections_admin will become, as the name suggests, administrator of HCL Connections. 
 connections_admin=fakeuser1
+
+# This is also mandatory variable for HCL Connections installation. If you are creating fake users, it will be also
+# used as their mail sufix. Beside that, it is used by ICXT component configuration to get a HCL Connections administrator
+# data during ICXT configuration. 
+ldap_user_mail_domain="connections.example.com"
 
 cnx_node_list=['connections1']
 cnx_hostname_list=['connections1.internal.example.com']

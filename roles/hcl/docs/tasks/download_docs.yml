@@ -21,15 +21,15 @@
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsConversion
-    __zip_prefix:        "{{ __app_name }}"
+    __app_name:          "{{ __conversion_install_folder }}"
+    __zip_prefix:        "DocsConversion"
   when:                  inventory_hostname in groups["conversion_servers"]
 
 - name:                  Unpack Docs Editor installer
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsEditor
+    __app_name:          "{{ __editor_install_folder }}"
     __zip_prefix:        DocsApp
   when:                  inventory_hostname in groups["docs_servers"]
 
@@ -37,7 +37,7 @@
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsViewer
+    __app_name:          "{{ __viewer_install_folder }}"
     __zip_prefix:        Viewer
   when:                  inventory_hostname in groups["viewer_servers"]
 
@@ -45,7 +45,7 @@
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsProxy
+    __app_name:          "{{ __proxy_install_folder }}"
     __zip_prefix:        DocsProxyFilter
   when:                  inventory_hostname in groups["proxy_servers"]
 

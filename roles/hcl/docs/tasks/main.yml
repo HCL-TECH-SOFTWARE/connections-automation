@@ -5,7 +5,7 @@
 - name:                    Download Docs installer to Docs env
   include_tasks:           download_docs.yml
   when:
-   - __setup_environmenti |bool
+   - __setup_environment |bool
    - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname in groups["proxy_servers"][0])
 
 - name:                    Install Docs Conversion (first node)
@@ -35,8 +35,8 @@
 - name:                    Download Docs installer to Connections env
   include_tasks:           download_docs.yml
   when:
-   - __setup_environment |bool
-   - inventory_hostname in groups["cnx_was_servers"][0]
+    - __setup_environment |bool
+    - inventory_hostname in groups["cnx_was_servers"][0]
 
 - name:                    Start CNX Clusters
   include_role:
@@ -51,10 +51,18 @@
   include_tasks:           install_docs_viewer_ext.yml
   when:                    inventory_hostname in groups["cnx_was_servers"][0]
 
-- name:                     Map Docs applications to web modules (workaround)
+- name:                    Add domain to WAS SSO setting
   include_role:
-    name:                   roles/hcl/docs/map_docs_web_modules
-  when:                     inventory_hostname in groups["dmgr"]
+    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
+    apply:
+      delegate_to:         "{{ dmgr_hostname }}"
+      become:              true
+  when:                    sso_domainname is defined and inventory_hostname in groups["dmgr"]
+
+- name:                    Map Docs applications to web modules (workaround)
+  include_role:
+    name:                  roles/hcl/docs/map_docs_web_modules
+  when:                    inventory_hostname in groups["dmgr"]
 
 - name:                    Update IHS plugin
   include_tasks:           update_webserver.yml

@@ -4,12 +4,6 @@
   hosts:                   nfs_servers
   tasks:                   []
 
-- name:                    Setup NFS
-  hosts:                   dmgr, was_servers
-  become:                  true
-  roles:
-    - roles/third_party/nfs-install
-
 - name:                    Setup Connections
   hosts:                   dmgr
   become:                  true
