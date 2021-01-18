@@ -20,9 +20,9 @@
 /pv-connections/esdata-7-2        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
 /pv-connections/customizations        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
 /pv-connections/kudos-boards-minio        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-{% if __nfs_docs_setup == True %}
-/nfs/docs_data        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
-/nfs/viewer_data        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
+{% if __nfs_docs_setup|bool %}
+{{ __docs_data_shared }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
+{{ __viewer_data_shared }}      {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
+{% endif %}
 {{ __cnx_data_shared }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
 {{ __cnx_message_stores }}       {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
-{% endif %}

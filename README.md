@@ -246,7 +246,7 @@ If you are upgrading from Connections 6.5.0.1 to 7 and want to only create IC360
 #db_enable_upgrades=True
 ```
 
-in your inventory file. This will then drop all the databases and recreate them again. Don't forget to run TDI afterwards. Be sure to comment it again once you do it. 
+in your inventory file. This will then drop all the databases and recreate them again. Don't forget to run TDI afterwards. Be sure to comment it again once you do it.
 
 ### Setting up OpenLDAP with SSL and amount of fake users
 
@@ -275,7 +275,8 @@ This will create 2500 fake accounts, starting with user id 'fakeuser1' and going
 
 ```
 connections_admin=fakeuser1
-``` 
+ldap_user_mail_domain="connections.example.com"
+```
 
 This comes in handy if you don't have any other LDAP server ready and you want to quickly get to the point where you can test HCL Connections. You can later replace this LDAP with any other one.
 
@@ -332,13 +333,31 @@ To install IBM WebSphere Application Server, IBM HTTP Server and configure it, e
 ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/third_party/setup-webspherend.yml
 ```
 
+### Preparing NFS for HCL Connections
+
+By default, HCL Connections would use NFS for message stores and shared data. In case of single node and small demo environments, NFS is not needed, and that is also supported.
+
+If you are going to use NFS with HCL Connections, then set it up first before you proceed with HCL Connections installation with:
+
+```
+ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/third_party/setup-nfs.yml
+```
+
 ### Installing HCL Connections
 
-To install the WebSphere-side of Connections only, on an already prepared environment (all previous steps are already done and the environment is ready for HCL Connections to be installed) execute:
+By default, use of NFS is enabled, which means HCL Connections would try to mount the folders for shared data and message store. Note that NFS is needed if you plan to install HCL Docs later on a separate server.  If you don't want it to be mounted and don't plan to install HCL Docs on a separate server, set:
+
+```
+skip_nfs_mount_for_connections=true
+```
+
+To install the WebSphere-side of HCL Connections only, on an already prepared environment (all previous steps are already done and the environment is ready for HCL Connections to be installed) execute:
 
 ```
 ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/hcl/setup-connections-only.yml
 ```
+
+Note that installation will not start (and will inform you about that) if mandatory variables are missing.
 
 To enable Moderation and Invites, set:
 
@@ -505,7 +524,10 @@ For HCL Connections Docs itself it means:
 
 ## Requirements:
 * HCL Connections has been installed using the Ansible script describe above.
-* If HCL Connections Docs will be installed on a domain different from the external URL, setup an external route to connect to the load balances for the HCL Connections Docs.
+* If HCL Connections was installed with `nfs_docs_setup=false` in the inventory file, set it to `nfs_docs_setup=true` then run the `setup-nfs.yml` playbook again to setup HCL Docs and Viewer data NFS shares:
+```
+ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/component_pack playbooks/third_party/setup-nfs.yml
+```
 
 ### Have files ready for download
 * See [Have files ready for download](https://github.com/HCL-TECH-SOFTWARE/connections-automation#have-files-ready-for-download) above.
@@ -519,16 +541,16 @@ ansible-playbook -i environments/examples/connections_docs playbooks/hcl/setup-c
 
 ### HCL Connections Docs Troubleshooting
 * If HCL Connections Docs configuration adjustment is needed after the install, it can be done in `/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/${CELLNAME}/IBMDocs-config` on the WebSphere Deployment Manager.  Make sure to do a full re-synchronize to propagate any changes to all Docs nodes.
-* If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [here](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/text/functional_verification_of_installation.html) to check if the HCL Docs and File Viewer extensions are installed and active within HCL Connections. If the modules are not listed, on the HCL Connections server, use the `findmnt` command to locate the mount target of `{{nfsMasterAddress}}:{{cnx_data_nfs}}` based on the inventory file, then go to `/provision/webresources` in that location to make sure the jars are there. If not present, try to locate them in `{{cnx_data_nfs}}` as local path and move them to the correct location (i.e. `<Connections shared data>/provision/webresources`). You'll need to restart Connections to see the modules listed.
-* If you wish to re-install a HCL Connections Docs components, cd to `/opt/HCL/<component>/installer` then run `sudo ./uninstall.sh`.  Delete the .success file in `/opt/HCL/<component>/` then run the playbook again.  It is recommended to comment out the prior steps in the playbook to save time.
+* If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [documentation](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/text/functional_verification_of_installation.html) to check if the HCL Docs and File Viewer extensions are installed and active within HCL Connections. If the modules are not listed, on the HCL Connections server, go to `{{cnx_data_path_on_cnx_server}}` based on the inventory file, then go to `/provision/webresources` in that location to make sure the jars are there. Also, go to the WAS admin console to make sure `HCLDocsProxyCluster` Proxy server cluster is running.
+* If you wish to re-install a HCL Connections Docs component, first cd to `/opt/HCL/<component>/installer` (`/opt/HCL/<component>/extension/installer` for Docs or Viewer extension) then run `sudo ./uninstall.sh` (`sudo ./uninstall_node.sh on subsequent nodes if exist`, ) to uninstall the component.  Delete the .success file in `/opt/HCL/<component>/` then run the playbook again.  It is recommended to comment out the prior steps in the playbook to save time.
 
 ## Acknowledgments
 
-This project was inspired by the [Ansible WebSphere/Connections 6.0 automation done by Enio Basso](https://github.com/ebasso/ansible-ibm-websphere). It is done in a way that it can interoperate with the mentioned project or parts of it. 
+This project was inspired by the [Ansible WebSphere/Connections 6.0 automation done by Enio Basso](https://github.com/ebasso/ansible-ibm-websphere). It is done in a way that it can interoperate with the mentioned project or parts of it.
 
 ## License
 
-This project is licensed under Apache 2.0 license. 
+This project is licensed under Apache 2.0 license.
 
 ## Disclaimer
 

@@ -1,0 +1,47 @@
+- name:                      "Create local mount point for {{ __cnx_shared_area }}"
+  file:
+    path:                    "{{ __cnx_shared_area }}"
+    state:                   directory
+    mode:                    '0755'
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['was_servers'] }}"
+
+- name:                      "Create local mount point for {{ __cnx_message_store }}"
+  file:
+    path:                    "{{ __cnx_message_store }}"
+    state:                   directory
+    mode:                    '0755'
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['was_servers'] }}"
+
+- name:                      Mount "{{ __cnx_shared_area_files_dest }}" to "{{ __cnx_shared_area }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    dump:                    0
+    passno:                  0
+    state:                   mounted
+    src:                     "{{ __cnx_shared_area_files_dest }}"
+    path:                    "{{ __cnx_shared_area }}"
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['was_servers'] }}"
+  when:
+   - not __skip_nfs_mount
+
+- name:                      "Mount {{ __cnx_messagestore_files_dest }} to {{ __cnx_message_store }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    dump:                    0
+    passno:                  0
+    state:                   mounted
+    src:                     "{{ __cnx_messagestore_files_dest }}"
+    path:                    "{{ __cnx_message_store }}"
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['was_servers'] }}"
+  when:
+   - not __skip_nfs_mount

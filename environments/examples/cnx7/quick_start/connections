@@ -73,6 +73,7 @@ cnx_application_ingress="web.internal.example.com"
 
 # Connections admin user. By default it is this one. Doesn't have to exist in the moment of cluster setup.
 connections_admin=fakeuser1
+ldap_user_mail_domain="connections.example.com"
 
 cnx_node_list=['connections']
 cnx_hostname_list=['connections.internal.example.com']

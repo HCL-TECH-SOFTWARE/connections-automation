@@ -25,8 +25,8 @@
     state:             present
   with_items:
     - { prop_name: "{{ __conversion_install_root }}", prop_value: "{{ __conversion_install_root_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_type }}", prop_value: "{{ __docs_shared_storage_type_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_type }}", prop_value: "{{ __viewer_shared_storage_type_r }}" }
+    - { prop_name: "{{ __docs_shared_storage_type_cfg }}", prop_value: "{{ __docs_shared_storage_type_r }}" }
+    - { prop_name: "{{ __viewer_shared_storage_type_cfg }}", prop_value: "{{ __viewer_shared_storage_type_r }}" }
     - { prop_name: "{{ __docs_shared_storage_local_path }}", prop_value: "{{ __docs_shared_storage_local_path_r }}" }
     - { prop_name: "{{ __docs_shared_storage_remote_server }}", prop_value: "{{ __docs_shared_storage_remote_server_r }}" }
     - { prop_name: "{{ __docs_shared_storage_remote_path }}", prop_value: "{{ __docs_shared_storage_remote_path_r }}" }
@@ -42,7 +42,7 @@
 
 - name:              Run the Docs Conversion installer for the second node
   shell:
-    chdir:           "{{ __extraction_folder }}/DocsConversion/installer"
+    chdir:           "{{ __extraction_folder }}/{{ __conversion_install_folder }}/installer"
     cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
   become:            true
   when:

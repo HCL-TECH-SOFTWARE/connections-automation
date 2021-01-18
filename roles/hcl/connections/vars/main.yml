@@ -1,6 +1,7 @@
 ---
 __cnx_major_version:         "{{ cnx_major_version | default('7') }}"
 
+
 __profile_name:              "{{ profile_name | default('Dmgr01') }}"
 __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
 __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
@@ -19,6 +20,7 @@ __tpl_file:                  "LC.{{ __cnx_major_version }}.rsp.j2"
 __cnx_install_location:      "{{ cnx_install_location  | default('/opt/HCL/Connections') }}"
 __cnx_tmp_dir:               "{{ cnx_tmp_dir  | default('/opt/HCL/CnxTempDir') }}"
 
+__skip_nfs_mount:            "{{ skip_nfs_mount_for_connections | default(false) }}"
 __firstNfsNode:              "{{ hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] }}"
 
 __nfsMasterAddress:          "{{ nfsMasterAddress | default( __firstNfsNode ) }}"

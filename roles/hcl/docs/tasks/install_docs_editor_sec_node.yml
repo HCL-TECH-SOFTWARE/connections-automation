@@ -47,7 +47,7 @@
 
 - name:              Run the Docs Editor installer for the second node
   shell:
-    chdir:           "{{ __extraction_folder }}/DocsEditor/installer"
+    chdir:           "{{ __extraction_folder }}/{{ __editor_install_folder }}/installer"
     cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -dbadminID {{ __db_concord_username }} -dbadminPW {{ db_concord_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
   become:            true
   when:

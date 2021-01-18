@@ -75,14 +75,9 @@ cnx_docs_download_location=http://installer1.internal.example.com:8001/Docs
 # Download location for HCL Connections zip file. Used by Connections installation and TDI to get tdisol archive.
 cnx_repository_url=installer1.internal.example.com:8001/Connections7
 
-# Change to Filenames used in Flexnet
-was_files[]={"file_name": "CIK2HML.zip", "check_sum": "b1333962ba4b25c8632c7e4c82b472350337e99febac8f70ffbd551ca3905e83" }
-was_files[]={"file_name": "CIK2JML.zip", "check_sum": "b73ae070656bed6399a113c2db9fb0abaf5505b0d41c564bf2a58ce0b1e0dcd2" }
-was_files[]={"file_name": "CIK2IML.zip", "check_sum": "440b7ed82089d43b1d45c1e908bf0a1951fed98f2542b6d37c8b5e7274c6b1c9" }
-
-ihs_files[]={"file_name": "CIK1VML.zip", "check_sum": "d63c59de4a5548e3d26e71fefb76193d41ac7585bc450c1e504287e0a6f746c9"}
-ihs_files[]={"file_name": "CIK1WML.zip", "check_sum": "ac00e7ab43cc528fe7f3ccd69aeb6564a2e738e7bc6e30e71fd2e0d4bd64f39e"}
-ihs_files[]={"file_name": "CIK1XML.zip", "check_sum": "94e3d9b70b139ad5fa0578da6857b295c5d2370c1b6ecb544c1e5757406fec90"}
+# Uncomment this if you don't want to attempt NFS mounts for your HCL Connections installation. 
+# By default, this is set to false.
+#skip_nfs_mount_for_connections=true
 
 # Folder used for the shared data. If setting up NFS using using automation, it will be created on NFS master and exported, and then mounted by Connections
 # installation and used inside response file. 
@@ -131,8 +126,14 @@ cnx_application_ingress="web1.example.com"
 # uncomment and set this if was_servers and cnx_application_ingress are in different domain
 sso_domainname=.internal.example.com;.example.com
 
-# Connections admin user. By default it is this one. Doesn't have to exist in the moment of cluster setup.
+# This is the mandatory variable. This user doesn't have to exist, but is mandatory during HCL Connections response
+# file generation. connections_admin will become, as the name suggests, administrator of HCL Connections.
 connections_admin=fakeuser1
+
+# This is also mandatory variable for HCL Connections installation. If you are creating fake users, it will be also
+# used as their mail sufix. Beside that, it is used by ICXT component configuration to get a HCL Connections administrator
+# data during ICXT configuration.
+ldap_user_mail_domain="connections.example.com"
 
 cnx_node_list=['connections1', 'connections2']
 cnx_hostname_list=['connections1.internal.example.com', 'connections2.internal.example.com']

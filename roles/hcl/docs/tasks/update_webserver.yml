@@ -5,7 +5,7 @@
 
 - name:               Run the IHS Plugins updates script bundled in the Docs Editor Proxy installer
   shell:
-    chdir:            "{{ __extraction_folder }}/DocsProxy/installer"
+    chdir:            "{{ __extraction_folder }}/{{ __proxy_install_folder }}/installer"
     cmd:              "./update_webserver.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense"
   become:             true
   when:

@@ -3,24 +3,6 @@
     path:             "{{ __docs_viewer_ext_install_success_file }}"
   register:           viewer_ext_already_installed
 
-- name:               Get CNX shared data mount target for {{ nfsMasterAddress }}:{{ cnx_data_nfs }}
-  shell:              "findmnt --source {{ nfsMasterAddress }}:{{ cnx_data_nfs }} -o target -n | head -n 1"
-  register:           cnx_data_mount_target
-  when:
-    - not viewer_ext_already_installed.stat.exists
-
-- set_fact:
-    local_cnx_data_path:    "{{ cnx_data_nfs }}"
-  when:                     cnx_data_mount_target.stdout|length == 0
-
-- set_fact:
-    local_cnx_data_path:    "{{ cnx_data_mount_target.stdout }}"
-  when:                     cnx_data_mount_target.stdout|length > 0
-
-- debug:                    var=local_cnx_data_path
-  when:
-    - not viewer_ext_already_installed.stat.exists
-
 - name:               Edit cfg.properties
   lineinfile:
     path:            "{{ __viewer_ext_cfg_prop_location }}/cfg.properties"
@@ -30,8 +12,8 @@
   with_items:
     - { prop_name: "{{ __ext_install_root }}", prop_value: "{{ __viewer_ext_install_root_r }}" }
     - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "{{ __ic_extension_path }}", prop_value: "{{ __ic_extension_path }}{{ local_cnx_data_path }}/provision/webresources" }
-    - { prop_name: "{{ __deamon_shared_path }}", prop_value: "{{ __deamon_shared_path }}{{ local_cnx_data_path }}" }
+    - { prop_name: "{{ __ic_extension_path }}", prop_value: "{{ __ic_extension_path_r }}" }
+    - { prop_name: "{{ __deamon_shared_path }}", prop_value: "{{ __deamon_shared_path_r }}" }
     - { prop_name: "{{ __auth_type }}", prop_value: "{{ __auth_type_r }}" }
     - { prop_name: "{{ __files_scope_name }}", prop_value: "{{ __files_scope_name_r }}" }
     - { prop_name: "{{ __news_scope_name }}", prop_value: "{{ __news_scope_name_r }}" }

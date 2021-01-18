@@ -3,6 +3,20 @@
     path:             "{{ __viewer_install_success_file }}"
   register:           viewer_already_installed
 
+- name:               Get CNX shared data mount target for {{ nfsMasterAddress }}:{{ __cnx_data_remote_path }}
+  shell:              "findmnt --source {{ nfsMasterAddress }}:{{ __cnx_data_remote_path }} -o target -n | head -n 1"
+  register:           cnx_data_mount_target
+  failed_when:        cnx_data_mount_target.stdout|length == 0
+  when:
+    - not viewer_already_installed.stat.exists
+    - __cnx_shared_storage_type == 'nfs'
+
+- debug:                    var=cnx_data_mount_target
+  when:
+    - not viewer_already_installed.stat.exists
+    - cnx_data_mount_target is defined
+
+
 - name:               Edit cfg.properties
   lineinfile:
     path:            "{{ __viewer_cfg_prop_location }}/cfg.properties"
@@ -31,7 +45,7 @@
 
 - name:              Run the Docs Viewer installer
   shell:
-    chdir:           "{{ __extraction_folder }}/DocsViewer/installer"
+    chdir:           "{{ __extraction_folder }}/{{ __viewer_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -mapWebserver true -acceptLicense"
   become:            true
   when:

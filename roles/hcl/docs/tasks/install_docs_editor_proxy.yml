@@ -21,7 +21,7 @@
 # Note: Documentation says only need to install on one of the HCL Docs Proxy server nodes.
 - name:              Run the Docs Editor Proxy installer
   shell:
-    chdir:           "{{ __extraction_folder }}/DocsProxy/installer"
+    chdir:           "{{ __extraction_folder }}/{{ __proxy_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -acceptLicense"
   become:            true
   when:
