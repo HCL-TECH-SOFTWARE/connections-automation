@@ -2,6 +2,8 @@
 
 This set of scripts is able to spin up end-to-end HCL Connections 7 with Component Pack and all the dependencies. They can be used as whole and set up end to end environment, including the set of fake users for a sake of quickly being able to log in and see how the application works, or they can can be used autonomously from each other.  
 
+Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md).
+
 For HCL Connections 7 dependencies this means that:
 
 * IBM DB2 will be installed, configured as per Performance tunning guide for HCL Connections, and license applied.
@@ -51,7 +53,7 @@ Supported OSs:
 * CentOS 7+
 * RHEL 7+
 
-NOTE: The supported operating systems listed above have been tested by HCL. These scripts may run on other operating systems as well.
+NOTE: Recommended OS for this automation is CentOS/RHEL 7.9. All HCL Connections, Docs and Component Pack builds are done on CentOS/RHEL 7. While it is being tested, in different scenarios, using version 8+ of both CentOS and RHEL you may hit different issues that are eventually not being tested. Component Pack itself is also tested on Amazon EKS and RedHat OpenShift 4 to ensure that builds are compatible.
 
 ### Have files ready for download
 

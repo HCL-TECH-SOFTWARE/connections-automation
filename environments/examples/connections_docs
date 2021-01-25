@@ -60,7 +60,7 @@ ihs_password=password
 db2_download_location=http://installer1.internal.example.com:8001/DB2
 
 # Download location of Connections Wizards for DB population
-db2_wizards_download_location=installer1.internal.example.com:8001/Connections7
+db2_wizards_download_location=http://installer1.internal.example.com:8001/Connections7
 
 # Download location for IBM Installation manager
 iim_repository_url=http://installer1.internal.example.com:8001/was855
