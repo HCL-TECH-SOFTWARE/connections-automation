@@ -1,16 +1,16 @@
 ---
 __tdi_upgrade:                  "{{ tdi_upgrade_enable | default(true) }}"
 
-__download_location:            "{{ tdi_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/TDI') }}"
+__download_location:            "{{ tdi_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/TDI') }}"
 __package_name:                 "{{ tdi_package_name | default('SDI_7.2_XLIN86_64_ML.tar') }}"
 __upgrade_package_name:         "{{ tdi_upgrade_package_name | default('7.2.0-ISS-SDI-FP0006.zip') }}"
 __upgrade_package_bin:          "{{ tdi_upgrade_package_bin | default('SDI-7.2-FP0006.zip') }}"
 __upgrade_package_folder_name:  "{{ tdi_upgrade_package_folder_name | default('7.2.0-ISS-SDI-FP0006') }}"
-__extraction_folder:            "/opt/IBM/InstallBinaries/TDI"
+__extraction_folder:            "{{ extraction_folder | default('/opt/IBM/InstallBinaries/TDI') }}"
 
-__tdi_upgrade_folder:           "/opt/IBM/InstallBinaries/TDI/Upgrade"
+__tdi_upgrade_folder:           "{{ tdi_upgrade_folder | default('/opt/IBM/InstallBinaries/TDI/Upgrade') }}"
 
-__tdi_user_install_dir:         "/opt/IBM/TDI/V7.20"
+__tdi_user_install_dir:         "{{ tdi_user_install_dir | default('/opt/IBM/TDI/V7.20') }}"
 
 __tdi_installed_success_file:   "{{ __tdi_user_install_dir }}/tdi.installed.success"
 __tdi_upgrade_success_file:     "{{ __tdi_user_install_dir }}/tdi.upgrade.success"
@@ -21,12 +21,12 @@ __tdi_rsp_location:             "{{ __extraction_folder }}/TDITypicalInstallRsp_
 __tdi_install_bin:              "{{ __extraction_folder }}/linux_x86_64/install_sdiv72_linux_x86_64.bin"
 __tdi_upgrade_bin:              "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh"
 
-__cnx_download_location:        "{{ cnx_repository_url | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
+__cnx_download_location:        "{{ cnx_repository_url | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
 __cnx_package_name:             "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
-__cnx_extraction_folder:        "/opt/IBM/InstallBinaries/CNX"
+__cnx_extraction_folder:        "{{ cnx_extraction_folder | default('/opt/IBM/InstallBinaries/CNX') }}"
 
 __tdi_sol_location:             "{{ __cnx_extraction_folder }}/HCL_Connections_Install/tools/tdisol.tar"
-__tdi_sol_dest:                 "/opt/IBM/TDI/tdisol"
+__tdi_sol_dest:                 "{{ tdi_sol_dest | default('/opt/IBM/TDI/tdisol') }}"
 
 __tdienv_sh_template:           "tdienv.sh.j2"
 __tdienv_sh_dest:               "{{ __tdi_sol_dest }}/TDI/tdienv.sh"

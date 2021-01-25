@@ -19,7 +19,7 @@
 
 - name:                  Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
   unarchive:
-    src:                 "http://{{ __cnx_download_location }}/{{ __cnx_package_name }}"
+    src:                 "{{ __cnx_download_location }}/{{ __cnx_package_name }}"
     dest:                "{{ __cnx_extraction_folder }}"
     remote_src:          yes
   when:

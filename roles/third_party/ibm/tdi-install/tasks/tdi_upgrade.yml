@@ -26,7 +26,7 @@
 
 - name:                  Download and unzip upgrade {{ __upgrade_package_name }} to the {{ __extraction_folder }}
   unarchive:
-    src:                 "http://{{ __download_location }}/{{ __upgrade_package_name }}"
+    src:                 "{{ __download_location }}/{{ __upgrade_package_name }}"
     dest:                "{{ __tdi_upgrade_folder }}"
     remote_src:          yes
   when:
