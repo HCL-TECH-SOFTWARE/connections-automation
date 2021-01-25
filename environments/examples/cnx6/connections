@@ -39,7 +39,7 @@ ihs_password=password
 
 [all:vars]
 db2_download_location=http://installer1.internal.example.com:8001/DB2
-tdi_download_location=installer1.internal.example.com:8001/TDI
+tdi_download_location=http://installer1.internal.example.com:8001/TDI
 iim_repository_url=http://installer1.internal.example.com:8001/was855
 was_repository_url=http://installer1.internal.example.com:8001/was855
 ihs_repository_url=http://installer1.internal.example.com:8001/was855
@@ -47,9 +47,8 @@ cnx_docs_download_location=http://installer1.internal.example.com:8001/Docs
 
 # Connections 6.5 and Wizards for 6.5 live in Connections6.5 subfolder on 
 # installer1.internal.example.com:/data/packages/Connections6.5 
-cnx_repository_url=installer1.internal.example.com:8001/Connections6.5
-cnx_download_location=installer1.internal.example.com:8001/Connections6.5
-db2_wizards_download_location=installer1.internal.example.com:8001/Connections6.5
+cnx_repository_url=http://installer1.internal.example.com:8001/Connections6.5
+db2_wizards_download_location=http://installer1.internal.example.com:8001/Connections6.5
 
 # WAS FP 16 fixes live in installer1.internal.example.com:/data/packages/was855FP16
 was_fixes_repository_url=http://installer1.internal.example.com:8001/was855FP16
