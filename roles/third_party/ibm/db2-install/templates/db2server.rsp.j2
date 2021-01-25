@@ -14,25 +14,25 @@ DAS_CONTACT_LIST       = LOCAL
 * ----------------------------------------------
 *  Instance properties
 * ----------------------------------------------
-INSTANCE       = inst1
-inst1.TYPE       = ese
+INSTANCE       = {{ __db2_instance }}
+{{ __db2_instance }}.TYPE       = {{ __db2_instance_type }}
 *  Instance-owning user
-inst1.NAME       = db2inst1
-inst1.GROUP_NAME       = db2group
-inst1.HOME_DIRECTORY       = /home/db2inst1
-inst1.PASSWORD       = {{ __db2_users_password }}
-inst1.AUTOSTART       = YES
-inst1.SVCENAME       = db2c_db2inst1
-inst1.PORT_NUMBER       = 50000
-inst1.FCM_PORT_NUMBER       = 60000
-inst1.MAX_LOGICAL_NODES       = 6
-inst1.CONFIGURE_TEXT_SEARCH       = NO
+{{ __db2_instance }}.NAME       = {{ __db2_instance_name }}
+{{ __db2_instance }}.GROUP_NAME       = {{ __db2_instance_group }}
+{{ __db2_instance }}.HOME_DIRECTORY       = {{ __db2_instance_homedir }}
+{{ __db2_instance }}.PASSWORD       = {{ __db2_users_password }}
+{{ __db2_instance }}.AUTOSTART       = {{ __db2_instance_autostat }}
+{{ __db2_instance }}.SVCENAME       = {{ __db2_instance_svcname }}
+{{ __db2_instance }}.PORT_NUMBER       = {{ __db2_instance_port }}
+{{ __db2_instance }}.FCM_PORT_NUMBER       = {{ __db2_instance_fcm_port }}
+{{ __db2_instance }}.MAX_LOGICAL_NODES       = {{ __db2_instance_max_lnodes }}
+{{ __db2_instance }}.CONFIGURE_TEXT_SEARCH       = {{ __db2_instance_text_search }}
 *  Fenced user
-inst1.FENCED_USERNAME       = db2fenc1
-inst1.FENCED_GROUP_NAME       = db2group
-inst1.FENCED_HOME_DIRECTORY       = /home/db2fenc1
-inst1.FENCED_PASSWORD             = {{ __db2_users_password }}
+{{ __db2_instance }}.FENCED_USERNAME       = {{ __db2_instance_fenced_user }}
+{{ __db2_instance }}.FENCED_GROUP_NAME       = {{ __db2_instance_fenced_group }}
+{{ __db2_instance }}.FENCED_HOME_DIRECTORY       = {{ __db2_instance_fenced_homedir }}
+{{ __db2_instance }}.FENCED_PASSWORD             = {{ __db2_users_password }}
 *-----------------------------------------------
 *  Installed Languages
 *-----------------------------------------------
-LANG       = EN
+LANG       = {{ __db2_instance_default_lang }}

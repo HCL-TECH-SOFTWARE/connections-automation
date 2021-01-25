@@ -10,9 +10,9 @@
 - name:                  Change permissions of {{ __license_location }}
   file:
     path:                "{{ __license_location }}"
-    owner:               db2inst1
+    owner:               "{{ __db2_instance_name }}"
     mode:                '0644'
 
 - name:                  Apply the license
-  command:               "/home/db2inst1/sqllib/adm/db2licm -a {{ __license_location }}"
-  #become:                db2inst1
+  command:               "{{ __db2_instance_homedir }}/sqllib/adm/db2licm -a {{ __license_location }}"
+  #become:                {{ __db2_instance_name }}
