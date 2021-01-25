@@ -1,0 +1,34 @@
+---
+- name:                    Check Vars
+  include_tasks:           check_vars.yml
+  when:
+    - inventory_hostname in groups["dmgr"]
+
+- name:                    Define Vars
+  include_tasks:           define_vars.yml
+  when:
+    - inventory_hostname in groups["dmgr"]
+
+- name:                    Download and Extract updateInstaller and iFix
+  include_tasks:           download_extract_upgradeinstaller.yml
+  when:
+    - inventory_hostname in groups["dmgr"]
+    - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
+
+- name:                    Install Connections iFix
+  include_tasks:           setup_ifix.yml
+  when:
+    - inventory_hostname in groups["dmgr"]
+
+- name:                    Shutdown WAS Nodes
+  include_role:
+    name:                  roles/third_party/ibm/wasnd/was-nodeagent-stop
+    apply:
+      become:              true
+  when:
+    - inventory_hostname in groups["was_servers"]
+
+- name:                    Clean CNX temp folder
+  include_tasks:           ../../tasks/clean_was_temp.yml
+  when:
+    - inventory_hostname in groups["was_servers"]

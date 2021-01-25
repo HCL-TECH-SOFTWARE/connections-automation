@@ -19,7 +19,7 @@
 
 - name:              Download Installer
   get_url:
-    url:             "http://{{ cnx_repository_url }}/{{ __cnx_package }}"
+    url:             "{{ cnx_repository_url }}/{{ __cnx_package }}"
     dest:            "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
     mode:            0755
 
