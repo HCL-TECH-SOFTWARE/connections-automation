@@ -2,7 +2,7 @@
 
 This set of scripts is able to spin up end-to-end HCL Connections 7 with Component Pack and all the dependencies. They can be used as whole and set up end to end environment, including the set of fake users for a sake of quickly being able to log in and see how the application works, or they can can be used autonomously from each other.  
 
-Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/QUICKSTART.md).
+Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md).
 
 For HCL Connections 7 dependencies this means that:
 
