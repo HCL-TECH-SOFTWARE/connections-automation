@@ -34,8 +34,15 @@
         path:             "{{ __success_file }}"
         state:            touch
 
-    - name:                Add {{ cnx_application_ingress }} certification to trust store
+    - name:                Add {{ cnx_application_ingress }} certificate to trust store
       include_role:
         name:              roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
       vars:
         __trust_cert_host: "{{ cnx_application_ingress }}"
+
+    - name:                Add IHS certificate to trust store
+      include_role:
+        name:              roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+      vars:
+        __trust_cert_host: "{{ item }}"
+      with_items:          "{{ groups['ihs_servers'] }}"
