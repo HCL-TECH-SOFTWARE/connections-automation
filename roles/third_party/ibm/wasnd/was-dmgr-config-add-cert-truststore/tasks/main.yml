@@ -33,3 +33,4 @@
       file:
         path:               "{{ __bin_dir }}/add_trust_cert_{{ __trust_cert_alias }}.success"
         state:              touch
+      when:                 cout.changed

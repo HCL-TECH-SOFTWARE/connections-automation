@@ -13,7 +13,7 @@ if isEnabled:
 {% endif %}
 
    # add if certificate doesn't exist
-   if signercerts.find('{{ __trust_cert_alias.lower() }}') < 0:
+   if signercerts.find('alias {{__trust_cert_alias.lower() }}') < 0:
 {% if __trust_cert_scope.lower() == 'cell' %}
        AdminTask.retrieveSignerFromPort('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
 {% else %}
