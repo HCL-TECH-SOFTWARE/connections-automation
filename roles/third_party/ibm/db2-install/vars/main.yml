@@ -9,6 +9,21 @@ __installation_folder:         "{{ __extraction_folder }}/universal"
 __license_location:            "{{ __extraction_folder }}/ese_u/db2/license/db2ese_u.lic"
 
 __db2_installation_folder:     "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+__db2_instance:                "{{ db2_instance | default('inst1') }}"
+__db2_instance_type:           "{{ db2_instance_type | default('ese') }}"
+__db2_instance_name:           "{{ db2_instance_name | default('db2inst1') }}"
+__db2_instance_group:          "{{ db2_instance_group | default('db2group') }}"
+__db2_instance_homedir:        "{{ db2_instance_homedir | default('/home/db2inst1') }}"
+__db2_instance_autostat:       "{{ db2_instance_autostat | default('YES') }}"
+__db2_instance_svcname:        "{{ db2_instance_svcname | default('db2c_db2inst1') }}"
+__db2_instance_port:           "{{ db2_instance_port | default('50000') }}"
+__db2_instance_fcm_port:       "{{ db2_instance_fcm_port | default('60000') }}"
+__db2_instance_max_lnodes:     "{{ db2_instance_max_lnodes | default('6') }}"
+__db2_instance_text_search:    "{{ db2_instance_text_search | default('NO') }}"
+__db2_instance_fenced_user:    "{{ db2_instance_fenced_user | default('db2fenc1') }}"
+__db2_instance_fenced_group:   "{{ db2_instance_fenced_group | default('db2group') }}"
+__db2_instance_fenced_homedir: "{{ db2_instance_fenced_homedir | default('/home/db2fenc1') }}"
+__db2_instance_default_lang:   "{{ db2_instance_default_lang | default('EN') }}"
 
 __jdbc_installation_folder:    "{{ db_jdbc_file | default('/opt/IBM/db2/V11.1/java') }}"
 __jdbc_package_name:           "{{ db2_jdbc_package_name | default('v11.1.4fp5_jdbc_sqlj.tar.gz') }}"
@@ -18,14 +33,14 @@ __db2_server_rsp_template:     "db2server.rsp.j2"
 __db2_server_rsp_location:     "{{ __installation_folder }}/db2server.rsp"
 
 __db2_users:
-- db2fenc1
-- db2inst1
+- "{{ __db2_instance_fenced_user }}"
+- "{{ __db2_instance_name }}"
 - lcuser
 - docsuser
 
 __db2_users_password:          "{{ db_password | default('password') }}"
 
-__db2_codepage_success_file:   "/home/db2inst1/codepage.success"
+__db2_codepage_success_file:   "{{ __db2_instance_homedir }}/codepage.success"
 
 __param_nproc_hard:            "{{ db2_nproc_hard | default('16384') }}"
 __param_nproc_soft:            "{{ db2_nproc_soft | default('2047') }}"
@@ -35,4 +50,4 @@ __param_nofile_soft:           "{{ db2_nofile_soft | default('1024') }}"
 
 __param_stack_soft:            "{{ db2_stack_soft | default('10240') }}"
 
-__db2_tunings_applied:          "/home/db2inst1/tunings.success"
+__db2_tunings_applied:          "{{ __db2_instance_homedir }}/tunings.success"
