@@ -25,6 +25,7 @@ __setup_dashboards:             "{{ setup_dashboards | default(true) }}"
 __setup_sanity:                 "{{ setup_sanity | default(true) }}"
 __setup_kudosboards:            "{{ setup_kudosboards | default(true) }}"
 __setup_elasticstack:           "{{ setup_elasticstack | default(false) }}"
+__setup_elasticstack7:          "{{ setup_elasticstack7 | default(false) }}"
 __setup_prometheus_operator:    "{{ setup_prometheus_operator | default(true) }}"
 __setup_outlook_addin:          "{{ setup_outlook_addin | default(true) }}"
 __enable_es_metrics:            "{{ enable_es_metrics | default(true) }}"
@@ -38,7 +39,7 @@ __docker_registry_username:     "{{ docker_registry_username | default('admin') 
 __docker_registry_password:     "{{ docker_registry_password | default('password') }}"
 
 __network_host:                 "{{ network_host | default('_site_') }}"
-__download_location:            "{{ component_pack_download_location | default('localhost:8000') }}"
+__download_location:            "{{ component_pack_download_location | default('http://localhost:8000') }}"
 __package_name:                 "{{ component_pack_package_name | default('hybridcloud_20191122-120706.zip') }}"
 __extraction_folder:            "/opt/hcl-cnx-component-pack"
 
@@ -124,6 +125,7 @@ __sanity_env:                   "{{ __ansible_cache_charts }}/sanity.yml"
 
 __elasticstack_env:             "{{ __ansible_cache_charts }}/elasticstack.yml"
 #__elasticstack_env:             "global.onPrem=true,global.image.repository={{ __docker_registry_url }}/connections,replicaCount={{ __replica_count }}"
+__elasticstack7_env:            "{{ __ansible_cache_charts }}/elasticstack7.yml"
 
 __kudos_boards_template:        "helmvars/kudosboards.yml.j2"
 __kudos_boards_destination:     "{{ __ansible_cache_charts }}/kudosboards.yml"

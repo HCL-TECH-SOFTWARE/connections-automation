@@ -74,6 +74,10 @@
   include_tasks:             setup_elasticstack.yml
   when:                      __setup_elasticstack |bool
 
+- name:                      Setup ELK-7 stack
+  include_tasks:             setup_elasticstack7.yml
+  when:                      __setup_elasticstack7 |bool
+
 - name:                      Setup orientme
   include_tasks:             setup_orientme.yml
   when:                      __setup_orientme |bool
