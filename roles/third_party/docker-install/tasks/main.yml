@@ -7,6 +7,6 @@
 
 - name:                       Run Docker Registry
   include_tasks:              setup_docker_registry.yml
-  when:
+  when:                       
    - setup_docker_registry is defined
    - setup_docker_registry |bool
