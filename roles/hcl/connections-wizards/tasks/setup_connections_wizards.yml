@@ -18,9 +18,9 @@
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
 
 
-- name:                  Download and unzip installation "http://{{ __download_location}}/{{ __package_name }}" to the {{ __extraction_folder }}
+- name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __extraction_folder }}
   unarchive:
-    src:                 "http://{{ __download_location }}/{{ __package_name }}"
+    src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __extraction_folder }}"
     remote_src:          yes
   when:
@@ -296,6 +296,15 @@
    - "connections.sql/profiles/db2/reorg.sql"
    - "connections.sql/pushnotification/db2/reorg.sql"
    - "connections.sql/wikis/db2/reorg.sql"
+   - "connections.sql/activities/db2/clearScheduler.sql"
+   - "connections.sql/communities/db2/clearScheduler.sql"
+   - "connections.sql/forum/db2/clearScheduler.sql"
+   - "connections.sql/files/db2/clearScheduler.sql"
+   - "connections.sql/profiles/db2/clearScheduler.sql"
+   - "connections.sql/homepage/db2/clearScheduler.sql"
+   - "connections.sql/metrics/db2/clearScheduler.sql"
+   - "connections.sql/wikis/db2/clearScheduler.sql"
+   - "connections.sql/pushnotification/db2/clearScheduler.sql"
   when:
     - migrations_already_done.stat.exists |bool
 
@@ -303,7 +312,7 @@
   file:
     path:                "{{ __success_file }}"
     state:               touch
-  when: 
+  when:
    - all_migrations_result is defined
    - not migrations_already_done.stat.exists
 
