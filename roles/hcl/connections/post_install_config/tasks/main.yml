@@ -10,6 +10,8 @@
   include_tasks:             setup_invite_config.yml
   when:                      __cnx_enable_invite|bool
 
+- name:                      Setup Sharepoint Widget
+  include_tasks:             setup_sharepoint_widget.yml
 
 # not needed the relative url seems to be working
 #- name:                 "Update widget-config.xml"

@@ -1,0 +1,30 @@
+---
+- name: cnx_repository_url should be defined
+  assert:
+    that:
+    - cnx_repository_url|length > 0
+    msg: "Set the value of 'cnx_repository_url' in the inventory file."
+
+- name: ifix_apar should be defined
+  assert:
+    that:
+    - ifix_apar|length > 0
+    msg: "Set the value of 'ifix_apar' in the inventory file."
+
+- name: ifix_file should be defined
+  assert:
+    that:
+    - ifix_file|length > 0
+    msg: "Set the value of 'ifix_file' in the inventory file."
+
+- name: was_username should be defined
+  assert:
+    that:
+    - was_username|length > 0
+    msg: "Set the value of 'was_username' in the inventory file."
+
+- name: was_password should be defined
+  assert:
+    that:
+    - was_password|length > 0
+    msg: "Set the value of 'was_password' in the inventory file."
