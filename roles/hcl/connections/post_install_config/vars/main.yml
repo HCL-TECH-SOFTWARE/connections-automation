@@ -54,5 +54,5 @@ __selfreg_profile_base_guid_xpath:  "/config/profiles-connector/entry/attributes
 __cnx_enable_invite:                "{{ cnx_enable_invite | default('false') }}"
 
 # Sharepoint Widget Configuration
-__sharepoint_client_id:              "{{ sharepoint_client_id | default('c14ed562-5a27-4723-82b6-62cca82d2fcc') }}"
-__sharepoint_tenant_id:              "{{ sharepoint_tenant_id | default('b799d683-9a83-4044-a827-c88e16238a7b') }}"
+__sharepoint_client_id:              "{{ sharepoint_client_id | default('clientid') }}"
+__sharepoint_tenant_id:              "{{ sharepoint_tenant_id | default('tenantid') }}"
