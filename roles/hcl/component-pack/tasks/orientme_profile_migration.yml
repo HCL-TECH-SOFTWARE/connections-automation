@@ -1,0 +1,3 @@
+- name:                      Run profile migrations for Orientme
+  shell:                     kubectl exec -n connections -it $(kubectl get pods -n connections | grep people-migrate | awk '{print $1}') -- sh -c "npm run start migrate"
+  become:                    false

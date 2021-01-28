@@ -5,6 +5,8 @@ __ansible_cache_charts:         "/home/{{ __sudo_user }}/generated_charts"
 
 __enable_pod_auto_scaling:      "{{ enable_pod_auto_scaling | default(false) }}"
 
+__skip_connections_integration: "{{ skip_connections_integration | default(false) }}"
+
 __setup_installation:           "{{ setup_installation | default(true) }}"
 __setup_images:                 "{{ setup_images | default(true) }}"
 __setup_credentials:            "{{ setup_credentials | default(true) }}"
