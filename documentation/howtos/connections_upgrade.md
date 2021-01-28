@@ -14,7 +14,7 @@ NOTE: If this is the very first document you are landing on, please ensure that 
 
 The easiest and most straight forward way to set up any end-to-end HCL Connections installation is to simply:
 
-* Set up your inventory file the way you want (we will use [this example file for setting up 6.5.0.1)(https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/connections))
+* Set up your inventory file the way you want (we will use [this example file for setting up 6.5.0.1](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/connections))
 * Use CentOS 7 (the later CentOS 7 the better)
 
 ...and simply run your playbook with
