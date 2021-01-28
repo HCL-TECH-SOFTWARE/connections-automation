@@ -82,17 +82,31 @@
   include_tasks:             setup_orientme.yml
   when:                      __setup_orientme |bool
 
+- name:                      Scale to the number of nodes
+  include_tasks:             scale_component_pack.yml
+  when:                      __enable_pod_auto_scaling |bool
+
+- name:                      Run profiles migration for OrientMe
+  include_tasks:             orientme_profile_migration.yml
+  when:
+   - __setup_orientme |bool
+   - not __skip_connections_integration
+
 - name:                      Setup Sanity
   include_tasks:             setup_sanity.yml
   when:                      __setup_sanity |bool
 
 - name:                      Setup Activities Plus
   include_tasks:             setup_kudosboards.yml
-  when:                      __setup_kudosboards |bool
+  when:
+   - __setup_kudosboards |bool
+   - not __skip_connections_integration
 
 - name:                      Setup Outlook Desktop Plugin
   include_tasks:             setup_outlook_addin.yml
-  when:                      __setup_outlook_addin |bool
+  when:                     
+   - __setup_outlook_addin |bool
+   - not __skip_connections_integration
 
 - name:                      Scale to the number of nodes
   include_tasks:             scale_component_pack.yml
@@ -100,13 +114,18 @@
 
 - name:                      Enable ES metrics
   include_tasks:             enable_es_metrics.yml
-  when:                      __enable_es_metrics |bool
-  ignore_errors:             true
+  when:
+   - __enable_es_metrics |bool
+   - not __skip_connections_integration
 
 - name:                      Setup GK flags
   include_tasks:             setup_gk_flags.yml
-  when:                      __enable_gk_flags |bool
+  when: 
+   - __enable_gk_flags |bool
+   - not __skip_connections_integration
 
 - name:                      Setup MS Teams Extensions
   include_tasks:             setup_ms_teams_extensions.yml
-  when:                      __setup_ms_teams_extensions |bool
+  when: 
+   - __setup_ms_teams_extensions |bool
+   - not __skip_connections_integration
