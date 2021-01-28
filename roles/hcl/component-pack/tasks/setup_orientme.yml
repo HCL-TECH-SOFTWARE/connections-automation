@@ -23,11 +23,6 @@
   pause:
     seconds:                 300
 
-- name:                      Run profile migrations for Orientme
-  shell:                     kubectl exec -n connections -it $(kubectl get pods -n connections | grep people-migrate | awk '{print $1}') -- sh -c "npm run start migrate"
-  become:                    false
-
-
 - name:                      Check if orientme is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i orient | grep -i Running
   when:                      not __skip_pod_checks
