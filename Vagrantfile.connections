@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+
+$script = <<-SCRIPT
+/usr/bin/cp /etc/hosts /root && \
+/usr/bin/sed -ie '/connections.internal/d' /etc/hosts && \
+/usr/bin/echo '10.172.13.3 connections.internal connections' >> /etc/hosts
+SCRIPT
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "generic/centos7"
+
+  config.vm.provision "shell", inline: $script
+
+  config.vm.provider :virtualbox do |v|
+    v.memory = 10240
+    v.cpus = 4
+  end
+
+  boxes = [
+    { :name => "connections.internal", :ip => "10.172.13.3" },
+  ]
+
+  # Provision each of the VMs.
+  boxes.each do |opts|
+    config.vm.define opts[:name] do |config|
+      config.vm.hostname = opts[:name]
+      config.vm.network :private_network, ip: opts[:ip]
+
+      # Provision all the VMs in parallel using Ansible after last VM is up.
+      if opts[:name] == "connections.internal"
+        config.vm.provision "ansible" do |ansible|
+          ansible.compatibility_mode = "2.0"
+          ansible.playbook = "playbooks/vagrant/vagrant-all-in-one-connections.yml"
+          ansible.limit = "all"
+          ansible.become = true
+          ansible.inventory_path = "environments/examples/vagrant/vagrant_connections_inventory"
+        end
+      end
+    end
+  end
+end
