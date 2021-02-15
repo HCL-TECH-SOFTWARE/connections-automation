@@ -2,6 +2,14 @@
 security = AdminConfig.getid('/Security:/')
 isEnabled = AdminTask.isGlobalSecurityEnabled()
 
+def addCertToKeyStore():
+    {% if __trust_cert_scope.lower() == 'cell' %}
+           AdminTask.retrieveSignerFromPort('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
+    {% else %}
+           AdminTask.retrieveSignerFromPort('[-keyStoreName NodeDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
+    {% endif %}
+           AdminConfig.save()
+
 
 if isEnabled:
    signercerts = ''
@@ -14,13 +22,10 @@ if isEnabled:
 
    # add if certificate doesn't exist
    if signercerts.find('alias {{__trust_cert_alias.lower() }}') < 0:
-{% if __trust_cert_scope.lower() == 'cell' %}
-       AdminTask.retrieveSignerFromPort('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
-{% else %}
-       AdminTask.retrieveSignerFromPort('[-keyStoreName NodeDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
-{% endif %}
-       AdminConfig.save()
-else:
-    print "Global Security is not Enabled!"
+      addCertToKeyStore()
+   else:
+   # delete the existing cert to add again
+      AdminTask.deleteSignerCertificate('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -certificateAlias {{ __trust_cert_alias }}]')
+      addCertToKeyStore()
 
 # end of if

@@ -15,7 +15,6 @@
     url:         "{{ __repository_url }}/{{ item.file_name }}"
     dest:        "{{ __tmp_dir }}/{{ item.file_name }}"
     mode:        0755
-    checksum:    sha256:{{ item.check_sum }}
   with_items:    "{{ __this_files }}"
 
 - name:          Extract IBM HTTP Server Files
