@@ -4,3 +4,15 @@ global:
     repository: {{ __docker_registry_url }}/connections
 
 replicaCount: {{ __replica_count }}
+
+teams-share-ui:
+  namespace: {{ __default_namespace }}
+
+teams-share-service:
+  namespace: {{ __default_namespace }}
+
+teams-tab-api:
+  namespace: {{ __default_namespace }}
+
+teams-tab-ui:
+  namespace: {{ __default_namespace }}

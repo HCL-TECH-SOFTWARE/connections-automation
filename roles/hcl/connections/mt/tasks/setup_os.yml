@@ -1,0 +1,32 @@
+---
+- name:                       Install pre-requisites
+  yum:
+    name:                     ['perl', 'vim-common']
+    state:                    present
+  when:
+    - ansible_os_family == "RedHat"
+    - (ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Amazon")
+
+- name:                       Verify if public key is generated
+  stat:
+    path:                     "~/.ssh/{{ inventory_hostname_short }}_key.pub"
+  register:                   public_key_already_created
+  when:                       inventory_hostname in groups["dmgr"]
+
+- name:                       Generate ssh keys
+  openssh_keypair:
+    path:                     "~/.ssh/{{ inventory_hostname_short }}_key"
+    mode:                     0600
+  register:                   new_ssh_pub_key
+  when:
+    - inventory_hostname in groups["dmgr"]
+    - not public_key_already_created.stat.exists
+
+- name:                       Add public key to authorized_keys
+  authorized_key:
+    user:                     "root"
+    state:                    present
+    key:                      "{{ new_ssh_pub_key.public_key }}"
+  when:
+    - inventory_hostname in groups["dmgr"]
+    - not public_key_already_created.stat.exists

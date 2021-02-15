@@ -31,11 +31,11 @@
   template:
     src:                     "{{ __outlook_addin_template }}"
     dest:                    "{{ __outlook_addin_destination }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup connections-outlook-desktop
-  command:                   "helm upgrade connections-outlook-desktop {{ outlook_tgz.files[0].path }} -i -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }} --recreate-pods"
-  become:                    false
+  command:                   "helm upgrade connections-outlook-desktop {{ outlook_tgz.files[0].path }} -i -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for connections-outlook-desktop to come up
   pause:

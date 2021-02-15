@@ -5,7 +5,7 @@
    - kubectl delete clusterrolebinding cluster-system-anonymous
    - kubectl delete -f {{ __dashboard_admin_yaml }}
    - kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Apply Kubernetes Web Dashboard
@@ -15,25 +15,12 @@
    - kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
    - kubectl apply -f {{ __dashboard_admin_yaml }}
    - kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
-  become:                    false
-
-#- name:                      Check if metrics-server is already provisioned
-#  shell:                     helm ls | grep metrics-server | grep DEPLOYED
-#  changed_when:              true
-#  register:                  metrics_server_completed
-#  become:                    false
-#  ignore_errors:             true
-#
-#- name:                      Setup Metrics Server
-#  command:                   helm install --name metrics-server stable/metrics-server --namespace metrics --set args={"--kubelet-insecure-tls=true, --kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} 
-#  become:                    false
-#  when:
-#    - metrics_server_completed.rc != 0
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Get login token
   shell:                     "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}') | grep token: | awk {'print $2'}"
   register:                  kubernetes_dashboard_login_token
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check out your new dashboard!
   debug:

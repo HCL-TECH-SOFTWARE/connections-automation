@@ -73,14 +73,13 @@ drwxr-xr-x. 13 root orion        192 Nov 18 08:33 ..
 -r-xr-xr-x.  1 root orion  817623040 Apr 28  2020 HCL_Connections_6.5_wizards_lin_aix.tar
 
 Connections7:
-total 3551476
-drwxr-xr-x.  3 dmenges orion        173 Nov 19 10:30 .
-drwxr-xr-x. 13 root    orion        192 Nov 18 08:33 ..
--r-xr-xr-x.  1 dmenges orion  817623040 Aug  4 06:03 HCL_Connections_6.5_wizards_lin_aix.tar
--r-xr-xr-x.  1 root    root  2001274880 Nov 19 10:30 HCL_Connections_7.0_lin.tar
--r-xr-xr-x.  1 root    root   817807360 Oct 29 10:00 HCL_Connections_7.0_wizards_lin_aix.tar
-drwxr-xr-x. 13 root    root         246 Oct  1 18:58 Wizards
--rw-r--r--.  1 dmenges orion        133 Nov 19 10:30 current.version
+total 3079024
+drwxr-xr-x.  2 root    orion          195 Feb  4 21:29 .
+drwxr-xr-x. 16 root    orion          238 Jan 27 14:26 ..
+-r-xr-xr-x.  1 dmenges dmenges 2001305600 Jan 20 11:54 HCL_Connections_7.0_lin.tar
+-r-xr-xr-x.  1 root    root     817807360 Dec 17 05:21 HCL_Connections_7.0_wizards_lin_aix.tar
+-rw-r--r--.  1 root    root     125556954 Feb  4 21:24 LO100079-IC7.0.0.0-Common-Fix.jar
+-rwxr--r--.  1 root    root     189793326 Feb  4 21:28 updateInstaller.zip
 
 DB2:
 total 2067052
@@ -379,6 +378,21 @@ You can also rewrite locations of message and shared data stores by manipulating
 ```
 cnx_shared_area="/nfs/data/shared"
 cnx_message_store="/nfs/data/messageStores"
+```
+
+### Installing iFix for HCL Connections
+
+To install iFix for HCL Connections 7 (version 7.0.0.1) on already installed HCL Connections 7, edit your connections inventory file, and append these two lines:
+
+```
+ifix_apar=LO100079
+ifix_file=LO100079-IC7.0.0.0-Common-Fix.jar
+```
+
+After it, run the iFix installation:
+
+```
+ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/connections playbooks/hcl/setup-connections-ifix.yml
 ```
 
 ### Running post installation tasks

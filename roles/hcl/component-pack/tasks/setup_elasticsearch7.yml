@@ -13,11 +13,11 @@
   template:
     src:                     "helmvars/elasticsearch.yml.j2"
     dest:                    "{{ __elasticsearch_env }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup elasticsearch7
-  command:                   "helm upgrade elasticsearch7 {{ elasticsearch7_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --recreate-pods"
-  become:                    false
+  command:                   "helm upgrade elasticsearch7 {{ elasticsearch7_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space...
   pause:
@@ -26,14 +26,14 @@
 - name:                      Check if elasticsearch master is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-master-7 | grep -i Running
   when:                      not __skip_pod_checks
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if elasticsearch data is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-data-7 | grep -i Running
   when:                      not __skip_pod_checks
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if elasticsearch client is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-client-7 | grep -i Running
   when:                      not __skip_pod_checks
-  become:                    false
+  become_user:               "{{ __sudo_user }}"

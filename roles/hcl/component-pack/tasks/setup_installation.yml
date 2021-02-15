@@ -18,7 +18,7 @@
     state:               directory
   with_items: 
    - "{{ __ansible_cache_charts }}"
-  become:                false
+  become_user:           "{{ __sudo_user }}"
 
 - name:                  Clean up installation folder(s)
   file:

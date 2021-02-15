@@ -13,11 +13,11 @@
   template:
     src:                     "helmvars/connections-volumes.yml.j2"
     dest:                    "{{ __connections_volumes }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup connections-volumes
-  command:                   "helm upgrade connections-volumes {{ connections_volumes_tgz.files[0].path }} -i -f {{ __connections_volumes }} --recreate-pods"
-  become:                    false
+  command:                   "helm upgrade connections-volumes {{ connections_volumes_tgz.files[0].path }} -i -f {{ __connections_volumes }} --recreate-pods --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space...
   pause:
@@ -26,4 +26,4 @@
 - name:                      Check if connections-volumes pv are bound
   shell:                     kubectl get pv -n {{ __default_namespace }} | grep -i connections | grep -i Bound
   when:                      not __skip_pod_checks
-  become:                    false
+  become_user:               "{{ __sudo_user }}"

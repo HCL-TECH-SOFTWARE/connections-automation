@@ -13,3 +13,8 @@
   include_tasks: config_plgwct.yml
   when:
    - inventory_hostname != dmgr_hostname
+
+- name:          Config Plugin WCT for collocated DMGR and IHS
+  include_tasks: config_plgwct_coloc.yml
+  when:
+   - inventory_hostname == dmgr_hostname

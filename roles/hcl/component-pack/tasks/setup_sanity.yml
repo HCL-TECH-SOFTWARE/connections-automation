@@ -13,11 +13,11 @@
   template:
     src:                     "helmvars/sanity.yml.j2"
     dest:                    "{{ __sanity_env }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup sanity
-  command:                   "helm upgrade sanity {{ sanity_tgz.files[0].path }} -i -f {{ __sanity_env }} --recreate-pods"
-  become:                    false
+  command:                   "helm upgrade sanity {{ sanity_tgz.files[0].path }} -i -f {{ __sanity_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Find sanity-watcher helm file
   find:
@@ -31,18 +31,18 @@
     msg:                     "{{ sanity_watcher_tgz.files[0].path }}"
 
 - name:                      Setup sanity-watcher
-  command:                   "helm upgrade sanity-watcher {{ sanity_watcher_tgz.files[0].path }} -i -f {{ __sanity_env }} --recreate-pods"
-  become:                    false
+  command:                   "helm upgrade sanity-watcher {{ sanity_watcher_tgz.files[0].path }} -i -f {{ __sanity_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Get the port where Sanity is running
-  shell:                     kubectl get --namespace connections -o jsonpath="{.spec.ports[0].nodePort}" services sanity
+  shell:                     kubectl get --namespace {{ __default_namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services sanity
   register:                  sanity_external_port
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Get the IP where Sanity is accessible
-  shell:                     kubectl get nodes --namespace connections -o jsonpath="{.items[0].status.addresses[0].address}"
+  shell:                     kubectl get nodes --namespace {{ __default_namespace }} -o jsonpath="{.items[0].status.addresses[0].address}"
   register:                  sanity_external_ip
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      You can access Sanity here
   debug:

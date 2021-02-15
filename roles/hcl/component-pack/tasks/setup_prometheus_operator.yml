@@ -1,6 +1,6 @@
 - name:                      Create namespace {{ __monitoring_namespace }}
   command:                   kubectl create namespace {{ __monitoring_namespace }}
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Add Community Helm Repo
@@ -8,7 +8,7 @@
                              helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
                              helm repo add stable https://charts.helm.sh/stable
                              helm repo update
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Check cluster flavor Vannila/EKS/Openshift
@@ -16,7 +16,7 @@
   register:                  cluster_flavor_check
   # grep will exit with 1 when no results found.
   # This causes the task not to halt play.
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - debug: var=cluster_flavor_check
@@ -28,7 +28,7 @@
    - ("api." not in cluster_flavor_check.stdout)
   changed_when:              true
   register:                  helm_version
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Check if prom-operator is already deployed helm2
@@ -38,7 +38,7 @@
    - helm_version.stdout == "v2"
   changed_when:              true
   register:                  prom_operator_already_provisioned_helm2
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Check if prom-operator is already deployed helm3
@@ -48,7 +48,7 @@
    - helm_version.stdout != "v2"
   changed_when:              true
   register:                  prom_operator_already_provisioned_helm3
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Delete CRD if required helm-2
@@ -65,7 +65,7 @@
    - helm_version.stdout == "v2"
    - prom_operator_already_provisioned_helm2.rc != 0
    - ("api." not in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Delete CRD if required helm-3
@@ -82,7 +82,7 @@
    - helm_version.stdout != "v2"
    - prom_operator_already_provisioned_helm3.rc != 0
    - ("api." not in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name: Copy CRD files helm-2
@@ -100,7 +100,7 @@
    - helm_version.stdout == "v2"
    - prom_operator_already_provisioned_helm2.rc != 0
    - ("api." not in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Create CRD if using Helm2
@@ -117,7 +117,7 @@
    - prom_operator_already_provisioned_helm2.rc != 0
    - helm_version.stdout == "v2"
    - ("api." not in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name: copy grafana-nginx.yml from local host to remote host (relative path, ./files/)
@@ -125,18 +125,18 @@
     src: grafana-nginx.yml
     dest: $HOME/
     mode:                    '0777'
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name: Removing existing kube-prometheus file with same name
   file: 
     path:                    $HOME/{{ __helm2_prometheus_chart }}
     state:                   absent
   #delegate_to: remote_server   
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name: Download kube-prometheus-stack-12.0.4 if using helm2
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   get_url:
     url:                     http://{{ __helm2_prometheus_url }}
     dest:                    $HOME/
@@ -150,7 +150,7 @@
   when:
    - helm_version.stdout == "v2"
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Install prometheus-operaotor  - if Vannila Kubernetes Helm-3
   shell:                     helm upgrade --namespace {{ __monitoring_namespace }} prom-operator --set prometheus.service.nodePort={{ __prometheus_node_port }} --set grafana.service.type=NodePort --set grafana.adminPassword={{ __grafana_password }}  --set grafana.service.nodePort={{ __grafana_node_port }} --set grafana."grafana\.ini".server.domain={{ frontend_domain }} --set grafana."grafana\.ini".server.root_url={{ __grafana_root_url }} --set grafana."grafana\.ini".server.serve_from_sub_path={{ __grafana_serv_from_subpath }} --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false -i prometheus-community/kube-prometheus-stack -f grafana-nginx.yml
@@ -158,7 +158,7 @@
    - helm_version.stdout != "v2"
    - prom_operator_already_provisioned_helm3.rc != 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Get Grafana Service URL  - if Vannila Kubernetes
   shell:                     echo "https://{{ load_balancer_dns }}/grafana/"
@@ -166,7 +166,7 @@
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   register:                  GRAFANA_CAN_BE_ACCESSED_ON
   changed_when:              true
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - set_fact: 
     GRAFANA_CAN_BE_ACCESSED_ON={{ GRAFANA_CAN_BE_ACCESSED_ON.stdout }}
@@ -181,7 +181,7 @@
 - name:                      Get Grafana Credentials... - if Vannila Kubernetes
   shell:                     kubectl get secret --namespace {{ __monitoring_namespace }} prom-operator-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
   register:                  GRAFANA_USER_admin_PASSWORD
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   when:
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
 
@@ -201,7 +201,7 @@
    - helm_version.stdout == "v2"
    - prom_operator_already_provisioned_helm2.rc != 0
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Install prometheus-operaotor  - if EKS and Helm-3
   command:                   helm upgrade --namespace {{ __monitoring_namespace }} prom-operator --set prometheus.service.nodePort={{ __prometheus_node_port }} --set grafana.service.type=LoadBalancer --set grafana.adminPassword={{ __grafana_password }} --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false -i prometheus-community/kube-prometheus-stack  -f grafana-nginx.yml
@@ -209,7 +209,7 @@
    - helm_version.stdout != "v2"
    - prom_operator_already_provisioned_helm3.rc != 0
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Get Grafana Service URL  - if EKS
   shell:                     echo "http://"$(kubectl get svc -n {{ __monitoring_namespace }} prom-operator-grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
@@ -217,7 +217,7 @@
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
   register:                  GRAFANA_CAN_BE_ACCESSED_ON
   changed_when:              true
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - set_fact:
     GRAFANA_CAN_BE_ACCESSED_ON={{ GRAFANA_CAN_BE_ACCESSED_ON.stdout }}
@@ -232,7 +232,7 @@
 - name:                      Grafana Credentials... - if EKS
   shell:                     kubectl get secret --namespace {{ __monitoring_namespace }} prom-operator-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
   register:                  GRAFANA_USER_admin_PASSWORD
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   when:
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
 
@@ -263,5 +263,5 @@
 
 - name:                      Setup jmx service, SMonitor and EP
   shell:                     "kubectl apply -f {{ __jmx_prometheus_service_destination }} -f {{ __jmx_prometheus_sermonitor_destination }} -f {{ __jmx_prometheus_endpoint_destination }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true

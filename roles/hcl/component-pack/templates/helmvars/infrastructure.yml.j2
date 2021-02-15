@@ -2,8 +2,19 @@ global:
   onPrem: true
   image:
     repository: {{ __docker_registry_url }}/connections
+haproxy:
+  namespace: {{ __default_namespace }}
+redis:
+  namespace: {{ __default_namespace }}
+redis-sentinel:
+  namespace: {{ __default_namespace }}
 mongodb:
+  namespace: {{ __default_namespace }}
   createSecret: false
+appregistry-client:
+  namespace: {{ __default_namespace }}
 appregistry-service:
+  namespace: {{ __default_namespace }}
   deploymentType: hybrid_cloud
 replicaCount: {{ __replica_count }}
+

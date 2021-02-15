@@ -1,0 +1,54 @@
+---
+- name:               Verify if MT (IHS) is already updated ({{ __mt_update_ihs_success_file }})
+  stat:
+    path:             "{{ __mt_update_ihs_success_file }}"
+  register:           mt_ihs_already_installed
+
+- name:               Synchronize MT Update installation directory to IHS server temp location
+  synchronize:
+    src:              "{{ __tmp_dir }}/mt/"
+    dest:             "/tmp/mt/"
+  delegate_to:        "{{ dmgr_hostname }}"
+  become:             false
+  when:               not mt_ihs_already_installed.stat.exists
+
+- name:               Copy the files to {{ __tmp_dir }}/mt
+  copy:
+    src:              "/tmp/mt/"
+    dest:             "{{ __tmp_dir }}/mt/"
+    remote_src:       yes
+  when:               not mt_ihs_already_installed.stat.exists
+
+- name:               Delete MT Update installation directory from temp location
+  file:
+    path:             "/tmp/mt/"
+    state:            absent
+  when:               not mt_ihs_already_installed.stat.exists
+
+- name:                Run MT Update (IHS)
+  shell: |
+     set timeout 300
+     ./connections-mt-webserver-update-cli.sh config.properties 2>&1 | tee mtupdate_ihs.log
+  args:
+      chdir:           "{{ __tmp_dir }}/mt/install"
+  become:              true
+  when:
+      - not mt_ihs_already_installed.stat.exists
+  register:            mt_update_ihs_performed
+  failed_when:         "'Updating HCL Connections Webserver configuration to MT completed' not in mt_update_ihs_performed.stdout"
+
+- name:                Search for potential errors
+  become:              yes
+  shell:               "grep -i 'error' {{ __tmp_dir }}/mt/install/mtupdate_ihs.log"
+  register:            mt_update_ihs_error_found
+  failed_when:         mt_update_ihs_error_found.stdout|length != 0 and not __mt_skip_error_checking|bool
+  when:
+    - mt_update_ihs_performed is not skipped
+
+- name:               "Create {{ __mt_update_ihs_success_file }} file"
+  file:
+    path:             "{{ __mt_update_ihs_success_file }}"
+    state:            touch
+  when:
+    - mt_update_ihs_performed is not skipped
+    - mt_update_ihs_error_found.stdout|length == 0 or __mt_skip_error_checking|bool

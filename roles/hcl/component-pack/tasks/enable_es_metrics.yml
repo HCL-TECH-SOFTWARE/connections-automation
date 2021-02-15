@@ -39,7 +39,7 @@
   with_items:
    - kubectl get secret elasticsearch-secret -n connections -o=jsonpath="{.data['chain-ca\.pem']}" | base64 -d > "{{ __es_certs_dir_temp }}"/chain-ca.pem
    - kubectl get secret elasticsearch-secret -n connections -o=jsonpath="{.data['elasticsearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/elasticsearch-metrics.p12
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   when:                      __elasticsearch_default_version == "5"
 
 - name:                      Retrieve signer certificates for ES7
@@ -47,7 +47,7 @@
   with_items:
    - kubectl get secret elasticsearch-7-secret -n connections -o=jsonpath="{.data['chain-ca\.pem']}" | base64 -d > "{{ __es_certs_dir_temp }}"/chain-ca.pem
    - kubectl get secret elasticsearch-7-secret -n connections -o=jsonpath="{.data['elasticsearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/elasticsearch-metrics.p12
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   when:                      __elasticsearch_default_version == "7"
 
 - name:                      Create the archive
