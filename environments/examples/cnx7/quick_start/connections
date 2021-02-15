@@ -51,9 +51,9 @@ was_password=password
 ldap_server=connections.internal.example.com
 ldap_alias=connections
 ldap_repo=LDAP_PRODUCTION1
-ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
+ldap_bind_user=cn=Admin,dc=cnx,dc=pnp-hcl,dc=com
 ldap_bind_pass=password
-ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
+ldap_realm=dc=cnx,dc=pnp-hcl,dc=com
 ldap_login_properties=uid;mail
 #
 dmgr_hostname=connections.internal.example.com
@@ -132,3 +132,6 @@ ic360_db={ 'server': 'connections.internal.example.com' }
 
 cnx_enable_moderation=true
 cnx_enable_invite=true
+
+ifix_apar=LO100079
+ifix_file=LO100079-IC7.0.0.0-Common-Fix.jar

@@ -4,3 +4,12 @@ global:
     repository: {{ __docker_registry_url }}/connections
 
 replicaCount: {{ __replica_count }}
+
+te-creation-wizard:
+  namespace: {{ __default_namespace }}
+
+community-template-service:
+  namespace: {{ __default_namespace }}
+
+admin-portal:
+  namespace: {{ __default_namespace }}

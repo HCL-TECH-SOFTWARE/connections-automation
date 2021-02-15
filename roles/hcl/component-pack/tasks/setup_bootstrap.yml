@@ -2,7 +2,7 @@
   shell:                     helm version -c|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
   changed_when:              true
   register:                  helm_version
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - debug: var=helm_version.stdout
@@ -11,7 +11,7 @@
   shell:                     helm ls | grep bootstrap | grep -i DEPLOYED
   changed_when:              true
   register:                  bootstrap_already_provisioned
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Delete bootstrap if already exists - Helm v2
@@ -19,14 +19,14 @@
   when:
    - bootstrap_already_provisioned.rc == 0
    - helm_version.stdout == "v2"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Delete bootstrap if already exists - Helm v3
   command:                   helm uninstall bootstrap
   when:
    - bootstrap_already_provisioned.rc == 0
    - helm_version.stdout != "v2"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space after eventual cleanup
   pause:
@@ -38,7 +38,7 @@
   template:
     src:                     "helmvars/bootstrap.yml.j2"
     dest:                    "{{ __bootstrap_install_env }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Find bootstrap helm file
   find:
@@ -52,8 +52,8 @@
     msg:                     "{{ bootstrap_tgz.files[0].path }}"
 
 - name:                      Setup bootstrap
-  command:                   "helm upgrade bootstrap {{ bootstrap_tgz.files[0].path }} -i -f {{ __bootstrap_install_env }}"
-  become:                    false
+  command:                   "helm upgrade bootstrap {{ bootstrap_tgz.files[0].path }} -i -f {{ __bootstrap_install_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for bootstrap to come up
   pause:
@@ -63,7 +63,7 @@
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep bootstrap | grep Completed | awk {'print $1'}  
   changed_when:              true
   register:                  bootstrap_successful
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Bootstrap's pod name is
@@ -74,7 +74,7 @@
   shell:                     kubectl logs {{ bootstrap_successful.stdout }} -n {{ __default_namespace }} | grep "Environment setup successfully complete"
   changed_when:              true
   register:                  bootstrap_success_message
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Bootstrap succeed
   debug: 

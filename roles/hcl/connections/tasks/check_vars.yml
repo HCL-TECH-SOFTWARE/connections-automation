@@ -64,3 +64,4 @@
     that:
     - ldap_user_mail_domain|length > 0
     msg: "Set the value of 'ldap_user_mail_domain' in the inventory file."
+  ignore_errors: true

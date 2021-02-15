@@ -1,0 +1,131 @@
+---
+- name:                     "Verify if MT config is already added"
+  stat:
+    path:                   "{{ __mt_config_added_success_file }}"
+  register:                 mt_config_already_added
+
+- name:                     "Verify if MT base ldif is already imported"
+  stat:
+    path:                   "{{ __mt_base_ldif_success_file }}"
+  register:                 mt_base_ldif_already_imported
+
+- name:                     "Verify if MT org ldif is already imported"
+  stat:
+    path:                   "{{ __mt_org_ldif_success_file }}"
+  register:                 mt_org_ldif_already_imported
+
+- name:                     "Verify if MT users are already created"
+  stat:
+    path:                   "{{ __mt_users_created_success_file }}"
+  register:                 mt_ldap_users_already_created
+
+- name:                     "Verify if MT users (generic) are already created"
+  stat:
+    path:                   "{{ __mt_users_generic_created_success_file }}"
+  register:                 mt_ldap_users_generic_already_created
+
+- name:                     "Create {{ __mt_tmp_files_location }}"
+  file:
+    path:                   "{{ __mt_tmp_files_location }}"
+    state:                  directory
+    mode:                   0775
+  when:
+    - not mt_ldap_users_already_created.stat.exists
+
+- name:                     "Render MT base and org ldifs"
+  template:
+    src:                    "{{ item.template }}"
+    dest:                   "{{ item.dest }}"
+  with_items:
+    - { template: "{{ __mt_base_ldif_template }}", dest: "{{ __mt_base_ldif_location }}" }
+    - { template: "{{ __mt_org_ldif_template }}", dest: "{{ __mt_org_ldif_location }}" }
+  when:
+    - mt_config_already_added.stat.exists
+    - not mt_ldap_users_already_created.stat.exists
+    - not mt_base_ldif_already_imported.stat.exists or not mt_org_ldif_already_imported.stat.exists
+
+- name:                     "Import MT base ldif {{ __mt_base_ldif_location }}"
+  command:                  "{{ __ldap_add_users }} {{ __mt_base_ldif_location }}"
+  register:                 base_ldif_imported
+  failed_when:              ( base_ldif_imported.rc not in [0] )
+  when:
+    - mt_config_already_added.stat.exists
+    - not mt_ldap_users_already_created.stat.exists
+    - not mt_base_ldif_already_imported.stat.exists
+
+- name:                     "Create {{ __mt_base_ldif_success_file }} file"
+  file:
+    path:                   "{{ __mt_base_ldif_success_file }}"
+    state:                  touch
+  when:                     base_ldif_imported is changed
+
+- name:                     "Import MT org ldif {{ __mt_org_ldif_location }}"
+  command:                  "{{ __ldap_add_users }} {{ __mt_org_ldif_location }}"
+  register:                 org_ldif_imported
+  failed_when:              ( org_ldif_imported.rc not in [0] )
+  when:
+    - mt_config_already_added.stat.exists
+    - not mt_ldap_users_already_created.stat.exists
+    - not mt_org_ldif_already_imported.stat.exists
+
+- name:                     "Create {{ __mt_org_ldif_success_file }} file"
+  file:
+    path:                   "{{ __mt_org_ldif_success_file }}"
+    state:                  touch
+  when:                     org_ldif_imported is changed
+
+- name:                     "Render {{ __mt_users_ldif_location }} and {{ __mt_users_generic_ldif_location }}"
+  template:
+    src:                    "{{ item.template }}"
+    dest:                   "{{ item.dest }}"
+  with_items:
+    - { template: "{{ __mt_users_ldif_template }}", dest: "{{ __mt_users_ldif_location }}" }
+    - { template: "{{ __mt_users_generic_ldif_template }}", dest: "{{ __mt_users_generic_ldif_location }}" }
+  when:
+#    - __setup_fake_ldap_users |bool
+    - mt_org_ldif_already_imported.stat.exists or org_ldif_imported is changed
+    - not mt_ldap_users_already_created.stat.exists or not mt_ldap_users_generic_already_created.stat.exists
+
+- name:                     "Create users from {{ __mt_users_ldif_location }}"
+  command:                  "{{ __ldap_add_users }} {{ __mt_users_ldif_location }}"
+  register:                 users_created
+  failed_when:              ( users_created.rc not in [0] )
+  when:
+#    - __setup_fake_ldap_users |bool
+    - not mt_ldap_users_already_created.stat.exists
+
+- name:                     "Create {{ __mt_users_created_success_file }} file"
+  file:
+    path:                   "{{ __mt_users_created_success_file }}"
+    state:                  touch
+  when:
+    - users_created is not skipped
+
+- name:                     "Create users from {{ __mt_users_generic_ldif_location }}"
+  command:                  "{{ __ldap_add_users }} {{ __mt_users_generic_ldif_location }}"
+  register:                 users_generic_created
+  failed_when:              ( users_generic_created.rc not in [0] )
+  when:
+#    - __setup_fake_ldap_users |bool
+    - not mt_ldap_users_generic_already_created.stat.exists
+
+- name:                     "Create {{ __mt_users_generic_created_success_file }} file"
+  file:
+    path:                   "{{ __mt_users_generic_created_success_file }}"
+    state:                  touch
+  when:
+    - users_generic_created is not skipped
+
+- name:                     "Cleanup {{ __mt_tmp_files_location }}"
+  file:
+    path:                   "{{ __mt_tmp_files_location }}"
+    state:                  absent
+  when:
+    - not mt_ldap_users_already_created.stat.exists
+    - not mt_ldap_users_generic_already_created.stat.exists
+
+- name:                     "Restart slapd service"
+  service:
+    name:                   slapd
+    state:                  restarted
+    daemon_reload:          yes

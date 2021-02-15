@@ -10,8 +10,8 @@
     msg:                   "{{ psp_tgz.files[0].path }}"
 
 - name:                    Upgrade PSP
-  command:                 "helm upgrade k8s-psp {{ psp_tgz.files[0].path }} -i --recreate-pods"
-  become:                  false
+  command:                 "helm upgrade k8s-psp {{ psp_tgz.files[0].path }} -i --set namespace={{ __default_namespace }} --namespace {{ __default_namespace }}"
+  become_user:             "{{ __sudo_user }}"
 
 - name:                    Give k8s-psp the couple of seconds
   pause:

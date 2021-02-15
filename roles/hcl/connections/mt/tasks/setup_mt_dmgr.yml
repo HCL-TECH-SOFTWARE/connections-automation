@@ -1,0 +1,99 @@
+---
+- name:               Verify if AutoDeploy is already installed ({{ __autodeploy_install_success_file }})
+  stat:
+    path:             "{{ __autodeploy_install_success_file }}"
+  register:           autodeploy_already_installed
+
+- name:               Verify if MT (Dmgr) is already updated ({{ __mt_update_success_file }})
+  stat:
+    path:             "{{ __mt_update_success_file }}"
+  register:           mt_already_installed
+
+- name:               Edit config.properties (HCL Connections and MT provisioning configuration properties)
+  replace:
+    path:             "{{ __tmp_dir }}/mt/install/config.properties"
+    regexp:           "^(?!#){{ item.prop_name }}=(.*)$"
+    replace:          "{{ item.prop_name }}={{ item.prop_value }}"
+  with_items:
+    - { prop_name: "mt.connections.url", prop_value: "{{ __mt_cnx_url_r }}" }
+    - { prop_name: "mt.connections.url.parent", prop_value: "{{ cnx_application_ingress.split('.')[1:] | join('.') }}" }
+    - { prop_name: "mt.ldap.url", prop_value: "{{ __mt_ldap_url_r }}" }
+    - { prop_name: "mt.ldap.security.authentication", prop_value: "{{ __mt_ldap_auth_r }}" }
+    - { prop_name: "mt.ldap.security.principal", prop_value: "{{ __mt_ldap_sec_principal_r }}" }
+    - { prop_name: "mt.ldap.baseDN", prop_value: "{{ __mt_ldap_basedn_r }}" }
+    - { prop_name: "mt.ldap.security.password", prop_value: "{{ __mt_ldap_sec_password_r }}" }
+    - { prop_name: "provision.mt.url", prop_value: "https://{{ __provision_mt_url_r }}" }
+    - { prop_name: "provision.mt.ldapurl", prop_value: "{{ __provision_mt_ldap_url_r }}" }
+    - { prop_name: "provision.mt.ldapUserName", prop_value: "{{ __provision_mt_ldapusername_r }}" }
+    - { prop_name: "provision.mt.ldapPassword", prop_value: "{{ __provision_mt_ldappassword_r }}" }
+    - { prop_name: "provision.mt.saasOrganizationsLdapDN", prop_value: "{{ __provision_mt_saasorgldapdn_r }}" }
+    - { prop_name: "provision.mt.defaultSubscriberLocale", prop_value: "{{ __provision_mt_defaultsubscriberlocal_r }}" }
+    - { prop_name: "provision.mt.bssAdminUsername", prop_value: "{{ __provision_mt_bssadminusername_r }}" }
+    - { prop_name: "provision.mt.bssAdminPassword", prop_value: "{{ __provision_mt_bssadminpassword_r }}" }
+    - { prop_name: "provision.mt.saasOrganizationId", prop_value: "{{ __provision_mt_saasorgid_r }}" }
+    - { prop_name: "provision.mt.saasSubscriptionsRDN", prop_value: "cn={{ __provision_mt_saassubscription_rdn_r }}" }
+    - { prop_name: "provision.mt.saasSubscriptionId", prop_value: "{{ __provision_mt_saassubscription_id_r }}" }
+    - { prop_name: "provision.mt.defaultQuotaSize", prop_value: "{{ __provision_mt_defaultquotasize_r }}" }
+    - { prop_name: "provision.mt.defaultTransferQuota", prop_value: "{{ __provision_mt_defaulttransferquota_r }}" }
+    - { prop_name: "provision.mt.defaultAllowDataOverage", prop_value: "{{ __provision_mt_defaultallowdataoverage_r }}" }
+    - { prop_name: "provision.mt.ldapOrganizationFilter", prop_value: "{{ __provision_mt_ldap_org_filter_r }}" }
+    - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
+    - { prop_name: "mt.oidc.enabled", prop_value: "{{ __mt_oidc_enabled_r }}" }
+  when:              not mt_already_installed.stat.exists
+  # update mt.oidc.enabled above so it can be turned off quickly
+
+- name:               Edit config.properties (OIDC configuration properties)
+  replace:
+    path:             "{{ __tmp_dir }}/mt/install/config.properties"
+    regexp:           "^(?!#){{ item.prop_name }}=(.*)$"
+    replace:          "{{ item.prop_name }}={{ item.prop_value }}"
+  with_items:
+    - { prop_name: "mt.oidc.realmName", prop_value: "{{ __mt_oidc_realmname_r }}" }
+    - { prop_name: "mt.oidc.identifier", prop_value: "{{ __mt_oidc_identifier_r }}" }
+    - { prop_name: "mt.oidc.clientId", prop_value: "{{ __mt_oidc_clientid_r }}" }
+    - { prop_name: "mt.oidc.clientSecret", prop_value: "{{ __mt_oidc_clientsecret_r }}" }
+    - { prop_name: "mt.oidc.rte.clientId", prop_value: "{{ __mt_oidc_rte_clientid_r }}" }
+    - { prop_name: "mt.oidc.rte.clientSecret", prop_value: "{{ __mt_oidc_rte_clientsecret_r }}" }
+    - { prop_name: "mt.oidc.ee.clientId", prop_value: "{{ __mt_oidc_ee_clientid_r }}" }
+    - { prop_name: "mt.oidc.ee.clientSecret", prop_value: "{{ __mt_oidc_ee_clientsecret_r }}" }
+    - { prop_name: "mt.oidc.scope", prop_value: "{{ __mt_oidc_scope_r }}" }
+    - { prop_name: "mt.oidc.host", prop_value: "{{ __mt_oidc_host_r }}" }
+    - { prop_name: "mt.oidc.port", prop_value: "{{ __mt_oidc_port_r }}" }
+    - { prop_name: "mt.oidc.discoveryEndpointUrl", prop_value: "{{ __mt_oidc_discovery_url_r }}" }
+    - { prop_name: "mt.oidc.authorizeEndpointUrl", prop_value: "{{ __mt_oidc_auth_url_r }}" }
+    - { prop_name: "mt.oidc.tokenEndpointUrl", prop_value: "{{ __mt_oidc_token_url_r }}" }
+    - { prop_name: "mt.oidc.logoutEndpointUrl", prop_value: "{{ __mt_oidc_logout_url_r }}" }
+    - { prop_name: "mt.oidc.introspectEndpointUrl", prop_value: "{{ __mt_oidc_introspect_url_r }}" }
+    - { prop_name: "mt.oidc.jwkEndpointUrl", prop_value: "{{ __mt_oidc_jwk_url_r }}" }
+    - { prop_name: "mt.oidc.issuerIdentifier", prop_value: "{{ __mt_oidc_issueid_url_r }}" }
+    - { prop_name: "mt_oidc_signverifyalias", prop_value: "{{ __mt_oidc_signverifyalias_r }}" }
+  when:              not mt_already_installed.stat.exists and __mt_oidc_enabled_r|bool
+
+- name:                Run MT Update (Dmgr)
+  shell: |
+     set timeout 600
+     ./connections-mt-update-cli.sh config.properties --pubkey --keyfile="{{ __autodeploy_auth_r }}" 2>&1 | tee mtupdate.log
+  args:
+      chdir:           "{{ __tmp_dir }}/mt/install"
+  become:              true
+  when:
+      - autodeploy_already_installed.stat.exists
+      - not mt_already_installed.stat.exists
+  register:            mt_update_performed
+  failed_when:         "'Upgrade HCL Connections configuration to MT completed' not in mt_update_performed.stdout"
+
+- name:                Search for potential errors
+  become:              yes
+  shell:               "grep -i 'exception' {{ __tmp_dir }}/mt/install/mtupdate.log"
+  register:            mt_update_exception_found
+  failed_when:         mt_update_exception_found.stdout|length != 0 and not __mt_skip_error_checking|bool
+  when:
+    - mt_update_performed is not skipped
+
+- name:               "Create {{ __mt_update_success_file }} file"
+  file:
+    path:             "{{ __mt_update_success_file }}"
+    state:            touch
+  when:
+    - mt_update_performed is not skipped
+    - mt_update_exception_found.stdout|length == 0 or __mt_skip_error_checking|bool

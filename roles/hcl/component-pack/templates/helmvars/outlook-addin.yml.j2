@@ -19,3 +19,6 @@ ingress:
     - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
       paths: []
 {% endif %} 
+
+namespace: {{ __default_namespace }}
+

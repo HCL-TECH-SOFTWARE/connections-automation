@@ -4,6 +4,8 @@ __conf_d_location:              "/etc/nginx/conf.d"
 __nginx_conf_template:          "nginx.conf.j2"
 __nginx_conf_location:          "/etc/nginx/nginx.conf"
 
+__nginx_certbot_production:     "{{ nginx_certbot_production | default(false) }}"
+
 __worker_connections:           "{{ nginx_worker_connections | default('16384') }}"
 
 __packages_conf_template:       "packages.conf.j2"
@@ -17,6 +19,8 @@ __setup_customizer:             "{{ setup_customizer | default('true') }}"
 
 __nginx_crt_file:               "/etc/nginx/ssl/{{ inventory_hostname }}.crt"
 __nginx_key_file:               "/etc/nginx/ssl/{{ inventory_hostname }}.key"
+__nginx_cnf_location:           "/etc/nginx/ssl/{{ inventory_hostname }}.cnf"
+__nginx_cnf_template:           "cert.cnf.j2"
 
 __mw_proxy_address:             "{{ load_balancer_dns | default('localhost') }}"
 __mw_proxy_port:                "{{ mw_proxy_port | default('30301') }}"

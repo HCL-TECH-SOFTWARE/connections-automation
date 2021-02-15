@@ -16,8 +16,15 @@
     src:                    "{{ __nginx_conf_template }}"
     dest:                   "{{ __nginx_conf_location }}"
 
+- name:                     Apply cnf file
+  template:
+    src:                    "{{ __nginx_cnf_template }}"
+    dest:                   "{{ __nginx_cnf_location }}"
+
 - name:                     Create SSL certificates
-  command:                  "openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout {{ __nginx_key_file }} -out {{ __nginx_crt_file }} -batch"
+  command:                  "{{ item }}"
+  with_items:
+    - openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -sha256 -config {{ __nginx_cnf_location }} -subj "/"  -keyout {{ __nginx_key_file }}  -out {{ __nginx_crt_file }} -batch
 
 - name:                     Start Nginx service
   service:
@@ -25,4 +32,3 @@
     state:                  started
     enabled:                yes
     daemon_reload:          yes
-

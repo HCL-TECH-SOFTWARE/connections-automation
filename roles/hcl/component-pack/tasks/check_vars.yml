@@ -3,7 +3,7 @@
   shell:             helm version
   changed_when:      true
   register:          helm_installed
-  become:            false
+  become_user:       "{{ __sudo_user }}"
   ignore_errors:     true
 
 - name:              Fail if Helm is not installed
@@ -16,7 +16,7 @@
   shell:             kubectl get nodes
   changed_when:      true
   register:          kubectl_configured
-  become:            false
+  become_user:       "{{ __sudo_user }}"
   ignore_errors:     true
 
 - name:              Fail if kubectl is not configured

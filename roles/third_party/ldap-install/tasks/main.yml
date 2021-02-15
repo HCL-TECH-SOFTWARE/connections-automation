@@ -5,5 +5,20 @@
 - name:                      Configure OpenLDAP
   include_tasks:             configure_openldap.yml
 
+- name:                      Create Users
+  include_tasks:             create_users.yml
+  when:
+    - not __ldap_setup_mt | bool
+
+- name:                      Import MT LDAP schema
+  include_tasks:             import_mt_schema.yml
+  when:
+    - __ldap_setup_mt | bool
+
+- name:                      Create MT LDAP users
+  include_tasks:             create_mt_users.yml
+  when:
+    - __ldap_setup_mt | bool
+
 - name:                      Configure SSL
   include_tasks:             configure_ssl.yml

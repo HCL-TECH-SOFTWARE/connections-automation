@@ -1,0 +1,4 @@
+---
+__db2_user:                    "{{ db2_user | default('db2inst1') }}"
+__db2_instance_name:           "{{ __db2_user }}"
+__db2_instance_homedir:        "{{ db2_instance_homedir | default('/home/db2inst1') }}"

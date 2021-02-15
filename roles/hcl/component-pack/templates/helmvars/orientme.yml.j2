@@ -2,20 +2,43 @@ global:
   onPrem: true
   image: 
     repository: {{ __docker_registry_url }}/connections
+itm-services:
+  namespace: {{ __default_namespace }}
+community-suggestions:
+  namespace: {{ __default_namespace }}
+mail-service:
+  namespace: {{ __default_namespace }}
+middleware-graphql:
+  namespace: {{ __default_namespace }}
+orient-analysis-service:
+  namespace: {{ __default_namespace }}
 orient-web-client:
+  namespace: {{ __default_namespace }}
   service:
     nodePort: 32200
 orient-indexing-service:
+  namespace: {{ __default_namespace }}
   indexing:
     solr: false
     elasticsearch: {{ __setup_elasticsearch }}
     elasticsearch7: {{ __setup_elasticsearch7 }}
 orient-retrieval-service:
+  namespace: {{ __default_namespace }}
   retrieval:
     elasticsearch: {{ __setup_elasticsearch }}
     elasticsearch7: {{ __setup_elasticsearch7 }}
 people-datamigration:
+  namespace: {{ __default_namespace }}
   migrate:
     maxConcurrentUser: {{ __om_max_conc_users }}
+people-idmapping:
+  namespace: {{ __default_namespace }}
+people-relationship:
+  namespace: {{ __default_namespace }}
+people-scoring:
+  namespace: {{ __default_namespace }}
+userprefs-service:
+  namespace: {{ __default_namespace }}
+
 deploymentType: hybrid_cloud
 replicaCount: {{ __replica_count }}

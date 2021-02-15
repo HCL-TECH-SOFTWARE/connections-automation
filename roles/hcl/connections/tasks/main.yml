@@ -1,35 +1,54 @@
 ---
 - name:          Check Vars
   include_tasks: check_vars.yml
+  when:
+   - not __cnx_uninstall
 
 - name:          Setup Operating System
   include_tasks: setup_os.yml
+  when:
+   - not __cnx_uninstall
 
 - name:          Define Vars
   include_tasks: define_vars.yml
 
 - name:          Create NFS shares
   include_tasks: create_nfs_shares.yml
+  when:
+   - not __cnx_uninstall
 
 - name:          Download and Extract Connections Files
   include_tasks: download_extract_connections.yml
   when:
    - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
+   - not __cnx_uninstall
 
 - name:          Install HCL Connections
   include_tasks: install_connections.yml
   when:
    - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
+   - not __cnx_uninstall
+
+- name:          Uninstall HCL Connections
+  include_tasks: uninstall_connections.yml
+  when:
+   - (version_already_installed.rc == 0) or (cnx_updates_enabled |bool)
+   - __cnx_uninstall |bool
 
 - name:          Update WAS resources
   include_tasks: update_was_resource.yml
+  when:
+   - not __cnx_uninstall
 
 - name:          Enable Prometheus JMX exporter
   include_tasks: enable_prometheus_jmx_exporter.yml
-  when:          __enable_prometheus_jmx_exporter
+  when:          
+   - __enable_prometheus_jmx_exporter
+   - not __cnx_uninstall
 
 - name:          Clean CNX temp folder (if upgrade)
   include_tasks: clean_was_temp.yml
   when:
    - cnx_updates_enabled |bool
    - inventory_hostname in groups["was_servers"]
+   - not __cnx_uninstall

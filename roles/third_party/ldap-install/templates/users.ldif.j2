@@ -10,7 +10,7 @@ objectClass: top
 cn: Joe Jones1
 sn: Jones1
 givenName: Joe
-mail: {{ __ldap_userid }}1@connections.example.com
+mail: {{ __ldap_userid }}1@{{ __ldap_user_mail_domain }}
 uid: {{ __ldap_userid }}1
 description: I am interested in Robotics; I play Hockey and Soccer
 userPassword: {{ __ldap_user_admin_password }}

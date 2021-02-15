@@ -111,9 +111,9 @@ was_password=password
 ldap_server=db1.internal.example.com
 ldap_alias=db1
 ldap_repo=LDAP_PRODUCTION1
-ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
+ldap_bind_user=cn=Admin,dc=cnx,dc=pnp-hcl,dc=com
 ldap_bind_pass=password
-ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
+ldap_realm=dc=cnx,dc=pnp-hcl,dc=com
 ldap_login_properties=uid;mail
 #
 dmgr_hostname=connections1.internal.example.com

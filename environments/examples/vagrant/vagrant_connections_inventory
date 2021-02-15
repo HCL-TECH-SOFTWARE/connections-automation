@@ -35,9 +35,9 @@ was_password=password
 ldap_server=connections.internal
 ldap_alias=connections
 ldap_repo=LDAP_PRODUCTION1
-ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
+ldap_bind_user=cn=Admin,dc=cnx,dc=pnp-hcl,dc=com
 ldap_bind_pass=password
-ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
+ldap_realm=dc=cnx,dc=pnp-hcl,dc=com
 ldap_login_properties=uid;mail
 ldap_user_mail_domain=internal
 db_username=LCUSER

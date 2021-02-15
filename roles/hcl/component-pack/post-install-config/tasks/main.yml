@@ -11,3 +11,7 @@
 - name:                      Setup Teams config
   include_tasks:             setup_teams_config.yml
   when:                      __setup_teams|bool
+
+- name:                      Setup Connection Provider KudosBoards
+  include_tasks:             setup_conn_provider_kudosboards.yml
+  when:                      __setup_kudosboards|bool
