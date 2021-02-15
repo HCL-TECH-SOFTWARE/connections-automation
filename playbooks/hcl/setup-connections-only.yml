@@ -51,7 +51,6 @@
   roles:
     - roles/third_party/ibm/ihs/ibm-http-config-plgwct
     - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
-    - roles/third_party/ibm/ihs/ibm-http-httpdconf
     - roles/third_party/ibm/ihs/ibm-http-server-restart
 
 - name:                    Restart CNX Clusters
