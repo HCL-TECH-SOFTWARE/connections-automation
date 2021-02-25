@@ -56,3 +56,20 @@ __cnx_enable_invite:                "{{ cnx_enable_invite | default('false') }}"
 # Sharepoint Widget Configuration
 __sharepoint_client_id:              "{{ sharepoint_client_id | default('c14ed562-5a27-4723-82b6-62cca82d2fcc') }}"
 __sharepoint_tenant_id:              "{{ sharepoint_tenant_id | default('b799d683-9a83-4044-a827-c88e16238a7b') }}"
+
+# Files - files-config.xml
+__filescfg_full_path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/files-config.xml"
+__filescfg_namespaces:
+ xmlns="http://www.ibm.com/connections/files/files-config/1.0"
+ tns="http://www.ibm.com/connections/files/files-config/1.0"
+ xsi="http://www.w3.org/2001/XMLSchema-instance"
+__filescfg_filesync_xpath:          "/tns:config/tns:fileSync"
+
+# Mobile - mobile-config.xml
+__mobile_config_file:               "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/mobile-config.xml"
+__mobilecfg_namespaces:
+  xmlns="http://www.ibm.com/mobile-config"
+  tns="http://www.ibm.com/mobile-config"
+  xsi="http://www.w3.org/2001/XMLSchema-instance"
+__mobilecfg_push_xpath:             "/tns:config/tns:Push"
+__mobilecfg_mobileadmin_xpath:      "/tns:config/tns:MobileAdmin"
