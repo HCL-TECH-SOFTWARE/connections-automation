@@ -38,7 +38,7 @@
     - { prop_name: "provision.mt.defaultAllowDataOverage", prop_value: "{{ __provision_mt_defaultallowdataoverage_r }}" }
     - { prop_name: "provision.mt.ldapOrganizationFilter", prop_value: "{{ __provision_mt_ldap_org_filter_r }}" }
     - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
-    - { prop_name: "mt.oidc.enabled", prop_value: "{{ __mt_oidc_enabled_r }}" }
+    - { prop_name: "mt.oidc.enabled", prop_value: "{{ __mt_oidc_enabled_r|lower }}" }
   when:              not mt_already_installed.stat.exists
   # update mt.oidc.enabled above so it can be turned off quickly
 
