@@ -1,30 +1,43 @@
 ---
 - name:                       Prepare Environment for DB2
   include_tasks:              setup_os.yml
-  when:                       inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]
 
 - name:                       Download and prepare DB2
   include_tasks:              download_db2.yml
-  when:                       inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]
 
 - name:                       Install DB2
   include_tasks:              install_db2.yml
-  when:                       inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]
 
 - name:                       Apply the license to DB2
   include_tasks:              setup_license.yml
-  when:                       inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]
 
 - name:                       Setup Codepage
   include_tasks:              setup_codepage.yml
-  when:                       inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]
 
 - name:                       Apply tunings
   include_tasks:              apply_tunings.yml
-  when:                       inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]
 
 - name:                       Install jdbc drivers only
   include_tasks:              install_jdbc.yml
   when:  
    - inventory_hostname in groups["was_servers"]
+   - "'db2_servers' in group_names"
    - inventory_hostname not in groups["db2_servers"]
