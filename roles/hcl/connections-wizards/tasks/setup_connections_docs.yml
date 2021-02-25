@@ -38,7 +38,7 @@
     - not docs_migrations_already_done.stat.exists
 
 - name:                  Cleanup Docs database
-  shell:                 "chdir={{ __docs_installation_folder }} sh {{ item }}"
+  shell:                 "chdir={{ __docs_installation_folder }}/db2 sh {{ item }}"
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
@@ -61,7 +61,7 @@
   register:              docs_migrations_already_done
 
 - name:                  Create Docs database and update schema
-  shell:                 "chdir={{ __docs_installation_folder }} sh {{ item }}"
+  shell:                 "chdir={{ __docs_installation_folder }}/db2 sh {{ item }}"
   become_user:           "{{ __db2_user }}"
   environment:
     DB2INSTANCE:         "{{ __db2_user }}"
