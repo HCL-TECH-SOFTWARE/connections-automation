@@ -1,19 +1,19 @@
-dn:ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn:{{ ldap_realm }}
 objectClass:organizationalUnit
 objectClass:top
 ou:{{ __mt_org_unit_name }}
 
-dn:cn=Users,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn:cn=Users,{{ ldap_realm }}
 objectClass:container
 objectClass:top
 cn:Users
 
-dn:cn=Organizations,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn:cn=Organizations,{{ ldap_realm }}
 objectClass:container
 objectClass:top
 cn:Organizations
 
-dn:cn=Groups,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn:cn=Groups,{{ ldap_realm }}
 objectClass:container
 objectClass:top
 cn:Groups
