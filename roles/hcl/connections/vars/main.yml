@@ -3,6 +3,9 @@ __cnx_major_version:         "{{ cnx_major_version | default('7') }}"
 
 __cnx_uninstall:             "{{ cnx_uninstall | default(false) }}"
 
+__iim_keep_fetched_files:    "{{ iim_keep_fetched_files | default(false) }}"
+__iim_preserve_artifacts:    "{{ iim_preserve_artifacts | default(false) }}"
+
 __profile_name:              "{{ profile_name | default('Dmgr01') }}"
 __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
 __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"

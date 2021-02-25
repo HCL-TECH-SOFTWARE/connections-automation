@@ -11,12 +11,6 @@
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
 
-- name:                    Update WAS DMGR J2EE Role 
-  hosts:                   dmgr
-  become:                  true
-  roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
-
 - name:                    Restart DMGR
   hosts:                   dmgr
   become:                  true

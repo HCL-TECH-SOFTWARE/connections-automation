@@ -17,6 +17,7 @@
     - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
     - { prop_name: "{{ __scope_name }}", prop_value: "{{ __editor_scope_name_r  }}" }
     - { prop_name: "{{ __db_hostname }}", prop_value: "{{ __db_hostname_r }}" }
+    - { prop_name: "{{ __db_port }}", prop_value: "{{ __db_port_r }}" }
     - { prop_name: "{{ __db_jdbc_driver_path }}", prop_value: "{{ __db_jdbc_driver_path_r }}" }
     - { prop_name: "{{ __integrate_with_lc }}", prop_value: "{{ __integrate_with_lc_r }}" }
     - { prop_name: "{{ __lc_config_xml_path }}", prop_value: "{{ __lc_config_xml_path_r }}" }

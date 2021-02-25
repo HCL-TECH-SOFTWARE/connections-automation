@@ -24,13 +24,18 @@
     path:                   "{{ __mt_users_generic_created_success_file }}"
   register:                 mt_ldap_users_generic_already_created
 
+- name:                     "Verify if MT groups are already created"
+  stat:
+    path:                   "{{ __mt_groups_created_success_file }}"
+  register:                 mt_ldap_groups_already_created
+
 - name:                     "Create {{ __mt_tmp_files_location }}"
   file:
     path:                   "{{ __mt_tmp_files_location }}"
     state:                  directory
     mode:                   0775
   when:
-    - not mt_ldap_users_already_created.stat.exists
+    - not mt_ldap_users_already_created.stat.exists or not mt_ldap_groups_already_created.stat.exists
 
 - name:                     "Render MT base and org ldifs"
   template:
@@ -115,6 +120,27 @@
     state:                  touch
   when:
     - users_generic_created is not skipped
+
+- name:                     "Render {{ __mt_groups_ldif_location }}"
+  template:
+    src:                    "{{ __mt_groups_ldif_template }}"
+    dest:                   "{{ __mt_groups_ldif_location }}"
+  when:
+    - not mt_ldap_groups_already_created.stat.exists
+
+- name:                     "Create groups from {{ __mt_groups_ldif_location }}"
+  command:                  "{{ __ldap_add_users }} {{ __mt_groups_ldif_location }}"
+  register:                 groups_created
+  failed_when:              ( groups_created.rc not in [0] )
+  when:
+    - not mt_ldap_groups_already_created.stat.exists
+
+- name:                     "Create {{ __mt_groups_created_success_file }} file"
+  file:
+    path:                   "{{ __mt_groups_created_success_file }}"
+    state:                  touch
+  when:
+    - groups_created is not skipped
 
 - name:                     "Cleanup {{ __mt_tmp_files_location }}"
   file:

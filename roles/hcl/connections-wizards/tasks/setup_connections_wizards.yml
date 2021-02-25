@@ -5,23 +5,23 @@
 
 - name:                  Clean up installation folder(s)
   file:
-    path:                "{{ __db2_extraction_folder }}"
+    path:                "{{ __db_extraction_folder }}"
     state:               absent
   when:
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
 
 - name:                  Create installation folder
   file:
-    path:                "{{ __db2_extraction_folder }}"
+    path:                "{{ __db_extraction_folder }}"
     state:               directory
   when:
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
 
 
-- name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __db2_extraction_folder }}
+- name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __db_extraction_folder }}
   unarchive:
     src:                 "{{ __download_location }}/{{ __package_name }}"
-    dest:                "{{ __db2_extraction_folder }}"
+    dest:                "{{ __db_extraction_folder }}"
     remote_src:          yes
   when:
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)

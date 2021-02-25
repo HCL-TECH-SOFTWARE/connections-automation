@@ -1,0 +1,9 @@
+- name:                       Verify if swap is already configured by Ansible
+  stat:
+    path:                     "{{ __swapfile_success }}"
+  register:                   swap_configured_by_ansible
+
+- name:                       Configure swap
+  include_tasks:              configure_swap.yml
+  when:
+    - not swap_configured_by_ansible.stat.exists

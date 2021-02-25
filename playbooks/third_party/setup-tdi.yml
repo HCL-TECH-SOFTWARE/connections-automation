@@ -1,5 +1,6 @@
 ---
-- hosts:                    db2_servers
+- hosts:                    db2_servers, oracle_servers
   become:                   true
   roles:
-    - roles/third_party/ibm/tdi-install
+    - { role: roles/third_party/ibm/tdi-install,
+        when: cnx_setup_mt is not defined or not cnx_setup_mt|bool }

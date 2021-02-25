@@ -28,18 +28,27 @@
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Update Connections MT (if IHS not in Dmgr node)
+- name:                    Update Connections MT (IHS if not in Dmgr node)
   include_tasks:           setup_mt_ihs.yml
   when:
     - inventory_hostname in groups["ihs_servers"] and inventory_hostname not in groups["dmgr"]
 
-- name:                    Update Connections MT (if DB not in Dmgr node)
+- name:                    Update Connections MT (DB if not in Dmgr node)
   include_tasks:           setup_mt_db.yml
   when:
     - inventory_hostname in groups["db2_servers"] and inventory_hostname not in groups["dmgr"]
 
-
-- name:                    Update Connections MT (if WAS not in Dmgr node)
+- name:                    Update Connections MT (WAS if not in Dmgr node)
   include_tasks:           setup_mt_was.yml
   when:
     - inventory_hostname in groups["was_servers"] and inventory_hostname not in groups["dmgr"]
+
+- name:                    Add OIDC host to WAS truststore
+  include_role:
+    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+  vars:
+    __trust_cert_host:     "{{ __mt_oidc_host_r }}"
+    __trust_cert_alias:    "OIDC"
+  when:
+    - __mt_oidc_enabled_r | bool
+    - inventory_hostname in groups["dmgr"]

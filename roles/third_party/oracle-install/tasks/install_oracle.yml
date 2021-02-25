@@ -1,0 +1,62 @@
+- name:                  Check if Oracle is already up and running
+  shell:                 ps -ef | grep "{{ __ora_rsp_oracle_home }}" | grep -v root
+  changed_when:          true
+  register:              oracle_already_running
+  ignore_errors:         true
+
+- debug:
+    msg:                 "Oracle is already up and running"
+  when:
+    - oracle_already_running.rc == 0
+
+- name:                  "Verify is prereqs have been already run"
+  stat:
+    path:                "{{ __ora_prereq_success_file }}"
+  register:              oracle_prereqs_already_ran
+
+- name:                  "Install Oracle 19c - execute prereqs"
+  command:               "{{ __ora_runinstaller_loc }} -executePrereqs  -silent -responseFile {{ __ora_server_rsp_location }}"
+  become_user:           oracle
+  register:              oracle_prereqs
+  when:
+    - oracle_already_running.rc != 0
+    - not oracle_prereqs_already_ran.stat.exists
+
+- name:                  "Create {{ __ora_prereq_success_file }} file"
+  file:
+    path:                "{{ __ora_prereq_success_file }}"
+    state:               touch
+  when:
+    - oracle_already_running.rc != 0
+    - not oracle_prereqs_already_ran.stat.exists
+
+- name:                  "Verify is install have been already run"
+  stat:
+    path:                "{{ __ora_install_success_file }}"
+  register:              oracle_install_already_ran
+
+- name:                  "Install Oracle 19c"
+  command:               "{{ __ora_runinstaller_loc }} -silent  -responseFile {{ __ora_server_rsp_location }}"
+  register:              ora_install_result
+  failed_when:           ( ora_install_result.rc not in [0] )
+  become_user:           oracle
+  when:
+    - oracle_already_running.rc != 0
+    - not oracle_install_already_ran.stat.exists
+
+- name:                  "Execute root scripts"
+  command:               "{{ item }}"
+  with_items:
+   - "{{ __ora_rsp_oracle_base }}/orainstRoot.sh"
+   - "{{ __ora_rsp_oracle_home }}/root.sh"
+  when:
+    - oracle_already_running.rc != 0
+    - oracle_already_running.rc != 0
+
+- name:                  "Create {{ __ora_install_success_file }} file"
+  file:
+    path:                "{{ __ora_install_success_file }}"
+    state:               touch
+  when:
+    - oracle_already_running.rc != 0
+    - not oracle_install_already_ran.stat.exists

@@ -4,7 +4,7 @@
 {% set total_users_ext_orgb = __mt_ldap_orgb_nr_of_ext_users | int + 1 %}
 
 {% for counter in range(1, total_users_orga) %}
-dn: cn={{ __mt_ldap_orga_userid }}{{ counter }},CN=Users,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: uid={{ __mt_ldap_orga_userid }}{{ counter }},CN=Users,{{ ldap_realm }}
 uid: {{ __mt_ldap_orga_userid }}{{ counter }}
 mail: {{ __mt_ldap_orga_userid }}{{ counter }}@{{ __ldap_user_mail_domain }}
 givenName: {{ __mt_ldap_orga_givenname }}
@@ -24,7 +24,7 @@ userPassword: {{ __mt_ldap_orga_user_password }}
 {% endfor %}
 
 {% for counter in range(1, total_users_ext_orga) %}
-dn: cn={{ __mt_ldap_orga_userid_ext }}{{ counter }},CN=Users,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: uid={{ __mt_ldap_orga_userid_ext }}{{ counter }},CN=Users,{{ ldap_realm }}
 uid: {{ __mt_ldap_orga_userid_ext }}{{ counter }}
 mail: {{ __mt_ldap_orga_userid_ext }}{{ counter }}@{{ __ldap_user_mail_domain }}
 givenName: {{ __mt_ldap_orga_givenname }}
@@ -45,7 +45,7 @@ userPassword: {{ __mt_ldap_orga_user_password }}
 {% endfor %}
 
 {% for counter in range(1, total_users_orgb) %}
-dn: cn={{ __mt_ldap_orgb_userid }}{{ counter }},CN=Users,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: uid={{ __mt_ldap_orgb_userid }}{{ counter }},CN=Users,{{ ldap_realm }}
 uid: {{ __mt_ldap_orgb_userid }}{{ counter }}
 mail: {{ __mt_ldap_orgb_userid }}{{ counter }}@{{ __ldap_user_mail_domain }}
 givenName: {{ __mt_ldap_orgb_givenname }}
@@ -65,7 +65,7 @@ userPassword: {{ __mt_ldap_orgb_user_password }}
 {% endfor %}
 
 {% for counter in range(1, total_users_ext_orgb) %}
-dn: cn={{ __mt_ldap_orgb_userid_ext }}{{ counter }},CN=Users,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: uid={{ __mt_ldap_orgb_userid_ext }}{{ counter }},CN=Users,{{ ldap_realm }}
 uid: {{ __mt_ldap_orgb_userid_ext }}{{ counter }}
 mail: {{ __mt_ldap_orgb_userid_ext }}{{ counter }}@{{ __ldap_user_mail_domain }}
 givenName: {{ __mt_ldap_orgb_givenname }}

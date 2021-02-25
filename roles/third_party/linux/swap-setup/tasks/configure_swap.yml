@@ -1,0 +1,79 @@
+- name:                       Check if swap file exists
+  stat:
+    path:                     "{{ __swapfile_location }}"
+  register:                   swap_file_exists
+  changed_when:               false
+
+- name:                       Check if swap is on
+  shell:                      swapon --show | grep "{{ __swapfile_location }}"
+  register:                   swap_enabled
+  changed_when:               false
+  failed_when:                false 
+
+- name:                       Disable swap
+  command:                    swapoff "{{ __swapfile_location }}"
+  changed_when:               false
+  failed_when:                false
+  register:                   swap_disabled
+  when: >
+    swap_file_exists.stat.exists
+    and swap_enabled.rc > 0
+    and (not swap_enabled
+       or (swap_enabled and swap_file_exists.stat.size != ({{ __swapfile_size }} * 0.75 * 1024 * 1024)))
+
+- name:                       Remove the "{{ __swapfile_location }}"
+  file:
+    path:                     "{{ __swapfile_location }}"
+    state:                    absent
+  when:
+    - not swap_enabled
+
+- name:                       Create or change the size of the swap file
+  command:                    dd if=/dev/zero of="{{ __swapfile_location }}" count={{ __swapfile_size }} bs=1MiB
+  register:                   swap_file_created
+  when: >
+    not swap_file_exists.stat.exists
+    or swap_file_exists.stat.size != ({{ __swapfile_size }} * 0.75 * 1024 * 1024)
+  
+- name:                       Change swap file permissions
+  file:
+    path:                     "{{ __swapfile_location }}"
+    owner:                    root
+    group:                    root
+    mode:                     0600
+
+- name:                       Check if swap file is formated
+  shell:                      file "{{ __swapfile_location }}" | grep 'swap file'
+  register:                   swap_file_formatted
+  changed_when:               false
+  failed_when:                false
+
+- name:                       Format swap file
+  command:                    mkswap "{{ __swapfile_location }}"
+  when:
+    - swap_file_formatted.rc > 0 or swap_file_created.changed
+
+- name:                       Add swap entry to fstab
+  mount:
+    name:                     none
+    src:                      "{{ __swapfile_location }}"
+    fstype:                   swap
+    opts:                     sw
+    passno:                   0
+    dump:                     0
+    state:                    present
+
+- name:                       Turn swap on
+  shell:                      swapon -a
+  when:
+
+- name:                       Configure swappiness
+  sysctl:
+    name:                     vm.swappiness
+    value:                    1
+    state:                    present
+
+- name:                       "Create {{ __swapfile_success }}"
+  file:
+    path:                     "{{ __swapfile_success }}" 
+    state:                    touch

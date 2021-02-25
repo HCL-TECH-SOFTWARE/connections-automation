@@ -1,0 +1,5 @@
+- name:                  Setup DB2
+  import_playbook:       setup-db2.yml
+
+- name:                  Setup Oracle
+  import_playbook:       setup-oracle.yml

@@ -4,11 +4,6 @@
     path:                   "{{ __db_ldif_success_file }}"
   register:                 ldap_database_already_created
 
-- name:                     "Verify if MT base schema is already created"
-  stat:
-    path:                   "{{ __mt_base_schema_ldif_success_file }}"
-  register:                 mt_base_ldap_schema_already_created
-
 - name:                     "Verify if MT custom schema is already created"
   stat:
     path:                   "{{ __mt_custom_schema_success_file }}"
@@ -25,29 +20,7 @@
     state:                  directory
     mode:                   0775
   when:
-    - not mt_base_ldap_schema_already_created.stat.exists
-
-- name:                     "Render MT base schema ldif"
-  template:
-    src:                    "{{ __mt_base_schema_ldif_template }}"
-    dest:                   "{{ __mt_base_schema_ldif_location }}"
-  when:
-    - ldap_database_already_created.stat.exists
-    - not mt_base_ldap_schema_already_created.stat.exists
-
-- name:                     "Import MT base schema {{ __mt_base_schema_ldif_location }}"
-  command:                  "{{ __ldap_add_users }} {{ __mt_base_schema_ldif_location }}"
-  register:                 base_schema_imported
-  failed_when:              ( base_schema_imported.rc not in [0] )
-  when:
-    - ldap_database_already_created.stat.exists
-    - not mt_base_ldap_schema_already_created.stat.exists
-
-- name:                     "Create {{ __mt_base_schema_ldif_success_file }} file"
-  file:
-    path:                   "{{ __mt_base_schema_ldif_success_file }}"
-    state:                  touch
-  when:                     base_schema_imported is changed
+    - not mt_config_already_added.stat.exists or not mt_custom_ldap_schema_already_created.stat.exists
 
 - name:                     "Add MT schema to LDAP schemas"
   copy:
@@ -56,16 +29,22 @@
   with_items:
     - { file: "{{ __mt_custom_schema_file }}", dest: "/etc/openldap/schema/" }
     - { file: "{{ __mt_slapd_config_file }}", dest: "{{ __mt_tmp_files_location }}/conf/" }
+  register:                 mt_schema_added
   when:
-    - mt_base_ldap_schema_already_created.stat.exists or base_schema_imported is changed
     - not mt_custom_ldap_schema_already_created.stat.exists
+
+- name:                     "Create {{ __mt_custom_schema_success_file }} file"
+  file:
+    path:                   "{{ __mt_custom_schema_success_file }}"
+    state:                  touch
+  when:
+    - mt_schema_added is not skipped
 
 - name:                     "Convert config file to directory format"
   command:                  "{{ __ldap_slaptest_cmd }} {{ __mt_tmp_files_location }}/conf/mt.conf -F {{ __mt_tmp_files_location }}/conf"
   register:                 config_converted
   failed_when:              ( config_converted.rc not in [0] )
   when:
-    - mt_base_ldap_schema_already_created.stat.exists or base_schema_imported is changed
     - not mt_config_already_added.stat.exists
 
 - name:                     "Copy the ldif files to OpenLDAP config directory"
@@ -90,7 +69,7 @@
     path:                   "{{ __mt_tmp_files_location }}"
     state:                  absent
   when:
-    - not mt_custom_ldap_schema_already_created.stat.exists | bool or not mt_config_already_added.stat.exists
+    - not mt_custom_ldap_schema_already_created.stat.exists or not mt_config_already_added.stat.exists
 
 - name:                     "Restart slapd service"
   service:

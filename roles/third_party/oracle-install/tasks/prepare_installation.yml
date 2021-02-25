@@ -1,0 +1,40 @@
+- name:                  Check if {{ __ora_rsp_oracle_base }} is already there
+  stat:
+    path:                "{{ __ora_rsp_oracle_base }}"
+  register:              oracle_base_found
+
+- name:                  Create installation folder
+  file:
+    path:                "{{ item }}"
+    state:               directory
+  with_items:
+   - "{{ __extraction_folder }}"
+   - "{{ __ora_rsp_data_location }}"
+   - "{{ __ora_rsp_data_rcvry_location }}"
+  when:
+    - not oracle_base_found.stat.exists
+
+- name:                  Download and unzip installation {{ __package_name }} to the {{ __extraction_folder }}
+  unarchive:
+    src:                 "{{ __download_location }}/{{ __package_name }}"
+    dest:                "{{ __extraction_folder }}"
+    remote_src:          yes
+  when:
+    - not oracle_base_found.stat.exists
+
+- name:                  "Render {{ __ora_server_rsp_location }}"
+  template:
+    src:                 "{{ __ora_server_rsp_template }}"
+    dest:                "{{ __ora_server_rsp_location }}"
+  when:
+    - not oracle_base_found.stat.exists
+
+- name:                  "Set the ownership of the folder and files"
+  file:
+    path:                /opt/oracle
+    owner:               oracle
+    group:               oinstall
+    state:               directory
+    recurse:             yes
+  when:
+    - not oracle_base_found.stat.exists

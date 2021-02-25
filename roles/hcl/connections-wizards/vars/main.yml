@@ -1,17 +1,20 @@
 ---
+db2_wizards_download_locaiton:  "{{ connections_wizards_download_location }}"
+db2_wizards_package_name:       "{{ connections_wizards_package_name }}"
+
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
 __db_version:                   "{{ db_version | default('7.0') }}"
-__download_location:            "{{ db2_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
-__package_name:                 "{{ db2_wizards_package_name | default('HCL_Connections_7.0_wizards_lin_aix.tar') }}"
-__db2_extraction_folder:            "{{ db2_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
-__installation_folder:          "{{ __db2_extraction_folder }}/Wizards"
+__download_location:            "{{ connections_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
+__package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_7.0_wizards_lin_aix.tar') }}"
+__db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
+__installation_folder:          "{{ __db_extraction_folder }}/Wizards"
 
 __docs_download_location:       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
 __docs_package_name:            "{{ cnx_docs_package_name | default('IBMConnectionsDocs_2.0.1.zip') }}"
 __docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
-__docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB/db2"
+__docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"
 
-__db2_installation_folder:     "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+__db2_installation_folder:      "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
 __db2_user:                     "{{ db2_user | default('db2inst1') }}"
 __db2_migration_cmd:            "{{ __db2_installation_folder }}/bin/db2 -td@ -vf"
 __db2_icec_migration_cmd:       "{{ __db2_installation_folder }}/bin/db2 -tvf"
@@ -28,3 +31,14 @@ __docs_success_file:            "{{ __db2_instance_homedir }}/docs.migration.suc
 
 __setup_connections_wizards:    "{{ setup_connections_wizards | default(true) }}"
 __setup_connections_docs:       "{{ setup_connections_docs | default(false)|bool}}"
+
+__dbw_oracle_base:              "{{ ora_rsp_oracle_base | default('/opt/oracle') }}"
+__dbw_oracle_home:              "{{ ora_rsp_oracle_home | default('/opt/oracle/product/19.0.0/db_1') }}"
+__dbw_oracle_sid:               "{{ ora_rsp_starter_db_name | default('LSCONN') }}"
+__dbw_oracle_password:          "{{ db_password | default('password') }}"
+
+__ora_success_file:             "{{ __dbw_oracle_base }}/migration.success"
+__ora_ic360_success_file:       "{{ __dbw_oracle_base }}/ic360_migration.success"
+__ora_sharepoint_success_file:  "{{ __dbw_oracle_base }}/sharepoint_migration.success"
+__ora_docs_success_file:        "{{ __dbw_oracle_base }}/docs.migration.success"
+__oracle_migration_cmd:         "{{ __dbw_oracle_home }}/bin/sqlplus SYS/{{ __dbw_oracle_password }} as SYSDBA @" 

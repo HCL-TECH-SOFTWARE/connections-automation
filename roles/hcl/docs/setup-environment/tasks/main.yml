@@ -27,4 +27,6 @@
 
 - name:                    Create Docs DB user if not exists
   include_tasks:           create_db_user.yml
-  when:                    inventory_hostname in groups["db2_servers"]
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]

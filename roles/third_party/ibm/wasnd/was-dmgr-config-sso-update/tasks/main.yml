@@ -46,3 +46,4 @@
       vars:
         __trust_cert_host: "{{ item }}"
       with_items:          "{{ groups['ihs_servers'] }}"
+      when:                "item != cnx_application_ingress"

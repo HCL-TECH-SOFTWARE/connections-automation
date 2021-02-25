@@ -1,0 +1,41 @@
+---
+__download_location:           "{{ oracle_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Oracle') }}"
+__package_name:                "{{ oracle_package_name | default('LINUX.X64_193000_db_home.zip') }}"
+
+__ora_rsp_oracle_base:         "{{ ora_rsp_oracle_base | default('/opt/oracle') }}"
+__extraction_folder:           "{{ __ora_rsp_oracle_base }}/product/19.0.0/db_1"
+
+__ora_server_rsp_template:     "db_install.rsp.j2"
+__ora_server_rsp_location:     "{{ __extraction_folder }}/install/response/db_install_cnx.rsp"
+
+__ora_rsp_install_option:      "{{ ora_rsp_install_option | default('INSTALL_DB_AND_CONFIG') }}"
+__ora_rsp_unix_group_name:     "{{ ora_rsp_unix_group_name | default('oinstall') }}"
+__ora_rsp_inventory_location:  "{{ ora_rsp_inventory_location | default( __ora_rsp_oracle_base ) }}"
+__ora_rsp_default_data:        "{{ __ora_rsp_oracle_base }}/data"
+__ora_rsp_data_location:       "{{ ora_rsp_data_location | default( __ora_rsp_default_data ) }}"
+__ora_rsp_default_recovery:    "{{ __ora_rsp_oracle_base }}/recovery"
+__ora_rsp_data_rcvry_location: "{{ ora_rsp_data_rcvry_location | default( __ora_rsp_default_recovery ) }}"
+__ora_rsp_oracle_home:         "{{ ora_rsp_oracle_home | default( __extraction_folder ) }}"
+__ora_runinstaller_loc:        "{{ __ora_rsp_oracle_home }}/runInstaller"
+__ora_rsp_install_edition:     "{{ ora_rsp_install_edition | default('EE') }}"
+__ora_rsp_exec_root_script:    "{{ ora_rsp_exec_root_script | default('false') }}"
+__ora_rsp_root_config_method:  "{{ ora_rsp_root_config_method | default('SUDO') }}"
+
+__ora_rsp_starter_db_type:     "{{ ora_rsp_starter_db_type | default('GENERAL_PURPOSE') }}"
+__ora_rsp_starter_db_name:     "{{ ora_rsp_starter_db_name | default('LSCONN') }}"
+__ora_rsp_starter_charset:     "{{ ora_rsp_starter_charset | default('AL32UTF8') }}"
+__ora_rsp_use_auto_mem_mgmt:   "{{ ora_rsp_use_auto_mem_mgmt | default('false') }}"
+__ora_rsp_auto_mem_limit:      "{{ ora_rsp_auto_mem_limit | default('2048') }}"
+
+__ora_rsp_password_schema_all: "{{ db_password | default('password') }}"
+
+__ora_rsp_starter_db_mgmt:     "{{ ora_rsp_starter_db_mgmt | default('DEFAULT') }}"
+
+__ora_rsp_enable_recovery:     "{{ ora_rsp_enable_recovery | default('true') }}"
+__ora_rsp_storage_type:        "{{ ora_rsp_storage_type | default('FILE_SYSTEM_STORAGE') }}"
+
+__ora_prereq_success_file:     "{{ __ora_rsp_oracle_base }}/prereqs.success"
+__ora_install_success_file:    "{{ __ora_rsp_oracle_base }}/install.success"
+__ora_config_success_file:     "{{ __ora_rsp_oracle_base }}/config.success"
+
+__jdbc_installation_folder:    "{{ __ora_rsp_oracle_home }}/jdbc/lib"

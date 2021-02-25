@@ -6,6 +6,13 @@ AdminTask.addIdMgrLDAPServer('[-id {{ ldap_repo }} -host {{ ldap_server }} -bind
 AdminTask.addIdMgrRepositoryBaseEntry('[-id {{ ldap_repo }} -name {{ ldap_realm }} -nameInRepository {{ ldap_realm }}]')
 AdminTask.addIdMgrRealmBaseEntry('[-name defaultWIMFileBasedRealm -baseEntry {{ ldap_realm }}]')
 
+#Add Entity Types
+{% if cnx_setup_mt is defined %}
+AdminTask.addIdMgrLDAPEntityType('[-id {{ ldap_repo }} -name OrgContainer -objectClasses organization;organizationalUnit;domain;container -searchBases cn=Organizations,{{ ldap_realm }} -searchFilter ]')
+AdminTask.addIdMgrLDAPEntityType('[-id {{ ldap_repo }} -name PersonAccount -objectClasses inetOrgPerson;ibm-socialPerson -searchBases cn=Users,{{ ldap_realm }} -searchFilter ]')
+AdminTask.addIdMgrLDAPEntityType('[-id {{ ldap_repo }} -name Group -objectClasses groupOfNames;groupOfUniqueNames -searchBases cn=Groups,{{ ldap_realm }} -searchFilter ]')
+{% endif %}
+
 #Save and Synchronise
 AdminConfig.save()
 AdminNodeManagement.syncActiveNodes()

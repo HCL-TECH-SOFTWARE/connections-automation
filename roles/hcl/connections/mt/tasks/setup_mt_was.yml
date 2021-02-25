@@ -45,6 +45,11 @@
   when:
     - mt_update_was_performed is not skipped
 
+- name:               Creates HCL directory
+  file:
+    path:             "{{ __cnx_install_location }}"
+    state:            directory    
+
 - name:               "Create {{ __mt_update_was_success_file }} file"
   file:
     path:             "{{ __mt_update_was_success_file }}"

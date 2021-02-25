@@ -32,7 +32,7 @@ connections.internal.example.com
 [all:vars]
 db2_download_location=http://connections.internal.example.com:8001
 tdi_download_location=http://connections.internal.example.com:8001
-db2_wizards_download_location=http://connections.internal.example.com:8001
+connections_wizards_download_location=http://connections.internal.example.com:8001
 iim_repository_url=http://connections.internal.example.com:8001
 was_repository_url=http://connections.internal.example.com:8001
 was_fixes_repository_url=http://connections.internal.example.com:8001

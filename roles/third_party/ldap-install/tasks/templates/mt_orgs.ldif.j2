@@ -1,4 +1,4 @@
-dn: o={{ __mt_ldap_orga_name }},cn=Organizations,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: o={{ __mt_ldap_orga_name }},cn=Organizations,{{ ldap_realm }}
 objectClass: organization
 objectClass: top
 objectClass: ibm-socialOrganization
@@ -7,12 +7,12 @@ o: {{ __mt_ldap_orga_name }}
 ibm-socialOrganizationId: 4000000001
 ibm-entryuuid: {{ 4000000001 | to_uuid }}
 
-dn: cn=Users,o={{ __mt_ldap_orga_name }},cn=Organizations,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: cn=Users,o={{ __mt_ldap_orga_name }},cn=Organizations,{{ ldap_realm }}
 objectClass: container
 objectClass: top
 cn: Users
 
-dn: O={{ __mt_ldap_orgb_name }},CN=Organizations,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: O={{ __mt_ldap_orgb_name }},CN=Organizations,{{ ldap_realm }}
 ibm-socialOrganizationId: 4000000002
 objectclass: organization
 objectclass: top
@@ -21,7 +21,7 @@ o: {{ __mt_ldap_orgb_name }}
 ibm-socialOrganizationalHostURL: {{ __mt_orgb_host_url }}
 ibm-entryuuid: {{ 4000000002 | to_uuid }}
 
-dn: CN=Users,O={{ __mt_ldap_orgb_name }},CN=Organizations,ou={{ __mt_org_unit_name }},{{ ldap_realm }}
+dn: CN=Users,O={{ __mt_ldap_orgb_name }},CN=Organizations,{{ ldap_realm }}
 objectclass: container
 objectclass: top
 CN: Users
