@@ -76,10 +76,19 @@ __editor_install_root_r:                  "docs_install_root={{ __docs_editor_in
 __shared_data_dir:                        "shared_data_dir="
 __shared_data_dir_r:                      "shared_data_dir={{ __docs_data_local_path }}"
 __editor_scope_name_r:                    "scope_name={{ __editor_cluster_name }}"
+
+__db_hostname_default:                    "{{ db_hostname | default( inventory_hostname ) }}"
 __db_hostname:                            "db_hostname="
-__db_hostname_r:                          "db_hostname={{ groups['db2_servers'][0] }}"
+__db_hostname_r:                          "db_hostname={{ __db_hostname_default }}"
+
+__db_port_default:                        "{{ db_port | default('50000') }}"
+__db_port:                                "db_port="
+__db_port_r:                              "db_port={{ __db_port_default }}"
+
+__db2_jdbc_file:                          "{{ __db2_installation_folder }}/java"
+__db_jdbc_file:                           "{{ db_jdbc_file | default( __db2_jdbc_file ) }}"
 __db_jdbc_driver_path:                    "db_jdbc_driver_path="
-__db_jdbc_driver_path_r:                  "db_jdbc_driver_path={{ __db2_installation_folder }}/java"
+__db_jdbc_driver_path_r:                  "db_jdbc_driver_path={{ __db_jdbc_file }}"
 __conversion_url:                         "conversion_url="
 __conversion_url_r:                       "conversion_url=https://{{ docs_url }}/conversion"
 __integrate_with_lc:                      "integrate_with_LC="

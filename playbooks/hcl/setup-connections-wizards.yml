@@ -1,5 +1,5 @@
 ---
-- hosts:                    db2_servers
+- hosts:                    db2_servers, oracle_servers
   become:                   true
   roles:
     - roles/hcl/connections-wizards

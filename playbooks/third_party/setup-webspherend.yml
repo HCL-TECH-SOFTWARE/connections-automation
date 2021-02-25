@@ -36,6 +36,7 @@
     - roles/third_party/ibm/wasnd/was-profile-create
     - roles/third_party/ibm/wasnd/was-nodeagent-start
     - roles/third_party/ibm/db2-install
+    - roles/third_party/oracle-install
 
 - name:                    Setup HTTP Servers on DMGR
   hosts:                   dmgr
