@@ -1,0 +1,4 @@
+---
+__swapfile_location:                  "{{ swapfile_location | default('/swapfile') }}"
+__swapfile_size:                      "{{ swapfile_size | default( ansible_memtotal_mb ) }}"
+__swapfile_success:                   "/swapfile.ansible.success"
