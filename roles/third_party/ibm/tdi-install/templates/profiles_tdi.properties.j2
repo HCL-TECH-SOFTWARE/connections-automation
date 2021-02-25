@@ -101,11 +101,22 @@ step1_iterate_chunk_attribute_name=
 step1_iterate_chunk_attribute_null_ok=false
 step1_iterate_chunk_sync_source_url=
 
-# Database settings
+{% if 'oracle_servers' in group_names and  inventory_hostname in groups['oracle_servers'] %}
+# Database settings for Oracle
+dbrepos_jdbc_url=jdbc:oracle:thin:@//{{ db_hostname }}:{{ db_port }}/LSCONN
+dbrepos_jdbc_driver=oracle.jdbc.driver.OracleDriver
+dbrepos_username={{ db_username }}
+{protect}-dbrepos_password={{ db_password }}
+{% endif %}
+
+{% if 'db2_servers' in group_names and inventory_hostname in groups['db2_servers'] %}
+# Database settings for DB2
 dbrepos_jdbc_url=jdbc:db2://{{ db_hostname }}:{{ db_port }}/peopledb
 dbrepos_jdbc_driver=com.ibm.db2.jcc.DB2Driver
 dbrepos_username={{ db_username }}
 {protect}-dbrepos_password={{ db_password }}
+{% endif %}
+
 dbrepos_mark_manager_if_referenced=true
 
 monitor_changes_debug=false

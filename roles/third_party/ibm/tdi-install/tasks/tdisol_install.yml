@@ -73,16 +73,28 @@
    - "tdienv.sh"
    - "populate_from_dn_file.sh"
 
-- name:                  "Copy JDBC files"
+- name:                  "Copy DB2 JDBC files"
   copy:
     src:                 "{{ __db2_jdbc_location }}/{{ item }}"
-    dest:                "{{ __db2_jdbc_destination }}"
+    dest:                "{{ __jdbc_destination }}"
     remote_src:          yes
   with_items:
    - "db2jcc.jar"
    - "db2jcc_license_cu.jar"
   when:
     - not tdisol_already_installed.stat.exists
+    - "'db2_servers' in groups"
+
+- name:                  "Copy Oracle JDBC files"
+  get_url:
+    url:                 "{{ __oracle_download_location }}/{{ item }}"
+    dest:                "{{ __jdbc_destination }}"
+    mode:                0755
+  with_items:
+   - "ojdbc7.jar"
+  when:
+    - not tdisol_already_installed.stat.exists
+    - "'oracle_servers' in groups"
 
 - name:                  "Run collect_dns.sh"
   command:               "sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh"
