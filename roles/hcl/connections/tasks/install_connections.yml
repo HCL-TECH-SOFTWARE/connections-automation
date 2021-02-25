@@ -53,7 +53,7 @@
     mkdir -p /opt/IBM/CTemp
     export IATEMPDIR=/opt/IBM/CTemp
     export CHECK_DISK_SPACE=OFF
-    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense -sVP -log {{ __log_file }} input {{ __rsp_file }}
+    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }} -sVP -log {{ __log_file }} input {{ __rsp_file }}
   environment:
     IATEMPDIR: "/opt/IBM/CTemp"
   register:          cout

@@ -23,3 +23,6 @@ __files_fp16:
 __was_java_version:       "{{ java_version | default( __version_latest ) }}"
 __was_java_files:         "{{ java_files | default( __files_latest ) }}"
 __was_java_version_check: "Installed com.ibm.websphere.IBMJAVA.v80_{{ __was_java_version }}"
+
+__iim_keep_fetched_files: "{{ iim_keep_fetched_files | default(false) }}"
+__iim_preserve_artifacts: "{{ iim_preserve_artifacts | default(false) }}"
