@@ -1,0 +1,20 @@
+- name:                  "Verify is config have been already run"
+  stat:
+    path:                "{{ __ora_config_success_file }}"
+  register:              oracle_config_already_ran
+
+- name:                  "Execute config scripts"
+  command:               "{{ __ora_runinstaller_loc }} -executeConfigTools -responseFile {{ __ora_server_rsp_location }} -silent"
+  register:              ora_config_result
+  failed_when:           ( ora_config_result.rc not in [0] )
+  become_user:           oracle
+  when:
+    - oracle_already_running.rc != 0
+    - not oracle_config_already_ran.stat.exists
+
+- name:                  "Create {{ __ora_config_success_file }} file"
+  file:
+    path:                "{{ __ora_config_success_file }}"
+    state:               touch
+  when:
+    - not oracle_config_already_ran.stat.exists

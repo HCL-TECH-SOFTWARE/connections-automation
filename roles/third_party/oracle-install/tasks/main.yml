@@ -1,0 +1,30 @@
+---
+- name:                            Setup OS for Oracle
+  include_tasks:                   setup_os.yml
+  when:
+    - "'oracle_servers' in group_names"
+    - inventory_hostname in groups["oracle_servers"]
+
+- name:                            Prepare the installation
+  include_tasks:                   prepare_installation.yml
+  when:
+    - "'oracle_servers' in group_names"
+    - inventory_hostname in groups["oracle_servers"]
+
+- name:                            Install Oracle
+  include_tasks:                   install_oracle.yml
+  when:
+    - "'oracle_servers' in group_names"
+    - inventory_hostname in groups["oracle_servers"]
+
+- name:                            Configure Oracle
+  include_tasks:                   configure_oracle.yml
+  when:
+    - "'oracle_servers' in group_names"
+    - inventory_hostname in groups["oracle_servers"]
+
+- name:                            Install JDBC drivers only
+  include_tasks:                   install_jdbc.yml
+  when:
+    - "'oracle_servers' in group_names"
+    - inventory_hostname in groups["was_servers"]

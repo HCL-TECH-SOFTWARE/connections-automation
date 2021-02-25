@@ -1,0 +1,13 @@
+- name:                  "Create {{ __jdbc_installation_folder }}"
+  file:
+    path:                "{{ __jdbc_installation_folder }}"
+    state:               directory
+
+- name:                  "Get Oracle JDBC files"
+  get_url:
+    url:                 "{{ __download_location }}/{{ item }}"
+    dest:                "{{ __jdbc_installation_folder }}"
+    mode:                0755
+  with_items:
+   - "ojdbc6.jar"
+   - "ojdbc8.jar"
