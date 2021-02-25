@@ -18,7 +18,7 @@ connections.internal
 
 [all:vars]
 db2_download_location=http://my-local-hostname:8001/
-db2_wizards_download_location=http://my-local-hostname:8001/
+connections_wizards_download_location=http://my-local-hostname:8001/
 tdi_download_location=http://my-local-hostname:8001/
 iim_repository_url=http://my-local-hostname:8001/
 was_repository_url=http://my-local-hostname:8001/
