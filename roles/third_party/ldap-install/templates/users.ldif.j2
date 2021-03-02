@@ -4,14 +4,14 @@ objectClass: top
 dc: {{ __ldap_tld }}
 
 
-dn: uid={{ __ldap_userid }}1,{{ __ldap_olc_suffix }}
+dn: uid={{ __ldap_admin_user }}1,{{ __ldap_olc_suffix }}
 objectClass: inetOrgPerson
 objectClass: top
 cn: Joe Jones1
 sn: Jones1
 givenName: Joe
-mail: {{ __ldap_userid }}1@{{ __ldap_user_mail_domain }}
-uid: {{ __ldap_userid }}1
+mail: {{ __ldap_admin_user }}1@{{ __ldap_user_mail_domain }}
+uid: {{ __ldap_admin_user }}
 description: I am interested in Robotics; I play Hockey and Soccer
 userPassword: {{ __ldap_user_admin_password }}
 telephoneNumber: 1-978-399-0000
@@ -52,7 +52,7 @@ objectClass: top
 cn: Joe Jones{{ counter }}
 sn: Jones{{ counter }}
 givenName: Joe
-mail: {{ __ldap_userid }}{{ counter }}@connections.example.com
+mail: {{ __ldap_userid }}{{ counter }}@{{ __ldap_user_mail_domain }}
 uid: {{ __ldap_userid }}{{ counter }}
 description: I am interested in Robotics; I play Hockey and Soccer
 userPassword: {{ __ldap_user_password }}
