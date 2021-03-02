@@ -27,4 +27,5 @@
   include_tasks:                   install_jdbc.yml
   when:
     - "'was_servers' in group_names"
+    - "'oracle_servers' in group_names"
     - inventory_hostname in groups["was_servers"]
