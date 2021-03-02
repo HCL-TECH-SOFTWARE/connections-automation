@@ -14,10 +14,19 @@
   when:
    - ansible_distribution == "RedHat"
 
+- name:                     Install prerequisits for semanage
+  package:
+    name:                   "{{ item }}"
+    state:                  present
+  with_items:
+    - libselinux-python
+    - libsemanage-python
+
 - name:                     Disable SELinux
   selinux:
     state:                  disabled
   ignore_errors:            true
+  notify:                   reboot
 
 - name:                     Set httpd_can_network_connect flag on and keep it persistent across reboots
   seboolean:
