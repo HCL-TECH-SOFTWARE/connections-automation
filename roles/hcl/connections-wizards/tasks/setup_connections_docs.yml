@@ -79,7 +79,7 @@
     - not docs_migrations_already_done.stat.exists
 
 - name:                  Run appGrants.sql
-  shell:                 "{{ __db2_migration_cmd }} {{ __docs_installation_folder }}/{{ item }}"
+  shell:                 "{{ __db2_migration_cmd }} {{ __docs_installation_folder }}/db2/{{ item }}"
   register:              result
   failed_when:           ( result.rc not in [0, 1, 2, 3] )
   become_user:           "{{ __db2_user }}"
