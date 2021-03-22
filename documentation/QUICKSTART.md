@@ -102,6 +102,10 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCvupayZq/4h+vrzisZAa4Yx/JqbgRFPu5WSAO5YIkw
 
 From web.internal.example.com you should be able now, as ansible user, to SSH to connections.internal.example.com and cp.internal.example.com without being prompted for the password. 
 
+### ...but if you use root user
+
+Please note that you need to either disable password login for root user in your SSH configuration, or run Ansible playbooks with using usernames/passwords, because the scripts will otherwise block when they try to go from machine to machine. Due to both security and practical reasons, we don't recommend to use root user directly for this. 
+
 ## Installing Ansible
 
 Ansible needs to be installed only on the controller machine, in our example it is web.internal.example.com
@@ -144,6 +148,10 @@ ruby -run -e httpd . -p 8001 &
 ```
 
 And you are good to go - you've just started web server on port 8001 inside your /tmp folder and you are serving everything that is there. You can check if it works if you simply point your browser to http://connections.internal.example.com:8001 and you see all your downloaded files there.
+
+## Setting up your inventory files
+
+Ensure that in both inventory files replace the URLs with your own URLs. Note that in example inventory files "connections" is just a short name of "connections.internal.example.com" so don't forget to replace that as well.
 
 ## Setting up HCL Connections with all the dependencies
 
