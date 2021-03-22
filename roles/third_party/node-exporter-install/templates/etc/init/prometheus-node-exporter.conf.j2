@@ -1,0 +1,16 @@
+description "Prometheus Node Exporter"
+start on (runlevel [345] and started network)
+stop on (runlevel [!345] or stopping network)
+
+respawn
+{% if upstart_version.stdout | replace("init (upstart ", "") |replace(")","") is version('1.4', '>=') %}
+setuid {{ __prometheus_exporters_common_user }}
+setgid {{ __prometheus_exporters_common_group }}
+{% endif %}
+
+script
+  exec >> "{{ __prometheus_exporters_common_log_dir }}/node-exporter.log"
+  exec 2>&1
+  exec {{ __prometheus_exporters_common_root_dir }}/node_exporter_current/node_exporter
+
+end script

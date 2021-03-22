@@ -1,0 +1,3 @@
+- name:                      Setup Prometheus Operator
+  include_tasks:             setup_prometheus_operator.yml
+  when:                      __setup_prometheus_operator |bool

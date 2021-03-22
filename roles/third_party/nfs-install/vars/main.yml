@@ -12,3 +12,9 @@ __cnx_message_stores:                "{{ cnx_message_store | default('/nfs/data/
 
 __docs_data_shared:                  "{{ docs_data_shared | default('/nfs/docs_data') }}"
 __viewer_data_shared:                "{{ viewer_data_shared | default('/nfs/viewer_data') }}"
+
+__mongo_replicaset:                  "{{ mongo_replicaset | default('3') }}"
+__es_replicaset:                     "{{ es_replicaset | default('3') }}"
+__es7_replicaset:                    "{{ es7_replicaset | default('3') }}"
+__solr_replicaset:                   "{{ solr_replicaset | default('3') }}"
+__zookeeper_replicaset:              "{{ zookeeper_replicaset | default('3') }}"

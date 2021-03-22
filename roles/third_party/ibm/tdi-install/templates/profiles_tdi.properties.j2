@@ -101,6 +101,14 @@ step1_iterate_chunk_attribute_name=
 step1_iterate_chunk_attribute_null_ok=false
 step1_iterate_chunk_sync_source_url=
 
+{% if 'mssql_servers' in group_names and  inventory_hostname in groups['mssql_servers'] %}
+# Database settings for MSSQL
+dbrepos_jdbc_url=jdbc:sqlserver://{{ db_hostname }}:{{ db_port }};DatabaseName=PEOPLEDB
+dbrepos_jdbc_driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
+dbrepos_username={{ db_username }}
+{protect}-dbrepos_password={{ db_password }}
+{% endif %}
+
 {% if 'oracle_servers' in group_names and  inventory_hostname in groups['oracle_servers'] %}
 # Database settings for Oracle
 dbrepos_jdbc_url=jdbc:oracle:thin:@//{{ db_hostname }}:{{ db_port }}/LSCONN

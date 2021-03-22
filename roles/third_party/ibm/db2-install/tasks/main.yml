@@ -38,6 +38,5 @@
 - name:                       Install jdbc drivers only
   include_tasks:              install_jdbc.yml
   when:  
-   - inventory_hostname in groups["was_servers"]
-   - "'db2_servers' in group_names"
-   - inventory_hostname not in groups["db2_servers"]
+    - inventory_hostname in groups["was_servers"]
+    - __setup_db2_jdbc |bool

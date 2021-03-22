@@ -95,12 +95,12 @@ KeepAliveTimeout 10
 <IfModule worker.c>
 ThreadLimit         {{ __thread_limit }}
 ServerLimit         {{ __server_limit }}
-StartServers        {{ __start_servers }} 
+StartServers        {{ __start_servers }}
 MaxClients          {{ __max_clients }}
 MinSpareThreads     {{ __min_spare_threads }}
 MaxSpareThreads     {{ __max_spare_threads }}
 ThreadsPerChild     {{ __thread_limit }}
-MaxRequestsPerChild {{ __max_request_per_child }} 
+MaxRequestsPerChild {{ __max_request_per_child }}
 </IfModule>
 
 #
@@ -939,11 +939,6 @@ ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
-
-# teams-tab/api
-ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
-ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
-
 
 # teams-share-service
 ProxyPass "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080/teams-share-service"

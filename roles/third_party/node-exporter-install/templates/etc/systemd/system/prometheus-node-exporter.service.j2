@@ -1,0 +1,16 @@
+[Unit]
+Description=Prometheus Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ __prometheus_exporters_common_user }}
+Group={{ __prometheus_exporters_common_group }}
+ExecStart={{ __prometheus_exporters_common_root_dir }}/node_exporter_current/node_exporter
+
+SyslogIdentifier=prometheus_node_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

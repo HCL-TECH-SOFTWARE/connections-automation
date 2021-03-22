@@ -1,4 +1,6 @@
 ---
+__setup_db2_jdbc:              "{{ setup_db2_jdbc | default(false) }}"
+
 __download_location:           "{{ db2_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/DB2') }}"
 __package_name:                "{{ db2_package_name | default('v11.1.4fp5_linuxx64_universal_fixpack.tar.gz') }}"
 __license_file:                "{{ db2_license_file | default('CNB23ML.zip') }}"

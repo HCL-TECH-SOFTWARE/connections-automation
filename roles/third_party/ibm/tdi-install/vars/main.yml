@@ -35,12 +35,14 @@ __tdienv_sh_dest:               "{{ __tdi_sol_dest }}/TDI/tdienv.sh"
 __tdi_properties_template:      "profiles_tdi.properties.j2"
 __tdi_properties_dest:          "{{ __tdi_sol_dest }}/TDI/profiles_tdi.properties"
 
+__mssql_jdbc_location:          "{{ mssql_jdbc_location | default('/opt/mssql/jdbc/lib/sqljdbc_4.1/enu/jre7') }}"
+
 __oracle_jdbc_location:         "{{ oracle_jdbc_location | default('/opt/oracle') }}"
 
 __db2_jdbc_location:            "{{ db2_jdbc_location | default('/opt/IBM/db2/V11.1/java') }}"
-__jdbc_destination:         "{{ __tdi_user_install_dir }}/jvm/jre/lib/ext"
+__jdbc_destination:             "{{ __tdi_user_install_dir }}/jvm/jre/lib/ext"
 
 __tdi_mdbrfs_template:          "map_dbrepos_from_source.properties.j2"
 __tdi_mdbrfs_destination:       "{{ __tdi_sol_dest }}/TDI/map_dbrepos_from_source.properties"
 
-__tdi_sol_success_file:         "{{ __tdi_user_install_dir }}/tdi.sol.installed.success"
+__tdi_sol_success_file:         "{{ __tdi_sol_dest }}/tdi.sol.installed.success"

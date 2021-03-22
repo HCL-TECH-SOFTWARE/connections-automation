@@ -28,6 +28,10 @@
     src:             "{{ __kubernetes_yum_repo_template }}"
     dest:            "{{ __kubernetes_yum_repo_location }}"
 
+- name:              "Load br_netfilter as per https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#letting-iptables-see-bridged-traffic"
+  modprobe:
+    name:            br_netfilter
+    state:           present
 
 - name:              Avoid issues with traffic routing as per documentation
   sysctl:

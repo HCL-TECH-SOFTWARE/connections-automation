@@ -4,16 +4,17 @@ inteceptors = AdminTask.listInterceptors()
 
 # add if inteceptors doesn't exist
 if inteceptors.find('{{ __trust_interceptor_name.lower() }}') < 0:
-{% set ns = namespace(allprops="") %}
+{% set vars = {'allprops': ""} %}
 {% for prop in __trust_interceptor_prop %}
 {% set propkeyvalue="\""+prop.name+"="+prop.value+"\"" %}
 {% if loop.index > 1 %}
-{% set ns.allprops=ns.allprops+", " +propkeyvalue %}
+{% if vars.update({'allprops': vars.allprops+", " +propkeyvalue}) %} {% endif %}
 {% else %}
-{% set ns.allprops=propkeyvalue %}
+{% if vars.update({'allprops': propkeyvalue}) %} {% endif %}
 {% endif %}
 {% endfor %}
-   AdminTask.configureInterceptor('[-interceptor {{ __trust_interceptor_name }} -customProperties [{{ ns.allprops }}]]')
+
+   AdminTask.configureInterceptor('[-interceptor {{ __trust_interceptor_name }} -customProperties [{{vars.allprops}}]]')
    AdminConfig.save()
 else:
   print "{{ __trust_interceptor_name }} already exists."

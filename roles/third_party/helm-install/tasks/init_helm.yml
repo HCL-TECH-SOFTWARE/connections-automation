@@ -15,7 +15,7 @@
   ignore_errors:     true
 
 - name:              Init Helm and create tiller service account
-  command:           "helm init --service-account tiller"
+  command:           "helm init --service-account tiller --stable-repo-url=https://charts.helm.sh/stable"
   when:
     - (helm_already_initialized.rc != 0) and (helm_version.stdout == "v2")
   become:            false
