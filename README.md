@@ -224,6 +224,13 @@ You can, of course, run those steps separately.
 
 ### Setting up IBM DB2
 
+To install JDBC drivers for DB2 on WAS nodes for example, please set:
+
+```
+[was_servers:vars]
+setup_db2_jdbc=True
+```
+
 To install IBM DB2 only, execute:
 
 ```
@@ -232,9 +239,16 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 
 This will install IBM DB2 on a Linux server, tune the server and IBM DB2 as per Performance tunning guide for HCL Connections, and apply the licence.
 
-In case IBM DB2 was already installed nothing will happen, the scripts will just ensure that everything is as expected.
+In case IBM DB2 was already installed nothing will happen, the scripts will just ensure that everything is as expected. JDBC drivers will be only installed if the variable mentioned above is also set.
 
 ### Setting up Oracle database
+
+To install JDBC drivers for Oracle on WAS nodes for example, please set:
+
+```
+[was_servers:vars]
+setup_oracle_jdbc=True
+```
 
 To install Oracle 19c only, execute:
 
@@ -243,6 +257,8 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 ```
 
 Running this playbook will set up the prerequisites for Oracle 19c (like setting up big enough swap on the node dedicated for Oracle database) but it will also set up the JDBC for HCL Connections and HCL Connections Docs.
+
+JDBC drivers for Oracle will be only installed if you have setup_oracle_jdbc set to true as mentioned above.
 
 ### Installing HCL Connections Wizards
 
@@ -345,6 +361,13 @@ And in the end, you need to create WebSphere user account by setting this:
 ```
 was_username=wasadmin
 was_password=password
+```
+
+
+To install JDBC drivers for Oracle, please set:
+
+```
+setup_oracle_jdbc=True
 ```
 
 To install IBM WebSphere Application Server, IBM HTTP Server and configure it, execute:
