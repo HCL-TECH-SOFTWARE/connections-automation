@@ -1,7 +1,7 @@
 ---
   __tmp_dir:                   "{{ tmp_dir | default('/opt/HCL/Binaries') }}"
 
-  __mt_zip:                    "{{ mt_zip | default('connections-mt-update-7.0.zip') }}"
+  __mt_zip:                    "{{ mt_zip | default('connections-mt-update-7.0.0.zip') }}"
   __product_id:                "\"id='com.ibm.connections'\""
   __mt_skip_error_checking:    "{{ mt_skip_error_checking  | default('false') }}"
 

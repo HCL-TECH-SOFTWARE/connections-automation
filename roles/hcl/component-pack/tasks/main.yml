@@ -22,10 +22,6 @@
   include_tasks:             setup_dashboards.yml
   when:                      __setup_dashboards |bool
 
-- name:                      Setup Prometheus Operator
-  include_tasks:             setup_prometheus_operator.yml
-  when:                      __setup_prometheus_operator |bool
-
 - name:                      Setup connections-volumes
   include_tasks:             setup_connections_volumes.yml
   when:                      __setup_connections_volumes |bool
@@ -81,10 +77,6 @@
 - name:                      Setup orientme
   include_tasks:             setup_orientme.yml
   when:                      __setup_orientme |bool
-
-- name:                      Scale to the number of nodes
-  include_tasks:             scale_component_pack.yml
-  when:                      __enable_pod_auto_scaling |bool
 
 - name:                      Run profiles migration for OrientMe
   include_tasks:             orientme_profile_migration.yml

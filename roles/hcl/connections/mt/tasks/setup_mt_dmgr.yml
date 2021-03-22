@@ -40,7 +40,7 @@
     - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
     - { prop_name: "mt.oidc.enabled", prop_value: "{{ __mt_oidc_enabled_r|lower }}" }
   when:              not mt_already_installed.stat.exists
-  # update mt.oidc.enabled above so it can be turned off quickly
+  #  update mt.oidc.enabled above so it can be turned off quickly
 
 - name:               Edit config.properties (OIDC configuration properties)
   replace:
@@ -69,10 +69,16 @@
     - { prop_name: "mt_oidc_signverifyalias", prop_value: "{{ __mt_oidc_signverifyalias_r }}" }
   when:              not mt_already_installed.stat.exists and __mt_oidc_enabled_r|bool
 
-- name:                Run MT Update (Dmgr)
+- name:                Remove old rc file
+  file:
+    path:              "{{ __tmp_dir }}/mt/install/mtupdate.rc"
+    state:             absent
+
+- name:                Run MT Update (Dmgr), log file {{ __tmp_dir }}/mt/install/mtupdate.log
   shell: |
-     set timeout 600
+     set timeout 15m
      ./connections-mt-update-cli.sh config.properties --pubkey --keyfile="{{ __autodeploy_auth_r }}" 2>&1 | tee mtupdate.log
+     echo ${PIPESTATUS[0]} > mtupdate.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
@@ -80,15 +86,29 @@
       - autodeploy_already_installed.stat.exists
       - not mt_already_installed.stat.exists
   register:            mt_update_performed
-  failed_when:         "'Upgrade HCL Connections configuration to MT completed' not in mt_update_performed.stdout"
 
-- name:                Search for potential errors
+- name:                Check install return code
   become:              yes
-  shell:               "grep -i 'exception' {{ __tmp_dir }}/mt/install/mtupdate.log"
-  register:            mt_update_exception_found
-  failed_when:         mt_update_exception_found.stdout|length != 0 and not __mt_skip_error_checking|bool
+  shell:               "cat {{ __tmp_dir }}/mt/install/mtupdate.rc"
+  register:            return_code
+  failed_when:
+    - return_code.stdout != "0"
   when:
     - mt_update_performed is not skipped
+
+- name:               Search for success message in log
+  become:             yes
+  shell:              "grep -i 'Upgrade HCL Connections configuration to MT completed' {{ __tmp_dir }}/mt/install/mtupdate.log"
+  register:           grep_success_message
+  failed_when:        grep_success_message.stdout|length == 0
+  when:               not __mt_skip_error_checking|bool and mt_update_performed is not skipped
+
+- name:               Search for potential errors in log
+  become:             yes
+  shell:              "grep -i 'exception' {{ __tmp_dir }}/mt/install/mtupdate.log"
+  register:           mt_update_exception_found
+  failed_when:        mt_update_exception_found.stdout|length != 0
+  when:               not __mt_skip_error_checking|bool and mt_update_performed is not skipped
 
 - name:               "Create {{ __mt_update_success_file }} file"
   file:
@@ -96,4 +116,3 @@
     state:            touch
   when:
     - mt_update_performed is not skipped
-    - mt_update_exception_found.stdout|length == 0 or __mt_skip_error_checking|bool
