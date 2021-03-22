@@ -29,6 +29,10 @@ ihs_password=password
 [nfs_servers]
 connections.internal.example.com
 
+# This will install JDBC drivers for DB2 on all WAS servers. If this section is missing, JDBC drivers won't be installed.
+[was_servers:vars]
+setup_db2_jdbc=True
+
 [all:vars]
 db2_download_location=http://connections.internal.example.com:8001
 tdi_download_location=http://connections.internal.example.com:8001
@@ -133,5 +137,6 @@ ic360_db={ 'server': 'connections.internal.example.com' }
 cnx_enable_moderation=true
 cnx_enable_invite=true
 
+cnx_ifix_installer="updateInstaller_2102.zip"
 ifix_apar=LO100079
-ifix_file=LO100079-IC7.0.0.0-Common-Fix.jar
+ifix_file=HCL_Connections_70_Update.jar

@@ -44,6 +44,10 @@ dmgr1.internal.example.com
 connections1.internal.example.com
 connections2.internal.example.com
 
+# This will install JDBC drivers for DB2 on all WAS servers. If this section is missing, JDBC drivers won't be installed.
+[was_servers:vars]
+setup_db2_jdbc=True
+
 [all:vars]
 # Download location of DB2 and the licence file
 db2_download_location=http://installer1.internal.example.com:8001/DB2
@@ -75,8 +79,7 @@ cnx_docs_download_location=http://installer1.internal.example.com:8001/Docs
 # Download location for HCL Connections zip file. Used by Connections installation and TDI to get tdisol archive.
 cnx_repository_url=http://installer1.internal.example.com:8001/Connections7
 
-# The variables below are referencing the file names for WAS ND and IHS as named in Flexnet. Uncomment it if you a
-re using Flexnet packages.
+# The variables below are referencing the file names for WAS ND and IHS as named in Flexnet. Uncomment it if you are using Flexnet packages.
 
 # Change to Filenames used in Flexnet
 #was_files[]={"file_name": "CIK2HML.zip", "check_sum": "b1333962ba4b25c8632c7e4c82b472350337e99febac8f70ffbd551ca3905e83" }
@@ -221,5 +224,6 @@ cnx_enable_invite=true
 
 # If you plan to install iFix 7.0.0.1 for HCL Connections 7.0, you need those two variables set with those
 # values as well:
+cnx_ifix_installer="updateInstaller_2102.zip"
 ifix_apar=LO100079
-ifix_file=LO100079-IC7.0.0.0-Common-Fix.jar
+ifix_file=HCL_Connections_70_Update.jar
