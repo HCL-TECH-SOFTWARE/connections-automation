@@ -25,7 +25,7 @@
     - roles/third_party/kubernetes/setup-worker-node
 
 - name:                    Taint nodes
-  hosts:                   k8s_masters, k8s_workers
+  hosts:                   k8s_master, k8s_workers
   become:                  true
   roles:
     - roles/third_party/kubernetes/taint-all-nodes

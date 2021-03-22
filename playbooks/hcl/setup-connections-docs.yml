@@ -14,7 +14,7 @@
     - roles/hcl/docs/setup-environment
 
 - name:                    Setup Docs database
-  hosts:                   db2_servers
+  hosts:                   db2_servers, oracle_servers, mssql_servers
   become:                  true
   roles:
     - roles/hcl/connections-wizards
@@ -62,6 +62,7 @@
     - roles/third_party/ibm/wasnd/was-nodeagent-start
     - roles/third_party/ibm/db2-install
     - roles/third_party/oracle-install
+    - roles/third_party/mssql-install
 
 - name:                    Create Docs Clusters
   hosts:                   dmgr

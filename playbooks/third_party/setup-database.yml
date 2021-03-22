@@ -3,3 +3,6 @@
 
 - name:                  Setup Oracle
   import_playbook:       setup-oracle.yml
+
+- name:                  Setup MSSQL
+  import_playbook:       setup-mssql.yml

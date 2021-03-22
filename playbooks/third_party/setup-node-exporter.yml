@@ -1,0 +1,6 @@
+---
+- name:                    Install Node Exporter
+  hosts:                   dmgr, db2_servers
+  become:                  true
+  roles:
+    - roles/third_party/node-exporter-install
