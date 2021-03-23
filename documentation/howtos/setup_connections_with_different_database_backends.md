@@ -13,6 +13,7 @@ Those variables are called:
 #setup_db2_jdbc=false
 #setup_oracle_jdbc=false
 #setup_mssql_jdbc=false
+```
 
 By default, they are set to false, which means that if you don specifically say that you want JDBC drivers installed, they will not be installed. 
 
