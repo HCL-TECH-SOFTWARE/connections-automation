@@ -6,7 +6,7 @@ Before you start, please be sure to check out [Frequently Asked Questions](https
 
 For HCL Connections 7 dependencies this means that:
 
-* Database will be installed (IBM DB2 or Oracle), configured as per Performance tunning guide for HCL Connections, and license applied.
+* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from FlexNet, will be applied only to IBM DB2 v11.1. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
 * HCL Connections Wizard will populate the database with needed schemas and grants.
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
@@ -94,6 +94,13 @@ total 1397484
 drwxr-xr-x.  2 root orion        78 Sep  7 11:31 .
 drwxr-xr-x. 13 root orion       192 Nov 18 08:33 ..
 -r-xr-xr-x.  1 root orion 737753769 Sep  7 11:02 IBMConnectionsDocs_2.0.1.zip
+
+MSSQL:
+total 2956
+drwxr-xr-x.  2 root    root         84 Mar  1 10:02 .
+drwxr-xr-x. 17 root    orion       263 Mar  1 10:01 ..
+-rw-r--r--.  1 dmenges dmenges  838550 Mar  1 10:01 sqljdbc_4.1.8112.200_enu.tar.gz
+-rw-r--r--.  1 dmenges dmenges 2186950 Mar  1 10:01 sqljdbc_6.0.8112.200_enu.tar.gz
 
 Oracle:
 total 2998572
