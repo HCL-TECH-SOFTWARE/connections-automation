@@ -4,7 +4,7 @@
   roles:
     - roles/third_party/ibm/db2-install
 
-- hosts:                    db2_servers
+- hosts:                    db2_servers, oracle_servers, mssql_servers
   become:                   true
   roles:
     - roles/hcl/connections-wizards
@@ -14,7 +14,7 @@
   roles:
     - roles/third_party/ldap-install
 
-- hosts:                    db2_servers
+- hosts:                    db2_servers, oracle_servers, mssql_servers
   become:                   true
   roles:
     - roles/third_party/ibm/tdi-install

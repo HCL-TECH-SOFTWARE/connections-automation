@@ -26,7 +26,7 @@
         Cookie: "{{ login.cookies_string }}"  
     register: get_tokens
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams Share"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Share
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false
@@ -74,7 +74,7 @@
     debug: 
       msg: "{{ request_msteams_share_status.status }}"  
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams Collapse Sidebar"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Collapse Sidebar
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false
@@ -120,7 +120,7 @@
     debug: 
       msg: "{{ request_msteams_sidebar_status.status }}"  
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams itm"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams itm
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false
@@ -213,7 +213,7 @@
     debug: 
       msg: "{{ request_msteams_itm_status.status }}"    
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams Profile BizCard"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Profile BizCard
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false

@@ -16,6 +16,8 @@
     - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
     - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
     - { prop_name: "{{ __scope_name }}", prop_value: "{{ __editor_scope_name_r  }}" }
+    - { prop_name: "{{ __db_type_prop_name }}", prop_value: "{{ __db_type_prop_value }}" }
+    - { prop_name: "{{ __db_name_prop_name }}", prop_value: "{{ __db_name_prop_value }}" }
     - { prop_name: "{{ __db_hostname }}", prop_value: "{{ __db_hostname_r }}" }
     - { prop_name: "{{ __db_port }}", prop_value: "{{ __db_port_r }}" }
     - { prop_name: "{{ __db_jdbc_driver_path }}", prop_value: "{{ __db_jdbc_driver_path_r }}" }

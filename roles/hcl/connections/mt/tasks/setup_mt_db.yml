@@ -21,29 +21,47 @@
 
 - name:               Delete MT Update installation directory from temp location
   file:
-    path:             "/tmp/mt/"
+    path:             "{{ item }}"
     state:            absent
+  with_items:
+    - "/tmp/mt/"
+    - "{{ __tmp_dir }}/mt/install/mtupdate_was.rc"
   when:               not mt_db_already_installed.stat.exists
 
-- name:                Run MT Update (DB)
+- name:                Run MT Update (DB), log file {{ __tmp_dir }}/mt/install/mtupdate_db.log
   shell: |
      set timeout 300
      ./connections-mt-db-update-cli.sh config.properties 2>&1 | tee mtupdate_db.log
+     echo ${PIPESTATUS[0]} > mtupdate_db.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
   when:
       - not mt_db_already_installed.stat.exists
   register:            mt_update_db_performed
-  failed_when:         "'Updating HCL Connections DB2 configuration to MT completed' not in mt_update_db_performed.stdout"
 
-- name:                Search for potential errors
+- name:                Check install return code
   become:              yes
-  shell:               "grep -i 'SQLSTATE' {{ __tmp_dir }}/mt/install/mtupdate_db.log"
-  register:            mt_update_db_error_found
-  failed_when:         mt_update_db_error_found.stdout|length != 0 and not __mt_skip_error_checking|bool
+  shell:               "cat {{ __tmp_dir }}/mt/install/mtupdate_db.rc"
+  register:            return_code
+  failed_when:
+    - return_code.stdout != "0"
   when:
     - mt_update_db_performed is not skipped
+
+- name:               Search for success message in log
+  become:             yes
+  shell:              "grep -i 'Updating HCL Connections DB2 configuration to MT completed' {{ __tmp_dir }}/mt/install/mtupdate_db.log"
+  register:           grep_success_message
+  failed_when:        grep_success_message.stdout|length == 0
+  when:               not __mt_skip_error_checking|bool and mt_update_db_performed is not skipped
+
+- name:               Search for potential errors in log
+  become:             yes
+  shell:              "grep -i 'SQLSTATE'  {{ __tmp_dir }}/mt/install/mtupdate_db.log"
+  register:           mt_update_db_error_found
+  failed_when:        mt_update_db_error_found.stdout|length != 0
+  when:               not __mt_skip_error_checking|bool and mt_update_db_performed is not skipped
 
 - name:               "Create {{ __mt_update_db_success_file }} file"
   file:
@@ -51,4 +69,3 @@
     state:            touch
   when:
     - mt_update_db_performed is not skipped
-    - mt_update_db_error_found.stdout|length == 0 or __mt_skip_error_checking|bool

@@ -37,6 +37,10 @@ iim_version="1.9.1003.20200730_2125"
 ihs_username=ihsadmin
 ihs_password=password
 
+# This will install JDBC drivers for Oracle on all WAS servers. If this section is missing, JDBC drivers won't be installed.
+[was_servers:vars]
+setup_oracle_jdbc=True
+
 [all:vars]
 oracle_download_location=http://installer1.internal.example.com:8001/Oracle
 tdi_download_location=http://installer1.internal.example.com:8001/TDI
@@ -102,7 +106,7 @@ db_version="6.5"
 connections_wizards_package_name="HCL_Connections_6.5_wizards_lin_aix.tar"
 
 # This variable will let automation figure out specific product ID of the Connections that you are installing. Otherwise,
-# if disabled, automation is going to expect explicitely specified version that is being installed. This enables basically # running Connections updates/upgrades as well.
+# if disabled, automation is going to expect explicitely specified version that is being installed. This enables basically running Connections updates/upgrades as well.
 cnx_updates_enabled=True
 
 was_username=wasadmin

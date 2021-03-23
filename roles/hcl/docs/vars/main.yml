@@ -21,7 +21,7 @@ __was_install_location:              "{{ was_install_location  | default('/opt/I
 __dmgr_profile_name:                 "{{ profile_name | default('Dmgr01') }}"
 __profile_name:                      "{{ was_profile_name | default('AppSrv01') }}"
 __was_cellname:                      "{{ was_cellname | default('ConnectionsCell') }}"
-
+#
 __db2_installation_folder:           "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
 __db_concord_username:               "{{ db_concord_username | default('DOCSUSER') }}"
 #
@@ -80,7 +80,12 @@ __editor_scope_name_r:                    "scope_name={{ __editor_cluster_name }
 __db_hostname_default:                    "{{ db_hostname | default( inventory_hostname ) }}"
 __db_hostname:                            "db_hostname="
 __db_hostname_r:                          "db_hostname={{ __db_hostname_default }}"
-
+__db_type:                                "{{ db_type | default('DB2') }}"
+__db_type_prop_name:                      "db_type="
+__db_type_prop_value:                     "db_type={{ __db_type }}"
+__db_name:                                "{{ db_name | default('CONCORD') }}"
+__db_name_prop_name:                      "db_name="
+__db_name_prop_value:                     "db_name={{ __db_name }}"
 __db_port_default:                        "{{ db_port | default('50000') }}"
 __db_port:                                "db_port="
 __db_port_r:                              "db_port={{ __db_port_default }}"

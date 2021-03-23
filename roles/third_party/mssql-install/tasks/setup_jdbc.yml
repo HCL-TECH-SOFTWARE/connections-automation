@@ -1,0 +1,19 @@
+
+- name:                  "Create {{ __jdbc_installation_folder }}"
+  file:
+    path:                "{{ __jdbc_installation_folder }}"
+    state:               directory
+
+- name:                  Download and unzip installation {{ __package_name }} to the {{ __jdbc_installation_folder }}
+  unarchive:
+    src:                 "{{ __download_location }}/{{ __package_name }}"
+    dest:                "{{ __jdbc_installation_folder }}"
+    remote_src:          yes
+
+- name:                  Download and unzip legacy {{ __package_name_legacy }} to the {{ __jdbc_installation_folder }}
+  unarchive:
+    src:                 "{{ __download_location }}/{{ __package_name_legacy }}"
+    dest:                "{{ __jdbc_installation_folder }}"
+    remote_src:          yes
+  when:
+    - __mssql_setup_tdi_drivers |bool

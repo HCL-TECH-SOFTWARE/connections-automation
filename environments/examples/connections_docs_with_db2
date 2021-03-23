@@ -148,9 +148,17 @@ viewer_servers_list =['viewer1.internal.example.com', 'viewer2.internal.example.
 # Editor Proxy Filter
 proxy_servers_list=['proxy1.internal.example.com', 'proxy2.internal.example.com']
 
-# This username and password will be used to setup Docs database. Recommended to keep username this way.
+# This username and password will be used to setup Docs database. Recommended to keep username this way. Use CONCORDDB for Oracle.
+db_hostname=db1.internal.example.com
+db_jdbc_file=/opt/IBM/db2/V11.1/java
 db_concord_username=docsuser
 db_concord_password=password
+# Database type - db2 (default) / oracle / sqlserver
+# Database name - CONCORD (default for db2 and sqlserver) / SID if Oracle
+db_type=db2
+db_name=CONCORD
+db_port=50000
+setup_db2_jdbc=True
 
 # Connections clusters to restart as part of the Docs installation process.
 connections_auto_start_clusters=App

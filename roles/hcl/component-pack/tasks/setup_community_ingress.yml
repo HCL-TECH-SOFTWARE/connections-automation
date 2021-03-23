@@ -168,6 +168,10 @@
    - prom_operator_already_provisioned_helm3.rc != 0
   become_user:               "{{ __sudo_user }}"
 
+- name:                      Give some space for controller to get ready...
+  pause:
+    seconds:                 10
+
 - name:                      Find cnx-ingress helm file
   find:
     paths:                   "{{ __helmbuilds_folder }}"

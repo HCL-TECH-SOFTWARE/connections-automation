@@ -1,0 +1,64 @@
+- name:                     Check if MSSQL server is already up and running
+  shell:                    ps -ef | grep mssql | grep sqlservr | grep -v root
+  changed_when:             true
+  register:                 mssql_server_already_running
+  ignore_errors:            true
+
+- name:                     Add MSSQL repo
+  get_url:
+    url:                    https://packages.microsoft.com/config/rhel/7/mssql-server-2019.repo
+    dest:                   /etc/yum.repos.d/mssql-server.repo
+  when:
+    - ansible_os_family == "RedHat"
+    - mssql_server_already_running.rc != 0
+
+- name:                     Install MSSQL
+  package:
+    name:                   mssql-server
+    state:                  present
+  environment:
+    ACCEPT_EULA:            "{{ __accept_eula }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - mssql_server_already_running.rc != 0
+
+- name:                     Initialize MSSQL database
+  shell:                    /opt/mssql/bin/mssql-conf setup
+  environment:
+    ACCEPT_EULA:            "{{ __accept_eula }}"
+    MSSQL_PID:              "{{ __mssql_product_id }}"
+    MSSQL_SA_PASSWORD:      "{{ __mssql_sa_password }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - mssql_server_already_running.rc != 0
+
+- name:                     Add SQL Server command line tools repo
+  get_url:
+    url:                    https://packages.microsoft.com/config/rhel/7/prod.repo
+    dest:                   /etc/yum.repos.d/msprod.repo
+  when:
+    - ansible_os_family == "RedHat"
+    - mssql_server_already_running.rc != 0
+
+- name:                     Install MSSQL tools
+  package:
+    name:                   ['mssql-tools', 'unixODBC-devel']
+    state:                  present
+  environment:
+    ACCEPT_EULA:            "{{ __accept_eula }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - mssql_server_already_running.rc != 0
+
+- name:                     Start SQL Server service
+  service:
+    name:                   mssql-server
+    state:                  started
+    enabled:                yes
+    daemon_reload:          yes
+
+- name:                     Create profiles script
+  shell:                    echo 'export PATH=$PATH:/opt/mssql/bin:/opt/mssql-tools/bin' | sudo tee "{{ __mssql_profiles_script }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - mssql_server_already_running.rc != 0

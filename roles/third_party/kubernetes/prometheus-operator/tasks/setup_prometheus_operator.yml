@@ -251,7 +251,7 @@
     src:                     "{{ __jmx_prometheus_service_template }}"
     dest:                    "{{ __jmx_prometheus_service_destination }}"
 
-- name:                      "Render {{ __jmx_prometheus_service_destination }}"
+- name:                      "Render {{ __jmx_prometheus_sermonitor_destination }}"
   template:
     src:                     "{{ __jmx_prometheus_sermonitor_template }}"
     dest:                    "{{ __jmx_prometheus_sermonitor_destination }}"
@@ -263,5 +263,25 @@
 
 - name:                      Setup jmx service, SMonitor and EP
   shell:                     "kubectl apply -f {{ __jmx_prometheus_service_destination }} -f {{ __jmx_prometheus_sermonitor_destination }} -f {{ __jmx_prometheus_endpoint_destination }}"
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      "Render {{ __node_exporter_service_destination }}"
+  template:
+    src:                     "{{ __node_exporter_service_template }}"
+    dest:                    "{{ __node_exporter_service_destination }}"
+
+- name:                      "Render {{ __node_exporter_sermonitor_destination }}"
+  template:
+    src:                     "{{ __node_exporter_sermonitor_template }}"
+    dest:                    "{{ __node_exporter_sermonitor_destination }}"
+
+- name:                      "Render {{ __node_exporter_endpoint_destination }}"
+  template:
+    src:                     "{{ __node_exporter_endpoint_template }}"
+    dest:                    "{{ __node_exporter_endpoint_destination }}"
+
+- name:                      Setup node exporter service, SMonitor and EP
+  shell:                     "kubectl apply -f {{ __node_exporter_service_destination }} -f {{ __node_exporter_sermonitor_destination }} -f {{ __node_exporter_endpoint_destination }}"
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true

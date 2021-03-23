@@ -1,7 +1,0 @@
-# Setup Component Pack
----
-- name:                    Setup Component Pack
-  hosts:                   component_pack_master
-  become:                  true
-  roles:
-    - roles/hcl/component-pack

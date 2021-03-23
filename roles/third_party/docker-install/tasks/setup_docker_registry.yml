@@ -94,29 +94,6 @@
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
 
-- name:                             Create Docker Registry on CentOS
-  docker_container:
-    name:                           registry
-    image:                          registry:2
-    state:                          started
-    restart_policy:                 unless-stopped
-    recreate:                       yes
-    volumes:
-      - /etc/docker/certs:/certs
-      - /etc/docker/registry:/var/lib/registry
-      - /etc/docker/auth:/auth
-    published_ports:
-      - "{{ __registry_port }}:5000"
-    env:
-        REGISTRY_AUTH: "htpasswd"
-        REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
-        REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
-        REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/cert.pem"
-        REGISTRY_HTTP_TLS_KEY: "/certs/key.pem"
-  when:
-   - inventory_hostname == groups['docker_registry'][0]
-   - ansible_os_family == "CentOS"
-
 - name:                             Wait a bit, container is just starting
   pause:
     seconds:                        30
@@ -131,13 +108,3 @@
     reauthorize:                    yes
   when:
    - ansible_os_family == "RedHat"
-
-- name:                             Test Docker Registry Login on CentOS
-  docker_login:
-    registry:                       "{{ docker_registry_url }}"
-    username:                       "{{ __registry_user }}"
-    password:                       "{{ __registry_password }}"
-    reauthorize:                    yes
-  when:
-   - ansible_os_family == "CentOS"
-

@@ -27,6 +27,7 @@
   become:                  true
   roles:
     - roles/hcl/connections/mt
+  any_errors_fatal:        true
 
 - name:                    Synchronize WAS nodes
   hosts:                   dmgr

@@ -1,0 +1,6 @@
+- name:                  Install pre-requisites Yum
+  yum:
+    name:                ['unzip', 'dos2unix']
+    state:               present
+  when:
+    - ansible_os_family == "RedHat"

@@ -1,0 +1,24 @@
+{% for server in ['prometheus_node_exporter'] %}
+{% for host in groups[server] %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+     prometheus.io/scrape: "true"
+  namespace: monitoring
+  name: node-exporter-{{ host.split(".")[0] }}
+  namespace: monitoring
+  labels:
+    app: node-exporter-{{ host.split(".")[0] }}
+    release: prometheus-operator
+spec:
+  externalName: {{ host }}
+  ports:
+  - name: metrics
+    port: {{ __node_exporter_port }}
+    protocol: TCP
+    targetPort: {{ __node_exporter_port }}
+  type: ExternalName
+{% endfor %}
+{% endfor %}

@@ -1,4 +1,6 @@
 ---
+__setup_oracle_jdbc:           "{{ setup_oracle_jdbc | default(false) }}"
+
 __download_location:           "{{ oracle_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Oracle') }}"
 __package_name:                "{{ oracle_package_name | default('LINUX.X64_193000_db_home.zip') }}"
 

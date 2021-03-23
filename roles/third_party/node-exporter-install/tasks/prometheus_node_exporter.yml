@@ -1,0 +1,110 @@
+- name:            Install needed packages
+  package:
+    name:          "{{ item }}"
+    state:         present
+  with_items:
+    - curl
+    - tar
+    - bzip2
+
+- name:            Create prometheus system group
+  group:
+    name:          "{{ __prometheus_exporters_common_group }}"
+    system:        yes
+    state:         present
+
+- name:            Create prometheus system user
+  user:
+    name:          "{{ __prometheus_exporters_common_user }}"
+    system:        yes
+    shell:         "/sbin/nologin"
+    group:         "{{ __prometheus_exporters_common_group }}"
+    createhome: no
+
+- name:            Create prometheus directories
+  file:
+    path:          "{{ item }}"
+    state:         directory
+    owner:         "{{ __prometheus_exporters_common_user }}"
+    group:         "{{ __prometheus_exporters_common_group }}"
+    mode:          0755
+  with_items:
+    - "{{ __prometheus_exporters_common_root_dir }}"
+    - "{{ __prometheus_exporters_common_dist_dir }}"
+    - "{{ __prometheus_exporters_common_log_dir }}"
+
+- name:            Download prometheus node exporter binary
+  get_url: 
+    url:           "{{ __prometheus_url }}"
+    dest:          "{{ __prometheus_exporters_common_dist_dir }}/{{ __prometheus_node_exporter_release_name }}.tar.gz"
+
+- name:            Unarchive binary tarball
+  unarchive:
+    copy:          no
+    src:           "{{ __prometheus_exporters_common_dist_dir }}/{{ __prometheus_node_exporter_release_name }}.tar.gz"
+    dest:          "{{ __prometheus_exporters_common_dist_dir }}"
+    creates:       "{{ __prometheus_exporters_common_dist_dir }}/{{ __prometheus_node_exporter_release_name }}/node_exporter"
+  register:     prometheus_node_exporter_updated
+  notify:
+    - restart node exporter
+
+- name:            Update group and owner for files
+  file:
+    path:          "{{ __prometheus_node_exporter_release_name }}"
+    state:         directory
+    recurse:       yes
+    owner:         "{{ __prometheus_exporters_common_user}}"
+    group:         "{{ __prometheus_exporters_common_group }}"
+  when: prometheus_node_exporter_updated is changed
+
+- name:            Create symlink to the current release
+  file:
+    src:           "{{ __prometheus_exporters_common_dist_dir }}/{{ __prometheus_node_exporter_release_name }}"
+    path:          "{{ __prometheus_exporters_common_root_dir }}/node_exporter_current"
+    state:         link
+
+- name:            Create systemd service unit
+  template:
+    src:           etc/systemd/system/prometheus-node-exporter.service.j2
+    dest:          /etc/systemd/system/prometheus-node-exporter.service
+    owner:         root
+    group:         root
+    mode:          0644
+  when: service_mgr | default(ansible_service_mgr) == 'systemd'
+  notify:
+    - restart node exporter
+
+- name:            Looking which version of upstart is install
+  command:         initctl version
+  when: service_mgr | default(ansible_service_mgr) == 'upstart'
+  register: upstart_version
+  changed_when: false
+
+- name:            Create init service unit
+  template:
+    src:           etc/init/prometheus-node-exporter.conf.j2
+    dest:          /etc/init/prometheus-node-exporter.conf
+    owner:         root
+    group:         root
+    mode:          0644
+  when: service_mgr | default(ansible_service_mgr) == 'upstart'
+  notify:
+    - reinit node exporter
+    - restart node exporter
+
+- name:            Create sysvinit service unit
+  template:
+    src:           etc/init.d/prometheus-node-exporter.j2
+    dest:          /etc/init.d/prometheus-node-exporter
+    owner:         root
+    group:         root
+    mode:          0755
+  when: service_mgr | default(ansible_service_mgr) in [ 'sysvinit', 'service' ]
+  notify:
+    - restart node exporter
+
+- name:            Ensure prometheus node exporter service is enabled and started
+  service:
+    name:          prometheus-node-exporter
+    state:         started
+    enabled:       yes

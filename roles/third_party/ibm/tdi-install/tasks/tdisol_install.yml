@@ -1,4 +1,4 @@
-- name:                 "Verifiy if tdisol is already installed"
+- name:                   "Verify if tdisol is already installed"
   stat:
     path:                "{{ __tdi_sol_success_file }}"
   register:              tdisol_already_installed
@@ -82,7 +82,6 @@
    - "db2jcc.jar"
    - "db2jcc_license_cu.jar"
   when:
-    - not tdisol_already_installed.stat.exists
     - "'db2_servers' in groups"
 
 - name:                  "Copy Oracle JDBC files"
@@ -93,8 +92,17 @@
   with_items:
    - "ojdbc7.jar"
   when:
-    - not tdisol_already_installed.stat.exists
     - "'oracle_servers' in groups"
+
+- name:                  "Copy MSSQL JDBC files"
+  copy:
+    src:                 "{{ __mssql_jdbc_location }}/{{ item }}"
+    dest:                "{{ __jdbc_destination }}"
+    remote_src:          yes
+  with_items:
+   - "sqljdbc41.jar"
+  when:
+    - "'mssql_servers' in groups"
 
 - name:                  "Run collect_dns.sh"
   command:               "sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh"

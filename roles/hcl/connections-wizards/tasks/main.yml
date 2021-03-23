@@ -11,6 +11,12 @@
     - __setup_connections_wizards |bool
     - "'oracle_servers' in groups"
 
+- name:                       Setup Connections Wizards on MSSQL
+  include_tasks:              setup_connections_wizards_mssql.yml
+  when:
+    - __setup_connections_wizards |bool
+    - "'mssql_servers' in groups"
+
 - name:                       Setup Connections Docs Database on DB2
   include_tasks:              setup_connections_docs.yml
   when:
@@ -22,3 +28,9 @@
   when:
     - __setup_connections_docs |bool
     - "'oracle_servers' in groups"
+
+- name:                       Setup Connections Docs Database on MSSQL
+  include_tasks:              setup_connections_docs_mssql.yml
+  when:
+    - __setup_connections_docs |bool
+    - "'mssql_servers' in groups"

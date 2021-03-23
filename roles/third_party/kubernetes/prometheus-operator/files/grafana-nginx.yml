@@ -34,3 +34,6 @@ grafana:
      jvm-dashboard:
        gnetId: 10519
        datasource: Prometheus
+     node-exporter-dashboard:
+       gnetId: 12486
+       datasource: Prometheus

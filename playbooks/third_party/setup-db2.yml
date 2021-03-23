@@ -1,4 +1,9 @@
 ---
+- hosts:                    db2_servers
+  become:                   true
+  roles:
+    - roles/third_party/linux/swap-setup
+
 - hosts:                    db2_servers, was_servers
   become:                   true
   roles:

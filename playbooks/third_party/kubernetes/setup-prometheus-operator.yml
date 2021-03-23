@@ -1,0 +1,12 @@
+# Setup Prometheus Operator
+---
+- name:                    Gather facts
+  hosts:                   prometheus_node_exporter
+  tasks:                   []
+
+- name:                    Setup Prometheus Operator
+  hosts:                   component_pack_master
+  become:                  true
+  roles:
+    - roles/third_party/kubernetes/prometheus-operator
+
