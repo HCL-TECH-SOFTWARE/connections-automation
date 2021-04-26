@@ -18,6 +18,7 @@
   with_items:
    - "db2set DB2_MINIMIZE_LISTPREFETCH=YES"
    - "db2set DB2_SELECTIVITY=YES"
+   - "db2 update dbm cfg using MON_HEAP_SZ {{ __db2_instance_heap_size }}"
    - "db2stop force"
    - "db2start"
   when:
