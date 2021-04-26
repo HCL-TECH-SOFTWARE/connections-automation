@@ -7,7 +7,7 @@ After=network-online.target
 Type=simple
 User={{ __prometheus_exporters_common_user }}
 Group={{ __prometheus_exporters_common_group }}
-ExecStart={{ __prometheus_exporters_common_root_dir }}/node_exporter_current/node_exporter
+ExecStart={{ __prometheus_exporters_common_root_dir }}/node_exporter_current/node_exporter --web.listen-address=:{{ __node_exporter_port }}
 
 SyslogIdentifier=prometheus_node_exporter
 Restart=always
