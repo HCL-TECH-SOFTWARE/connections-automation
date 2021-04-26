@@ -1,4 +1,4 @@
-apiVersion: kubeadm.k8s.io/v1alpha3
+apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
@@ -6,7 +6,7 @@ apiServer:
   extraArgs:
     enable-admission-plugins: PodSecurityPolicy
 {% endif %}
-{% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
+{% if single_node_installation is not defined %}
   certSANS:
     - "{{ __load_balancer_dns }}"
 controlPlaneEndpoint: "{{ __load_balancer_dns }}:6443"
@@ -39,7 +39,7 @@ networking:
     podSubnet: "{{ __pod_subnet }}"
 {% if inventory_hostname != hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
 ---
-apiVersion: kubeadm.k8s.io/v1alpha3
+apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
@@ -47,7 +47,7 @@ apiServer:
   extraArgs:
     enable-admission-plugins: PodSecurityPolicy
 {% endif %}
-{% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
+{% if single_node_installation is not defined %}
   certSANS:
     - "{{ __load_balancer_dns }}"
 controlPlaneEndpoint: "{{ __load_balancer_dns }}:6443"
