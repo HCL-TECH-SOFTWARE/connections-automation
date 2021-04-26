@@ -1,0 +1,98 @@
+- name:                     "Verifiy if TDI is already installed"
+  stat:
+    path:                   "{{ __tdi_installed_success_file }}"
+  register:                 tdi_already_installed
+
+- name:                     Checking existing dir for jre 
+  stat:                     path="{{ __tdi_user_install_dir }}/jvm/jre"
+  register:                 jre_stat
+  when:
+    - tdi_already_installed.stat.exists
+
+- name:                     Checking existing version for jre
+  shell:                    "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
+  register:                 jre_version_stat
+  when:
+    - tdi_already_installed.stat.exists
+    - jre_stat.stat.exists
+
+- debug:
+    msg: "{{ jre_version_stat.stdout }}"
+
+- name:                     Create temp download folder
+  file:
+    path:                   "{{ __tmp_extraction_folder }}"
+    state:                  directory
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - "'1.7' in jre_version_stat.stdout"
+
+- name:                     Download and unzip installation {{ __jre_package_name }} to the {{ __tmp_extraction_folder }}
+  unarchive:
+    src:                    "{{ __download_location }}/{{ __jre_package_name }}"
+    dest:                   "{{ __tmp_extraction_folder }}"
+    remote_src:             yes
+    mode:                   0755
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - "'1.7' in jre_version_stat.stdout"
+
+- name:                     Backing up old jre dir
+  command:                  mv "{{ __tdi_user_install_dir }}/jvm/jre" "{{ __tdi_user_install_dir }}/jvm/jre_{{ansible_date_time.iso8601}}"
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - "'1.7' in jre_version_stat.stdout"
+
+- name:                     Copy new jre dir to jvm dir
+  copy:
+    src:                    "{{ __tmp_extraction_folder }}/{{ __jre_package_version }}/jre"
+    dest:                   "{{ __tdi_user_install_dir }}/jvm"
+    remote_src:             yes
+    mode:                   0755
+  become:                   true
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - "'1.7' in jre_version_stat.stdout"
+
+- name:                     Checking updated version for jre
+  shell:                    "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
+  register:                 updated_jre_version_stat
+  when:
+    - tdi_already_installed.stat.exists
+    - jre_stat.stat.exists
+
+- debug:
+    msg: "{{ updated_jre_version_stat.stdout }}"
+
+- name:                     Grant all permissions to all files in the SDI install dir
+  become:                   true
+  blockinfile:
+    path:                   "{{ __java_policy_file_path }}"
+    marker:                 "// {mark} Grant all permissions to all files in the SDI install dir"
+    insertafter:            "// Standard extensions get all permissions by default"
+    block:                  |
+                            grant codeBase "file:"{{ __tdi_user_install_dir }}"/-" {
+                                    permission java.security.AllPermission;
+                            };
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - "'1.8' in updated_jre_version_stat.stdout"
+
+- name:                     Grant permission to derby port to listen
+  become:                   true
+  blockinfile:
+    path:                   "{{ __java_policy_file_path }}"
+    marker:                 "        // {mark} Grant permission to derby port to listen"
+    insertafter:            "grant {"
+    block:                  |1
+             // Allows anyone to listen on un-privileged ports
+             permission java.net.SocketPermission "localhost:{{ __tdi_cs_port }}-", "listen";
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - "'1.8' in updated_jre_version_stat.stdout"

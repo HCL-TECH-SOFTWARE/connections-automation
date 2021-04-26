@@ -1,21 +1,20 @@
-- name:                   "Verify if tdisol is already installed"
-  stat:
-    path:                "{{ __tdi_sol_success_file }}"
-  register:              tdisol_already_installed
+- name:                  "Going to update tdisol: {{ __cnx_updates_enabled }}"
+  debug:
+    var:                 "{{ __cnx_updates_enabled }}"
 
 - name:                  Clean up installation folder(s)
   file:
     path:                "{{ __cnx_extraction_folder }}"
     state:               absent
   when:
-    - not tdisol_already_installed.stat.exists
+    - __cnx_updates_enabled  |bool
 
 - name:                  Create installation folder
   file:
     path:                "{{ __cnx_extraction_folder }}"
     state:               directory
   when:
-    - not tdisol_already_installed.stat.exists
+    - __cnx_updates_enabled  |bool
 
 - name:                  Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
   unarchive:
@@ -23,17 +22,24 @@
     dest:                "{{ __cnx_extraction_folder }}"
     remote_src:          yes
   when:
-    - not tdisol_already_installed.stat.exists
+    - __cnx_updates_enabled  |bool
   register: download_and_unpack_tdisol_cnx
   until: download_and_unpack_tdisol_cnx is succeeded
   retries: 3
+
+- name:                  Clean up tdisol installation folder(s)
+  file:
+    path:                "{{ __tdi_sol_dest }}"
+    state:               absent
+  when:
+    - __cnx_updates_enabled  |bool
 
 - name:                  "Create {{ __tdi_sol_dest }} folder"
   file:
     path:                "{{ __tdi_sol_dest }}"
     state:               directory
   when:
-    - not tdisol_already_installed.stat.exists
+    - __cnx_updates_enabled  |bool
 
 - name:                  Set up tdisol
   unarchive:
@@ -41,7 +47,7 @@
     dest:                "{{ __tdi_sol_dest }}"
     remote_src:          yes
   when:
-    - not tdisol_already_installed.stat.exists
+    - __cnx_updates_enabled  |bool
   register: download_and_unpack_tdisol
   until: download_and_unpack_tdisol is succeeded
   retries: 3
@@ -113,8 +119,3 @@
   command:               "sh {{ __tdi_sol_dest }}/TDI/populate_from_dn_file.sh"
   register:              populatefromdnfile
   failed_when:           populatefromdnfile.rc != 0
-
-- name:                  "Create {{ __tdi_sol_success_file }} file"
-  file:
-    path:                "{{ __tdi_sol_success_file }}"
-    state:               touch
