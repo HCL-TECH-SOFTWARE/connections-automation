@@ -1,5 +1,5 @@
 cellID=AdminControl.getCell()
-AdminTask.retrieveSignerFromPort('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):'+cellID+' -host {{ ldap_server }} -port 636 -certificateAlias {{ ldap_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):'+cellID+' ]')
+AdminTask.retrieveSignerFromPort('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):'+cellID+' -host {{ __ldap_server }} -port 636 -certificateAlias {{ __ldap_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):'+cellID+' ]')
 
 #Save and Synchronise
 AdminConfig.save()

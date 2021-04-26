@@ -5,6 +5,7 @@
 - name:                      Configure OpenLDAP
   include_tasks:             configure_openldap.yml
 
+# Note: __ldap_setup_mt is for internal use only, don't set to true
 - name:                      Create Users
   include_tasks:             create_users.yml
   when:

@@ -1112,9 +1112,6 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
 RewriteCond %{REQUEST_URI} ^/$ [OR]
 RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
-
-#rewrite help urls to new scheme
-RedirectMatch 301 ^/help/(SSYGQH_KCCI)/(.*)\.(dita|html) /help/$2.html
 </IfModule>
 
 # Allow CORS related access control headers in requests for /oauth2
