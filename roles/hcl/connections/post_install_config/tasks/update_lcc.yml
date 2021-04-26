@@ -9,6 +9,8 @@
     - { xpath: "{{ __lcc_dynamic_host_xpath }}", attribute: "enabled", value: "true" }
     - { xpath: "{{ __lcc_dynamic_host_href_xpath }}", attribute: "href", value: "{{ __lcc_dynamic_host_href }}" }
     - { xpath: "{{ __lcc_dynamic_host_href_xpath }}", attribute: "ssl_href", value: "{{ __lcc_dynamic_host_ssl_href }}" }
+  when:              cnx_setup_mt is not defined or not cnx_setup_mt|bool
+# Note: cnx_setup_mt is for internal use only, don't set to true
 
 - name:              Enable forceConfidentalCommunication
   xml:

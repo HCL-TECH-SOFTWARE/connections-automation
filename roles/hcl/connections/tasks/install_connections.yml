@@ -26,6 +26,36 @@
   with_items:        "{{ __ccm_db_info }}"
   when:              ( ccm_install is defined )
 
+- name:              Generate node list
+  set_fact:
+    __cnx_node_list: "{{ groups['cnx_was_servers'] | list }}"
+
+- debug: var=__cnx_node_list
+  run_once: true
+
+- name:              Set deployment type to small
+  set_fact:
+    __installer_deployment_type: "{{ __cnx_deploy_small }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:              Set deployment type to medium
+  set_fact:
+    __installer_deployment_type: "{{ __cnx_deploy_medium }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:              Set deployment type to large
+  set_fact:
+    __installer_deployment_type: "{{ __cnx_deploy_large }}"
+  when:
+    - __cnx_deploy_type == "large"
+
+- debug: var=__installer_deployment_type
+  run_once: true
+
+
+
 - name:              Generate Response file {{ __rsp_file }} from {{ __tpl_file }}
   template:
     src:             "{{ __tpl_file }}"

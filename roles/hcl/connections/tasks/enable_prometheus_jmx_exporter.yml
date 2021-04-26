@@ -5,6 +5,24 @@
   delegate_to:              "{{ item }}"
   with_items:               "{{ groups['was_servers'] }}"
 
+- name:                     Set JMX clusters for small topology
+  set_fact:
+   __jmx_clusters:          "{{ __jmx_small_deployment }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:                     Set JMX clusters for medium topology
+  set_fact:
+   __jmx_clusters:          "{{ __jmx_medium_deployment }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:                     Set JMX clusters for large topology
+  set_fact:
+   __jmx_clusters:          "{{ __jmx_large_deployment }}"
+  when:
+    - __cnx_deploy_type == "large"
+
 - name:                     "Render {{ __cnx_prom_jmx_destination }}"
   template:
     src:                    "{{ __cnx_prom_jmx_template }}"

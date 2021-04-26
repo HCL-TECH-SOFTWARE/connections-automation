@@ -3,7 +3,7 @@
     path:                    "{{ __contentreview_full_path }}"
     xpath:                   "{{ item }}"
     attribute:               "enabled"
-    value:                   "{{ __cnx_enable_moderation }}"
+    value:                   "{{ __cnx_enable_moderation |lower }}"
   with_items:
     - "/config/commModerationConfiguration/preModeration/enabledByCreation"
     - "/config/serviceConfiguration/service[@id=\"blogs\"]/contentApproval"
