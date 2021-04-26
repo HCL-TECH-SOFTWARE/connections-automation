@@ -28,3 +28,10 @@
   when:
     - __setup_oracle_jdbc |bool
     - inventory_hostname in groups["was_servers"]
+
+- name:                            Setup Oracle DB Exporter
+  include_tasks:                   install_promethus_oracle_exporter.yml
+  when:
+    - "'oracle_servers' in group_names"
+    - __setup_oracle_jdbc |bool
+    - inventory_hostname in groups["oracle_servers"]
