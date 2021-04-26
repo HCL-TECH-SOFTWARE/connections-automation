@@ -6,6 +6,8 @@
   roles:
     - { role: roles/third_party/nfs-install,
         when: "docs_shared_storage_type == 'nfs' or viewer_shared_storage_type == 'nfs' or cnx_shared_storage_type == 'nfs'" }
+  vars:
+    is_docs_install:       true
 
 - name:                    Setup environment
   hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, db2_servers, dmgr, ihs_servers

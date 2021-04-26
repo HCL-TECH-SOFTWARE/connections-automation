@@ -1,4 +1,4 @@
-# Install Connections MT
+# Install Connections MT - INTERNAL USE ONLY
 ---
 - name:                    Gather facts
   hosts:                   dmgr
