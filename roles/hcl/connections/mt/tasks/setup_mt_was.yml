@@ -31,13 +31,11 @@
 - name:                Run MT Update (WAS), log file {{ __tmp_dir }}/mt/install/mtupdate_was.log
   shell: |
      set timeout 300
-     ./connections-mt-appserver-update-cli.sh config.properties 2>&1 | tee mtupdate_was.log
+     ./connections-mt-appserver-update-cli.sh -f config.properties 2>&1 | tee mtupdate_was.log
      echo ${PIPESTATUS[0]} > mtupdate_was.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
-  when:
-      - not mt_was_already_installed.stat.exists
   register:            mt_update_was_performed
 
 - name:                Check install return code

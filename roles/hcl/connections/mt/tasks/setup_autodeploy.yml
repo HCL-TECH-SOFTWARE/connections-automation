@@ -31,33 +31,13 @@
     path:              "{{ __tmp_dir }}/mt/install/autodeploy_install.rc"
     state:             absent
 
-- name:                Add WAS admin to soap.client.props
-  replace:
-    path:              "{{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props"
-    regexp:            "^(?!#){{ item.prop_name }}=(.*)$"
-    replace:           "{{ item.prop_name }}={{ item.prop_value }}"
-    backup:            "{{ item.backup }}"
-  with_items:
-    - { prop_name: "com.ibm.SOAP.loginUserid", prop_value: "{{ __ic_admin_username }}", backup: yes }
-    - { prop_name: "com.ibm.SOAP.loginPassword", prop_value: "{{ __ic_admin_password }}", backup: no }
-  when:                not autodeploy_already_installed.stat.exists
-
-- name:                Encrypt the password in soap.client.props
-  shell:               ./PropFilePasswordEncoder.sh {{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props com.ibm.SOAP.loginPassword
-  args:
-      chdir:           "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
-  when:
-      - not autodeploy_already_installed.stat.exists
-
 - name:                Install AutoDeploy, log file {{ __tmp_dir }}/mt/install/autodeploy_install.log
   shell: |
      set timeout 3m
-     ./autodeploy-install-cli.sh config.properties 2>&1 | tee autodeploy_install.log
+     ./autodeploy-install-cli.sh -s -f config.properties 2>&1 | tee autodeploy_install.log
      echo ${PIPESTATUS[0]} > autodeploy_install.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
-  when:
-      - not autodeploy_already_installed.stat.exists
   register:            autodeploy_install_performed
 
 - name:                Check install return code

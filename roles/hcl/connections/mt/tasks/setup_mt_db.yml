@@ -31,13 +31,11 @@
 - name:                Run MT Update (DB), log file {{ __tmp_dir }}/mt/install/mtupdate_db.log
   shell: |
      set timeout 300
-     ./connections-mt-db-update-cli.sh config.properties 2>&1 | tee mtupdate_db.log
+     ./connections-mt-db-update-cli.sh -f config.properties 2>&1 | tee mtupdate_db.log
      echo ${PIPESTATUS[0]} > mtupdate_db.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
-  when:
-      - not mt_db_already_installed.stat.exists
   register:            mt_update_db_performed
 
 - name:                Check install return code

@@ -31,13 +31,11 @@
 - name:                Run MT Update (IHS), log file {{ __tmp_dir }}/mt/install/mtupdate_ihs.log
   shell: |
      set timeout 300
-     ./connections-mt-webserver-update-cli.sh config.properties 2>&1 | tee mtupdate_ihs.log
+     ./connections-mt-webserver-update-cli.sh -f config.properties 2>&1 | tee mtupdate_ihs.log
      echo ${PIPESTATUS[0]} > mtupdate_ihs.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
-  when:
-      - not mt_ihs_already_installed.stat.exists
   register:            mt_update_ihs_performed
 
 - name:                Check install return code
