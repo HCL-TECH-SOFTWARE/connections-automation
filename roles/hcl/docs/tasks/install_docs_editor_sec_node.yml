@@ -24,6 +24,10 @@
     remote_src:       yes
   when:               not editor_current_already_installed.stat.exists
 
+- name:               Get database type
+  include_tasks:      get_db_type.yml
+  when:               not editor_current_already_installed.stat.exists
+
 - name:               Edit cfg.node.properties
   lineinfile:
     path:            "{{ __editor_cfg_prop_location }}/cfg.node.properties"
@@ -45,6 +49,7 @@
     - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
     - { prop_name: "{{ __conversion_url }}", prop_value: "{{ __conversion_url_r }}" }
     - { prop_name: "{{ __files_url }}", prop_value: "{{ __files_url_r }}" }
+    - { prop_name: "{{ __email_url }}", prop_value: "{{ __email_url_r }}" }
   when:              not editor_current_already_installed.stat.exists
 
 - name:              Run the Docs Editor installer for the second node

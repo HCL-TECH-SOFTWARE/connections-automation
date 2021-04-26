@@ -3,8 +3,8 @@
     path:             "{{ __viewer_install_success_file }}"
   register:           viewer_already_installed
 
-- name:               Get CNX shared data mount target for {{ nfsMasterAddress }}:{{ __cnx_data_remote_path }}
-  shell:              "findmnt --source {{ nfsMasterAddress }}:{{ __cnx_data_remote_path }} -o target -n | head -n 1"
+- name:               Get CNX shared data mount target for {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }}
+  shell:              "findmnt --source {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }} -o target -n | head -n 1"
   register:           cnx_data_mount_target
   failed_when:        cnx_data_mount_target.stdout|length == 0
   when:

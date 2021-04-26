@@ -1,0 +1,24 @@
+---
+- name:                          Set cluster names for small topology
+  set_fact:
+    __cnx_files_cluster:         "{{ cnx_files_cluster if (cnx_files_cluster is defined) else 'Apps' }}"
+    __cnx_news_cluster:          "{{ cnx_news_cluster if (cnx_files_cluster is defined) else 'Apps' }}"
+    __cnx_common_cluster:        "{{ cnx_common_cluster if (cnx_files_cluster is defined) else 'Apps' }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:                          Set cluster names for medium topology
+  set_fact:
+    __cnx_files_cluster:         "{{ cnx_files_cluster if (cnx_files_cluster is defined) else 'Apps' }}"
+    __cnx_news_cluster:          "{{ cnx_news_cluster if (cnx_files_cluster is defined) else 'Infra' }}"
+    __cnx_common_cluster:        "{{ cnx_common_cluster if (cnx_files_cluster is defined) else 'Infra' }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:                          Set cluster names for large topology
+  set_fact:
+    __cnx_files_cluster:         "{{ cnx_files_cluster if (cnx_files_cluster is defined) else 'Files' }}"
+    __cnx_news_cluster:          "{{ cnx_news_cluster if (cnx_files_cluster is defined) else 'News' }}"
+    __cnx_common_cluster:        "{{ cnx_common_cluster if (cnx_files_cluster is defined) else 'Common' }}"
+  when:
+    - __cnx_deploy_type == "large"

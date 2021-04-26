@@ -57,7 +57,7 @@
     apply:
       delegate_to:         "{{ dmgr_hostname }}"
       become:              true
-  when:                    sso_domainname is defined and inventory_hostname in groups["dmgr"]
+  when:                    inventory_hostname in groups["dmgr"]
 
 - name:                    Map Docs applications to web modules (workaround)
   include_role:
@@ -73,7 +73,7 @@
   when:                    inventory_hostname in groups["ihs_servers"]
 
 
-##- name:                    Cleanup Install Binaries directory
-##  file:
-##    state:                 absent
-##    path:                  "{{ __extraction_folder }}"
+- name:                    Cleanup Install Binaries directory
+  file:
+    state:                 absent
+    path:                  "{{ __extraction_folder }}"
