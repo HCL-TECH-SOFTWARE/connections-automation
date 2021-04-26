@@ -2,7 +2,7 @@
   template:
     src:              "{{ __kubeadm_config_template }}"
     dest:             "{{ __kubeadm_config_location }}"
-#  when:               inventory_hostname == groups['k8s_masters'][0]
+  when:               inventory_hostname == groups['k8s_masters'][0]
 
 - name:               Wait for the cluster to become healthy due to the latest restart
   pause:
@@ -11,12 +11,12 @@
 - name:               "Upgrade Kubernetes control plane - {{ inventory_hostname }}"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config={{ __kubeadm_config_location }} -f"
-  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and single_node_installation is not defined
+  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               "Upgrade Kubernetes {{ inventory_hostname }} - self contained environment"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} -y"
-  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and single_node_installation is defined
+  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
 
 - name:               "Upgrade Kubernetes cluster secondary master and workers - {{ inventory_hostname }}"
   command:            "{{ item }}"

@@ -11,9 +11,9 @@
 - name:               Upgrade Kubernetes {{ inventory_hostname }}  master
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config=/tmp/kubeadm-config.yaml -f"
-  when:               inventory_hostname in groups["k8s_masters"] and single_node_installation is not defined
+  when:               inventory_hostname in groups["k8s_masters"] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               Upgrade Kubernetes {{ inventory_hostname }}  - single node installation
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} -f"
-  when:               inventory_hostname in groups["k8s_masters"] and single_node_installation is defined
+  when:               inventory_hostname in groups["k8s_masters"] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
