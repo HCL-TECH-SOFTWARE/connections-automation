@@ -246,6 +246,24 @@
   when:
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout)
 
+- name:                     Set JMX clusters for small topology
+  set_fact:
+   __jmx_clusters:          "{{ __jmx_small_deployment }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:                     Set JMX clusters for medium topology
+  set_fact:
+   __jmx_clusters:          "{{ __jmx_medium_deployment }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:                     Set JMX clusters for large topology
+  set_fact:
+   __jmx_clusters:          "{{ __jmx_large_deployment }}"
+  when:
+    - __cnx_deploy_type == "large"
+
 - name:                      "Render {{ __jmx_prometheus_service_destination }}"
   template:
     src:                     "{{ __jmx_prometheus_service_template }}"
@@ -283,5 +301,30 @@
 
 - name:                      Setup node exporter service, SMonitor and EP
   shell:                     "kubectl apply -f {{ __node_exporter_service_destination }} -f {{ __node_exporter_sermonitor_destination }} -f {{ __node_exporter_endpoint_destination }}"
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Setup oracle-db exporter service, SMonitor and EP
+  shell:                     "kubectl apply -f {{ __oracledb_exporter_service_destination }} -f {{ __oracledb_exporter_sermonitor_destination }} -f {{ __oracledb_exporter_endpoint_destination }}"
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      "Render {{ __oracledb_exporter_service_destination }}"
+  template:
+    src:                     "{{ __oracledb_exporter_service_template }}"
+    dest:                    "{{ __oracledb_exporter_service_destination }}"
+
+- name:                      "Render {{ __oracledb_exporter_sermonitor_destination }}"
+  template:
+    src:                     "{{ __oracledb_exporter_sermonitor_template }}"
+    dest:                    "{{ __oracledb_exporter_sermonitor_destination }}"
+
+- name:                      "Render {{ __oracledb_exporter_endpoint_destination }}"
+  template:
+    src:                     "{{ __oracledb_exporter_endpoint_template }}"
+    dest:                    "{{ __oracledb_exporter_endpoint_destination }}"
+
+- name:                      Setup oracledb exporter service, SMonitor and EP
+  shell:                     "kubectl apply -f {{ __oracledb_exporter_service_destination }} -f {{ __oracledb_exporter_sermonitor_destination }} -f {{ __oracledb_exporter_endpoint_destination }}"
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true

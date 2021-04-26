@@ -18,7 +18,7 @@ __jmx_prometheus_service_destination:        "{{ __ansible_cache }}/connection-s
 __jmx_prometheus_sermonitor_destination:     "{{ __ansible_cache }}/connection-servicemonitor.yml"
 __jmx_prometheus_endpoint_destination:       "{{ __ansible_cache }}/connection-endpoint.yml"
 
-__node_exporter_port:                        "{{ node_exporter_port | default('9100') }}"
+__node_exporter_port:                        "{{ node_exporter_port | default('9108') }}"
 __node_exporter_service_template:            "node-exporter-service.yml.j2"
 __node_exporter_sermonitor_template:         "node-exporter-servicemonitor.yml.j2"
 __node_exporter_endpoint_template:           "node-exporter-endpoint.yml.j2"
@@ -33,3 +33,43 @@ __jvm_config_file:                           "{{ __was_install_location }}/profi
 __helm2_prometheus_chart:                    "{{ 'kube-prometheus-stack-12.0.4_helm2.tgz' }}"
 __helm2_packages_dir:                        "{{ 'helm2_packages' }}"
 __helm2_prometheus_url:                      "{{ __download_location.split('/')[0] }}/{{ __helm2_packages_dir }}/{{ __helm2_prometheus_chart }}"
+
+__cnx_deploy_type:                           "{{ cnx_deploy_type | default('small') }}"
+
+__oracledb_exporter_port:                    "{{ oracledb_exporter_port | default('9161') }}"
+__oracledb_exporter_service_template:        "oracledb-exporter-service.yml.j2"
+__oracledb_exporter_sermonitor_template:     "oracledb-exporter-servicemonitor.yml.j2"
+__oracledb_exporter_endpoint_template:       "oracledb-exporter-endpoint.yml.j2"
+__oracledb_exporter_service_destination:     "{{ __ansible_cache }}/oracledb-exporter-service.yml"
+__oracledb_exporter_sermonitor_destination:  "{{ __ansible_cache }}/oracledb-exporter-servicemonitor.yml"
+__oracledb_exporter_endpoint_destination:    "{{ __ansible_cache }}/oracledb-exporter-endpoint.yml"
+
+__jmx_small_deployment:
+  - { name: 'Apps', port: '8070'}
+
+__jmx_medium_deployment:
+  - { name: 'Apps', port: '8070'}
+  - { name: 'Infra', port: '8071'}
+  - { name: 'Util', port: '8072'}
+  - { name: 'Push', port: '8073'}
+
+__jmx_large_deployment:
+  - { name: 'Common', port: '8060'}
+  - { name: 'Communities', port: '8061'}
+  - { name: 'News', port: '8062'}
+  - { name: 'Widgets', port: '8063'}
+  - { name: 'Profiles', port: '8064'}
+  - { name: 'Search', port: '8065'}
+  - { name: 'Homepage', port: '8066'}
+  - { name: 'Moderation', port: '8066'}
+  - { name: 'RTE', port: '8068'}
+  - { name: 'Activities', port: '8069'}
+  - { name: 'Blogs', port: '8070'}
+  - { name: 'Dogear', port: '8071'}
+  - { name: 'Files', port: '8072'}
+  - { name: 'Forums', port: '8073'}
+  - { name: 'Metrics', port: '8084'}
+  - { name: 'Mobile', port: '8075'}
+  - { name: 'Wikis', port: '8076'}
+  - { name: 'IC360', port: '8077'}
+  - { name: 'Push', port: '8078'}

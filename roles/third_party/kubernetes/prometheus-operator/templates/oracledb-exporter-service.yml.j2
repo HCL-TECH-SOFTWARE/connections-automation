@@ -1,0 +1,24 @@
+{% for server in ['db_servers'] %}
+{% for host in groups[server] %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+     prometheus.io/scrape: "true"
+  namespace: monitoring
+  name: oracledb-exporter-{{ host.split(".")[0] }}
+  namespace: monitoring
+  labels:
+    app: oracledb-exporter-{{ host.split(".")[0] }}
+    release: prometheus-operator
+spec:
+  externalName: {{ host }}
+  ports:
+  - name: metrics
+    port: {{ __oracledb_exporter_port }}
+    protocol: TCP
+    targetPort: {{ __oracledb_exporter_port }}
+  type: ExternalName
+{% endfor %}
+{% endfor %}

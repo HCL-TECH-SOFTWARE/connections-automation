@@ -1,7 +1,7 @@
 - name:                 "[Single Node] Allow pods to run on master"
   command:              kubectl taint nodes --all node-role.kubernetes.io/master- --overwrite
   when:
-    - single_node_installation is defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
     - inventory_hostname == groups['k8s_masters'][0]
   become:               false
   ignore_errors:        true
@@ -9,5 +9,5 @@
 - name:                 "[Single Node] Label worker nodes as infrastructure for single node environment"
   command:              "kubectl label nodes {{ inventory_hostname }} type=infrastructure --overwrite"
   when:
-    - single_node_installation is defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
   become:               false

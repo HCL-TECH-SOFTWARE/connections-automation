@@ -1,5 +1,5 @@
-{% for server in groups['was_servers'] %}
-{% for app in __jmx_clusters %}
+{% for server in ['db_servers'] %}
+{% for host in groups[server] %}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -7,14 +7,14 @@ metadata:
   annotations:
      prometheus.io/scrape: "true"
   namespace: monitoring
-  name: connections-jmx-{{ server.split(".")[0] }}-{{ app.name | lower }}
+  name: oracledb-exporter-{{ host.split(".")[0] }}
   labels:
-    app: connections-jmx-{{ server.split(".")[0] }}-{{ app.name | lower }}
+    app: oracledb-exporter-{{ host.split(".")[0] }}
     release: prometheus-operator
 spec:
   selector:
     matchLabels:
-      app: connections-jmx-{{ server.split(".")[0] }}-{{ app.name | lower }}
+      app: oracledb-exporter-{{ host.split(".")[0] }}
       release: prometheus-operator
   namespaceSelector:
       matchNames:
