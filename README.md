@@ -217,7 +217,7 @@ This scenario is useful in multiple cases:
 * If you want to spin up a production ready environment that you know will work, see it work, and then start replacing component by component (like switching/adding LDAP servers, switching databases, etc).
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/setup-connections-complete.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup-connections-complete.yml
 ```
 
 Running this playbook will:
@@ -241,7 +241,7 @@ setup_db2_jdbc=True
 To install IBM DB2 only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/third_party/setup-db2.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-db2.yml
 ```
 
 This will install IBM DB2 on a Linux server, tune the server and IBM DB2 as per Performance tunning guide for HCL Connections, and apply the licence.
@@ -260,7 +260,7 @@ setup_oracle_jdbc=True
 To install Oracle 19c only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections_with_oracle playbooks/third_party/setup-oracle.yml
+ansible-playbook -i environments/examples/cnx7/oracle/inventory.ini playbooks/third_party/setup-oracle.yml
 ```
 
 Running this playbook will set up the prerequisites for Oracle 19c (like setting up big enough swap on the node dedicated for Oracle database) but it will also set up the JDBC for HCL Connections and HCL Connections Docs.
@@ -272,7 +272,7 @@ JDBC drivers for Oracle will be only installed if you have setup_oracle_jdbc set
 This requires the database already being set. To create the databases and apply the grants, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/hcl/setup-connections-wizards.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-wizards.yml
 ```
 
 If databases already exist, this script will execute runstats and rerogs on all the databases by default on each consecutive run.
@@ -296,7 +296,7 @@ in your inventory file. This will then drop all the databases and recreate them 
 To install OpenLDAP with SSL enabled and generate fake users, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/third_party/setup-ldap.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-ldap.yml
 ```
 
 You can turn on or off creating any of fake users by manipulating:
@@ -328,7 +328,7 @@ This comes in handy if you don't have any other LDAP server ready and you want t
 To install IBM TDI, set up tdisol folder as per documentation, and migrate the users from LDAP to IBM DB2, run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/third_party/setup-tdi.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-tdi.yml
 ```
 
 ### Installing and configuring IBM WebSphere Application Server only
@@ -351,9 +351,6 @@ LDAP should also have SSL enabled as IBM WebSphere Application Server is going t
 Be sure that you also have proper values here:
 ```
 dmgr_hostname=dmgr1.internal.example.com
-was_domainname=.internal.example.com
-domain_name=.internal.example.com
-cnx_domainname=.internal.example.com
 smtp_hostname=localhost
 ```
 
@@ -380,7 +377,7 @@ setup_oracle_jdbc=True
 To install IBM WebSphere Application Server, IBM HTTP Server and configure it, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/third_party/setup-webspherend.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-webspherend.yml
 ```
 
 ### Preparing NFS for HCL Connections
@@ -390,7 +387,7 @@ By default, HCL Connections would use NFS for message stores and shared data. In
 If you are going to use NFS with HCL Connections, then set it up first before you proceed with HCL Connections installation with:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/third_party/setup-nfs.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nfs.yml
 ```
 
 ### Installing HCL Connections
@@ -404,7 +401,7 @@ skip_nfs_mount_for_connections=true
 To install the WebSphere-side of HCL Connections only, on an already prepared environment (all previous steps are already done and the environment is ready for HCL Connections to be installed) execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/hcl/setup-connections-only.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-only.yml
 ```
 
 Note that installation will not start (and will inform you about that) if mandatory variables are missing.
@@ -441,7 +438,7 @@ ifix_file=LO100079-IC7.0.0.0-Common-Fix.jar
 After it, run the iFix installation:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/hcl/setup-connections-ifix.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-ifix.yml
 ```
 
 ### Running post installation tasks
@@ -449,7 +446,7 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 Once your Connections installation is done, run this playbook to set up some post installation bits and pieces needed for Connections 7 on WebSphere:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/connections playbooks/hcl/connections-post-install.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/connections-post-install.yml
 ```
 
 ## Setting up Component Pack for HCL Connections 7 with its dependencies
@@ -459,7 +456,7 @@ To set up Component Pack, you should have the WebSphere-side of Connections alre
 To set up Component Pack, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/setup-component-pack-complete.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup-component-pack-complete.yml
 ```
 
 This playbook will:
@@ -489,7 +486,7 @@ Nginx is used only as an example of a reverse proxy for the WebSphere-side of Co
 To install Nginx only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/setup-nginx.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nginx.yml
 ```
 
 ### Setting up Haproxy
@@ -505,7 +502,7 @@ main_ssl_port='444'
 To install Haproxy only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/setup-haproxy.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-haproxy.yml
 ```
 
 ### Setting up NFS
@@ -513,7 +510,7 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 If you are setting up your own NFS, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/setup-nfs.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nfs.yml
 ```
 
 This will set up the NFS master, create and export needed folders for Component Pack components, and set up the clients so they can connect to it.
@@ -532,7 +529,7 @@ This will install docker-ce and configure Docker Registry with SSL enabled, and 
 To set it up, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/setup-docker-registry.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-docker-registry.yml
 ```
 
 ### Setting up Kubernetes
@@ -544,7 +541,7 @@ This set of automation will install by default 1.18.10 and should be always able
 To install Kubernetes, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/kubernetes/setup-kubernetes.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubernetes.yml
 ```
 
 #### Setting up kubectl for your user
@@ -552,7 +549,7 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 If the cluster is already created, and you only want to set up kubectl for your own user, just run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/kubernetes/setup-kubectl.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubectl.yml
 ```
 
 ## Troubleshooting
@@ -591,7 +588,7 @@ For HCL Connections Docs itself it means:
 * HCL Connections has been installed using the Ansible script describe above.
 * If HCL Connections was installed with `nfs_docs_setup=false` in the inventory file, set it to `nfs_docs_setup=true` then run the `setup-nfs.yml` playbook again to setup HCL Docs and Viewer data NFS shares:
 ```
-ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack/db2/component_pack playbooks/third_party/setup-nfs.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nfs.yml
 ```
 
 ### Have files ready for download
@@ -599,9 +596,9 @@ ansible-playbook -i environments/examples/cnx7/connections_7_with_component_pack
 
 ### Installing HCL Connections Docs
 
-To install HCL Connections Docs, adjust the inventory file in `environments/examples/connections_docs`, execute:
+To install HCL Connections Docs, after adjusting your inventory files, execute:
 ```
-ansible-playbook -i environments/examples/connections_docs playbooks/hcl/setup-connections-docs.yml
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-docs.yml
 ```
 
 ### HCL Connections Docs Troubleshooting
