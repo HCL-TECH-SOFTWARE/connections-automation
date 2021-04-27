@@ -2,7 +2,7 @@
 __kubectl_user:                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
 
 __containerdio_version:         "{{ containerdio_version | default('1.2.12-3.1.el7') }}"
-__docker_version:               "{{ docker_version | default('19.03.13-3.el7') }}"
+__docker_version:               "{{ docker_version | default('19.03.15-3.el7') }}"
 
 __docker_daemon_json_template:  "docker.daemon.overlay.json.j2"
 __docker_daemon_json_location:  "/etc/docker/daemon.json"
