@@ -34,9 +34,9 @@ For Component Pack for HCL Connections 7 it means:
 * Nginx will be set up and configured to support Customizer.
 * Haproxy will be set up configured to be the control plane for Kubernetes cluster and Component Pack.
 * NFS will be set up for Component Pack.
-* docker-ce 19.08.13 will be set up and configured for overlay2 and systemd support with the optimisations required by the version of Kubernetes.
+* docker-ce 19.08.15 will be set up and configured for overlay2 and systemd support with the optimisations required by the version of Kubernetes.
 * Docker Registry will be set up on all future Kubernetes nodes, including enabling and handling TLS.
-* Kubernetes 1.18.10 will be set up.
+* Kubernetes 1.18.18 will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
 * Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using ElasticSearch 7.
 
@@ -177,7 +177,11 @@ Of course, you can drop it all to a single folder, or restructure it whatever wa
 
 ### Inventory files
 
-Inventory files live in environments folder. In general all the variables are separated in two files - connections and component_pack. It could be merged of course, as lot of stuff is overlapping, but be careful if merging not to overlap stuff that eventually shouldn't be (like if you are using different NFSs for the WebSphere-side of Connections and Component Pack).
+Inventory files live in environments folder. To keep things simple, there are two files (you can break it to more if you want, it's up to you):
+* inventory.ini which has all FQDNs of the hosts in different groups
+* group_vars/all.yml with the variables you can customize.
+
+We strongly recommend using the current model for handling variables. However, if you still want to stick with the old model, the only thing you need to add is cnx_was_servers group to your old connections inventory file. Otherwise, it is backwards compatible. 
 
 ### SSH User
 
@@ -234,8 +238,7 @@ You can, of course, run those steps separately.
 To install JDBC drivers for DB2 on WAS nodes for example, please set:
 
 ```
-[was_servers:vars]
-setup_db2_jdbc=True
+setup_db2_jdbc: True
 ```
 
 To install IBM DB2 only, execute:
@@ -253,8 +256,7 @@ In case IBM DB2 was already installed nothing will happen, the scripts will just
 To install JDBC drivers for Oracle on WAS nodes for example, please set:
 
 ```
-[was_servers:vars]
-setup_oracle_jdbc=True
+setup_oracle_jdbc: True
 ```
 
 To install Oracle 19c only, execute:
@@ -280,13 +282,13 @@ If databases already exist, this script will execute runstats and rerogs on all 
 If you want to recreate the databases, uncomment:
 
 ```
-#cnx_force_repopulation=True
+#cnx_force_repopulation: True
 ```
 
 If you are upgrading from Connections 6.5.0.1 to 7 and want to only create IC360 database and run needed migrations, uncomment:
 
 ```
-#db_enable_upgrades=True
+#db_enable_upgrades: True
 ```
 
 in your inventory file. This will then drop all the databases and recreate them again. Don't forget to run TDI afterwards. Be sure to comment it again once you do it.
@@ -302,23 +304,23 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 You can turn on or off creating any of fake users by manipulating:
 
 ```
-setup_fake_ldap_users=True
+setup_fake_ldap_users: True
 ```
 
 If you are creating them, you can manipulate the details using next set of variables:
 
 ```
-ldap_nr_of_users=2500
-ldap_userid="fakeuser"
-ldap_user_password="password"
-ldap_user_admin_password="password"
+ldap_nr_of_users: 2500
+ldap_userid: "fakeuser"
+ldap_user_password: "password"
+ldap_user_admin_password: "password"
 ```
 
 This will create 2500 fake accounts, starting with user id 'fakeuser1' and going to 'fakeuser2499'. First of them in this case (fakeuser1) will get 'ldap_user_admin_password' set, and all others are going to get 'ldap_user_password'. On top of that, it you will get automatically 10 more users created being set as external. Be sure to set in this case one of those users as HCL Connections admin user before the Connections installation like here:
 
 ```
-connections_admin=fakeuser1
-ldap_user_mail_domain="connections.example.com"
+connections_admin: fakeuser1
+ldap_user_mail_domain: "connections.example.com"
 ```
 
 This comes in handy if you don't have any other LDAP server ready and you want to quickly get to the point where you can test HCL Connections. You can later replace this LDAP with any other one.
@@ -337,28 +339,16 @@ To install IBM WebSphere Application Server, you should alraedy have either LDAP
 
 ```
 # This is just an example!
-ldap_server=ldap1.internal.example.com
-ldap_alias=ldap1
-ldap_repo=LDAP_PRODUCTION1
-ldap_bind_user=cn=Admin,dc=cxn,dc=example,dc=com
-ldap_bind_pass=password
-ldap_realm=dc=cxn,dc=example,dc=com
-ldap_login_properties=uid;mail
+ldap_server: ldap1.internal.example.com
+ldap_alias: ldap1
+ldap_repo: LDAP_PRODUCTION1
+ldap_bind_user: cn=Admin,dc=cxn,dc=example,dc=com
+ldap_bind_pass: password
+ldap_realm: dc=cxn,dc=example,dc=com
+ldap_login_properties: uid;mail
 ```
 
 LDAP should also have SSL enabled as IBM WebSphere Application Server is going to try to import its TLS certificate and fail if there is none.
-
-Be sure that you also have proper values here:
-```
-dmgr_hostname=dmgr1.internal.example.com
-smtp_hostname=localhost
-```
-
-If you have more then one domain (for example, you dynamicHost is connections.example.com but all your servers live in DMZ on *.internal.example.com) be sure to also set:
-
-```
-sso_domainname=.internal.example.com;.example.com
-```
 
 And in the end, you need to create WebSphere user account by setting this:
 
@@ -367,11 +357,10 @@ was_username=wasadmin
 was_password=password
 ```
 
-
 To install JDBC drivers for Oracle, please set:
 
 ```
-setup_oracle_jdbc=True
+setup_oracle_jdbc: True
 ```
 
 To install IBM WebSphere Application Server, IBM HTTP Server and configure it, execute:
@@ -395,7 +384,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 By default, use of NFS is enabled, which means HCL Connections would try to mount the folders for shared data and message store. Note that NFS is needed if you plan to install HCL Docs later on a separate server.  If you don't want it to be mounted and don't plan to install HCL Docs on a separate server, set:
 
 ```
-skip_nfs_mount_for_connections=true
+skip_nfs_mount_for_connections: true
 ```
 
 To install the WebSphere-side of HCL Connections only, on an already prepared environment (all previous steps are already done and the environment is ready for HCL Connections to be installed) execute:
@@ -409,21 +398,21 @@ Note that installation will not start (and will inform you about that) if mandat
 To enable Moderation and Invites, set:
 
 ```
-cnx_enable_moderation=true
-cnx_enable_invite=true
+cnx_enable_moderation: true
+cnx_enable_invite: true
 ```
 
 To ensure that you don't have to pin specific offering version yourself, make sure that the next variable is set:
 
 ```
-cnx_updates_enabled=True
+cnx_updates_enabled: True
 ```
 
 You can also rewrite locations of message and shared data stores by manipulating next two variables before you hit install:
 
 ```
-cnx_shared_area="/nfs/data/shared"
-cnx_message_store="/nfs/data/messageStores"
+cnx_shared_area: "/nfs/data/shared"
+cnx_message_store: "/nfs/data/messageStores"
 ```
 
 ### Installing iFix for HCL Connections
@@ -431,8 +420,10 @@ cnx_message_store="/nfs/data/messageStores"
 To install iFix for HCL Connections 7 (version 7.0.0.1) on already installed HCL Connections 7, edit your connections inventory file, and append these two lines:
 
 ```
-ifix_apar=LO100079
-ifix_file=LO100079-IC7.0.0.0-Common-Fix.jar
+ifix_apar:                                       LO100079
+ifix_file:                                       LO100079-IC7.0.0.0-Common-Fix.jar
+cnx_ifix_installer:                              "updateInstaller_2102.zip"
+ifix_file:                                       HCL_Connections_70_Update.jar
 ```
 
 After it, run the iFix installation:
@@ -471,8 +462,8 @@ This playbook will:
 By default, Component Pack will consider first node in [nfs_servers] to be your NFS master also, and by default it will consider that on NFS master, all needed folders for Component Pack live in /pv-connections. You can rewrite it with:
 
 ```
-nfsMasterAddress="172.29.31.1"
-persistentVolumePath="nfs"
+nfsMasterAddress: "172.29.31.1"
+persistentVolumePath: "nfs"
 ```
 
 This translates to //172.29.31.1:/nfs
@@ -491,12 +482,13 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 
 ### Setting up Haproxy
 
-Haproxy is used as an example load balancer. To ensure it is not trying to bind to the same ports as Nginx, if you are co-locating it together, be sure to set those two variables in your inventory file:
+Haproxy is used as an example load balancer. To ensure it is not trying to bind to the same ports as Nginx, by default, it is going to use non standard ports (81 and 444). 
+
+If you want to change the default ports (81 and 444) edit your all.yml and set up those two variables to different values:
 
 ```
-[k8s_load_balancers:vars]
-main_port='81'
-main_ssl_port='444'
+main_port: '81'
+main_ssl_port: '444'
 ```
 
 To install Haproxy only, execute:
@@ -515,11 +507,10 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 
 This will set up the NFS master, create and export needed folders for Component Pack components, and set up the clients so they can connect to it.
 
-By default, NFS master will export the folders for its own network. If you want to change the netmask, be sure to set:
+By default, NFS master will export the folders for its own network. If you want to change the netmask, be sure to set for example:
 
 ```
-[nfs_servers:vars]
-nfs_export_netmask=255.255.0.0
+nfs_export_netmask: 255.255.0.0
 ```
 
 ### Setting up Docker and Docker Registry
@@ -536,7 +527,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 
 This will install Kubernetes, set up kubectl and Helm and make the Kubernetes cluster ready for Component Pack to be installed. However, this is really a minimum way of installing a stable Kubernetes using kubeadm. We do advice using more battle-proven solutions like kubespray or kops (or anything else) for production-ready Kubernetes clusters.
 
-This set of automation will install by default 1.18.10 and should be always able to install the Kubernetes versions supported by Component Pack.
+This set of automation will install by default 1.18.18 and should be always able to install the Kubernetes versions supported by Component Pack.
 
 To install Kubernetes, execute:
 

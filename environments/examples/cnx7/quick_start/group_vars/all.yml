@@ -58,33 +58,10 @@ enable_prometheus_jmx_exporter:                  True
 ifix_apar:                                       LO100079
 ifix_file:                                       LO100079-IC7.0.0.0-Common-Fix.jar
 cnx_ifix_installer:                              "updateInstaller_2102.zip"
-ifix_apar:                                       LO100079
 ifix_file:                                       HCL_Connections_70_Update.jar
 
 setup_docker_registry:                           true
-component_pack_package_name:                     hybridcloud_latest.zip
-
-#setup_installation:                              false
-#setup_images:                                    false
-#setup_credentials:                               false
-#setup_psp:                                       false
-#setup_connections_volumes:                       false
-#setup_bootstrap:                                 false
-#setup_connections_env:                           false
-#setup_infrastructure:                            false
-#setup_customizer:                                false
-#setup_elasticsearch7:                            false
-#setup_community_ingress:                         false
-#setup_teams:                                     false
-#setup_tailored_exp:                              false
-#setup_orientme:                                  false
-#setup_elasticstack:                              false
-#setup_sanity:                                    false
-#setup_kudosboards:                               false
-#setup_outlook_addin:                             false
-#enable_es_metrics:                               false
-#enable_gk_flags:                                 false
-#setup_ms_teams_extensions:                       false
+component_pack_package_name:                     component_pack_latest.zip
 
 docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
 load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
