@@ -53,10 +53,13 @@ smtp_hostname:                                   localhost
 connections_admin_password:                      "{{ ldap_user_admin_password }}"
 
 db_username:                                     LCUSER
+db_concord_username:                             LCUSER 
+db_name:                                         CONCORD
 db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
 db_port:                                         1433
 db_jdbc_file:                                    /opt/mssql/jdbc/lib/sqljdbc_6.0/enu/jre8
 db_type:                                         "SQL Server"
+db_docs_jdbc_file:                               /opt/mssql/jdbc/lib/sqljdbc_4.0
 setup_mssql_jdbc:                                True
 
 cnx_force_repopulation:                          True
