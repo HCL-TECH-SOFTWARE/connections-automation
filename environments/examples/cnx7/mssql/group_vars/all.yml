@@ -10,7 +10,7 @@ was_username:                                    wasadmin
 was_password:                                    password
 
 ldap_userid:                                     "fakeuser"
-ldap_nr_of_users:                                10
+ldap_nr_of_users:                                1000
 ldap_user_password:                              "password"
 ldap_user_admin_password:                        "password"
 
@@ -19,8 +19,8 @@ ihs_password:                                    password
 
 connections_admin:                               fakeuser1
 
-db_password:                                     password
-db_concord_password:                             password
+db_password:                                     Pa55w0rd
+db_concord_password:                             Pa55w0rd
 
 docs_username:                                   docsuser
 docs_password:                                   password
@@ -29,8 +29,20 @@ sudo_group:                                      wheel
 # Non-mandatory changes
 
 # Type of HCL Connections deployment: small (default), medium and large.
-#cnx_deploy_type:                                small
+cnx_deploy_type:                                 medium
 ldap_user_mail_domain:                           "connections.example.com"
+
+mssql_download_location:                         http://{{ groups['installer'][0] }}:8001/MSSQL
+tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/TDI
+connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
+iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
+was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP18
+ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP18
+cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
+cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
+component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 
 cnx_updates_enabled:                             True
 
@@ -41,14 +53,13 @@ smtp_hostname:                                   localhost
 connections_admin_password:                      "{{ ldap_user_admin_password }}"
 
 db_username:                                     LCUSER
-db_concord_username:                             docsuser
 db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
-db_port:                                         50000
-db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
-db_type:                                         DB2
-setup_db2_jdbc:                                  True
+db_port:                                         1433
+db_jdbc_file:                                    /opt/mssql/jdbc/lib/sqljdbc_6.0/enu/jre8
+db_type:                                         "SQL Server"
+setup_mssql_jdbc:                                True
 
-cnx_force_repopulation:                          false
+cnx_force_repopulation:                          True
 
 cnx_enable_moderation:                           true
 cnx_enable_invite:                               true
@@ -61,7 +72,35 @@ cnx_ifix_installer:                              "updateInstaller_2102.zip"
 ifix_file:                                       HCL_Connections_70_Update.jar
 
 setup_docker_registry:                           true
-component_pack_package_name:                     component_pack_latest.zip
+component_pack_package_name:                     hybridcloud_latest.zip
+
+enable_pod_auto_scaling:                         true
+
+#setup_installation:                              false
+#setup_images:                                    false
+#setup_credentials:                               false
+#setup_psp:                                       false
+#setup_connections_volumes:                       false
+#setup_bootstrap:                                 false
+#setup_connections_env:                           false
+#setup_infrastructure:                            false
+#setup_customizer:                                false
+#setup_elasticsearch7:                            false
+#setup_community_ingress:                         false
+#setup_teams:                                     false
+#setup_tailored_exp:                              false
+#setup_orientme:                                  false
+#setup_dashboards:                                false
+#setup_elasticstack:                              false
+#setup_sanity:                                    false
+#setup_kudosboards:                               false
+#setup_outlook_addin:                             false
+#enable_es_metrics:                               false
+#enable_gk_flags:                                 false
+#setup_ms_teams_extensions:                       false
+#skip_configure_redis:                            True
+
+kudos_boards_licence:                            "PASTE_YOUR_LICENCE_KEY_HERE"
 
 docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
 load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
@@ -73,8 +112,7 @@ db_server_user:                                  "{{ db_username }}"
 db_server_password:                              "{{ db_password }}"
 
 setup_connections_docs:                          true
-
-nfs_export_netmask:                              255.0.0.0
+setup_connections_wizards:                       false
 
 docs_shared_storage_type:                        nfs
 docs_data_remote_path:                           /nfs/docs_data
@@ -92,7 +130,7 @@ cnx_data_path_on_cnx_server:                     /opt/IBM/SharedArea
 
 docs_url:                                        "{{ cnx_application_ingress }}"
 
-force_destroy_kubernetes:                        True
-force_destroy_db2:                               True
+force_destroy_oracle:                            True
 force_destroy_ihs:                               True
 force_destroy_websphere:                         True
+force_destroy_kubernetes:                        True
