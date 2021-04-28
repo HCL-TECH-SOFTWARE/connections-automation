@@ -211,8 +211,9 @@ Note: if you are using old format of inventory files, it is all backwards compat
 * SSH to cp.internal.example.com, become user ansible, and start playing with Kubernetes using Helm and kubectl already configured for user ansible.
 
 # Frequently Given Answers
+
+* Please check the troubleshooting section if you have any issues.
 * Yes, you have to have DNS (proper DNS) set up. It will not work, and it can not work, with using only local hosts files due to various reasons which are not the topic of this automation. 
 * We don't plan to automate any type of DNS setup. 
 * Postfix (or any other mail server) is intentionally not installed.
 * Feel free to customize it to the best of your knowledge, it's under Apache licence after all and that was the intention.
-* Yes, we understand that there is big chance that you did something in a different way through the time; however, automation is as is, and feel free to customize it to your own liking, maintainers will help as much as we can. 
