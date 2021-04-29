@@ -129,6 +129,8 @@ enable_gk_flags:                                 false
 setup_ms_teams_extensions:                       false
 #skip_configure_redis:                            True
 
+elasticsearch_default_port:                      30099
+
 docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
 load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
 ic_internal:                                     "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"
