@@ -60,17 +60,17 @@ The easiest way is just to open the issue/start the discussion here in Github. I
 
 Package names used as default in those scripts are the same package names used by HCL Connections development teams inside all internal environments, including those exposed to the customers from time to time. The names used in Flexnet are IBM's part IDs.
 
-However, if needed, you should be able to search on both names through the Flexnet to set up whatever you need. We do use Flexnet names as overwrites in [examples](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/c04747109398a2e34945d8893334aca165ea8255/environments/examples/cnx7/connections_7_without_component_pack/connections#L78-L85).
+However, if needed, you should be able to search on both names through the Flexnet to set up whatever you need. We do use Flexnet names as overwrites in [examples](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml#L50-L58).
 
 ## How can I use Flexnet package names for WebSphere?
 
 You can always override default package names. Please report the issue in Github or open a pull request if something doesn't provide that functionality.
 
-For WebSphere, for example, this is how you overwrite default IBM names with those [HCL uses in Flexnet](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/c04747109398a2e34945d8893334aca165ea8255/environments/examples/cnx7/connections_7_without_component_pack/connections#L78-L85).
+For WebSphere, for example, this is how you overwrite default IBM names with those [HCL uses in Flexnet](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml#L50-L58).
 
 ## What are the minimum system requirements to use this automation?
 
-To spin up demo ready HCL Connections with Component Pack (including Customizer enabled), we use two nodes environments equivalent to AWS m5a.xlarge instance for DB2, OpenLDAP, IBM SDI, HCL Connections and equivalent of AWS m5a.4xlarge for Nginx, Docker (and Docker Registry), NFS server, Kubernetes and Component Pack with all the features currently automated enabled. 
+To spin up demo ready HCL Connections with Component Pack (including Customizer enabled), we (HCL Connections Development Team) use two nodes environments equivalent to AWS m5a.xlarge instance for DB2, OpenLDAP, IBM SDI, HCL Connections and equivalent of AWS m5a.4xlarge for Nginx, Docker (and Docker Registry), NFS server, Kubernetes and Component Pack with all the features currently automated enabled. 
 
 If you want to use Docs as well, be sure to increase the first instance to at least m5a.2xlarge equivalent.
 
