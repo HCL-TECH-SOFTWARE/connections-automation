@@ -543,6 +543,16 @@ If the cluster is already created, and you only want to set up kubectl for your 
 ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubectl.yml
 ```
 
+### Setting up Component Pack without Haproxy
+
+If you don't want to use Haproxy (if you simply don't need it), then you can use this playbook:
+
+```
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup-component-pack-complete-development.yml
+```
+
+It will do exactly the same as playbooks/setup-component-pack-complete.yml but it will not setup Haproxy.
+
 ## Troubleshooting
 
 For each machine that is going to be used in any capacity with those scripts, ensure that:
