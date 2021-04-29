@@ -69,7 +69,6 @@ cnx_enable_invite:                               true
 enable_prometheus_jmx_exporter:                  True
 
 ifix_apar:                                       LO100079
-ifix_file:                                       LO100079-IC7.0.0.0-Common-Fix.jar
 cnx_ifix_installer:                              "updateInstaller_2102.zip"
 ifix_file:                                       HCL_Connections_70_Update.jar
 
@@ -114,7 +113,7 @@ db_server_user:                                  "{{ db_username }}"
 db_server_password:                              "{{ db_password }}"
 
 setup_connections_docs:                          true
-setup_connections_wizards:                       false
+setup_connections_wizards:                       true
 
 docs_shared_storage_type:                        nfs
 docs_data_remote_path:                           /nfs/docs_data

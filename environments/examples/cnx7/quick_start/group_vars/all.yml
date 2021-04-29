@@ -56,7 +56,6 @@ cnx_enable_invite:                               true
 enable_prometheus_jmx_exporter:                  True
 
 ifix_apar:                                       LO100079
-ifix_file:                                       LO100079-IC7.0.0.0-Common-Fix.jar
 cnx_ifix_installer:                              "updateInstaller_2102.zip"
 ifix_file:                                       HCL_Connections_70_Update.jar
 
