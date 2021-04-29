@@ -104,6 +104,8 @@ helm_version:                                    2.16.3
 setup_docker_registry:                           true
 component_pack_package_name:                     hybridcloud_6501.zip
 
+enable_pod_auto_scaling:                         false
+
 #setup_installation:                              false
 #setup_images:                                    false
 #setup_credentials:                               false
