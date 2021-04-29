@@ -1,6 +1,9 @@
 [dmgr]
 connections.internal
 
+[cnx_was_servers]
+connections.internal
+
 [was_servers]
 connections.internal
 
