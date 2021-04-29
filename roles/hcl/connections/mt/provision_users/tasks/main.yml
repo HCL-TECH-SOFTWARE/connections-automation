@@ -44,28 +44,13 @@
     - { prop_name: "provision.mt.ldapOrganizationFilter", prop_value: "{{ __provision_mt_ldap_org_filter_r }}" }
     - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
 
-- name:                Remove old rc file
-  file:
-    path:              "{{ __tmp_dir }}/mt/install/mtupdate_entitlements.rc"
-    state:             absent
-
 - name:                Run MT User Provision, log file {{ __tmp_dir }}/mt/install/mtupdate_entitlements.log
   shell:
-     ./connections-mt-init-entitlements-cli.sh config.properties 2>&1 | tee mtupdate_entitlements.log
-     echo ${PIPESTATUS[0]} > mtupdate_entitlements.rc
+     ./connections-mt-init-entitlements-cli.sh -f config.properties 2>&1 | tee mtupdate_entitlements.log
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
   register:            mt_user_provision_performed
-
-- name:                Check entitlement return code
-  become:              yes
-  shell:               "cat {{ __tmp_dir }}/mt/install/mtupdate_entitlements.rc"
-  register:            return_code
-  failed_when:
-    - return_code.stdout != "0"
-  when:
-    - mt_user_provision_performed is not skipped
 
 - name:                Search for success message in log
   become:              yes

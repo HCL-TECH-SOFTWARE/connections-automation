@@ -4,3 +4,4 @@
   roles:
     - { role: roles/third_party/ibm/tdi-install,
         when: cnx_setup_mt is not defined or not cnx_setup_mt|bool }
+# Note: cnx_setup_mt is for internal use only, don't set to true

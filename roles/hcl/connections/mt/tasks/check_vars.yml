@@ -11,12 +11,6 @@
     - cnx_application_ingress|length > 0
     msg: "Set the value of 'cnx_application_ingress' in the inventory file."
 
-- name: ldap_server should be defined
-  assert:
-    that:
-    - ldap_server|length > 0
-    msg: "Set the value of 'ldap_server' in the inventory file."
-
 - name: was_username should be defined
   assert:
     that:
@@ -28,3 +22,9 @@
     that:
     - was_password|length > 0
     msg: "Set the value of 'was_password' in the inventory file."
+
+- name: ic_internal should be defined
+  assert:
+    that:
+    - ic_internal|length > 0
+    msg: "Set the value of 'ic_internal' in the inventory file."

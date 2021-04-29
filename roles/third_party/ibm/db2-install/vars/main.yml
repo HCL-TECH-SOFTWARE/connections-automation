@@ -27,6 +27,7 @@ __db2_instance_fenced_user:    "{{ db2_instance_fenced_user | default('db2fenc1'
 __db2_instance_fenced_group:   "{{ db2_instance_fenced_group | default('db2group') }}"
 __db2_instance_fenced_homedir: "{{ db2_instance_fenced_homedir | default('/home/db2fenc1') }}"
 __db2_instance_default_lang:   "{{ db2_instance_default_lang | default('EN') }}"
+__db2_instance_heap_size:      "{{ db2_instance_heap_size | default('4096') }}"
 
 __jdbc_installation_folder:    "{{ db_jdbc_file | default('/opt/IBM/db2/V11.1/java') }}"
 __jdbc_package_name:           "{{ db2_jdbc_package_name | default('v11.1.4fp5_jdbc_sqlj.tar.gz') }}"

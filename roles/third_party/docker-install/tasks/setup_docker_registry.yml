@@ -6,13 +6,13 @@
   command:                          openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN=*.{{ groups['k8s_masters'][0].split('.', 1)[1] }}"
   when:
     - inventory_hostname == groups['docker_registry'][0]
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:                             Generate certificate for self contained environment
   command:                          openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN={{ inventory_hostname }}"
   when:
     - inventory_hostname == groups['docker_registry'][0]
-    - single_node_installation is defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
 
 - name:                             Cleanup temp certificate
   file:

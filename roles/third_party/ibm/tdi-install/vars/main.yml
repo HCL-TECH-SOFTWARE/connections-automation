@@ -1,16 +1,23 @@
 ---
 __tdi_upgrade:                  "{{ tdi_upgrade_enable | default(true) }}"
+__upgrade_tdi_jre:              "{{ upgrade_tdi_jre | default(false) |lower }}"
+
+__cnx_updates_enabled:          "{{ cnx_updates_enabled | default(false) |lower }}"
 
 __download_location:            "{{ tdi_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/TDI') }}"
 __oracle_download_location:     "{{ oracle_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Oracle') }}"
 __package_name:                 "{{ tdi_package_name | default('SDI_7.2_XLIN86_64_ML.tar') }}"
+__jre_package_version:          "{{ jre_package_version | default('ibm-java-x86_64-80') }}"
+__jre_package_name:             "{{ jre_package_name | default('ibm-java-jre-8.0-5.30-linux-x86_64.tgz') }}"
+__java_policy_file_path:        "{{ __tdi_user_install_dir }}/jvm/jre/lib/security/java.policy"
 __upgrade_package_name:         "{{ tdi_upgrade_package_name | default('7.2.0-ISS-SDI-FP0006.zip') }}"
 __upgrade_package_bin:          "{{ tdi_upgrade_package_bin | default('SDI-7.2-FP0006.zip') }}"
 __upgrade_package_folder_name:  "{{ tdi_upgrade_package_folder_name | default('7.2.0-ISS-SDI-FP0006') }}"
 __extraction_folder:            "{{ extraction_folder | default('/opt/IBM/InstallBinaries/TDI') }}"
+__tmp_extraction_folder:        "{{ extraction_folder | default('/tmp/TDI') }}"
 
 __tdi_upgrade_folder:           "{{ tdi_upgrade_folder | default('/opt/IBM/InstallBinaries/TDI/Upgrade') }}"
-
+__tdi_cs_port:                  "{{ tdi_cs_port | default('1527') }}"
 __tdi_user_install_dir:         "{{ tdi_user_install_dir | default('/opt/IBM/TDI/V7.20') }}"
 
 __tdi_installed_success_file:   "{{ __tdi_user_install_dir }}/tdi.installed.success"
@@ -45,4 +52,14 @@ __jdbc_destination:             "{{ __tdi_user_install_dir }}/jvm/jre/lib/ext"
 __tdi_mdbrfs_template:          "map_dbrepos_from_source.properties.j2"
 __tdi_mdbrfs_destination:       "{{ __tdi_sol_dest }}/TDI/map_dbrepos_from_source.properties"
 
-__tdi_sol_success_file:         "{{ __tdi_sol_dest }}/tdi.sol.installed.success"
+__ldap_realm:                   "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com') }}"
+__ldap_server_default:          "{{ hostvars[groups['ldap_servers'][0]]['inventory_hostname'] }}"
+__ldap_server:                  "{{ ldap_server | default( __ldap_server_default ) }}"
+__ldap_bind_user:               "{{ ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com') }}"
+__ldap_bind_pass:               "{{ ldap_bind_pass | default('password') }}"
+
+__db_hostname_default:          "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
+__db_hostname:                  "{{ db_hostname | default( __db_hostname_default ) }}"
+__db_port:                      "{{ db_port | default('50000') }}"
+__db_username:                  "{{ db_username | default('LCUSER') }}"
+__db_password:                  "{{ db_password | default('password') }}"

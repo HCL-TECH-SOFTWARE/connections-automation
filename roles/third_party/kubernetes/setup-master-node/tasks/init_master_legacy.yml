@@ -11,7 +11,7 @@
 - name:               Generate join command
   command:            kubeadm token create --print-join-command
   register:           join_command
-  when:               inventory_hostname == groups['k8s_masters'][0] and not master_already_initialized.stat.exists and single_node_installation is not defined
+  when:               inventory_hostname == groups['k8s_masters'][0] and not master_already_initialized.stat.exists and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               Create {{ __kubeadm_init_success_file }} file
   file:

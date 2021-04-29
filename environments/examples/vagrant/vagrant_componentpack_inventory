@@ -28,6 +28,9 @@ componentpack.internal
 [was_servers]
 componentpack.internal
 
+[cnx_was_servers]
+componentpack.internal
+
 [k8s_load_balancers:vars]
 main_port='81'
 main_ssl_port='444'

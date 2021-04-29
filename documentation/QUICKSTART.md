@@ -6,9 +6,9 @@ To set this up, you will need at least three machines (for this example, let us 
 
 - web.internal.example.com is going to host, in this example, only Nginx and Haproxy. This is needed here only for the Customizer. At least 1CPU and 2G of RAM are preferable. 
 - connections.internal.example.com is going to host IBM WebSphere, IHS and HCL Connections. We will put here also OpenLDAP with 10 users, and IBM DB2. NFS will be set for shared data and message stores. HCL Connections will be deployed as a small topology (single JVM). Here you need at least two CPUs and at least 16G of RAM for having everything self contained.
-- cp.internal.example.com is going to host Kubernetes 1.18.12, be NFS server for persistent volumes, Docker Registry, and Component Pack on top of it. You need at least 32G of RAM to install full offering and at least 8 CPUs. 
+- cp.internal.example.com is going to host Kubernetes 1.18.18, be NFS server for persistent volumes, Docker Registry, and Component Pack on top of it. You need at least 32G of RAM to install full offering and at least 8 CPUs. 
 
-Once the installation is done, we will access our HCL Connections login page through https://web.internal.example.com/
+Once the installation is done, we will access our HCL Connections login page through https://connections.example.com/
 
 Example inventory files for this Quick Start can be found in environments/examples/cnx7/quick_start folder. 
 
@@ -102,6 +102,29 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCvupayZq/4h+vrzisZAa4Yx/JqbgRFPu5WSAO5YIkw
 
 From web.internal.example.com you should be able now, as ansible user, to SSH to connections.internal.example.com and cp.internal.example.com without being prompted for the password. 
 
+As the last step, customize .bashrc for your ansible user like this:
+
+
+```
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+eval "$(ssh-agent)"
+```
+
+Environment variable that you are setting here will save you the time with typing yes every time Ansible hits new hosts. The last command will ensure that you use only key and the keychain from ansible user itself. 
+
 ### ...but if you use root user
 
 Please note that you need to either disable password login for root user in your SSH configuration, or run Ansible playbooks with using usernames/passwords, because the scripts will otherwise block when they try to go from machine to machine. Due to both security and practical reasons, we don't recommend to use root user directly for this. 
@@ -151,14 +174,17 @@ And you are good to go - you've just started web server on port 8001 inside your
 
 ## Setting up your inventory files
 
-Ensure that in both inventory files replace the URLs with your own URLs. Note that in example inventory files "connections" is just a short name of "connections.internal.example.com" so don't forget to replace that as well.
+There are two things you need to adapt before you try the installation:
+
+- Change FQDNs in inventory.ini to match your own FQDNs.
+- Edit group_vars/all.yml and change in mandatory section the FQDN towards your Haproxy (cnx_component_pack_ingress) and the URL which will be used as an entry point to your HCL Connections environment (dynamicHost on CNX side - cnx_application_ingress). 
 
 ## Setting up HCL Connections with all the dependencies
 
 To set up HCL Connections with DB2, OpenLDAP, TDI, IBM WebSphere, IBM IHS and HCL Connections, run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/quick_start/connections playbooks/setup-connections-complete.yml
+ansible-playbook -i environments/examples/cnx7/quick_start/inventory.ini playbooks/setup-connections-complete.yml
 ```
 
 ## Setting up Component Pack for HCL Connections with all the dependencies
@@ -166,10 +192,28 @@ ansible-playbook -i environments/examples/cnx7/quick_start/connections playbooks
 To set up Component Pack with Kubernetes, Docker, Docker Registry, NFS, Nginx and Haproxy all configured to support Customizer as well, run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/quick_start/component_pack playbooks/setup-component-pack-complete-single-node.yml
+ansible-playbook -i environments/examples/cnx7/quick_start/inventory.ini playbooks/setup-component-pack-complete.yml
 ```
+
+## Setting up Connections Docs 2.0.1
+
+To set up Connections Docs 2.0.1, just run:
+
+```
+ansible-playbook -i environments/examples/cnx7/quick_start/inventory.ini playbooks/hcl/setup-connections-docs.yml
+```
+
+Note: if you are using old format of inventory files, it is all backwards compatible. The only thing that you need to add there is cnx_was_servers to your connections inventory (to make it same as done for docs already). 
 
 # Validating your installation
 
-* Check out https://web.internal.example.com/ - if all went well, you should see HCL Connections login screen, and should be able to log in there as fakeuser1 to fakeuser9 using password 'password'
+* Check out https://connections.example.com/ - if all went well, you should see HCL Connections login screen, and should be able to log in there as fakeuser1 to fakeuser9 using password 'password'
 * SSH to cp.internal.example.com, become user ansible, and start playing with Kubernetes using Helm and kubectl already configured for user ansible.
+
+# Frequently Given Answers
+
+* Please check the troubleshooting section if you have any issues.
+* Yes, you have to have DNS (proper DNS) set up. It will not work, and it can not work, with using only local hosts files due to various reasons which are not the topic of this automation. 
+* We don't plan to automate any type of DNS setup. 
+* Postfix (or any other mail server) is intentionally not installed.
+* Feel free to customize it to the best of your knowledge, it's under Apache licence after all and that was the intention.

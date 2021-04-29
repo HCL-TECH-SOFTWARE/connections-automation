@@ -1,3 +1,5 @@
 ---
 - name:          Join Kubernetes cluster as a node
   include_tasks: join_cluster.yml
+  when:
+   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true

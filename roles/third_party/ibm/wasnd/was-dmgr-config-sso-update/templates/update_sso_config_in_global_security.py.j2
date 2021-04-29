@@ -6,9 +6,7 @@ isEnabled = AdminTask.isGlobalSecurityEnabled()
 AdminTask.getSingleSignon()
 if isEnabled:
     cmd='-requiresSSL true'
-{% if sso_domainname is defined %}
-    cmd=cmd+' -domainName {{ sso_domainname }}'
-{% endif %}
+    cmd=cmd+' -domainName {{ __sso_domainnames }}'
     AdminTask.configureSingleSignon([cmd])
     AdminConfig.save()
 else:

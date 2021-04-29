@@ -1,16 +1,16 @@
 #Create LDAP Repository
-AdminTask.createIdMgrLDAPRepository('[-default true -id {{ ldap_repo }} -adapterClassName com.ibm.ws.wim.adapter.ldap.LdapAdapter -ldapServerType CUSTOM -sslConfiguration -certificateMapMode exactdn -supportChangeLog none -certificateFilter -loginProperties {{ ldap_login_properties }}]')
+AdminTask.createIdMgrLDAPRepository('[-default true -id {{ __ldap_repo }} -adapterClassName com.ibm.ws.wim.adapter.ldap.LdapAdapter -ldapServerType CUSTOM -sslConfiguration -certificateMapMode exactdn -supportChangeLog none -certificateFilter -loginProperties {{ __ldap_login_properties }}]')
 #Add LDAP Server
-AdminTask.addIdMgrLDAPServer('[-id {{ ldap_repo }} -host {{ ldap_server }} -bindDN {{ ldap_bind_user }} -bindPassword {{ ldap_bind_pass }} -referal ignore -sslEnabled false -ldapServerType CUSTOM -sslConfiguration -certificateMapMode exactdn -certificateFilter -authentication simple -port 389]')
+AdminTask.addIdMgrLDAPServer('[-id {{ __ldap_repo }} -host {{ __ldap_server }} -bindDN {{ __ldap_bind_user }} -bindPassword {{ __ldap_bind_pass }} -referal ignore -sslEnabled false -ldapServerType CUSTOM -sslConfiguration -certificateMapMode exactdn -certificateFilter -authentication simple -port 389]')
 
-AdminTask.addIdMgrRepositoryBaseEntry('[-id {{ ldap_repo }} -name {{ ldap_realm }} -nameInRepository {{ ldap_realm }}]')
-AdminTask.addIdMgrRealmBaseEntry('[-name defaultWIMFileBasedRealm -baseEntry {{ ldap_realm }}]')
+AdminTask.addIdMgrRepositoryBaseEntry('[-id {{ __ldap_repo }} -name {{ __ldap_realm }} -nameInRepository {{ __ldap_realm }}]')
+AdminTask.addIdMgrRealmBaseEntry('[-name defaultWIMFileBasedRealm -baseEntry {{ __ldap_realm }}]')
 
 #Add Entity Types
 {% if cnx_setup_mt is defined %}
-AdminTask.addIdMgrLDAPEntityType('[-id {{ ldap_repo }} -name OrgContainer -objectClasses organization;organizationalUnit;domain;container -searchBases cn=Organizations,{{ ldap_realm }} -searchFilter ]')
-AdminTask.addIdMgrLDAPEntityType('[-id {{ ldap_repo }} -name PersonAccount -objectClasses inetOrgPerson;ibm-socialPerson -searchBases cn=Users,{{ ldap_realm }} -searchFilter ]')
-AdminTask.addIdMgrLDAPEntityType('[-id {{ ldap_repo }} -name Group -objectClasses groupOfNames;groupOfUniqueNames -searchBases cn=Groups,{{ ldap_realm }} -searchFilter ]')
+AdminTask.addIdMgrLDAPEntityType('[-id {{ __ldap_repo }} -name OrgContainer -objectClasses organization;organizationalUnit;domain;container -searchBases cn=Organizations,{{ __ldap_realm }} -searchFilter ]')
+AdminTask.addIdMgrLDAPEntityType('[-id {{ __ldap_repo }} -name PersonAccount -objectClasses inetOrgPerson;ibm-socialPerson -searchBases cn=Users,{{ __ldap_realm }} -searchFilter ]')
+AdminTask.addIdMgrLDAPEntityType('[-id {{ __ldap_repo }} -name Group -objectClasses groupOfNames;groupOfUniqueNames -searchBases cn=Groups,{{ __ldap_realm }} -searchFilter ]')
 {% endif %}
 
 #Save and Synchronise

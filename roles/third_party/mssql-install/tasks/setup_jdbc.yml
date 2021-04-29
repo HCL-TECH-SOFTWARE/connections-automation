@@ -10,10 +10,13 @@
     dest:                "{{ __jdbc_installation_folder }}"
     remote_src:          yes
 
-- name:                  Download and unzip legacy {{ __package_name_legacy }} to the {{ __jdbc_installation_folder }}
+- name:                  Download and unzip legacy drivers to the {{ __jdbc_installation_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __package_name_legacy }}"
+    src:                 "{{ __download_location }}/{{ item }}"
     dest:                "{{ __jdbc_installation_folder }}"
     remote_src:          yes
+  with_items:
+    - "{{ __package_name_legacy }}"
+#    - "{{ __package_name_legacy_40 }}"
   when:
     - __mssql_setup_tdi_drivers |bool

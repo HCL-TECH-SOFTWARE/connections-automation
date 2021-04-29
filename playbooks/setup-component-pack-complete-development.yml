@@ -8,7 +8,7 @@
   import_playbook:       third_party/setup-docker-registry.yml
 
 - name:                  Setup Kubernetes
-  import_playbook:       third_party/kubernetes/setup-kubernetes-single-node.yml
+  import_playbook:       third_party/kubernetes/setup-kubernetes.yml
 
 - name:                  Setup Component Pack
   import_playbook:       hcl/setup-component-pack.yml

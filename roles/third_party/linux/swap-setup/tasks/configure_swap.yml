@@ -65,7 +65,6 @@
 
 - name:                       Turn swap on
   shell:                      swapon -a
-  when:
 
 - name:                       Configure swappiness
   sysctl:

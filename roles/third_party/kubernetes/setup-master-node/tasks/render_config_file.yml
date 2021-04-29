@@ -3,9 +3,9 @@
     msg:              "{{ enable_pod_security }}"
   ignore_errors:      true
 
-- name:               Check if "{{ single_node_installation }}" is enabled...
+- name:               Check if single node installation is enabled...
   debug:
-    msg:              "{{ single_node_installation }}"
+    msg:              "Single node installation : {{ ((groups.k8s_workers | difference(groups.k8s_masters) | list) == []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) }}"
   ignore_errors:      true
 
 - name:               Generate master config initialization file

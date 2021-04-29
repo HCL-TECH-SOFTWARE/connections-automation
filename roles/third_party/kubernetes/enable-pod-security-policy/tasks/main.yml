@@ -2,4 +2,4 @@
 - name:          Enable PodSecurity Policy
   include_tasks: enable_podsecurity_policy.yml
   when:
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true

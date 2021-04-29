@@ -41,3 +41,13 @@ __ora_install_success_file:    "{{ __ora_rsp_oracle_base }}/install.success"
 __ora_config_success_file:     "{{ __ora_rsp_oracle_base }}/config.success"
 
 __jdbc_installation_folder:    "{{ __ora_rsp_oracle_home }}/jdbc/lib"
+
+#Oracle DB Exporter
+__oracledb_exporter_version:   "{{ oracledb_exporter_version | default('oracledb_exporter.0.3.0rc1-ora18.5.linux-amd64') }}"
+__oracledb_exporter_release:   "{{ oracledb_exporter_release | default('0.3.0rc1') }}"
+__oracledbexp_download_url:    "https://github.com/iamseth/oracledb_exporter/releases/download/{{ __oracledb_exporter_release }}/{{ __oracledb_exporter_version }}.tar.gz"
+__oracledbexp_extract_folder:  "{{ oracledbexp_extraction_folder | default('/home/oracle') }}"
+__oracle_bashrc_file_path:     "{{ oracle_bashrc_file_path | default('/home/oracle/.bashrc') }}"
+__oracledb_metrics_port:       "{{ metrics_port | default('9161') }}"
+__oracledb_port:               "{{ oracledb_port | default('1521') }}"
+__oracledb_monitor_user:       "{{ oracledb_monitor_user | default('SYSTEM') }}"

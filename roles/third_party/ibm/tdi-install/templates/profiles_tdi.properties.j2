@@ -16,11 +16,11 @@
 # The five properties below specify the LDAP branch.  Technically, the first two determine the branch
 # and the third is a filter.  The fourth and fifth supply credentials if authentication is needed.
 
-source_ldap_url=ldap://{{ ldap_server }}:389
-source_ldap_search_base={{ ldap_realm }}
+source_ldap_url=ldap://{{ __ldap_server }}:389
+source_ldap_search_base={{ __ldap_realm }}
 source_ldap_search_filter=(objectclass=inetOrgPerson)
-source_ldap_user_login={{ ldap_bind_user }}
-{protect}-source_ldap_user_password={{ ldap_bind_pass }}
+source_ldap_user_login={{ __ldap_bind_user }}
+{protect}-source_ldap_user_password={{ __ldap_bind_pass }}
 
 # The three "...visitor_confirm" properties below are used to indicate that members added from the LDAP branch
 # specified above are visitors.  Simply set the three confirm properties to the IDENTICAL value as the three standard
@@ -103,26 +103,26 @@ step1_iterate_chunk_sync_source_url=
 
 {% if 'mssql_servers' in group_names and  inventory_hostname in groups['mssql_servers'] %}
 # Database settings for MSSQL
-dbrepos_jdbc_url=jdbc:sqlserver://{{ db_hostname }}:{{ db_port }};DatabaseName=PEOPLEDB
+dbrepos_jdbc_url=jdbc:sqlserver://{{ __db_hostname }}:{{ __db_port }};DatabaseName=PEOPLEDB
 dbrepos_jdbc_driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-dbrepos_username={{ db_username }}
-{protect}-dbrepos_password={{ db_password }}
+dbrepos_username={{ __db_username }}
+{protect}-dbrepos_password={{ __db_password }}
 {% endif %}
 
 {% if 'oracle_servers' in group_names and  inventory_hostname in groups['oracle_servers'] %}
 # Database settings for Oracle
-dbrepos_jdbc_url=jdbc:oracle:thin:@//{{ db_hostname }}:{{ db_port }}/LSCONN
+dbrepos_jdbc_url=jdbc:oracle:thin:@//{{ __db_hostname }}:{{ __db_port }}/LSCONN
 dbrepos_jdbc_driver=oracle.jdbc.driver.OracleDriver
-dbrepos_username={{ db_username }}
-{protect}-dbrepos_password={{ db_password }}
+dbrepos_username={{ __db_username }}
+{protect}-dbrepos_password={{ __db_password }}
 {% endif %}
 
 {% if 'db2_servers' in group_names and inventory_hostname in groups['db2_servers'] %}
 # Database settings for DB2
-dbrepos_jdbc_url=jdbc:db2://{{ db_hostname }}:{{ db_port }}/peopledb
+dbrepos_jdbc_url=jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/peopledb
 dbrepos_jdbc_driver=com.ibm.db2.jcc.DB2Driver
-dbrepos_username={{ db_username }}
-{protect}-dbrepos_password={{ db_password }}
+dbrepos_username={{ __db_username }}
+{protect}-dbrepos_password={{ __db_password }}
 {% endif %}
 
 dbrepos_mark_manager_if_referenced=true

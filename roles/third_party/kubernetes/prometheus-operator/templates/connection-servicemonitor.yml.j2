@@ -1,5 +1,5 @@
 {% for server in groups['was_servers'] %}
-{% for app in connections_jmx_clusters %}
+{% for app in __jmx_clusters %}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

@@ -1,0 +1,22 @@
+---
+- name:                 Set external domain
+  set_fact:
+    __sso_external:     "{{ cnx_application_ingress.split('.')[1:] | join('.') }}"
+
+- name:                 Multiple domains SSO
+  set_fact:
+    __sso_domainnames:  ".{{ ansible_domain }};.{{ __sso_external }}"
+  when:
+    - ansible_domain != __sso_external
+
+- debug: var=__sso_domainnames
+  run_once: true
+
+- name:                 Single domain SSO
+  set_fact:
+    __sso_domainnames: ".{{ ansible_domain }}"
+  when:
+    - ansible_domain == __sso_external
+
+- debug: var=__sso_domainnames
+  run_once: true

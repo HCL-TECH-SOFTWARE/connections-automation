@@ -16,7 +16,7 @@
     replace:          "{{ item.prop_name }}={{ item.prop_value }}"
   with_items:
     - { prop_name: "mt.connections.url", prop_value: "{{ __mt_cnx_url_r }}" }
-    - { prop_name: "mt.connections.url.parent", prop_value: "{{ cnx_application_ingress.split('.')[1:] | join('.') }}" }
+    - { prop_name: "mt.connections.url.parent", prop_value: "{{ __mt_cnx_url_r.split('.')[1:] | join('.') }}" }
     - { prop_name: "mt.ldap.url", prop_value: "{{ __mt_ldap_url_r }}" }
     - { prop_name: "mt.ldap.security.authentication", prop_value: "{{ __mt_ldap_auth_r }}" }
     - { prop_name: "mt.ldap.security.principal", prop_value: "{{ __mt_ldap_sec_principal_r }}" }
@@ -39,8 +39,7 @@
     - { prop_name: "provision.mt.ldapOrganizationFilter", prop_value: "{{ __provision_mt_ldap_org_filter_r }}" }
     - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
     - { prop_name: "mt.oidc.enabled", prop_value: "{{ __mt_oidc_enabled_r|lower }}" }
-  when:              not mt_already_installed.stat.exists
-  #  update mt.oidc.enabled above so it can be turned off quickly
+    #  update mt.oidc.enabled above so it can be turned off quickly
 
 - name:               Edit config.properties (OIDC configuration properties)
   replace:
@@ -66,8 +65,8 @@
     - { prop_name: "mt.oidc.introspectEndpointUrl", prop_value: "{{ __mt_oidc_introspect_url_r }}" }
     - { prop_name: "mt.oidc.jwkEndpointUrl", prop_value: "{{ __mt_oidc_jwk_url_r }}" }
     - { prop_name: "mt.oidc.issuerIdentifier", prop_value: "{{ __mt_oidc_issueid_url_r }}" }
-    - { prop_name: "mt_oidc_signverifyalias", prop_value: "{{ __mt_oidc_signverifyalias_r }}" }
-  when:              not mt_already_installed.stat.exists and __mt_oidc_enabled_r|bool
+    - { prop_name: "mt.oidc.signVerifyAlias", prop_value: "{{ __mt_oidc_signverifyalias_r }}" }
+  when:                __mt_oidc_enabled_r|bool
 
 - name:                Remove old rc file
   file:
@@ -77,14 +76,13 @@
 - name:                Run MT Update (Dmgr), log file {{ __tmp_dir }}/mt/install/mtupdate.log
   shell: |
      set timeout 15m
-     ./connections-mt-update-cli.sh config.properties --pubkey --keyfile="{{ __autodeploy_auth_r }}" 2>&1 | tee mtupdate.log
+     ./connections-mt-update-cli.sh -s -f config.properties 2>&1 | tee mtupdate.log
      echo ${PIPESTATUS[0]} > mtupdate.rc
   args:
       chdir:           "{{ __tmp_dir }}/mt/install"
   become:              true
   when:
       - autodeploy_already_installed.stat.exists
-      - not mt_already_installed.stat.exists
   register:            mt_update_performed
 
 - name:                Check install return code

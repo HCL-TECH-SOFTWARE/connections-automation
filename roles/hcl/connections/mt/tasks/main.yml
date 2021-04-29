@@ -48,7 +48,7 @@
     name:                  roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
   vars:
     __trust_cert_host:     "{{ __mt_oidc_host_r }}"
-    __trust_cert_alias:    "OIDC"
+    __trust_cert_alias:    "oidc-provider"
   when:
     - __mt_oidc_enabled_r | bool
     - inventory_hostname in groups["dmgr"]

@@ -7,7 +7,7 @@
   include_tasks:             configure_master.yml
   when:
     - inventory_hostname == groups['nfs_servers'][0]
-    - "docs_shared_storage_type is not defined"
+    - "is_docs_install is not defined"
 
 # If Docs installation, setup NFS client in conversion_servers, docs_servers and viewer_servers
 - name:                      Configure NFS clients

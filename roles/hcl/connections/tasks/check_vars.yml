@@ -11,6 +11,12 @@
     - dmgr_hostname|length > 0
     msg: "Set the value of 'dmgr_hostname' in the inventory file."
 
+- name: cnx_was_servers should be defined
+  assert:
+    that:
+    - "groups['cnx_was_servers'] |length > 0"
+    msg: "Set the value of 'cnx_was_servers' in the inventory file."
+
 - name: was_username should be defined
   assert:
     that:
@@ -23,29 +29,11 @@
     - was_password|length > 0
     msg: "Set the value of 'was_password' in the inventory file."
 
-- name: was_domainname should be defined
-  assert:
-    that:
-    - was_domainname|length > 0
-    msg: "Set the value of 'was_domainname' in the inventory file."
-
-- name: cnx_domainname should be defined
-  assert:
-    that:
-    - cnx_domainname|length > 0
-    msg: "Set the value of 'cnx_domainname' in the inventory file."
-
 - name: smtp_hostname should be defined
   assert:
     that:
     - smtp_hostname|length > 0
     msg: "Set the value of 'smtp_hostname' in the inventory file."
-
-- name: cnx_webserver should be defined
-  assert:
-    that:
-    - cnx_webserver|length > 0
-    msg: "Set the value of 'cnx_webserver' in the inventory file."
 
 - name: cnx_application_ingress should be defined
   assert:

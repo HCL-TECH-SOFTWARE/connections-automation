@@ -6,7 +6,7 @@
     __cluster_type:        "APPLICATION_SERVER"
     __cluster_name:        "{{ __conversion_cluster_name }}"
     __member_name:         "{{ __conversion_cluster_member_name }}"
-    __server_list:         "{{ conversion_servers_list }}"
+    __server_list:         "{{ groups['conversion_servers'] }}"
 
 - name:                     Create Editor Server Cluster
   include_role:
@@ -15,7 +15,7 @@
     __cluster_type:        "APPLICATION_SERVER"
     __cluster_name:        "{{ __editor_cluster_name }}"
     __member_name:         "{{ __editor_cluster_member_name }}"
-    __server_list:         "{{ docs_servers_list }}"
+    __server_list:         "{{ groups['docs_servers'] }}"
 
 - name:                     Create Viewer Server Cluster
   include_role:
@@ -24,7 +24,7 @@
     __cluster_type:        "APPLICATION_SERVER"
     __cluster_name:        "{{ __viewer_cluster_name }}"
     __member_name:         "{{ __viewer_cluster_member_name }}"
-    __server_list:         "{{ viewer_servers_list }}"
+    __server_list:         "{{ groups['viewer_servers'] }}"
 
 - name:                     Create Editor Proxy Cluster
   include_role:
@@ -35,4 +35,4 @@
     __member_name:         "{{ __docs_proxy_cluster_member_name }}"
     __generate_port:       True
     __template_name:       "proxy_server_foundation"
-    __server_list:         "{{ proxy_servers_list }}"
+    __server_list:         "{{ groups['proxy_servers'] }}"

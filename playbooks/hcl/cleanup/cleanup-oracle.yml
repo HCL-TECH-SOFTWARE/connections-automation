@@ -1,0 +1,7 @@
+# Cleanup
+---
+- name:                    Cleanup Oracle
+  hosts:                   oracle_servers
+  become:                  true
+  roles:
+    - roles/hcl/cleanup

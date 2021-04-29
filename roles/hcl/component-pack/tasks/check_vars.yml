@@ -96,21 +96,3 @@
     that:
     - db_server_password is defined and db_server_password != ''
     msg: "Set the value of 'db_server_password' in the inventory file."
-
-- name: connections_auto_start_clusters should be defined
-  assert:
-    that:
-    - connections_auto_start_clusters is defined and connections_auto_start_clusters != ''
-    msg: "Set the value of 'connections_auto_start_clusters' in the inventory file."
-
-- name: connections_jmx_clusters should be defined
-  assert:
-    that:
-    - connections_jmx_clusters is defined and connections_jmx_clusters != ''
-    msg: "Set the value of 'connections_jmx_clusters' in the inventory file."
-
-- name: component_pack_package_name should be defined
-  assert:
-    that:
-    - component_pack_package_name is defined and component_pack_package_name != ''
-    msg: "Set the value of 'component_pack_package_name' in the inventory file."

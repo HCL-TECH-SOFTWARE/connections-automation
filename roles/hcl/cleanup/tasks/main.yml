@@ -92,6 +92,18 @@
   when:
    - __force_destroy_websphere == true
 
+- name:                    Cleanup content of mounted folders
+  shell:                   "rm -rf {{ item }}/*"
+  ignore_errors:           true
+  tags: was_cleanup
+  when:
+   - __force_destroy_websphere == true
+  with_items:
+   - /opt/IBM/SharedArea
+   - /opt/HCL/MessageStore
+   - /nfs/data/shared
+   - /nfs/data/messageStores
+
 - name:                    Unmount /opt/IBM/SharedArea
   command:                 umount -f /opt/IBM/SharedArea
   ignore_errors:           true
@@ -130,3 +142,24 @@
    - /opt/IBM/WebSphere
    - /opt/IBM/SharedArea
    - /opt/IBM/IMShared
+
+- name:                    Kill all Oracle processes
+  shell:                   ps -ef | grep ora | awk {'print $2'} | xargs kill -9
+  ignore_errors:           true
+  tags:                    oracle_cleanup
+  when:
+   - __force_destroy_oracle == true
+
+- name:                    Cleanup oracle folders
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags:                    oracle_cleanup
+  when:
+   - __force_destroy_oracle == true
+  with_items:
+   - /opt/oracle
+   - /opt/ORCLfmap
+   - /etc/oratab
+   - /etc/oraInst.loc
+   - /tmp/.oracle

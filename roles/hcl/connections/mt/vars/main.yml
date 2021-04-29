@@ -1,6 +1,16 @@
 ---
   __tmp_dir:                   "{{ tmp_dir | default('/opt/HCL/Binaries') }}"
 
+# LDAP - OpenLDAP Ansible defaults
+
+  __ldap_server_default:       "{{ hostvars[groups['ldap_servers'][0]]['inventory_hostname'] }}"
+  __ldap_server:               "{{ ldap_server | default( __ldap_server_default ) }}"
+  __ldap_bind_user:            "{{ ldap_bind_user | default('cn=Admin,ou=collab,dc=cnx,dc=pnp-hcl,dc=com') }}"
+  __ldap_bind_pass:            "{{ ldap_bind_pass | default('password') }}"
+  __ldap_realm:                "{{ ldap_realm | default('ou=collab,dc=cnx,dc=pnp-hcl,dc=com') }}"
+
+# Globals
+
   __mt_zip:                    "{{ mt_zip | default('connections-mt-update-7.0.0.zip') }}"
   __product_id:                "\"id='com.ibm.connections'\""
   __mt_skip_error_checking:    "{{ mt_skip_error_checking  | default('false') }}"
@@ -19,7 +29,7 @@
   __db_user_password:          "{{ db_password | default('password') }}"
   __ssh_passphrase:            "{{ ssh_passphrase | default(was_password) }}"
   __ldap_href_port:            "{{ ldap_href_port | default('389') }}"
-  __ldap_provision_server:     "{{ ldap_provision_server | default( ldap_server ) }}"
+  __ldap_provision_server:     "{{ ldap_provision_server | default( __ldap_server ) }}"
   __ldap_provision_port:       "{{ ldap_provision_port | default('389') }}"
 
 # config.properties - AutoDeploy
@@ -40,12 +50,12 @@
   __db_password_r:             "{{ __db_user_password }}"
 
 # config.properties - Connections
-  __mt_cnx_url_r:              "{{ cnx_application_ingress }}"
-  __mt_ldap_url_r:             "ldap://{{ ldap_server }}:{{ __ldap_href_port }}"
+  __mt_cnx_url_r:              "{{ ic_internal }}"
+  __mt_ldap_url_r:             "ldap://{{ __ldap_server }}:{{ __ldap_href_port }}"
   __mt_ldap_auth_r:            "{{ mt_ldap_auth | default('simple') }}"
-  __mt_ldap_sec_principal_r:   "{{ ldap_bind_user }}"
-  __mt_ldap_basedn_r:          "{{ ldap_realm }}"
-  __mt_ldap_sec_password_r:    "{{ ldap_bind_pass }}"
+  __mt_ldap_sec_principal_r:   "{{ __ldap_bind_user }}"
+  __mt_ldap_basedn_r:          "{{ __ldap_realm }}"
+  __mt_ldap_sec_password_r:    "{{ __ldap_bind_pass }}"
 
 # config.properties - OIDC
   __mt_oidc_enabled_r:         "{{ mt_oidc_enabled  | default('false') }}"
@@ -72,9 +82,9 @@
 # config.properties - MT provisioning
   __provision_mt_url_r:                        "{{ provision_mt_url | default( cnx_application_ingress ) }}"
   __provision_mt_ldap_url_r:                   "ldap://{{ __ldap_provision_server }}:{{ __ldap_provision_port }}"
-  __provision_mt_ldapusername_r:               "{{ provision_mt_ldapusername | default( ldap_bind_user ) }}"
-  __provision_mt_ldappassword_r:               "{{ provision_mt_ldappassword | default( ldap_bind_pass ) }}"
-  __provision_mt_saasorgldapdn_r:              "cn=Organizations,{{ ldap_realm }}"
+  __provision_mt_ldapusername_r:               "{{ provision_mt_ldapusername | default( __ldap_bind_user ) }}"
+  __provision_mt_ldappassword_r:               "{{ provision_mt_ldappassword | default( __ldap_bind_pass ) }}"
+  __provision_mt_saasorgldapdn_r:              "cn=Organizations,{{ __ldap_realm }}"
   __provision_mt_defaultsubscriberlocal_r:     "{{ provision_mt_defaultsubscriberlocal | default('en_US') }}"
   __provision_mt_bssadminusername_r:           "{{ provision_mt_bssadminusername | default( __ic_admin_username ) }}"
   __provision_mt_bssadminpassword_r:           "{{ provision_mt_bssadminpassword | default( __ic_admin_password ) }}"

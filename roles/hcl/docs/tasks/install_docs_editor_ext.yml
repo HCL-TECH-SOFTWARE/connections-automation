@@ -3,6 +3,9 @@
     path:             "{{ __docs_editor_ext_install_success_file }}"
   register:           editor_ext_already_installed
 
+- name:               Get the names of the clusters
+  include_tasks:      get_cluster_names.yml
+
 - name:               Edit cfg.properties
   lineinfile:
     path:            "{{ __editor_ext_cfg_prop_location }}/cfg.properties"

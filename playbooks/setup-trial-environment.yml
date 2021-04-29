@@ -11,7 +11,7 @@
   import_playbook:       third_party/setup-docker-registry.yml
 
 - name:                  Setup Kubernetes
-  import_playbook:       third_party/kubernetes/setup-kubernetes-single-node.yml
+  import_playbook:       third_party/kubernetes/setup-kubernetes.yml
 
 - name:                  Setup DB2
   import_playbook:       third_party/setup-db2.yml

@@ -37,3 +37,6 @@ grafana:
      node-exporter-dashboard:
        gnetId: 12486
        datasource: Prometheus
+     OracleDB Monitoring performance and table space stats:
+       gnetId: 13555
+       datasource: Prometheus

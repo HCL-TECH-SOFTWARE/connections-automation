@@ -8,7 +8,7 @@
 - debug: var=helm_version.stdout
 
 - name:                      Check if bootstrap can be deleted after all with Helm
-  shell:                     helm ls | grep bootstrap | grep -i DEPLOYED
+  shell:                     "helm ls --namespace {{ __default_namespace }} | grep bootstrap"
   changed_when:              true
   register:                  bootstrap_already_provisioned
   become_user:               "{{ __sudo_user }}"
@@ -22,7 +22,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Delete bootstrap if already exists - Helm v3
-  command:                   helm uninstall bootstrap
+  command:                   "helm uninstall bootstrap --namespace {{ __default_namespace }}"
   when:
    - bootstrap_already_provisioned.rc == 0
    - helm_version.stdout != "v2"

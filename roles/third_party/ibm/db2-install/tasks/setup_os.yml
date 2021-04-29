@@ -32,6 +32,7 @@
   selinux:
     state:           disabled
   ignore_errors:     true
+  notify:            reboot
 
 - name:                     "Configure nproc soft = {{ __param_nproc_soft }}"
   pam_limits:
@@ -67,10 +68,6 @@
     limit_type:             soft
     limit_item:             stack
     value:                  "{{ __param_stack_soft }}"
-
-- name:                     Disable swap
-  command:                  swapoff -a
-  when:                     ansible_swaptotal_mb > 0
 
 - name:                     Tune net.ipv4.ip_forward
   sysctl:
