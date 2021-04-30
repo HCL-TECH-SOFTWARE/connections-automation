@@ -86,6 +86,7 @@ db_server_password:                              "{{ db_password }}"
 setup_connections_docs:                          true
 
 nfs_export_netmask:                              255.0.0.0
+skip_nfs_mount_for_connections:                  true
 
 docs_shared_storage_type:                        nfs
 docs_data_remote_path:                           /nfs/docs_data
