@@ -1,8 +1,8 @@
 ---
 # Mandatory changes!
 
-cnx_component_pack_ingress:                      "web.internal.example.com"
-cnx_application_ingress:                         "connections.example.com"
+cnx_component_pack_ingress:                      "connections.internal"
+cnx_application_ingress:                         "connections.internal"
 
 # Usernames and password for eventual customization. Shown here are default usernames and password. Change it to customize it
 
@@ -30,19 +30,19 @@ sudo_group:                                      wheel
 
 # Type of HCL Connections deployment: small (default), medium and large.
 #cnx_deploy_type:                                small
-ldap_user_mail_domain:                           "connections.example.com"
+ldap_user_mail_domain:                           "connections.internal"
 
-db2_download_location:                           http://{{ groups['installer'][0] }}:8001/DB2
-tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/TDI
-connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
-iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP18
-ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP18
-cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
-cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
-component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
+db2_download_location:                           http://{{ groups['installer'][0] }}:8001/
+tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/
+connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/
+iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/
+was_repository_url:                              http://{{ groups['installer'][0] }}:8001/
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/
+ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/
+cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/
+cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/
+component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/
 
 cnx_updates_enabled:                             True
 
@@ -86,6 +86,7 @@ db_server_password:                              "{{ db_password }}"
 setup_connections_docs:                          true
 
 nfs_export_netmask:                              255.0.0.0
+skip_nfs_mount_for_connections:                  true
 
 docs_shared_storage_type:                        nfs
 docs_data_remote_path:                           /nfs/docs_data

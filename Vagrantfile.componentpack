@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
           ansible.playbook = "playbooks/vagrant/vagrant-all-in-one-componentpack.yml"
           ansible.limit = "all"
           ansible.become = true
-          ansible.inventory_path = "environments/examples/vagrant/vagrant_componentpack_inventory"
+          ansible.inventory_path = "environments/examples/vagrant/inventory.ini"
         end
       end
     end
