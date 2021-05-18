@@ -20,8 +20,8 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for infrastructure to come up
-  pause:
-    seconds:                 300
+  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=mongo --timeout=300s
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if appregistry-client is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-client | grep -i Running

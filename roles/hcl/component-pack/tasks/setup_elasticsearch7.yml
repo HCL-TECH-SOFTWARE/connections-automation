@@ -19,9 +19,9 @@
   command:                   "helm upgrade elasticsearch7 {{ elasticsearch7_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Give it some space...
-  pause:
-    seconds:                 300
+- name:                      Wait for es-data-7-0 pod to become ready
+  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=statefulset.kubernetes.io/pod-name=es-data-7-0 --timeout=300s
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if elasticsearch master is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-master-7 | grep -i Running
