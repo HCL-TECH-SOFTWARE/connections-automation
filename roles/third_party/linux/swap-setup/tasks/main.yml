@@ -1,3 +1,9 @@
+- name:                       Check if swap is already configured on the server
+  shell:                      /usr/bin/cat /proc/swaps | grep -v Filename
+  #changed_when:               true
+  register:                   swap_is_already_configured
+  ignore_errors:              true
+
 - name:                       Verify if swap is already configured by Ansible
   stat:
     path:                     "{{ __swapfile_success }}"
@@ -7,3 +13,4 @@
   include_tasks:              configure_swap.yml
   when:
     - not swap_configured_by_ansible.stat.exists
+    - swap_is_already_configured.rc != 0
