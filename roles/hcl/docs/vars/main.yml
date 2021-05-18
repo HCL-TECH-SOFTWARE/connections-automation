@@ -81,7 +81,7 @@ __shared_data_dir:                        "shared_data_dir="
 __shared_data_dir_r:                      "shared_data_dir={{ __docs_data_local_path }}"
 __editor_scope_name_r:                    "scope_name={{ __editor_cluster_name }}"
 
-__db_hostname_default:                    "{{ db_hostname | default( inventory_hostname ) }}"
+__db_hostname_default:                    "{{ db_hostname | default( hostvars[groups['db_servers'][0]]['inventory_hostname'] ) }}"
 __db_hostname:                            "db_hostname="
 __db_hostname_r:                          "db_hostname={{ __db_hostname_default }}"
 #__db_type is set by get_db_type.yml
