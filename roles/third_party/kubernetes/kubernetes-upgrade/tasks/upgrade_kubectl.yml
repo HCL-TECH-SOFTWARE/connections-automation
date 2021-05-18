@@ -1,0 +1,30 @@
+---
+- name:                    Run kubectl version
+  command:                 "kubectl version --client --short"
+  register:                kubectl_version_output
+  ignore_errors:           True
+
+- name:                    Get kubectl version
+  set_fact:
+    kubectl_version:       "{{ kubectl_version_output.stdout | regex_search('Client Version:\\sv(.*)', '\\1') | first }}"
+  when:                    kubectl_version_output.rc == 0
+
+- set_fact:
+    kubectl_version:       "0"
+  when:                    kubectl_version_output.rc != 0
+
+- debug:
+    msg:
+      - "Current kubectl version = {{ kubectl_version }}, 0 means undetermined or not installed"
+      - "Target kubectl upgrade version = {{ __kubernetes_version }}"
+
+- name:                    Delete old version if exists
+  file:
+    path:                  "{{ __kube_binaries_install_dir }}/kubectl"
+    state:                 absent
+  when:                    __kubernetes_version is version( kubectl_version, '>')
+
+- name:                    Install new kubectl version
+  include_tasks:
+    file:                  ../../kubernetes-install/tasks/install_kubectl.yml
+  when:                    __kubernetes_version is version( kubectl_version, '>')
