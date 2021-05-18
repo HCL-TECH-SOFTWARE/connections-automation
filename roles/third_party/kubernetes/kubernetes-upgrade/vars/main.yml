@@ -8,3 +8,6 @@ __kubeadm_config_location:      "{{ __ansible_cache }}/kubeadm-config.yaml"
 
 __load_balancer_dns:            "{{ load_balancer_dns | default('localhost') }}"
 __pod_subnet:                   "{{ pod_subnet | default('192.168.0.0/16') }}"
+
+__kube_binaries_install_dir:    "{{ kube_binaries_install_dir | default('/usr/bin') }}"
+__kube_binaries_download_url:   "{{ kube_binaries_download_url | default('https://storage.googleapis.com/kubernetes-release/release') }}"

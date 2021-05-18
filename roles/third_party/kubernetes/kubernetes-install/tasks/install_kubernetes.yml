@@ -11,11 +11,21 @@
     state:                 present
     disable_excludes:      kubernetes
 
+- name:                    Find kubectl
+  shell:                   "whereis kubectl | awk '{ print $2 }'"
+  register:                kubectl_loc
+  ignore_errors:           true
+
+- name:                    Remove kubectl so the desire version will be installed {{ kubectl_loc.stdout }}
+  file:
+    path:                  "{{ kubectl_loc.stdout }}"
+    state:                 absent
+  ignore_errors:           true
+  when:
+   - kubectl_loc.rc == 0
+
 - name:                    Install Kubernetes binaries - kubectl
-  yum:
-    name:                  kubectl-{{ __kubernetes_version }}-0
-    state:                 present
-    disable_excludes:      kubernetes
+  include_tasks:           install_kubectl.yml
 
 - name:                    Add extra params for Kubelet
   template:
