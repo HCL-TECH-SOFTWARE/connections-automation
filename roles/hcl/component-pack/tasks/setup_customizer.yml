@@ -75,10 +75,6 @@
   shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=name=mw-proxy --timeout=300s
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Give it some space...
-  pause:
-    seconds:                 30
-
 - name:                      Check if customizer is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mw-proxy | grep -i Running
   when:                      not __skip_pod_checks
