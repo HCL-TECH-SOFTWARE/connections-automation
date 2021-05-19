@@ -933,12 +933,14 @@ ProxyPassReverse "/appreg" "http://{{ __load_balancer_fqdn }}:32080/appreg/"
 ProxyPass "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 
+{% if __setup_kudosboards |bool %}
 # Kudosboards Config
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
+{% endif %}
 
 # teams-share-service
 ProxyPass "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080/teams-share-service"
@@ -1007,12 +1009,14 @@ ProxyPassReverse "/appreg" "http://{{ __load_balancer_fqdn }}:32080/appreg/"
 ProxyPass "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 
+{% if __setup_kudosboards |bool %}
 # Kudosboards Config
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
+{% endif %}
 
 # teams-tab-ui
 ProxyPass "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"

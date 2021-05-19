@@ -21,6 +21,10 @@
   args:
     chdir:              "{{ __ihs_bin_directory }}"
 
+- name:                 "Am I going to enable ActivitiesPlus?"
+  debug:
+    msg:                "{{ __setup_kudosboards }}"
+
 - name:                 "Generate httpd.conf"
   template:
     src:                "httpd.conf.j2"
