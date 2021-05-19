@@ -57,11 +57,17 @@
     format:                  zip
   become:                    false
 
-- name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
-  synchronize: 
+- name:                      Copy {{ __es_certs_dir_temp }}.zip to local
+  fetch:
     src:                     "{{ __es_certs_dir_temp }}.zip"
-    dest:                    /tmp
-    mode:                    pull
+    dest:                    "{{ __es_certs_dir_temp }}.zip"
+    flat:                    yes
+  become:                    false
+
+- name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
+  copy:
+    src:                     "{{ __es_certs_dir_temp }}.zip"
+    dest:                    "{{ __es_certs_dir_temp }}.zip"
   delegate_to:               "{{ dmgr_hostname }}"
   become:                    false
 
