@@ -42,7 +42,7 @@ __docker_registry_password:                  "{{ docker_registry_password | defa
 __network_host:                              "{{ network_host | default('_site_') }}"
 __download_location:                         "{{ component_pack_download_location | default('http://localhost:8000') }}"
 __package_name:                              "{{ component_pack_package_name | default('hybridcloud_latest.zip') }}"
-__extraction_folder:                         "/opt/hcl-cnx-component-pack"
+__extraction_folder:                         "{{ component_pack_extraction_folder | default('/opt/hcl-cnx-component-pack') }}"
 
 __helmbuilds_folder:                         "{{ __extraction_folder }}/microservices_connections/hybridcloud/helmbuilds"
 __support_folder:                            "{{ __extraction_folder }}/microservices_connections/hybridcloud/support"
