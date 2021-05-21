@@ -34,5 +34,5 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup connections-outlook-desktop
-  command:                   "helm upgrade connections-outlook-desktop {{ outlook_tgz.files[0].path }} -i -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade connections-outlook-desktop {{ outlook_tgz.files[0].path }} -i -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"

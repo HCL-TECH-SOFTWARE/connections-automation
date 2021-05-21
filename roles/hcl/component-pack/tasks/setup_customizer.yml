@@ -68,7 +68,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup customizer
-  command:                   "helm upgrade mw-proxy {{ customizer_tgz.files[0].path }} -i -f {{ __customizer_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade mw-proxy {{ customizer_tgz.files[0].path }} -i -f {{ __customizer_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for mw-proxy to come up

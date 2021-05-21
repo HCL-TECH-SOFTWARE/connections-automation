@@ -93,10 +93,17 @@
   when:
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
+  register: docker_registry_status
 
-- name:                             Wait a bit, container is just starting
-  pause:
-    seconds:                        30
+- name:                             Save Docker Registry status
+  set_fact:
+    docker_registry_is_running:     "{{ docker_registry_status.ansible_facts.docker_container.State.Running }}"
+
+- name:                             Fail if Docker Registry is not running
+  fail:
+    msg: "Docker Registry could not be started"
+  when: 
+   - not docker_registry_is_running
 
 - name:                             Test Docker Registry Login on RHEL
   vars:

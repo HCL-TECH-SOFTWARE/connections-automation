@@ -10,7 +10,7 @@
     __everyone:        "no"
     __allauth:         "no"
     __users:           "{{ __ic_admin_username }}"
-    __groups:          "{{ __ic_admin_password }}"
+    __groups:          ""
   with_items:
     - Communities
     - Profiles

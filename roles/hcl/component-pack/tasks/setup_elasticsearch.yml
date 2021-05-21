@@ -16,12 +16,8 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup elasticsearch
-  command:                   "helm upgrade elasticsearch {{ elasticsearch_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade elasticsearch {{ elasticsearch_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
-
-- name:                      Give it some space...
-  pause:
-    seconds:                 300
 
 - name:                      Check if es-master is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-master | grep -i Running

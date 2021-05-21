@@ -34,5 +34,5 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup kudosboards
-  command:                   "helm upgrade kudos-boards-cp {{ kudosboards_tgz.files[0].path }} -i -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }} --recreate-pods"
+  command:                   "helm upgrade kudos-boards-cp {{ kudosboards_tgz.files[0].path }} -i -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }}"
   become_user:               "{{ __sudo_user }}"

@@ -16,7 +16,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup tailored_exp
-  command:                   "helm upgrade tailored-exp {{ tailored_exp_tgz.files[0].path }} -i -f {{ __tailored_exp_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade tailored-exp {{ tailored_exp_tgz.files[0].path }} -i -f {{ __tailored_exp_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for te-creation-wizard to come up

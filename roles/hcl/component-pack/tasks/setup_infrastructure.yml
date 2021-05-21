@@ -16,7 +16,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup infrastructure
-  command:                   "helm upgrade infrastructure {{ infrastructure_tgz.files[0].path }} -i -f {{ __infrastructure_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade infrastructure {{ infrastructure_tgz.files[0].path }} -i -f {{ __infrastructure_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for infrastructure to come up

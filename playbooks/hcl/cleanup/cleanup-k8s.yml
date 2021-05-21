@@ -1,5 +1,9 @@
 # Cleanup
 ---
+- name:                    Gather facts
+  hosts:                   nfs_servers
+  tasks:                   []
+
 - name:                    Cleanup Kubernetes
   hosts:                   k8s_masters, k8s_workers
   become:                  true

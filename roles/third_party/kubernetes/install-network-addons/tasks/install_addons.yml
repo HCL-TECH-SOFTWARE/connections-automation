@@ -6,7 +6,7 @@
   become:             false
 
 - name:               Install the Pod network add on as per documentation - Calico
-  command:            kubectl apply -f https://docs.projectcalico.org/v{{ __calico_version }}/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+  command:            kubectl apply -f https://docs.projectcalico.org/v{{ __calico_version }}/manifests/calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - not __calico_install_latest

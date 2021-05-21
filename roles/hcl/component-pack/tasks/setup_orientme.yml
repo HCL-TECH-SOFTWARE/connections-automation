@@ -16,7 +16,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup orientme
-  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for people-migrate pod to become ready

@@ -25,3 +25,10 @@
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Restart Docs Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/docs/stop_docs_clusters
+    - roles/hcl/docs/start_docs_clusters
