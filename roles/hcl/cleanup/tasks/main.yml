@@ -1,9 +1,33 @@
-
 - name:                    Reset Kubernetes
   command:                 kubeadm reset -f
   ignore_errors:           true
   tags:                    k8s_cleanup
   when:
+   - __force_destroy_kubernetes == true
+
+- name:                    Create local mount point "{{ __nfs_master_files_mount }}"
+  file:
+    path:                  "{{ __nfs_master_files_mount }}"
+    state:                 directory
+    mode:                  '0755'
+  tags:                    k8s_cleanup
+  ignore_errors:           true
+  when:
+   - inventory_hostname == groups['k8s_masters'][0]
+   - __force_destroy_kubernetes == true
+
+- name:                    Mount "{{ __nfs_master_files_dest }}" to "{{ __nfs_master_files_mount }}" first
+  mount:
+    fstype:                nfs
+    opts:                  defaults
+    dump:                  0
+    passno:                0
+    state:                 mounted
+    src:                   "{{ __nfs_master_files_dest }}"
+    path:                  "{{ __nfs_master_files_mount }}"
+  tags:                    k8s_cleanup
+  when:
+   - inventory_hostname == groups['k8s_masters'][0]
    - __force_destroy_kubernetes == true
 
 - name:                    Cleanup K8S
@@ -13,10 +37,43 @@
   when:
    - __force_destroy_kubernetes == true
 
+- name:                    Find kubectl
+  shell:                   "whereis kubectl | awk '{ print $2 }'"
+  register:                kubectl_loc
+  ignore_errors:           true
+  tags:                    k8s_cleanup
+  when:
+   - __force_destroy_kubernetes == true
+
+- name:                    Delete kubectl if exists {{ kubectl_loc.stdout }}
+  file:
+    path:                  "{{ kubectl_loc.stdout }}"
+    state:                 absent
+  ignore_errors:           true
+  tags:                    k8s_cleanup
+  when:
+   - __force_destroy_kubernetes == true and kubectl_loc.rc == 0
+
+- name:                    Cleanup CP NFS data
+  shell:                   "rm -rf {{ __nfs_master_files_mount }}/*/*"
+  ignore_errors:           true
+  tags:                    k8s_cleanup
+  when:
+   - inventory_hostname == groups['k8s_masters'][0]
+   - __force_destroy_kubernetes == true
+
 - name:                    Unmount /mnt/customizations
   command:                 umount -f /mnt/customizations
   tags:                    k8s_cleanup
-  when: 
+  when:
+   - inventory_hostname == groups['k8s_masters'][0]
+   - __force_destroy_kubernetes == true
+  ignore_errors:           true
+
+- name:                    Unmount {{ __nfs_master_files_mount }}
+  command:                 umount -f {{ __nfs_master_files_mount }}
+  tags:                    k8s_cleanup
+  when:
    - inventory_hostname == groups['k8s_masters'][0]
    - __force_destroy_kubernetes == true
   ignore_errors:           true
