@@ -65,7 +65,7 @@
     msg:                     "{{ cnxingress_tgz.files[0].path }}"
 
 - name:                      Setup cnx-ingress
-  command:                   "helm upgrade cnx-ingress {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingress_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade cnx-ingress {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingress_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space...

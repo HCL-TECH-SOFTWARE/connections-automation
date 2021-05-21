@@ -16,7 +16,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup elasticsearch7
-  command:                   "helm upgrade elasticsearch7 {{ elasticsearch7_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade elasticsearch7 {{ elasticsearch7_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for es-data-7-0 pod to become ready

@@ -16,7 +16,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup teams
-  command:                   "helm upgrade teams {{ teams_tgz.files[0].path }} -i -f {{ __teams_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade teams {{ teams_tgz.files[0].path }} -i -f {{ __teams_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for teams to come up

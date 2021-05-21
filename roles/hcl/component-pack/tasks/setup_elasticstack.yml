@@ -12,7 +12,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup elasticstack
-  command:                   "helm upgrade elasticstack {{ elasticstack_tgz.files[0].path }} -i -f {{ __elasticstack_env }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade elasticstack {{ elasticstack_tgz.files[0].path }} -i -f {{ __elasticstack_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for Kibana, Filebeat and Logstash to come up
