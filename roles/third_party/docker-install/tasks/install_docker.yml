@@ -41,17 +41,9 @@
     option:                 enabled
     value:                  0
 
-- name:                     Install container-selinux from RPM
+- name:                     Install containerd.io {{ __containerd_version }}
   package:
-    name:                   http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.119.2-1.911c772.el7_8.noarch.rpm
-    state:                  present
-  when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "7"
-
-- name:                     Install containerd.io
-  package:
-    name:                   containerd.io
+    name:                   containerd.io-{{ __containerd_version }}
     state:                  present
     allow_downgrade:        yes
   when:
