@@ -44,6 +44,10 @@ __lcc_force_comm_xpath:        "/tns:config/tns:forceConfidentialCommunications"
 # LanguageSelector
 __lcc_languageselector_xpath:  "/tns:config/tns:languageSelector"
 
+# full icec
+__cnx_enable_full_icec:        "{{ cnx_enable_full_icec | default('false') }}"
+__lcc_full_icec_xpath:         "/tns:config/tns:properties/tns:genericProperty[@name=\"icec.light\"]"
+
 # Moderation - contentreview-config.xml
 __cnx_enable_moderation:     "{{ cnx_enable_moderation | default('false') }}"
 __contentreview_full_path:   "/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/{{ __was_cellname }}/LotusConnections-config/contentreview-config.xml"
@@ -83,4 +87,3 @@ __mobilecfg_namespaces:
   xsi="http://www.w3.org/2001/XMLSchema-instance"
 __mobilecfg_push_xpath:             "/tns:config/tns:Push"
 __mobilecfg_mobileadmin_xpath:      "/tns:config/tns:MobileAdmin"
-
