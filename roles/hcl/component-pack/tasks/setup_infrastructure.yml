@@ -41,6 +41,12 @@
   when:                      not __skip_pod_checks
   become_user:               "{{ __sudo_user }}"
 
+- name:                      Check if middleware-jsonapi is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i middleware-jsonapi | grep -i Running
+  changed_when:              true
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"
+
 - name:                      Check if mongo is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mongo | grep -i Running
   changed_when:              true
