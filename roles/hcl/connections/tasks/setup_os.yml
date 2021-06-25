@@ -61,26 +61,6 @@
   delegate_to:         "{{ item }}"
   with_items:          "{{ groups['was_servers'] }}"
 
-- name:                Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM
-  yum:
-    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos7.x86_64.rpm
-    state:             present
-    disable_gpg_check: yes
-  when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "7"
-
-- name:                Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM on WAS servers
-  yum:
-    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos7.x86_64.rpm
-    state:             present
-    disable_gpg_check: yes
-  when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "7"
-  delegate_to:         "{{ item }}"
-  with_items:          "{{ groups['was_servers'] }}"
-
 - name:                Install wkhtmltox-0.12.6-1.centos8.x86_64.rpm from RPM
   yum:
     name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
