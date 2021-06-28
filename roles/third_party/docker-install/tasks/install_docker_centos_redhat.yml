@@ -3,10 +3,6 @@
   debug:
     msg:                    "{{ ansible_distribution }}"
 
-- name:                     Show me Linux distribution major version
-  debug:
-    msg:                    "{{ ansible_distribution_major_version }}"
-
 - name:                     Show me Linux distribution version
   debug:
     msg:                    "{{ ansible_distribution_version }}"
@@ -16,23 +12,13 @@
     url:                    https://download.docker.com/linux/centos/docker-ce.repo
     dest:                   /etc/yum.repos.d/docker-ce.repo
 
-- name:                     Replace baseurl on RedHat 7
+- name:                     Replace baseurl on RedHat
   replace:
     path:                   /etc/yum.repos.d/docker-ce.repo
     regexp:                 '^baseurl.*$'
     replace:                'baseurl=https://download.docker.com/linux/centos/7/x86_64/stable'
   when:
-    - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version == "7"
-
-- name:                     Replace baseurl on RedHat 8
-  replace:
-    path:                   /etc/yum.repos.d/docker-ce.repo
-    regexp:                 '^baseurl.*$'
-    replace:                'baseurl=https://download.docker.com/linux/centos/8/x86_64/stable'
-  when:
-    - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_os_family == "RedHat"
 
 - name:                     Enable Docker stable repo
   ini_file:
@@ -63,26 +49,59 @@
   when:
     - ansible_os_family == "RedHat"
 
-- name:                     Create containerd folders
-  file:
-    path:                   "/etc/containerd"
-    state:                  directory
-
-- name:                     Configure containerd
-  shell:                    containerd config default > /etc/containerd/config.toml
-
-- name:                     Use systemd as cgroup driver
-  replace:
-    path:                   /etc/containerd/config.toml
-    regexp:                 'systemd_cgroup.=.*$'
-    replace:                'systemd_cgroup = true'
+- name:                     Install docker-ce {{ __docker_version }}
+  package:
+    name:                   docker-ce-{{ __docker_version }}
+    state:                  present
+    allow_downgrade:        yes
   when:
-   - ansible_distribution == "RedHat"
-   - ansible_distribution_major_version == "7"
+    - ansible_os_family == "RedHat"
 
-- name:                     Restart containerd
+- name:                     Install docker-ce-cli {{ __docker_version }}
+  package:
+    name:                   docker-ce-cli-{{ __docker_version }}
+    state:                  present
+    allow_downgrade:        yes
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Install pip and passlib modules for Docker
+  vars:
+    ansible_python_interpreter:     /usr/bin/python3
+  pip:
+    name:                   ['docker', 'passlib', 'six']
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Prepare Docker folders
+  file:
+    path:                   "{{ item }}"
+    state:                  directory
+  with_items:
+   - "/etc/docker"
+   - "/etc/docker/auth"
+   - "/etc/docker/certs"
+   - "/etc/docker/registry"
+   - "/etc/docker/certs.d"
+   - "/etc/docker/certs.d/{{ inventory_hostname }}:5000"
+   - "/etc/systemd/system/docker.service.d"
+
+- name:                     Setup Docker daemon
+  template:
+    src:                    "{{ __docker_daemon_json_template }}"
+    dest:                   "{{ __docker_daemon_json_location }}"
+  when:
+   - __overlay2_enabled |bool
+
+- name:                     Add {{ __kubectl_user }} to the group docker
+  user:
+    name:                   "{{ __kubectl_user }}"
+    groups:                 docker
+    append:                 yes
+
+- name:                     Start Docker service
   service:
-    name:                   containerd
+    name:                   docker
     state:                  started
     enabled:                yes
     daemon_reload:          yes

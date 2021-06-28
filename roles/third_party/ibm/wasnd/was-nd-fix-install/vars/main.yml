@@ -9,8 +9,14 @@ __rsp_file:                "{{ __logs_dir }}/was_nd_fixes.rsp"
 __log_file:                "{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log"
 __tpl_file:                "was_nd_fixes.rsp.j2"
 
-__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp18 ) }}" 
-__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp18 ) }}"
+__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp19 ) }}"
+__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp19 ) }}"
+
+__was_fp_version_fp19:     "8.5.5019.20210118_0346"
+__was_fp_files_fp19:
+  - { file_name: 8.5.5-WS-WAS-FP019-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP019-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP019-part3.zip }
 
 __was_fp_version_fp18:     "8.5.5018.20200910_1821"
 __was_fp_files_fp18:

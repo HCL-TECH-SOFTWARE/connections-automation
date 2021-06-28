@@ -1,6 +1,7 @@
 ---
 - name:                 Backup httpd.conf
   command:              cp {{ __ihs_install_location }}/conf/httpd.conf {{ __ihs_install_location }}/conf/httpd.conf_{{ __now }}
+  ignore_errors:        true
 
 - name:                 Clean up old certificates
   command:              "rm -rf {{ item }}"

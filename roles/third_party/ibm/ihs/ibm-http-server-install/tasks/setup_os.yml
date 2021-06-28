@@ -1,4 +1,13 @@
 ---
+- name:          Disable SELinux
+  selinux:
+    state:       disabled
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+  ignore_errors: true
+  notify:        reboot
+
 - name:          Install pre-requisites Zypper
   zypper:
     name: ['glibc-32bit','libgcc_s1-32bit']

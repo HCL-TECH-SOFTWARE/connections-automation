@@ -20,6 +20,14 @@
     attribute:       "enabled"
     value:           "true"
 
+- name:              Enable full ICEC
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_full_icec_xpath }}"
+    value:           "false"
+  when:              __cnx_enable_full_icec|bool
+
 - name: Enable Languages in LotusConnections-config for {{ __profile_name }}
   xml:
     path:            "{{ __lcc_full_path }}"

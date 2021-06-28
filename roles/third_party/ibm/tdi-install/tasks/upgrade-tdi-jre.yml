@@ -96,3 +96,23 @@
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists
     - "'1.8' in updated_jre_version_stat.stdout"
+
+- name:                     Remove the previous version of Spring Jars in SDI to support Java 8
+  become:                   true
+  file:
+    path:                   "{{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ/{{ item }}"
+    state:                  absent
+  with_items:
+    - spring-beans.jar
+    - spring-context.jar
+    - spring-core.jar
+
+- name:                     Remove the previous version of Spring Jars in SDI to support Java 8
+  become:                   true
+  file:
+    path:                   "{{ __tdi_user_install_dir }}/lwi/runtime/messaging/eclipse/plugins/org.apache.activemq_5.2.0/lib/{{ item }}"
+    state:                  absent
+  with_items:
+    - spring-beans-2.5.6.jar
+    - spring-core-2.5.6.jar
+    - spring-context-2.5.6.jar

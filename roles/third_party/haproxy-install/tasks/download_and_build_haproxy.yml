@@ -12,7 +12,7 @@
   make:
     chdir:                "{{ __haproxy_download_dir }}"
     params:
-      TARGET:             linux2628
+      TARGET:             linux_glibc
       USE_PCRE:           1
       USE_OPENSSL:        1
       ARCH:               x86_64

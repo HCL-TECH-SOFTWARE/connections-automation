@@ -37,3 +37,8 @@
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-client-7 | grep -i Running
   when:                      not __skip_pod_checks
   become_user:               "{{ __sudo_user }}"
+
+- name:                      Remove Master eligible nodes using voting configuration to support scaling down
+  shell:                     kubectl exec es-master-7-0 -n "{{ __default_namespace }}" -- bash -c "probe/sendRequest.sh --to-master POST /_cluster/voting_config_exclusions?node_names=es-master-7-2,es-master-7-1"
+  become_user:               "{{ __sudo_user }}"
+

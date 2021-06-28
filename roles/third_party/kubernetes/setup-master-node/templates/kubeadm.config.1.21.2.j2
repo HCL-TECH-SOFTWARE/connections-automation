@@ -1,0 +1,85 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: v{{ __kubernetes_version }}
+apiServer:
+{% if enable_pod_security is defined %}
+  extraArgs:
+    enable-admission-plugins: PodSecurityPolicy
+{% endif %}
+{% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
+  certSANS:
+    - "{{ __load_balancer_dns }}"
+controlPlaneEndpoint: "{{ __load_balancer_dns }}:6443"
+etcd:
+  local:
+    extraArgs:
+      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_default_ipv4.address  }}:2379"
+      advertise-client-urls: "https://{{ ansible_default_ipv4.address }}:2379"
+      listen-peer-urls: "https://{{ ansible_default_ipv4.address }}:2380"
+      initial-advertise-peer-urls: "https://{{ ansible_default_ipv4.address }}:2380"
+{% if inventory_hostname  == hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
+      initial-cluster: "{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2380"
+{% elif inventory_hostname == hostvars[groups['k8s_masters'][1]]['inventory_hostname'] %}
+      initial-cluster: "{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2380,{{ hostvars[groups['k8s_masters'][1]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][1]]['ansible_default_ipv4']['address'] }}:2380"
+{% elif inventory_hostname == hostvars[groups['k8s_masters'][2]]['inventory_hostname'] %}
+      initial-cluster: "{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2380,{{ hostvars[groups['k8s_masters'][1]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][1]]['ansible_default_ipv4']['address'] }}:2380,{{ hostvars[groups['k8s_masters'][2]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][2]]['ansible_default_ipv4']['address'] }}:2380"
+{% endif %}
+{% if inventory_hostname != hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
+      initial-cluster-state: existing
+{% endif %}
+    serverCertSANs:
+      - {{ inventory_hostname }}
+      - {{ ansible_default_ipv4.address }}
+    peerCertSANs:
+      - {{ inventory_hostname }}
+      - {{ ansible_default_ipv4.address }}
+{% endif %}
+networking:
+    # This CIDR is a Calico default. Substitute or remove for your CNI provider.
+    podSubnet: "{{ __pod_subnet }}"
+{% if inventory_hostname != hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+kubernetesVersion: v{{ __kubernetes_version }}
+apiServer:
+{% if enable_pod_security is defined %}
+  extraArgs:
+    enable-admission-plugins: PodSecurityPolicy
+{% endif %}
+{% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
+  certSANS:
+    - "{{ __load_balancer_dns }}"
+controlPlaneEndpoint: "{{ __load_balancer_dns }}:6443"
+etcd:
+  local:
+    extraArgs:
+      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_default_ipv4.address  }}:2379"
+      advertise-client-urls: "https://{{ ansible_default_ipv4.address }}:2379"
+      listen-peer-urls: "https://{{ ansible_default_ipv4.address }}:2380"
+      initial-advertise-peer-urls: "https://{{ ansible_default_ipv4.address }}:2380"
+{% if inventory_hostname  == hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
+      initial-cluster: "{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2380"
+{% elif inventory_hostname == hostvars[groups['k8s_masters'][1]]['inventory_hostname'] %}
+      initial-cluster: "{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2380,{{ hostvars[groups['k8s_masters'][1]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][1]]['ansible_default_ipv4']['address'] }}:2380"
+{% elif inventory_hostname == hostvars[groups['k8s_masters'][2]]['inventory_hostname'] %}
+      initial-cluster: "{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2380,{{ hostvars[groups['k8s_masters'][1]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][1]]['ansible_default_ipv4']['address'] }}:2380,{{ hostvars[groups['k8s_masters'][2]]['inventory_hostname'] }}=https://{{ hostvars[groups['k8s_masters'][2]]['ansible_default_ipv4']['address'] }}:2380"
+{% endif %}
+{% if inventory_hostname != hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
+      initial-cluster-state: existing
+{% endif %}
+    serverCertSANs:
+      - {{ inventory_hostname }}
+      - {{ ansible_default_ipv4.address }}
+    peerCertSANs:
+      - {{ inventory_hostname }}
+      - {{ ansible_default_ipv4.address }}
+{% endif %}
+networking:
+    # This CIDR is a Calico default. Substitute or remove for your CNI provider.
+    podSubnet: "{{ __pod_subnet }}"
+{% endif %}
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd

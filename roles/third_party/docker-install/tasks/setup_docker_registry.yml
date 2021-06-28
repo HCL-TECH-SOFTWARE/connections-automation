@@ -59,9 +59,26 @@
     remote_src:                     yes
   when:                             inventory_hostname != groups['docker_registry'][0]
 
-- name:                             Restart CA Trust Store
+- name:                             Copy certificates to the trusted store on SUSE linux
+  ansible.builtin.copy:
+    src:                            /tmp/cert.pem
+    dest:                           /etc/pki/trust/anchors/
+    remote_src:                     yes
+  when:
+    - inventory_hostname != groups['docker_registry'][0]
+    - ansible_distribution == "SLES"
+
+- name:                             Restart CA Trust Store on CentOS/RedHat
   command:                          update-ca-trust
-  when:                             inventory_hostname != groups['docker_registry'][0]
+  when:
+    - inventory_hostname != groups['docker_registry'][0]
+    - ansible_distribution != "SLES"
+
+- name:                             Restart CA Trust Store on SUSE linux
+  command:                          update-ca-certificates
+  when:
+    - inventory_hostname != groups['docker_registry'][0]
+    - ansible_distribution == "SLES"
 
 - name:                             Restart Docker service
   service:
@@ -69,7 +86,7 @@
     state:                          restarted
     daemon_reload:                  yes
 
-- name:                             Create Docker Registry on RHEL
+- name:                             Create Docker Registry on RHEL/SUSE
   vars:
     ansible_python_interpreter:     /usr/bin/python3
   docker_container:
@@ -92,20 +109,24 @@
         REGISTRY_HTTP_TLS_KEY: "/certs/key.pem"
   when:
    - inventory_hostname == groups['docker_registry'][0]
-   - ansible_os_family == "RedHat"
+   - ansible_os_family == "RedHat" or ansible_distribution == "SLES"
   register: docker_registry_status
 
 - name:                             Save Docker Registry status
   set_fact:
     docker_registry_is_running:     "{{ docker_registry_status.ansible_facts.docker_container.State.Running }}"
+  when:
+   - inventory_hostname == groups['docker_registry'][0]
+   - ansible_os_family == "RedHat"
 
 - name:                             Fail if Docker Registry is not running
   fail:
     msg: "Docker Registry could not be started"
   when: 
+   - inventory_hostname == groups['docker_registry'][0]
    - not docker_registry_is_running
 
-- name:                             Test Docker Registry Login on RHEL
+- name:                             Test Docker Registry Login on RHEL/SUSE
   vars:
     ansible_python_interpreter:     /usr/bin/python3
   docker_login:
@@ -114,4 +135,4 @@
     password:                       "{{ __registry_password }}"
     reauthorize:                    yes
   when:
-   - ansible_os_family == "RedHat"
+   - ansible_os_family == "RedHat" or ansible_distribution == "SLES"

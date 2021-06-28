@@ -1,4 +1,4 @@
 ---
-__helm_version:                    "{{ helm_version | default('3.5.4') }}"
+__helm_version:                    "{{ helm_version | default('3.6.1') }}"
 __helm_url:                        "https://get.helm.sh/helm-v{{ __helm_version }}-linux-amd64.tar.gz"
 __helm_install_dir:                "{{ helm_install_dir | default('/opt/helm') }}"

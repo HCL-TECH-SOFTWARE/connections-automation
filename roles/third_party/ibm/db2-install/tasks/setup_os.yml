@@ -1,3 +1,42 @@
+- name:              Install pre-requisites Zypper
+  zypper:
+    name:            ['python3', 'libselinux-devel', 'selinux-tools', 'libselinux1', 'python3-selinux', 'kernel-default', 'libnuma1', 'libaio1', 'libstdc++6', 'unzip']
+    state:           present
+  when:
+    - ansible_distribution == "SLES"
+
+- name:              Install pre-requisites Zypper
+  zypper:
+    name:            ['pam', 'pam-config', 'yast2-pam']
+    state:           present
+  when:
+    - ansible_distribution == "SLES"
+
+- name: Creating selinux config file
+  copy:
+    dest: "/etc/selinux/config"
+    content: |
+      enforcing=1
+  when:
+    - ansible_distribution == "SLES"
+
+- name: Add content to blacklist.conf
+  copy:
+    dest: "/etc/modprobe.d/blacklist.conf"
+    content: |
+      blacklist iTCO_wdt
+      blacklist iTCO_vendor_support
+  when:
+    - ansible_distribution == "SLES"
+
+- name: Copy OS details in /etc/SuSE-release
+  ansible.builtin.copy:
+    src: /etc/os-release
+    dest: /etc/SuSE-release
+    remote_src: yes
+  when:
+    - ansible_distribution == "SLES"
+
 - name:              Install pre-requisites Yum for CentOS 7 - epel-release
   yum:
     name:            ['epel-release']
@@ -11,6 +50,8 @@
   yum:
     name:            "@Development tools"
     state:           present
+  when:
+    - ansible_distribution == "CentOS"
 
 - name:              Install pre-requisites Yum
   yum:
