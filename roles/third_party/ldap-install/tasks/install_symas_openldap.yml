@@ -1,0 +1,27 @@
+---
+- name:                     Install pre-requisites symas
+  yum:
+    name:                   ['wget']
+    state:                  present
+
+- name:                     Stop slapd service
+  service:
+    name:                   slapd
+    state:                  stopped
+    daemon_reload:          yes
+  ignore_errors:            true
+
+- name:                     Download Symas OpenLDAP for Linux on RHEL8
+  get_url:
+    url:                    https://repo.symas.com/configs/SOFL/rhel8/sofl.repo
+    dest:                   /etc/yum.repos.d/sofl.repo
+
+- name:                     Install symas-openldap-clients for Linux on RHEL8
+  package:
+    name:                   symas-openldap-clients
+    state:                  present
+
+- name:                     Install symas-openldap-servers for Linux on RHEL8
+  package:
+    name:                   symas-openldap-servers
+    state:                  present

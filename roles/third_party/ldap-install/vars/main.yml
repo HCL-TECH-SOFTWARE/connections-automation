@@ -7,6 +7,7 @@ __ldap_olc_suffix:              "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=c
 __ldap_admin_user:              "{{ ldap_admin_user | default('Admin') }}"
 
 __db_ldif_template:             "db.ldif.j2"
+__db_mdb_ldif_template:         "db.mdb_ldif.j2"
 __db_ldif_location:             "/tmp/db.ldif"
 
 __users_ldif_template:          "users.ldif.j2"
