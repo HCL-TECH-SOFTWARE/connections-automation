@@ -14,10 +14,24 @@
     path:                "{{ __ora_prereq_success_file }}"
   register:              oracle_prereqs_already_ran
 
+- name:                   Setup environment variables required for RHEL8
+  shell:                  echo $PATH
+  become_user:            oracle
+  environment:
+    CV_ASSUME_DISTID:     "OEL7.6"
+  when:
+    - oracle_already_running.rc != 0
+    - not oracle_prereqs_already_ran.stat.exists
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version == "8"
+  ignore_errors:         yes
+
 - name:                  "Install Oracle 19c - execute prereqs"
   command:               "{{ __ora_runinstaller_loc }} -executePrereqs  -silent -responseFile {{ __ora_server_rsp_location }}"
   become_user:           oracle
   register:              oracle_prereqs
+  environment:
+    CV_ASSUME_DISTID:     "OEL7.6"
   when:
     - oracle_already_running.rc != 0
     - not oracle_prereqs_already_ran.stat.exists
@@ -38,6 +52,8 @@
 - name:                  "Install Oracle 19c"
   command:               "{{ __ora_runinstaller_loc }} -silent  -responseFile {{ __ora_server_rsp_location }}"
   register:              ora_install_result
+  environment:
+    CV_ASSUME_DISTID:     "OEL7.6"
   failed_when:           ( ora_install_result.rc not in [0] )
   become_user:           oracle
   when:
