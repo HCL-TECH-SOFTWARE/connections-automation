@@ -6,9 +6,6 @@ __ansible_cache:                                     "/tmp/k8s_ansible"
 __kubernetes_yum_repo_template:                      "kubernetes.repo.j2"
 __kubernetes_yum_rhel8_template:                     "kubernetes.repo.rhel8.j2"
 __kubernetes_yum_repo_location:                      "/etc/yum.repos.d/kubernetes.repo"
-__kubernetes_zypp_repo_template:                     "kubernetes.zypp.repo.j2"
-__kubernetes_zypp_repo_location:                     "/etc/zypp/repos.d/kubernetes.repo"
-
 __kubelet_systemd_template:                          "etc.sysconfig.kubelet.j2"
 __kubelet_systemd_location:                          "/etc/sysconfig/kubelet"
 
