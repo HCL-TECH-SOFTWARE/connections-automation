@@ -8,6 +8,5 @@ __kubernetes_yum_rhel8_template:                     "kubernetes.repo.rhel8.j2"
 __kubernetes_yum_repo_location:                      "/etc/yum.repos.d/kubernetes.repo"
 __kubelet_systemd_template:                          "etc.sysconfig.kubelet.j2"
 __kubelet_systemd_location:                          "/etc/sysconfig/kubelet"
-
 __kube_binaries_install_dir:                         "{{ kube_binaries_install_dir | default('/usr/bin') }}"
 __kube_binaries_download_url:                        "{{ kube_binaries_download_url | default('https://storage.googleapis.com/kubernetes-release/release') }}"

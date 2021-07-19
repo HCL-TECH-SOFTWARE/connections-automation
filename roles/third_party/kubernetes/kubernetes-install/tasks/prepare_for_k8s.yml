@@ -23,7 +23,7 @@
   args:
     warn:            no
 
-- name:              Enable Kubernetes repository
+- name:              Enable Kubernetes repository based on os family
   template:
     src:             "{{ __kubernetes_yum_repo_template }}"
     dest:            "{{ __kubernetes_yum_repo_location }}"
