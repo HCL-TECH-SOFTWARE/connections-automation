@@ -31,7 +31,7 @@
    - ansible_os_family == "RedHat"
    - ansible_distribution_major_version == "7"
 
-- name:              Enable Kubernetes repository
+- name:              Enable Kubernetes repository on RedHat OS Family
   template:
     src:             "{{ __kubernetes_yum_rhel8_template }}"
     dest:            "{{ __kubernetes_yum_repo_location }}"
