@@ -1,4 +1,3 @@
----
 - name:                       Prepare OS for Nginx
   include_tasks:              setup_os.yml
 

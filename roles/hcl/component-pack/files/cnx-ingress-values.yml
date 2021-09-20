@@ -34,8 +34,8 @@ controller:
   # Optionally customize the pod dnsConfig.
   dnsConfig: {}
 
-  # Optionally change this to ClusterFirstWithHostNet in case you have 'hostNetwork: true'.
-  # By default, while using host network, name resolution uses the host's DNS. If you wish nginx-controller
+  # Optionally change this to ClusterFirstWithHostNet in case you have hostNetwork: true.
+  # By default, while using host network, name resolution uses the hosts DNS. If you wish nginx-controller
   # to keep resolving names inside the k8s network, use ClusterFirstWithHostNet.
   dnsPolicy: ClusterFirst
 
@@ -106,7 +106,7 @@ controller:
   tcp:
     configMapNamespace: ""   # defaults to .Release.Namespace
     ## Annotations to be added to the tcp config configmap
-    annotations: 
+    annotations:
       prometheus.io/port: "10254"
       prometheus.io/scrape: "true"
 
@@ -331,8 +331,8 @@ controller:
     # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
     # sessionAffinity: ""
 
-    # specifies the health check node port (numeric port number) for the service. If healthCheckNodePort isn’t specified,
-    # the service controller allocates a port from your cluster’s NodePort range.
+    # specifies the health check node port (numeric port number) for the service. If healthCheckNodePort isn't specified,
+    # the service controller allocates a port from your cluster's NodePort range.
     # Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
     # healthCheckNodePort: 0
 
