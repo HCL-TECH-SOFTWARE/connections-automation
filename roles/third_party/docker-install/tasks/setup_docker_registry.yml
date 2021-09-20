@@ -114,7 +114,7 @@
 
 - name:                             Save Docker Registry status
   set_fact:
-    docker_registry_is_running:     "{{ docker_registry_status.ansible_facts.docker_container.State.Running }}"
+    docker_registry_is_running:     "{{ docker_registry_status.container.State.Running }}"
   when:
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
@@ -122,7 +122,7 @@
 - name:                             Fail if Docker Registry is not running
   fail:
     msg: "Docker Registry could not be started"
-  when: 
+  when:
    - inventory_hostname == groups['docker_registry'][0]
    - not docker_registry_is_running
 
