@@ -1,4 +1,4 @@
-- name:                     Install pre-requisites Yum for CentOS 7 - epel-release
+- name:                     Install pre-requisites Yum for CentOS 7 epel-release
   yum:
     name:                   ['epel-release']
     enablerepo:             "extras"

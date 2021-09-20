@@ -43,7 +43,6 @@
   ignore_errors:             true
 
 - name:                      Delete cnx-ingress-rule if already exists
-  shell:                     helm del --purge cnx-ingress-rule
   shell:                     helm uninstall cnx-ingress-rule --namespace default
   become_user:               "{{ __sudo_user }}"
   when:
