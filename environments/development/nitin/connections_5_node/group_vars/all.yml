@@ -1,0 +1,151 @@
+---
+db2_download_location:                           http://{{ groups['installer'][0] }}:8001/DB2
+tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/TDI
+connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
+iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
+was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP19
+ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP19
+cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
+cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
+component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
+
+cnx_updates_enabled:                             True
+
+was_username:                                    wasadmin
+was_password:                                    passwordforwas
+
+ldap_userid:                                     "cnxuser"
+ldap_nr_of_users:                                100
+ldap_user_password:                              "passwordforldap"
+ldap_user_admin_password:                        "passwordforldap"
+
+ldap_server:                                     c7cnx2db1.internal.cnx-dev.net
+ldap_alias:                                      c7cnx2db1
+ldap_repo:                                       LDAP_PRODUCTION1
+ldap_bind_user:                                  cn=Admin,dc=cnx,dc=pnp-hcl,dc=com
+ldap_bind_pass:                                  passwordforldapslap
+ldap_realm:                                      dc=cnx,dc=pnp-hcl,dc=com
+ldap_login_properties:                           mail;uid
+
+dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
+
+smtp_hostname:                                   localhost
+
+ihs_username:                                    ihsadmin
+ihs_password:                                    passwordforihs
+
+cnx_component_pack_ingress:                      "c7cnx2web1.internal.cnx-dev.net" 
+cnx_application_ingress:                         "c7cnx2web1.cnx-dev.net"
+
+connections_admin:                               cnxuser1
+connections_admin_password:                      "{{ ldap_user_admin_password }}"
+ldap_user_mail_domain:                           "cnx.pnp-hcl.com"
+
+cnx_deploy_type:                                 medium
+
+db_username:                                     LCUSER
+db_password:                                     passwordfordb2
+db_concord_username:                             docsuser
+db_concord_password:                             passwordfordb2
+db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
+db_port:                                         50000
+db_jdbc_file:                                    /opt/IBM/db2/V11.5/java
+db_type:                                         DB2
+setup_db2_jdbc:                                  True
+
+cnx_force_repopulation:                          True
+#cnx_docs_force_repopulation:                     True
+force_destroy_containerd_images:                 True
+cnx_enable_moderation:                           True
+cnx_enable_invite:                               True
+force_destroy_oracle:                            True
+force_destroy_db2:                               True
+force_destroy_ihs:                               True
+force_destroy_websphere:                         True
+force_destroy_docs:                              True
+enable_prometheus_jmx_exporter:                  True
+
+ifix_apar:                                       CFix.70.2106
+ifix_file:                                       CFix.70.2106-IC7.0.0.0-Common-Fix.jar
+
+setup_docker_registry:                           True
+component_pack_package_name:                     hybridcloud_latest.zip
+
+enable_pod_auto_scaling:                         True
+
+ce_on_prem:                                      False
+ingress_multi_domain_enabled:                    True
+skip_pod_checks:                                 True
+#setup_installation:                              false
+#setup_images:                                    false
+#setup_credentials:                               false
+#setup_psp:                                       false
+#setup_connections_volumes:                       false
+#setup_bootstrap:                                 false
+#setup_connections_env:                           false
+#setup_infrastructure:                            false
+#setup_customizer:                                false
+#setup_elasticsearch7:                            false
+#setup_community_ingress:                         false
+#setup_teams:                                     false
+#setup_tailored_exp:                              false
+#setup_orientme:                                  false
+#setup_dashboards:                                false
+#setup_elasticstack:                              false
+#setup_sanity:                                    false
+#setup_kudosboards:                               false
+#setup_outlook_addin:                             false
+#enable_es_metrics:                               false
+#enable_gk_flags:                                 false
+#setup_ms_teams_extensions:                       false
+#skip_configure_redis:                            True
+kudos_boards_licence:                            "VZ4MWZAQM7zcuzGs2IBpIB1Y31vLpAKRFtdIfM6ma0A4vafkDMwJVdJpP2sc2Dx1q+edvAcZD9kxknNEpbxnOJvBk9GMz5hNvFDW/8eZNfY4ndiLpOcj8JKeR3eA5YA8sR8IJG83uRLQipFMeihNe/WE5dEGtJuHyTdkPT+A7iwZbIb3MOfQllNfVJJPGPnoAsUww/wIUoDtjV3UbhvqBmFgBN2Me9BjCzF1pGdvZn1jTcD4Kx00Byknu2x+3aarXPGcJcI4qBEbQLfr6Oit8U0W3JbzAWwi0IsQvSx7MuvsCq0DmZIV8zY3O/dyRXjrWcU15BCTeEqaQVpnPOkTCQ==|DnCXi1CC9ip/UW4NZCN4f/jlIRPwOVcy7JclST4jjDcX8dJ98k11Sn0xrr9uRHxL8jjdTAXTtPSZJdkvZAybTKR2XqkW4C/jDHFCAxHCYP4SiLw92m1BvFWaQsKAYiyM/Lb3wInIjmN2tjflmbnvVptZV2ma/NOGoKJSXR5DOrClp2WommhPZHj5zesSdWekfa2H+rP6EgnXYKjFapr/Y/bp5PBuBMMCTOELmEMLH3qY1LiscjyYuEc5NnK8RaNKhvrVNmnbuOV79z6bsjxXM+HZTl81JvEVcsNBTZzLNSEkirICa5Rwwj+28eiIw5DwDU9xsL5ZvtT7PJYfoMK4Tg==|BwuVfck7Vp43qo0x9jmKQtIHZf5QRTVDcOwbdV7Fm7OrysI5JgU1alC66P5Vtj2+VKT5aPcqLAZLu5t/K4JHJwxBAa7JKkliAShLvsnwgoQbwktqe7CarIIszb86AuAGEc8gG9VJY1PmnJJK8fn8EgThY23nkyDqeQEqv2taWVFEP1wx1i8EAiIk5Tich+fEmZ2//nHofBDLEg9NFaq5f7P8liQqotWpowHOb+I7dMcgF/NhjIxKFJfebzerVg9zf+r8eGrFRMP3kCNfnDhDMO7q18gNDtNaFKMxGN1AHXsTToUCohB8ocTF/7+cM7wtJZmhh5P7QVdQWljMsg+77w=="
+
+docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
+#docker_registry_url:                             "699279841026.dkr.ecr.us-west-1.amazonaws.com"
+#docker_registry_username:                        "AWS"
+load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
+
+ic_internal:                                     "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"
+frontend_fqdn:                                   "{{ cnx_application_ingress }}"
+frontend_domain:                                 "{{ cnx_application_ingress.split('.')[1:] | join('.') }}"
+db_server:                                       "{{ db_hostname }}"
+db_server_user:                                  "{{ db_username }}"
+db_server_password:                              "{{ db_password }}"
+
+#kubernetes_version:                              1.19.9
+upgrade_version:                                 1.18.18
+#docker_version:                                  19.03.15
+
+force_destroy_kubernetes:                        True
+containerd_version:                              1.4.6-3.1.el7
+setup_connections_docs:                          True
+setup_connections_wizards:                       True
+
+docs_shared_storage_type:                        nfs
+docs_data_remote_path:                           /nfs/docs_data
+docs_data_local_path:                            /mnt/docs_data
+
+viewer_shared_storage_type:                      nfs
+viewer_data_remote_path:                         /nfs/viewer_data
+viewer_data_local_path:                          /mnt/viewer_data
+
+cnx_shared_storage_type:                         nfs
+cnx_data_remote_path:                            /nfs/data/shared
+cnx_data_local_path:                             /mnt/cnx_data
+
+cnx_data_path_on_cnx_server:                     /opt/IBM/SharedArea
+
+docs_username:                                   docsuser
+docs_password:                                   password
+sudo_group:                                      orion
+#
+docs_url:                                        "{{ cnx_application_ingress }}"
+conversion_cluster_name:                         Apps
+editor_cluster_name:                             Apps
+viewer_cluster_name:                             Apps
+
+#db2_package_name:                                "v11.5.6_linuxx64_universal_fixpack.tar.gz"
+#db2_jdbc_package_name:                           "v11.5.6_jdbc_sqlj.tar.gz" 

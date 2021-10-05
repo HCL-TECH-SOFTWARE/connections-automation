@@ -1,2 +1,0 @@
-- name:                      Generate instanceids of cnx servers
-  include_tasks:             generate_cnx_instanceids.yml

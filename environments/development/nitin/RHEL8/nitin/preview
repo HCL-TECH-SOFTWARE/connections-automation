@@ -1,0 +1,143 @@
+[dmgr]
+c7cnx2connections1.internal.cnx-dev.net
+
+[was_servers]
+c7cnx2connections1.internal.cnx-dev.net
+
+[nfs_servers]
+c7cnx2connections1.internal.cnx-dev.net
+
+[ihs_servers]
+c7cnx2connections1.internal.cnx-dev.net
+
+[db2_servers]
+c7cnx2db1.internal.cnx-dev.net
+
+[db2_servers:vars]
+db_password="myPassw0rddb2"
+
+[ldap_servers]
+c7cnx2db1.internal.cnx-dev.net
+
+[ldap_servers:vars]
+ldap_nr_of_users=500
+ldap_user_password="myPassw0rdldap"
+ldap_user_admin_password="myPassw0rdldap"
+
+[ihs_servers:vars]
+ihs_username=ihsadmin
+ihs_password=myPassw0rdihs
+
+[all:vars]
+db2_download_location=http://c7installer1.internal.cnx-dev.net:8001/DB2
+tdi_download_location=http://c7installer1.internal.cnx-dev.net:8001/TDI
+db2_wizards_download_location=http://c7installer1.internal.cnx-dev.net:8001/Connections7
+iim_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+was_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+was_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP18
+ihs_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+ihs_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP18
+cnx_docs_download_location=http://c7installer1.internal.cnx-dev.net:8001/Docs
+cnx_repository_url=http://c7installer1.internal.cnx-dev.net:8001/ConnectionsIFix
+#cnx_download_location=http://c7installer1.internal.cnx-dev.net:8001/ConnectionsIFix
+
+cnx_updates_enabled=True
+
+was_username=wasadmin
+was_password=myPassw0rdwas
+#
+ldap_server=c7cnx2db1.internal.cnx-dev.net
+ldap_alias=c7cnx2db1
+ldap_repo=LDAP_PRODUCTION1
+ldap_bind_user=cn=Admin,dc=cxn,dc=pnp-hcl,dc=com
+ldap_bind_pass=myPassw0rdldapslap
+ldap_realm=dc=cxn,dc=pnp-hcl,dc=com
+ldap_login_properties=mail;uid
+#
+dmgr_hostname=c7cnx2connections1.internal.cnx-dev.net
+was_domainname=.internal.cnx-dev.net
+domain_name=.internal.cnx-dev.net
+cnx_domainname=.internal.cnx-dev.net
+smtp_hostname=localhost
+#
+ihs_password=myPassw0rdihs
+
+cnx_webserver="c7cnx2connections1"
+cnx_component_pack_ingress="c7cnx2web1.internal.cnx-dev.net"
+cnx_application_ingress="c7cnx2web1.cnx-dev.net"
+sso_domainname=.internal.cnx-dev.net;.cnx-dev.net
+
+connections_admin=jjones1
+
+cnx_deploy_type=small
+cnx_node_list=['c7cnx2connections1']
+cnx_hostname_list=['c7cnx2connections1.internal.cnx-dev.net']
+ihs_hostname_list=['c7cnx2connections1.internal.cnx-dev.net']
+
+common_app={ 'cluster_name': 'Infra', 'nodes':['c7cnx2connections1']}
+communities_app={ 'cluster_name': 'Infra', 'nodes':['c7cnx2connections1']}
+news_app={ 'cluster_name': 'Infra', 'nodes':['c7cnx2connections1']}
+widgets_app={ 'cluster_name': 'Infra', 'nodes':['c7cnx2connections1']}
+profiles_app={ 'cluster_name': 'Infra', 'nodes':['c7cnx2connections1']}
+search_app={ 'cluster_name': 'Infra', 'nodes':['c7cnx2connections1']}
+
+homepage_app={ 'cluster_name': 'Util', 'nodes':['c7cnx2connections1']}
+moderation_app={ 'cluster_name': 'Util', 'nodes':['c7cnx2connections1']}
+rte_app={ 'cluster_name': 'Util', 'nodes':['c7cnx2connections1']}
+
+activities_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+blogs_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+dogear_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+files_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+forums_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+metrics_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+mobile_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+wikis_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+ic360_app={ 'cluster_name': 'Apps', 'nodes':['c7cnx2connections1']}
+
+push_app={ 'cluster_name': 'Push', 'nodes':['c7cnx2connections1']}
+
+connections_jmx_clusters=[{"name":"Apps","port":"8080"}, {"name":"Infra","port":"8081"}, {"name":"Util","port":"8082"}, {"name":"Push","port":"8083"}]
+
+connections_auto_start_clusters='Util Apps Infra Push'
+
+db_username=LCUSER
+db_password=myPassw0rddb2
+db_hostname=c7cnx2db1.internal.cnx-dev.net
+db_port=50000
+db_jdbc_file=/opt/IBM/db2/V11.1/java
+db_type=DB2
+
+#cnx_force_repopulation=True
+#db_enable_upgrades=True
+
+activities_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+blogs_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+dogear_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+communities_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+files_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+forums_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+homepage_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+metrics_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+mobile_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+profiles_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+push_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+wikis_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+icec_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+ic360_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+
+cnx_enable_moderation=true
+cnx_enable_invite=true
+
+force_destroy_db2=True
+force_destroy_ihs=True
+force_destroy_websphere=True
+enable_prometheus_jmx_exporter=True
+
+setup_prometheus_operator=True
+setup_prometheus_node_exporter=True
+# If you plan to install iFix 7.0.0.1 for HCL Connections 7.0, you need those two variables set with those
+# values as well:
+cnx_ifix_installer="updateInstaller_2102.zip"
+ifix_apar=LO100079
+ifix_file=HCL_Connections_70_Update.jar

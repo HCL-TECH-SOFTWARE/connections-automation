@@ -1,6 +1,0 @@
-#AWS ELB Vars
-__vpcid:                                           "{{ vpcid | default('vpc-02798bf7685b2fdb2') }}"
-__subnetid:                                        "{{ subnetid | default(['subnet-01ed175ad9e0ab7f8', 'subnet-0d39c4ffc009cc3fd']) }}"
-__certificatearn:                                  "{{ certificatearn | default('arn:aws:acm:us-east-2:699279841026:certificate/94eac920-888f-41a8-bd06-edf5035ee169') }}"
-__hostedzone:                                      "{{ hostedzone | default('hclconnections.net') }}"
-__region:                                          "{{ region | default('us-east-2') }}"

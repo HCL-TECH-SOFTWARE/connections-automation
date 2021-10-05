@@ -1,2 +1,0 @@
-- name:                      Create AWS App Load Balancer
-  include_tasks:             Create-AWS-ALB.yml

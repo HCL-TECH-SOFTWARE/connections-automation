@@ -1,0 +1,119 @@
+[dmgr]
+c7cnx2connections1.internal.cnx-dev.net
+
+[was_servers]
+c7cnx2connections1.internal.cnx-dev.net
+
+[ihs_servers]
+c7cnx2connections1.internal.cnx-dev.net
+
+[db2_servers]
+c7cnx2db1.internal.cnx-dev.net
+
+[ldap_servers]
+c7cnx2db1.internal.cnx-dev.net
+
+[dmgr:vars]
+was_version="8.5.5000.20130514_1044"
+
+[was_servers:vars]
+was_version="8.5.5000.20130514_1044"
+
+[ihs_servers:vars]
+ihs_username=ihsadmin
+ihs_password=password
+
+[all:vars]
+iim_version="1.8.9006.20190918_1303"
+iim_bin_file="agent.installer.linux.gtk.x86_64_1.8.9006.20190918_1303.zip"
+iim_bin_file_sha256="1eb819f51f1b2f2f2ba13645d6e3ae546e7bafa1b2bf5df79635a8b43ef90d09."
+db2_download_location=http://c7installer1.internal.cnx-dev.net:8001/DB2
+tdi_download_location=c7installer1.internal.cnx-dev.net:8001/TDI
+connections_wizards_download_location=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+iim_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+was_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+was_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP16
+ihs_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855
+ihs_fixes_repository_url=http://c7installer1.internal.cnx-dev.net:8001/was855FP16
+cnx_repository_url=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+cnx_download_location=c7installer1.internal.cnx-dev.net:8001/Connections6.5
+cnx_docs_download_location=http://c7installer1.internal.cnx-dev.net:8001/Docs
+#
+cnx_version="6.5.0.0_20200319_2231"
+#
+was_username=wasadmin
+was_password=password
+#
+ldap_server=c7cnx2db1.internal.cnx-dev.net
+ldap_alias=c7cnx2db1
+ldap_repo=LDAP_PRODUCTION1
+ldap_bind_user=cn=Admin,dc=cnx,dc=pnp-hcl,dc=com
+ldap_bind_pass=password
+ldap_realm=dc=cnx,dc=pnp-hcl,dc=com
+ldap_login_properties=uid;mail
+#
+dmgr_hostname=c7cnx2connections1.internal.cnx-dev.net
+was_domainname=.internal.cnx-dev.net
+domain_name=.internal.cnx-dev.net
+cnx_domainname=.internal.cnx-dev.net
+smtp_hostname=localhost
+#
+ihs_password=password
+
+cnx_webserver="c7cnx2connections1"
+cnx_component_pack_ingress="c7cnx2web1.internal.cnx-dev.net"
+cnx_application_ingress="c7cnx2connections1.cnx-dev.net"
+
+cnx_deploy_type=small
+cnx_node_list=['c7cnx2connections1']
+cnx_hostname_list=['c7cnx2connections1.internal.cnx-dev.net']
+
+common_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+communities_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+news_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+widgets_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+
+homepage_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+moderation_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+rte_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+
+activities_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+blogs_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+dogear_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+files_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+forums_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+metrics_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+mobile_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+wikis_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+
+push_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+
+profiles_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+
+search_app={ 'cluster_name': 'App', 'nodes':['c7cnx2connections1']}
+
+connections_auto_start_clusters='App'
+
+db_username=LCUSER
+db_password=password
+db_hostname=c7cnx2db1.internal.cnx-dev.net
+db_port=50000
+db_jdbc_file=/opt/IBM/db2/V11.1/java
+db_type=DB2
+
+#cnx_force_repopulation=True
+
+activities_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+blogs_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+dogear_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+communities_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+files_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+forums_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+homepage_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+metrics_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+mobile_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+profiles_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+push_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+wikis_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+icec_db={ 'server': 'c7cnx2db1.internal.cnx-dev.net' }
+
