@@ -1,7 +1,0 @@
-batchMode=1
-{% for node in cnx_node_list %}
-{% for app in connections_jmx_clusters %}
-AdminTask.setJVMProperties('[-nodeName {{ node }}-node -serverName {{ app.name }}-{{ node }} -genericJvmArguments "-Xgcpolicy:gencon  -javaagent:{{ __jmx_install_location }}/{{ __jmx_jar_name }}={{ app.port }}:{{ __cnx_prom_cfg_destination }}"]')
-{% endfor %}
-{% endfor %}
-AdminConfig.save()

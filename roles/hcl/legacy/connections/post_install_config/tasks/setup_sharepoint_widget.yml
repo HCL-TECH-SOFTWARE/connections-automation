@@ -1,9 +1,0 @@
----
-  - name: Setup Sharepoint Widget
-    replace:
-      path: "{{ item.path }}"
-      regexp: "{{ item.regexp1 }}"
-      replace: "{{ item.replace }}"
-    with_items:
-      - { path: '{{ __widgets_config_file }}', regexp1: 'value="{clientId}"', replace: 'value="{{ __sharepoint_client_id }}"'}
-      - { path: '{{ __widgets_config_file }}', regexp1: 'value="{tenant}"', replace: 'value="{{ __sharepoint_tenant_id }}"'}
