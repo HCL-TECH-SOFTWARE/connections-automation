@@ -1,8 +1,0 @@
-batchMode=1
-execfile('oauthAdmin.py')
-
-OAuthApplicationRegistrationService.addApplication("kudosboards","Kudos Boards","https://{{ frontend_fqdn }}/boards/auth/connections/callback")
-
-clientSecret = OAuthApplicationRegistrationService.getApplicationById('kudosboards').get('client_secret')
-
-print clientSecret
