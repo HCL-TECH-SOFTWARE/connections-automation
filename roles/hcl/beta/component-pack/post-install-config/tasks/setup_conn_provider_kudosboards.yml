@@ -1,0 +1,35 @@
+- name: Gather facts from connectionsProvider.xml
+  xml:
+    path:             "{{ __connprovider_full_path }}"
+    xpath:            "{{ __oauth20_autoauth_xpath }}/*"
+    content:          text
+  register:           clients
+
+- name:               Retrieve and display the number of nodes(clients) for OAuthService
+  ansible.builtin.debug:
+    var:              clients.matches
+
+- set_fact:
+    clients:          "{{ clients.matches | map(attribute='value') | unique | list }}"
+
+- name:               Update OAuthServiceConfiguration KudosBoards
+  xml:
+    path:             "{{ __connprovider_full_path }}"
+    xpath:            "{{ __oauth20_autoauth_xpath }}"
+    add_children:
+    - value:          "kudosboards"
+    pretty_print:     yes
+  when:               "'kudosboards' not in clients"
+
+- name:               "Render {{ __oauth20_destination }}"
+  template:
+    src:              "{{ __oauth20_autoauth_template }}"
+    dest:             "{{ __oauth20_destination }}"
+  delegate_to:        "{{ dmgr_hostname }}"
+
+- name:                     "Recreate the provider using {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -user {{ was_username }} -password {{ was_password }} -f {{ __oauth20_destination }}"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -user {{ was_username }} -password {{ was_password }} -f {{ __oauth20_destination }}
+  register:                 oauth_registered
+  changed_when:             oauth_registered.rc == 0

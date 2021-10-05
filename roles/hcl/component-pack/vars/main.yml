@@ -171,3 +171,6 @@ __connections_admin_password:                "{{ connections_admin_password | de
 
 __helm2_ingress_chart:                       "{{ 'ingress-nginx-3.9.0.tgz' }}"
 __helm2_ingress_url:                         "{{ __download_location.split('/')[0] }}/{{ __helm2_packages_dir }}/{{ __helm2_ingress_chart }}"
+
+__outlook_tenant:                            "{{ outlook_tenant | default(' ') }}"
+__outlook_mt_auth_url:                       "{{ outlook_mt_auth_url | default('') }}"

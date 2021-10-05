@@ -1,0 +1,19 @@
+- name:                      Unmount "{{ __cnx_data_local_path }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    state:                   unmounted
+    path:                    "{{ __cnx_data_local_path }}"
+  ignore_errors:             true
+  register: result
+  retries: 3
+  delay: 15
+  until: result is not failed
+
+- name:                      Remove fstab entry for "{{ __cnx_data_local_path }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    state:                   absent
+    path:                    "{{ __cnx_data_local_path }}"
+  ignore_errors:             true

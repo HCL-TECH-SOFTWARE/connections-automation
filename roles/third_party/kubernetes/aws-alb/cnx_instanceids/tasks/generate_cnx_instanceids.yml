@@ -1,0 +1,28 @@
+- name:          Get instance id of CNX server
+  get_url:
+    url:         http://{{ __aws_service_ep }}/latest/meta-data/instance-id
+    dest:        $HOME/ids
+
+- name:          Run command to cat each file and then capture that output.
+  shell:         cat $HOME/ids
+  register:      cnxinstanceids
+
+- name:          delete file from localhost if already exists
+  local_action:  file path="$HOME/id_file_cnx" state=absent
+
+- name:          Creating an empty file
+  file:
+    path:        "$HOME/id_file_cnx"
+    state:       touch
+  delegate_to:   localhost
+
+- name:          copy instance ids to local file
+  local_action:  lineinfile line={{ cnxinstanceids.stdout }} path="$HOME/id_file_cnx"
+
+- name:          Run command to cat each file and then capture that output.
+  shell:         cat $HOME/id_file_cnx
+  register:      cnxidfile
+  delegate_to:   localhost
+
+- set_fact:
+    cnxinstances: "{{ cnxidfile.stdout_lines }}"

@@ -5,16 +5,16 @@
 - name:                      Configure OpenLDAP
   include_tasks:             configure_openldap.yml
 
-# Note: __ldap_setup_mt is for internal use only, don't set to true
+# Note: __ldap_setup_mt and __ldap_setup_internal for internal use only, don't set to true
+- name:                      Import MT LDAP schema
+  include_tasks:             import_mt_schema.yml
+  when:
+    - __ldap_setup_mt | bool or __ldap_setup_internal | bool
+
 - name:                      Create Users
   include_tasks:             create_users.yml
   when:
     - not __ldap_setup_mt | bool
-
-- name:                      Import MT LDAP schema
-  include_tasks:             import_mt_schema.yml
-  when:
-    - __ldap_setup_mt | bool
 
 - name:                      Create MT LDAP users
   include_tasks:             create_mt_users.yml

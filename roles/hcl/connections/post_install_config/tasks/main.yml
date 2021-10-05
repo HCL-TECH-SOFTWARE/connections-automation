@@ -19,21 +19,8 @@
 - name:                      Update mobile-config.xml to enable Push and MobileAdmin
   include_tasks:             update_mobile_config.yml
 
-- name:                      Update applications J2EE reader role to All Authenticated Users
-  include_role:
-    name:               roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
-  vars:
-    __app:                   "{{ item }}"
-    __role:                  "reader"
-    __everyone:              "no"
-    __allauth:               "yes"
-    __users:                 ""
-    __groups:                ""
-  with_items:
-    - Communities
-    - Profiles
-  when:
-    restrict_reader_access is defined and restrict_reader_access |bool
+- name:                      Update Touchpoint config
+  include_tasks:             update_touchpoint_config.yml
 
 
 # not needed the relative url seems to be working

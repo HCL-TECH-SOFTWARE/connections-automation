@@ -1,0 +1,2 @@
+#AWS ELB Vars
+__aws_service_ep:                                  "{{ aws_service_ep | default('169.254.169.254') }}"

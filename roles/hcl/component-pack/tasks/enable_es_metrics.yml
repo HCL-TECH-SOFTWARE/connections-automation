@@ -1,7 +1,10 @@
-- name:                      Run {{ __config_blue_metrics_cmd }} 
+- name:                      Run {{ __config_blue_metrics_cmd }}
   command:                   "{{ __config_blue_metrics_cmd }}"
   become:                    false
+  register:                  configured_blue_metrics
   ignore_errors:             true
+
+- debug:                     var=configured_blue_metrics.stdout_lines
 
 - name:                      Cleanup {{ __es_certs_dir_temp }} if it already exists
   file:
@@ -52,7 +55,7 @@
 
 - name:                      Create the archive
   archive:
-    path:                    "{{ __es_certs_dir_temp }}" 
+    path:                    "{{ __es_certs_dir_temp }}"
     dest:                    "{{ __es_certs_dir_temp }}.zip"
     format:                  zip
   become:                    false
@@ -65,7 +68,7 @@
   become:                    false
 
 - name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
-  copy: 
+  copy:
     src:                     "{{ __es_certs_dir_temp }}.zip"
     dest:                    "{{ __es_certs_dir_temp }}.zip"
   delegate_to:               "{{ dmgr_hostname }}"
@@ -150,7 +153,7 @@
 
 - name:                     Create the archive
   archive:
-    path:                   "{{ __es_certs_dir }}" 
+    path:                   "{{ __es_certs_dir }}"
     dest:                   "{{ __es_certs_dir }}/es_certificates_signed.zip"
     format:                 zip
   delegate_to:              "{{ dmgr_hostname }}"
@@ -168,7 +171,7 @@
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
   ignore_errors:             yes
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Cleanup /tmp/certs if it already exists
@@ -193,7 +196,7 @@
     dest:                    "/tmp"
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Extract ES certificates on WAS hosts
@@ -203,7 +206,7 @@
     remote_src:              yes
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Copy /tmp/certs to the proper location
@@ -213,7 +216,7 @@
     remote_src:              yes
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Cleanup /tmp/certs if it already exists
@@ -240,7 +243,14 @@
   become:                    false
   ignore_errors:             yes
 
-- name:                      Run {{ __config_blue_metrics_cmd }} 
+- name:                      Run {{ __config_blue_metrics_cmd }}
   command:                   "{{ __config_blue_metrics_cmd }}"
   become:                    false
+  register:                  configured_blue_metrics_repeat
+  retries:                   10
+  delay:                     2
+  until:                     configured_blue_metrics_repeat.stdout|lower is not search("error")
   ignore_errors:             true
+
+- debug:                     var=configured_blue_metrics_repeat.stdout_lines
+  

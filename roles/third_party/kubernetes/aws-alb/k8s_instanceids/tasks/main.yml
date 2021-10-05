@@ -1,0 +1,2 @@
+- name:                      Generate instanceids of cp servers
+  include_tasks:             generate_k8s_instanceids.yml

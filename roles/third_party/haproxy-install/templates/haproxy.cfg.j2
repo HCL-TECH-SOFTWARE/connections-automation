@@ -224,19 +224,19 @@ backend te_creation_wizard_masters
     server {{ server }} {{ server }}:30751 check
     {% endfor %}
 
-frontend outlook_addin_frontend
-    bind *:31810
-    mode tcp
-    option tcplog
-    timeout client  10800s
-    default_backend outlook_addin_masters
+#frontend outlook_addin_frontend
+#    bind *:31810
+#    mode tcp
+#    option tcplog
+#    timeout client  10800s
+#    default_backend outlook_addin_masters
 
-backend outlook_addin_masters
-    mode tcp
-    option tcplog
-    option tcp-check
-    balance roundrobin
-    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_workers %}
-    server {{ server }} {{ server }}:31810 check
-    {% endfor %}
+#backend outlook_addin_masters
+#    mode tcp
+#    option tcplog
+#    option tcp-check
+#    balance roundrobin
+#    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+#    {% for server in groups.k8s_workers %}
+#    server {{ server }} {{ server }}:31810 check
+#    {% endfor %}

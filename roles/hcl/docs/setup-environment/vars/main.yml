@@ -1,7 +1,7 @@
 ---
 __setup_environment:           "{{ setup_environment | default(true) }}"
 
-__firstNfsNode:                "{{ hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] }}"
+__firstNfsNode:                "{{ '' if (groups['nfs_servers'] is not defined) else hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] }}"
 __nfsMasterAddress:            "{{ nfsMasterAddress | default( __firstNfsNode ) }}"
 
 __viewer_shared_storage_type:  "{{ viewer_shared_storage_type | default('nfs') }}"

@@ -1,3 +1,10 @@
+import sys
+
+#Check if the Cluster already exists
+isClusterExist=AdminClusterManagement.checkIfClusterExists('{{ __cluster_name }}')
+if isClusterExist.find('true') >= 0:
+  sys.exit(0)
+
 # Create Cluster
 AdminTask.createCluster('[-clusterConfig [-clusterName {{ __cluster_name }} -clusterType {{ __cluster_type }} ]]')
 

@@ -39,6 +39,8 @@ __lcc_action_center_xpath:             "/tns:config/tns:properties/tns:genericPr
 __lcc_genprop_default_ome_xpath:       "/tns:config/tns:properties/tns:genericProperty[@name = 'com.ibm.orient.isOrientHomepage']"
 __lcc_genprop_default_hpswitch_xpath:  "/tns:config/tns:properties/tns:genericProperty[@name = 'com.ibm.orient.isHomepageSwitcherEnabled']"
 
+__enable_homepage_switcher:            "{{ enable_homepage_switcher | default('true') }}"
+__enable_orientme_default_hp:          "{{ enable_orientme_default_hp | default('true') }}"
 
 # appreg
 __lcc_version_xpath: "/tns:config/tns:properties"
@@ -67,6 +69,12 @@ __searchcfg_es_write_xpath:  "/tns:config/tns:propertySettings/tns:property[@nam
 __searchcfg_es_read_xpath:   "/tns:config/tns:propertySettings/tns:property[@name=\"quickResults\"]/tns:propertyField[@name=\"quick.results.elasticsearch7.reading.enabled\"]"
 __lcc_es_version_xpath:      "/tns:config/tns:properties/tns:genericProperty[@name=\"elasticsearch.eSmajorVersion\"]"
 __lcc_es_version:            "7"
+
+__config_blue_metrics_bin:   "{{ __support_folder }}/config_blue_metrics.py"
+__config_blue_metrics_cmd:   "{{ __config_blue_metrics_bin }} --skipSslCertCheck true --pinkhost {{ __master_ip }} --namespace {{ __default_namespace }}"
+__support_folder:            "{{ __extraction_folder }}/microservices_connections/hybridcloud/support"
+__extraction_folder:         "{{ component_pack_extraction_folder | default('/opt/hcl-cnx-component-pack') }}"
+__master_ip:                 "{{ load_balancer_dns | default( __k8s_master_ip ) }}"
 
 # ConnectionProvider
 __connprovider_full_path:    "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/oauth20/connectionsProvider.xml"

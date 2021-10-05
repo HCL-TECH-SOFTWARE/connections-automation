@@ -1,0 +1,32 @@
+---
+- name:                    Setup Operating System
+  include_tasks:           setup_os.yml
+  when:
+    - __setup_environment|bool
+    - inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"] or inventory_hostname in groups["proxy_servers"]
+
+- name:                    Create docs user to setup job target
+  include_tasks:           create_docs_user.yml
+  when:
+    - __setup_environment|bool
+    - inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"] or inventory_hostname in groups["proxy_servers"] or inventory_hostname in groups["ihs_servers"] or inventory_hostname in groups["dmgr"]
+
+- name:                    Mount Docs and Viewer NFS shares for Conversion, Docs and Viewer
+  include_tasks:           mount_docs_nfs_shares.yml
+  when:
+     - __setup_environment|bool
+     - docs_shared_storage_type == 'nfs' or viewer_shared_storage_type == 'nfs'
+     - inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["viewer_servers"]
+
+- name:                    Mount CNX data NFS shares for Viewer
+  include_tasks:           mount_cnx_nfs_shares.yml
+  when:
+    - __setup_environment|bool
+    - cnx_shared_storage_type == 'nfs'
+    - inventory_hostname in groups["viewer_servers"]
+
+- name:                    Create Docs DB user if not exists
+  include_tasks:           create_db_user.yml
+  when:
+    - "'db2_servers' in group_names"
+    - inventory_hostname in groups["db2_servers"]

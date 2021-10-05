@@ -10,6 +10,12 @@
   roles:
     - roles/hcl/connections
 
+- name:                    Clean WAS temp folders
+  hosts:                   dmgr, was_servers
+  become:                  true
+  roles:
+    - roles/hcl/connections/clean_was_temp
+
 - name:                    Connections Post Install Config
   hosts:                   dmgr
   become:                  true
@@ -65,4 +71,3 @@
   become:                  true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-restart
-

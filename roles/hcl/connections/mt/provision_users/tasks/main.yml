@@ -1,26 +1,6 @@
 ---
 - include_vars:        ../vars/main.yml
 
-- name:                Add bss-provisioning-admin role to applications
-  include_role:
-    name:              roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
-  vars:
-    __app:             "{{ item }}"
-    __role:            "bss-provisioning-admin"
-    __everyone:        "no"
-    __allauth:         "no"
-    __users:           "{{ __ic_admin_username }}"
-    __groups:          ""
-  with_items:
-    - Communities
-    - Profiles
-    - Files
-    - Activities
-    - Blogs
-    - Wikis
-    - News
-
-
 - name:               Edit config.properties (MT provisioning configuration properties)
   replace:
     path:             "{{ __tmp_dir }}/mt/install/config.properties"

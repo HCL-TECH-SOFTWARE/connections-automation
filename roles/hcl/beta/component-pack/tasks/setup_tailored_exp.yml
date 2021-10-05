@@ -1,0 +1,33 @@
+- name:                      "Render {{ __tailored_exp_env }}"
+  template:
+    src:                     "helmvars/tailoredexperience.yml.j2"
+    dest:                    "{{ __tailored_exp_env }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Get chart and version
+  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep tailored-exp | awk {'print $2'}"
+  register:                  tailored_exp_chart_version
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Found tailored-exp chart version
+  debug:
+    msg:                     "{{ tailored_exp_chart_version.stdout }}"
+
+- name:                      Upgrade tailored-exp
+  command:                   "helm upgrade tailored-exp {{ __helm_repository_local_name }}/tailored-exp -i --version {{ tailored_exp_chart_version.stdout }} -f {{ __tailored_exp_env }} --namespace {{ __default_namespace }} --wait"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if tailored experience admin portal is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i admin-portal | grep -i Running
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if tailored experience community template service is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i community-template-service | grep -i Running
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if tailored experience creation wizard is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i te-creation-wizard | grep -i Running
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"

@@ -1,0 +1,21 @@
+- name:                     Check if DB2 is already up and running
+  shell:                    ps -ef | grep db2 | grep -v root
+  changed_when:             true
+  register:                 db2_running
+  ignore_errors:            true
+
+- debug:
+    msg:                    "DB2 is already up and running"
+  when:
+    - db2_running.rc == 0
+
+- name:                    Generate password for Docs user
+  command:                 "openssl passwd -salt sha512 -1 {{ db_concord_password }}"
+  register:                db2_generated_password
+
+- name:                    Create users with password if not exists
+  user:
+    name:                  "{{ db_concord_username }}"
+    group:                 "db2group"
+    password:              "{{ db2_generated_password.stdout }}"
+    state:                 present

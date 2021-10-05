@@ -968,8 +968,12 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 
 # proxy rules for outlook plugin
 Redirect "/outlook-addin" "/outlook-addin/"
-ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
-ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
+ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+
+# jsonapi
+ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
 
 #keycloak
 Redirect "/auth" "/auth/"
@@ -1048,8 +1052,12 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 
 # proxy rules for outlook plugin
 Redirect "/outlook-addin" "/outlook-addin/"
-ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
-ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
+ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+
+# jsonapi
+ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
 
 <Location /auth >
    RequestHeader set X-Forwarded-Proto "https"

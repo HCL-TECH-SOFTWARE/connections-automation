@@ -1,0 +1,344 @@
+- name:                        Register instance ids of k8s server
+  shell:                       cat $HOME/id_file_cp
+  register:                    cpidfile
+
+- name:                         set fact to read k8s server instance id
+  set_fact:
+    cpinstances:               "{{ cpidfile.stdout_lines }}"
+
+- name:                        Register instance ids of cnx servers
+  shell:                       cat $HOME/id_file_cnx
+  register:                    cnxidfile
+
+- name:                        set fact to read cnx server instance id
+  set_fact:
+    cnxinstances:              "{{ cnxidfile.stdout_lines }}"
+
+#set facts to generate list of dictonary to pass in alb target registration
+- set_fact:
+    socialport:                32080
+    mwproxyport:               30301
+    grafanaport:               31111
+    outlookport:               31810
+    cnxport:                   443
+ 
+- set_fact:
+    host_social_instance:      "{{ host_social_instance | default([]) + [dict(Id=item[0], Port=item[1])] }}"
+  loop:                        "{{ cpinstances | product( [socialport] ) | list }}"
+
+- set_fact:
+    host_myproxy_instance:     "{{ host_myproxy_instance | default([]) + [dict(Id=item[0], Port=item[1])] }}"
+  loop:                        "{{ cpinstances | product( [mwproxyport] ) | list }}"
+
+- set_fact:
+    host_grafana_instance:     "{{ host_grafana_instance | default([]) + [dict(Id=item[0], Port=item[1])] }}"
+  loop:                        "{{ cpinstances | product( [grafanaport] ) | list }}"
+
+- set_fact:
+    host_outlook_instance:     "{{ host_outlook_instance | default([]) + [dict(Id=item[0], Port=item[1])] }}"
+  loop:                        "{{ cpinstances | product( [outlookport] ) | list }}"
+
+- set_fact:
+    host_cnx_instance:         "{{ host_cnx_instance | default([]) + [dict(Id=item[0], Port=item[1])] }}"
+  loop:                        "{{ cnxinstances | product( [cnxport] ) | list }}"
+
+- name:                        Gather information about cnx instance
+  ec2_instance_info:
+    instance_ids:
+                               - "{{ cnxinstances.0 }}"
+  register:                    instanceinfo
+
+- name:                        truncate initial letters of cluster host dns to use as alb dns
+  set_fact:
+    dnsname:                   "{{ item.tags.Name | truncate(6, True, '') }}"
+  loop:                        "{{ instanceinfo.instances }}"
+
+- name:                        Create security group
+  ec2_group:
+    name:                      "{{ dnsname }}-app-alb-sg"
+    description:               sg with rule descriptions
+    vpc_id:                    "{{ __vpcid }}"
+    region:                    "{{ __region }}"
+    state:                     present
+    rules:
+      - proto:                 tcp
+        ports:
+        -                      80
+        cidr_ip:               0.0.0.0/0
+        rule_desc:             allow all on port 80
+      - proto:                 tcp
+        from_port:             443
+        to_port:               443
+        cidr_ip:               0.0.0.0/0
+        rule_desc:             allow all on port 443
+
+- set_fact:
+      securitygrp: "{{ dnsname }}-app-alb-sg" 
+- name:                        Create the target group with a custom health check for /social/
+  elb_target_group:
+    name:                      "{{ dnsname }}-social"
+    protocol:                  http
+    port:                      "{{ socialport }}"
+    vpc_id:                    "{{ __vpcid }}"
+    health_check_protocol:     http
+    health_check_path:         /social/
+    health_check_port:         "{{ socialport }}"
+    successful_response_codes: 302
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   4
+    unhealthy_threshold_count: 3
+    targets:                   "{{ host_social_instance }}"
+    state:                     present
+
+- name:                        Create the target group with a custom health check for mw-proxy
+  elb_target_group:
+    name:                      "{{ dnsname }}-mw-proxy"
+    protocol:                  http
+    port:                      "{{ mwproxyport }}"
+    vpc_id:                    "{{ __vpcid }}"
+    health_check_protocol:     http
+    health_check_path:         /
+    health_check_port:         "{{ mwproxyport }}"
+    successful_response_codes: 301,200
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   4
+    unhealthy_threshold_count: 3
+    targets:                   "{{ host_myproxy_instance }}"
+    state:                     present
+
+- name:                        Create the target group with a custom health check for grafana
+  elb_target_group:
+    name:                      "{{ dnsname }}-grafana"
+    protocol:                  http
+    port:                      "{{ grafanaport }}"
+    vpc_id:                    "{{ __vpcid }}"
+    health_check_protocol:     http
+    health_check_path:         /grafana/
+    health_check_port:         "{{ grafanaport }}"
+    successful_response_codes: 302,200
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   4
+    unhealthy_threshold_count: 3
+    targets:                   "{{ host_grafana_instance }}"
+    state:                     present
+
+- name:                        Create the target group with a custom health check for outlook
+  elb_target_group:
+    name:                      "{{ dnsname }}-outlook"
+    protocol:                  http
+    port:                      "{{ outlookport }}"
+    vpc_id:                    "{{ __vpcid }}"
+    health_check_protocol:     http
+    health_check_path:         /
+    health_check_port:         "{{ outlookport }}"
+    successful_response_codes: 200
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   4
+    unhealthy_threshold_count: 3
+    targets:                   "{{ host_outlook_instance }}"
+    state:                     present
+
+- name:                        Create the target group with a custom health check for connections
+  elb_target_group:
+    name:                      "{{ dnsname }}-connections"
+    protocol:                  https
+    port:                      "{{ cnxport }}"
+    vpc_id:                    "{{ __vpcid }}"
+    health_check_protocol:     https
+    health_check_path:         /
+    health_check_port:         "{{ cnxport }}"
+    successful_response_codes: 301
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   4
+    unhealthy_threshold_count: 3
+    targets:                   "{{ host_cnx_instance }}"
+    state:                     present
+
+- name:                        Create the ELB only listening over port 80 and 443
+  elb_application_lb:
+    name:                      "{{ dnsname }}-app-elb"
+    region:                    "{{ __region }}"
+    subnets:                   "{{ __subnetid }}"
+    security_groups:           "{{ securitygrp }}"
+    scheme:                    internet-facing
+    listeners:
+      - Protocol:              HTTP
+        Port:                  80
+        DefaultActions:
+          - Type:              forward
+            TargetGroupName:   "{{ dnsname }}-connections"
+        Rules:
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/wikis/form/api/wikis/public/*'
+                               - '/server-status/*'
+            Priority:          '1'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-connections"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/news/*'
+                               - '/activities/service/html/*'
+                               - '/profiles/html/*'
+                               - '/viewer/*'
+            Priority:          '2'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-mw-proxy"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/homepage/web/*'
+                               - '/social/home/*'
+                               - '/mycontacts/*'
+                               - '/wikis/home/*'
+                               - '/blogs/*'
+            Priority:          '3'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-mw-proxy"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/files/customizer/*'
+                               - '/files/app/*'
+                               - '/communities/service/html/*'
+                               - '/forums/html/*'
+                               - '/search/web/*'
+            Priority:          '4'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-mw-proxy"
+                Type:          forward
+      - Protocol:              HTTPS
+        Port:                  443
+        DefaultActions:
+          - Type:              forward
+            TargetGroupName:   "{{ dnsname }}-connections"
+        Certificates:
+          - CertificateArn:    "{{ __certificatearn }}"
+        SslPolicy:             ELBSecurityPolicy-2015-05
+        Rules:
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/api-boards*'
+                               - '/teams-share-service*'
+                               - '/teams-share-ui*'
+                               - '/teams-tab/api*'
+                               - '/cnxadmin*'
+            Priority:          '1'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-social"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/appreg*'
+                               - '/social*'
+                               - '/boards*'
+                               - '/comm-template*'
+            Priority:          '2'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-social"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/te-creation-wizard*'
+                               - '/itm*'
+                               - '/community_suggestions/api/recommend/communities*'
+                               - '/appregistry*'
+            Priority:          '3'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-social"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/blogs*'
+                               - '/mycontacts*'
+                               - '/social/home*'
+                               - '/wikis/home*'
+            Priority:          '4'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-mw-proxy"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/news*'
+                               - '/profiles/html*'
+                               - '/viewer*'
+                               - '/homepage/web*'
+                               - '/activities/service/html*'
+            Priority:          '5'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-mw-proxy"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/files/customizer*'
+                               - '/files/app*'
+                               - '/communities/service/html*'
+                               - '/forums/html*'
+                               - '/search/web*'
+            Priority:          '6'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-mw-proxy"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - 'wikis/form/api/wikis*'
+                               - '/server-status*'
+                               - '/files/form/anonymous/api/tags*'
+                               - '/files/form/api/documents*'
+            Priority:          '7'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-connections"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/outlook-addin*'
+            Priority:          '8'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-outlook"
+                Type:          forward
+          - Conditions:
+              - Field:         path-pattern
+                Values:
+                               - '/grafana*'
+            Priority:          '9'
+            Actions:
+              - TargetGroupName: "{{ dnsname }}-grafana"
+                Type:          forward
+    state:                     present
+
+- name:                        Gather information about specific ALB
+  elb_application_lb_info:
+    names:                     "{{ dnsname }}-app-elb"
+    region:                    "{{ __region }}"
+  register:                    alb_info
+
+- debug: 
+   var:                        alb_info.load_balancers[0].dns_name
+
+- name:                        Add Route53 record
+  route53:
+    command:                   create
+    zone:                      "{{ __hostedzone }}"
+    record:                    "{{ dnsname + '.' + __hostedzone }}"
+    type:                      CNAME
+    ttl:                       60
+    overwrite:                 yes
+    value:                     "{{ alb_info.load_balancers[0].dns_name }}"

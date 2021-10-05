@@ -4,26 +4,25 @@
   register:           conversion_already_installed
 
 - name:               Edit cfg.properties
-  lineinfile:
+  replace:
     path:            "{{ __conversion_cfg_prop_location }}/cfg.properties"
-    regex:           "{{ item.prop_name }}"
-    line:            "{{ item.prop_value }}"
-    state:           present
+    regexp:           "^(#?){{ item.prop_name }} ?=(.*)$"
+    replace:         "{{ item.prop_name }}={{ item.prop_value }}"
   with_items:
-    - { prop_name: "{{ __conversion_install_root }}", prop_value: "{{ __conversion_install_root_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_type_cfg }}", prop_value: "{{ __docs_shared_storage_type_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_type_cfg }}", prop_value: "{{ __viewer_shared_storage_type_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_local_path }}", prop_value: "{{ __docs_shared_storage_local_path_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_remote_server }}", prop_value: "{{ __docs_shared_storage_remote_server_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_remote_path }}", prop_value: "{{ __docs_shared_storage_remote_path_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_local_path }}", prop_value: "{{ __viewer_shared_storage_local_path_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_remote_server }}", prop_value: "{{ __viewer_shared_storage_remote_server_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_remote_path }}", prop_value: "{{ __viewer_shared_storage_remote_path_r }}" }
-    - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
-    - { prop_name: "{{ __scope_name }}", prop_value: "{{ __scope_name_r  }}" }
-    - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
-    - { prop_name: "{{ __viewer_url }}", prop_value: "{{ __viewer_url_r }}" }
+    - { prop_name: "conversion_install_root", prop_value: "{{ __conversion_install_root_r }}" }
+    - { prop_name: "docs_shared_storage_type", prop_value: "{{ __docs_shared_storage_type_r }}" }
+    - { prop_name: "viewer_shared_storage_type", prop_value: "{{ __viewer_shared_storage_type_r }}" }
+    - { prop_name: "docs_shared_storage_local_path", prop_value: "{{ __docs_shared_storage_local_path_r }}" }
+    - { prop_name: "docs_shared_storage_remote_server", prop_value: "{{ __docs_shared_storage_remote_server_r }}" }
+    - { prop_name: "docs_shared_storage_remote_path", prop_value: "{{ __docs_shared_storage_remote_path_r }}" }
+    - { prop_name: "viewer_shared_storage_local_path", prop_value: "{{ __viewer_shared_storage_local_path_r }}" }
+    - { prop_name: "viewer_shared_storage_remote_server", prop_value: "{{ __viewer_shared_storage_remote_server_r }}" }
+    - { prop_name: "viewer_shared_storage_remote_path", prop_value: "{{ __viewer_shared_storage_remote_path_r }}" }
+    - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
+    - { prop_name: "scope_name", prop_value: "{{ __scope_name_r  }}" }
+    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
+    - { prop_name: "non_job_mgr_mode", prop_value: "{{ __non_job_mgr_mode_r }}" }
+    - { prop_name: "viewer_url", prop_value: "{{ __viewer_url_r }}" }
   when:              not conversion_already_installed.stat.exists
 
 # need to copy cfg to cfg.node before install per documentation

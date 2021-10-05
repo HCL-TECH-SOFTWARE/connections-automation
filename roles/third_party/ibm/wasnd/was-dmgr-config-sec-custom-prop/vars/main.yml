@@ -14,4 +14,6 @@
     __tpl_file:                 "update_security_custom_prop.py.j2"
     __rsp_file:                 "{{ __bin_dir }}/update_security_custom_prop.py"
 
-    __sec_custom_prop_append:   "{{ __sec_custom_prop_append  | default('false')|bool }}"
+    __sec_custom_prop_append:   "{{ sec_custom_prop_append  | default('false')|bool }}"
+    __sec_custom_prop_always_write:   "{{ sec_custom_prop_always_write  | default('false')|bool }}"
+    __sec_custom_prop_disableGetTokenFromMBean:   "{{ sec_custom_prop_disableGetTokenFromMBean | default('false') }}"

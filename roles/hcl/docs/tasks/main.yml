@@ -2,6 +2,9 @@
 - include_vars:            ../setup-environment/vars/main.yml
 - include_vars:            ../create_docs_clusters/vars/main.yml
 
+- name:                    Check Vars
+  include_tasks:           check_vars.yml
+
 - name:                    Download Docs installer to Docs env
   include_tasks:           download_docs.yml
   when:

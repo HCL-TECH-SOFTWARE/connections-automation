@@ -1,0 +1,45 @@
+- name:                      Get chart and version
+  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep sanity | grep -v watcher | awk {'print $2'}"
+  register:                  sanity_chart_version
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Found sanity chart version
+  debug:
+    msg:                     "{{ sanity_chart_version.stdout }}"
+
+- name:                      "Render {{ __sanity_env }}"
+  template:
+    src:                     "helmvars/sanity.yml.j2"
+    dest:                    "{{ __sanity_env }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Upgrade sanity
+  command:                   "helm upgrade sanity {{ __helm_repository_local_name }}/sanity -i --version {{ sanity_chart_version.stdout }} -f {{ __sanity_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Get chart and version
+  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep sanity-watcher | grep watcher | awk {'print $2'}"
+  register:                  sanity_watcher_chart_version
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Found sanity-watcher chart version
+  debug:
+    msg:                     "{{ sanity_watcher_chart_version.stdout }}"
+
+- name:                      Upgrade sanity-watcher
+  command:                   "helm upgrade sanity-watcher {{ __helm_repository_local_name }}/sanity-watcher -i --version {{ sanity_watcher_chart_version.stdout }} -f {{ __sanity_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Get the port where Sanity is running
+  shell:                     kubectl get --namespace {{ __default_namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services sanity
+  register:                  sanity_external_port
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Get the IP where Sanity is accessible
+  shell:                     kubectl get nodes --namespace {{ __default_namespace }} -o jsonpath="{.items[0].status.addresses[0].address}"
+  register:                  sanity_external_ip
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      You can access Sanity here
+  debug:
+    msg:                     "http://{{ sanity_external_ip['stdout'] }}:{{ sanity_external_port['stdout'] }}"

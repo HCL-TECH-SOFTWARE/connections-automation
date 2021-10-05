@@ -44,6 +44,7 @@ __ldap_cert_key_path:           "/etc/openldap/certs/selfsigned.key"
 __slapd_template:               "slapd.j2"
 __slapd_location:               "/etc/sysconfig/slapd"
 
+__ldap_setup_internal:          "{{ ldap_setup_internal | default(false) }}"
 
 # MT variables
 __ldap_slaptest_cmd:                   "slaptest -f "
@@ -74,6 +75,7 @@ __mt_ldap_orgb_sn:                     "{{ mt_ldap_orgb_sn | default('Jones') }}
 __mt_ldap_orgb_sn_ext:                 "{{ mt_ldap_orgb_sn_ext | default('External') }}"
 __mt_orgb_host_url_default:            "{{ __mt_oidc_clientid_r }}-orgb"
 __mt_orgb_host_url:                    "{{ mt_orgb_host_url | default( __mt_orgb_host_url_default ) }}"
+__mt_orgadmin_group:                   "{{ mt_orgadmin_group | default('OrgAdmins') }}"
 
 __mt_custom_schema_file:               "mt_custom.schema"
 __mt_slapd_config_file:                "mt.conf"

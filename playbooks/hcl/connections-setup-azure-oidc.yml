@@ -1,0 +1,47 @@
+# Setup Azure AD OIDC
+# Run after Component Pack if needed since it overwrites some Teams Integration config
+---
+  - name:                      Gather facts
+    hosts:                     dmgr
+    tasks:                     []
+
+  - name:                      Start Dmgr
+    hosts:                     dmgr
+    become:                    true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-start
+
+  - name:                      Start WAS Nodes
+    hosts:                     was_servers
+    serial:                    1
+    become:                    true
+    roles:
+      - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+  - name:                    Start CNX Clusters
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+  - name:                    Setup Azure AD OIDC authentication for Connections
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - roles/hcl/connections/setup_azure_oidc
+
+  - name:                    Set application security roles to All Authenticated in Trusted Realm
+    import_playbook:         connections-restrict-access.yml
+
+  - name:                    Synchronize WAS nodes
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+
+  - name:                    Restart CNX Clusters
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+      - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

@@ -12,28 +12,27 @@
   debug:              var=__db_type_prop_value
 
 - name:               Edit cfg.properties
-  lineinfile:
+  replace:
     path:            "{{ __editor_cfg_prop_location }}/cfg.properties"
-    regex:           "{{ item.prop_name }}"
-    line:            "{{ item.prop_value }}"
-    state:           present
+    regexp:           "^(#?){{ item.prop_name }} ?=(.*)$"
+    replace:         "{{ item.prop_name }}={{ item.prop_value }}"
   with_items:
-    - { prop_name: "{{ __editor_install_root }}", prop_value: "{{ __editor_install_root_r }}" }
-    - { prop_name: "{{ __shared_data_dir }}", prop_value: "{{ __shared_data_dir_r }}" }
-    - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
-    - { prop_name: "{{ __scope_name }}", prop_value: "{{ __editor_scope_name_r  }}" }
-    - { prop_name: "{{ __db_type_prop_name }}", prop_value: "{{ __db_type_prop_value }}" }
-    - { prop_name: "{{ __db_name_prop_name }}", prop_value: "{{ __db_name_prop_value }}" }
-    - { prop_name: "{{ __db_hostname }}", prop_value: "{{ __db_hostname_r }}" }
-    - { prop_name: "{{ __db_port }}", prop_value: "{{ __db_port_r }}" }
-    - { prop_name: "{{ __db_jdbc_driver_path }}", prop_value: "{{ __db_jdbc_driver_path_r }}" }
-    - { prop_name: "{{ __integrate_with_lc }}", prop_value: "{{ __integrate_with_lc_r }}" }
-    - { prop_name: "{{ __lc_config_xml_path }}", prop_value: "{{ __lc_config_xml_path_r }}" }
-    - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
-    - { prop_name: "{{ __conversion_url }}", prop_value: "{{ __conversion_url_r }}" }
-    - { prop_name: "{{ __files_url }}", prop_value: "{{ __files_url_r }}" }
-    - { prop_name: "{{ __email_url }}", prop_value: "{{ __email_url_r }}" }
+    - { prop_name: "docs_install_root", prop_value: "{{ __editor_install_root_r }}" }
+    - { prop_name: "shared_data_dir", prop_value: "{{ __shared_data_dir_r }}" }
+    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
+    - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
+    - { prop_name: "scope_name", prop_value: "{{ __editor_scope_name_r  }}" }
+    - { prop_name: "db_type", prop_value: "{{ __db_type_prop_value }}" }
+    - { prop_name: "db_name", prop_value: "{{ __db_name_prop_value }}" }
+    - { prop_name: "db_hostname", prop_value: "{{ __db_hostname_r }}" }
+    - { prop_name: "db_port", prop_value: "{{ __db_port_r }}" }
+    - { prop_name: "db_jdbc_driver_path", prop_value: "{{ __db_jdbc_driver_path_r }}" }
+    - { prop_name: "integrate_with_LC", prop_value: "{{ __integrate_with_lc_r }}" }
+    - { prop_name: "LC_config_xml_path", prop_value: "{{ __lc_config_xml_path_r }}" }
+    - { prop_name: "non_job_mgr_mode", prop_value: "{{ __non_job_mgr_mode_r }}" }
+    - { prop_name: "conversion_url", prop_value: "{{ __conversion_url_r }}" }
+    - { prop_name: "files_url", prop_value: "{{ __files_url_r }}" }
+    - { prop_name: "email_url", prop_value: "{{ __email_url_r }}" }
   when:              not editor_already_installed.stat.exists
 
 # need to copy cfg to cfg.node before install per documentation

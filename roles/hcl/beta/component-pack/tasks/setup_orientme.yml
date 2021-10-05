@@ -1,0 +1,27 @@
+- name:                      "Render {{ __orientme_env }}"
+  template:
+    src:                     "helmvars/orientme.yml.j2"
+    dest:                    "{{ __orientme_env }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Get chart and version
+  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep orientme | awk {'print $2'}"
+  register:                  orientme_chart_version
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Found orientme chart version
+  debug:
+    msg:                     "{{ orientme_chart_version.stdout }}"
+
+- name:                      Upgrade orientme
+  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Wait for people-migrate pod to become ready
+  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=300s
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if orientme is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i orient | grep -i Running
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"

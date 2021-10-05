@@ -1,0 +1,32 @@
+- name:                     Create JMX directory
+  file:
+    path:                   "{{ __jmx_install_location }}"
+    state:                  directory
+  delegate_to:              "{{ item }}"
+  with_items:               "{{ groups['was_servers'] }}"
+
+- name:                     "Render {{ __cnx_prom_jmx_destination }}"
+  template:
+    src:                    "{{ __cnx_prom_jmx_template }}"
+    dest:                   "{{ __cnx_prom_jmx_destination }}"
+
+- name:                     "Render {{ __cnx_prom_cfg_destination }}"
+  template:
+    src:                    "{{ __cnx_prom_cfg_template }}"
+    dest:                   "{{ __cnx_prom_cfg_destination }}"
+  delegate_to:              "{{ item }}"
+  with_items:               "{{ groups['was_servers'] }}"
+
+- name:                     Download JMX exporter
+  get_url:
+    url:                    "{{ __jmx_download_url }}"
+    dest:                   "{{ __jmx_install_location }}"
+  delegate_to:              "{{ item }}"
+  with_items:               "{{ groups['was_servers'] }}"
+
+- name:                     "Add Prometheus JMX by running {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }} -f {{ __cnx_prom_jmx_destination }}"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }} -f {{ __cnx_prom_jmx_destination }}
+  register:                 jmx_prom_registered
+  changed_when:             jmx_prom_registered.rc == 0

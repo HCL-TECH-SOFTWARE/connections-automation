@@ -1,0 +1,9 @@
+---
+  - name:                       Check Vars
+    include_tasks:              check_vars.yml
+
+  - name:                       Setup Azure AD OIDC
+    include_tasks:              setup_oidc.yml
+
+  - name:                       Configure security for Azure
+    include_tasks:              setup_security.yml

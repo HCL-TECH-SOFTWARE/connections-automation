@@ -19,7 +19,7 @@
       template:
         src:                "{{ __tpl_file }}"
         dest:               "{{ __rsp_file }}"
-      when:                 not sec_prop_already_update.stat.exists
+      when:                 not sec_prop_already_update.stat.exists or __sec_custom_prop_always_write|bool
 
     - name:                 "Update Global Security Custom Property {{ __sec_custom_prop }}"
       command:
@@ -29,9 +29,10 @@
       changed_when:         cout.rc == 0
       until:                cout is changed
       retries:              5
-      when:                 not sec_prop_already_update.stat.exists
+      when:                 not sec_prop_already_update.stat.exists or __sec_custom_prop_always_write|bool
 
     - name:                 "Create sec_prop_{{ __sec_custom_prop }}.success file"
       file:
         path:               "{{ __bin_dir }}/sec_prop_{{ __sec_custom_prop }}.success"
         state:              touch
+        

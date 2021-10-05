@@ -147,7 +147,7 @@ __cnx_deploy_large:
   - { name: 'wikis', cluster_name: "{{ __wikis_app.cluster_name  | default('Wikis') }}",  nodes: "{{ __wikis_app.nodes  | default( __cnx_node_list ) }}"}
   - { name: 'rte', cluster_name: "{{ __rte_app.cluster_name  | default('RTE') }}",  nodes: "{{ __rte_app.nodes  | default( __cnx_node_list ) }}"}
   - { name: 'common', cluster_name: "{{ __common_app.cluster_name  | default('Common') }}",  nodes: "{{ __common_app.nodes  | default( __cnx_node_list ) }}"}
-  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Widget') }}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Widgets')}}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
   - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('Push') }}",  nodes: "{{ __push_app.nodes  | default( __cnx_node_list ) }}"}
   - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('IC360') }}",  nodes: "{{ __ic360_app.nodes  | default( __cnx_node_list ) }}"}
 
@@ -228,7 +228,7 @@ __jmx_large_deployment:
   - { name: 'Profiles', port: '8064'}
   - { name: 'Search', port: '8065'}
   - { name: 'Homepage', port: '8066'}
-  - { name: 'Moderation', port: '8066'}
+  - { name: 'Moderation', port: '8067'}
   - { name: 'RTE', port: '8068'}
   - { name: 'Activities', port: '8069'}
   - { name: 'Blogs', port: '8070'}

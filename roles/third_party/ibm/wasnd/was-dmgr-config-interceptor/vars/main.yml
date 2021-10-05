@@ -13,8 +13,10 @@
     __tpl_file:                 "add_trust_assoc_interceptor.py.j2"
     __rsp_file:                 "{{ __bin_dir }}/add_trust_assoc_interceptor.py"
 
-    __msteams_tenant_id:        "{{ integrations_msteams_tenant_id | default('changeme') }}"
-    __msteams_issuer_host:      "{{ integrations_msteams_issuer_host | default('sts.windows.net') }}"
+    __msteams_identifier:       "{{ azure_interceptor_identifier | default( inventory_hostname_short ) }}"
+    __msteams_tenant_id:        "{{ integrations_msteams_tenant_id | default( 'changeme' ) }}"
+    __msteams_issuer_host:      "{{ integrations_msteams_issuer_host | default('login.microsoftonline.com') }}"
     __msteams_login_host:       "{{ integrations_msteams_login_host | default('login.microsoftonline.com') }}"
     __msteams_login_version:    "{{ integrations_msteams_login_version | default('v2.0') }}"
     __msteams_jwk_endpoint:     "{{ integrations_msteams_jwk_endpoint | default('discovery/v2.0/keys') }}"
+    __msteams_user_identifier:  "{{ azure_interceptor_user_identifier | default('email') }}"

@@ -2,5 +2,6 @@
   package:
     name:            http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm
     state:           present
+    disable_gpg_check:   yes
   when:
     - ansible_os_family == "RedHat"

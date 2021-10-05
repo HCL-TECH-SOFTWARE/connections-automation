@@ -1,4 +1,4 @@
---- 
+---
 - name:                      Check the vars
   include_tasks:             check_vars.yml
 
@@ -96,7 +96,7 @@
 
 - name:                      Setup Outlook Desktop Plugin
   include_tasks:             setup_outlook_addin.yml
-  when:                     
+  when:
    - __setup_outlook_addin |bool
    - not __skip_connections_integration
 
@@ -108,16 +108,17 @@
   include_tasks:             enable_es_metrics.yml
   when:
    - __enable_es_metrics |bool
+   - __setup_elasticsearch7 |bool or __setup_elasticsearch |bool
    - not __skip_connections_integration
 
 - name:                      Setup GK flags
   include_tasks:             setup_gk_flags.yml
-  when: 
+  when:
    - __enable_gk_flags |bool
    - not __skip_connections_integration
 
 - name:                      Setup MS Teams Extensions
   include_tasks:             setup_ms_teams_extensions.yml
-  when: 
+  when:
    - __setup_ms_teams_extensions |bool
    - not __skip_connections_integration

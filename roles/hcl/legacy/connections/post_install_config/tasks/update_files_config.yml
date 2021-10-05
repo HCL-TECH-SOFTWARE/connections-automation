@@ -1,0 +1,19 @@
+---
+    - name:                 Update files-config.xml to enable fileSync
+      xml:
+        path:               "{{ __filescfg_full_path }}"
+        namespaces:         "{{ __filescfg_namespaces }}"
+        xpath:              "{{ __filescfg_filesync_xpath }}"
+        attribute:          "enabled"
+        value:              "true"
+
+    - name:                 "Set filesync-user J2EE Role to All Autheticated"
+      include_role:
+        name:               roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+      vars:
+        __app:              "Files"
+        __role:             "filesync-user"
+        __everyone:         "no"
+        __allauth:          "yes"
+        __users:            ""
+        __groups:           ""

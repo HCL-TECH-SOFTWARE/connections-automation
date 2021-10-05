@@ -12,3 +12,6 @@
 
     __tpl_j2ee_role_file:       "map_j2ee_role.py.j2"
     __rsp_j2ee_role_file:       "{{ __bin_dir }}/map_j2ee_role.py"
+
+    __mt_orgadmin_group:        "{{ mt_orgadmin_group | default('OrgAdmins') }}"
+    __mt_oidc_realmname:        "{{ mt_oidc_realmname | default('') }}"

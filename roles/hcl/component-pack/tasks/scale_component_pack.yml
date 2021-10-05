@@ -6,16 +6,22 @@
   shell:                   kubectl scale --replicas={{ count_workers }} deployment $(kubectl get deployment -n {{ __default_namespace }} | awk {'print $1'} | grep -v NAME) -n {{ __default_namespace }}
   become_user:             "{{ __sudo_user }}"
 
+- name:                    Check elasticsearch version
+  shell:                   helm ls --namespace {{ __default_namespace }}|grep elasticsearch|awk '{print $1}'
+  changed_when:            true
+  register:                es_version
+  become_user:             "{{ __sudo_user }}"
+
 - name:                    Scale down ES7 sts to ~ 2 number of workers
   shell:
                            kubectl scale --replicas=2  sts es-data-7 es-master-7 -n {{ __default_namespace }}
-  when:                    count_workers == "2"
+  when:                    (count_workers == "2" and es_version == "elasticsearch7")
   become_user:             "{{ __sudo_user }}"
 
 - name:                    Scale Down ES7 sts to ~ 1 number of workers
   shell:                   |
                            kubectl scale --replicas=2  sts es-data-7 es-master-7 -n {{ __default_namespace }}
-                           sleep 30
+                           sleep 90
                            kubectl scale --replicas=1  sts es-data-7 es-master-7 -n {{ __default_namespace }}
-  when:                    count_workers < "2"
+  when:                    (count_workers < "2" and es_version == "elasticsearch7")
   become_user:             "{{ __sudo_user }}"

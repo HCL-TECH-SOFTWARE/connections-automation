@@ -1,0 +1,127 @@
+# Please read every variable and replace with appropriate value
+# For details of variable meanings, please see https://docs.kudosapps.com/boards/cp/
+
+global:
+  repository: {{ docker_registry_url }}
+  imagePullSecret: myregkey
+  env:
+    APP_URI: https://{{ frontend_fqdn }}/boards
+
+minio:
+  image:
+    name: kudosboards-minio
+  nfs:
+    server: {{ hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] }}
+
+app:
+  image:
+    name: kudosboards-boards
+
+notification:
+  image:
+    name: kudosboards-notification
+
+webfront:
+  image:
+    name: kudosboards-webfront
+  env:
+    API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    path: /boards/(.*)
+    # This hostname must match other Ingresses defined in your CP environment
+    # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
+    # kubectl get ingresses --all-namespaces
+    hosts:
+      - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
+      - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+{% endif %}
+
+
+core:
+  image:
+    name: kudosboards-core
+  env:
+    NOTIFIER_EMAIL_HOST: smtp.example.com
+    NOTIFIER_EMAIL_USERNAME: user123
+    NOTIFIER_EMAIL_PASSWORD: passw0rd
+    # APP_NAME: Kudos Boards # Used for all notifications, e.g. Orient Me
+    # NOTIFIER_EMAIL_FROM_NAME: Kudos Boards
+    # NOTIFIER_EMAIL_FROM_EMAIL: boards@connections.example.com
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    path: /api-boards/(.*)
+    # This hostname must match other Ingresses defined in your CP environment
+    # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
+    # kubectl get ingresses --all-namespaces
+    hosts:
+      - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
+      - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+{% endif %}
+
+licence:
+  image:
+    name: kudosboards-licence
+  env:
+    # Register your Organisation and download your Free 'Activities Plus' licence key from store.kudosapps.com
+    LICENCE: {{ __kudos_boards_licence }}
+
+# https://docs.kudosapps.com/boards/msgraph/teams-on-prem/
+# Uncomment/configure the following 3 lines if you are using this Kudos Boards deployment from Microsoft Teams
+# provider:
+#   env:
+#     MSGRAPH_TEAMS_APP_ID: app-id-shown-in-teams-url
+
+user:
+  image:
+    name: kudosboards-user
+  env:
+    # CONNECTIONS_NAME: HCL Connections
+    CONNECTIONS_CLIENT_ID: kudosboards
+    CONNECTIONS_URL: https://{{ frontend_fqdn }}
+    CONNECTIONS_CLIENT_SECRET: {{ kudosboards_secret.stdout_lines | last }} 
+    CONNECTIONS_ADMINS: "[\"admin1@company.example.com\", \"boss2@company.example.com\", \"PROF_GUID_3\"]"
+
+provider:
+  image:
+    name: kudosboards-provider
+
+migration:
+  image:
+    name: kudosboards-activity-migration
+  env:
+    API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
+    CONNECTIONS_ACTIVITIES_ADMIN_USERNAME: connectionsadmin
+    CONNECTIONS_ACTIVITIES_ADMIN_PASSWORD: adminpassword
+    CONNECTIONS_DB_HOST: {{ db_server }}
+    CONNECTIONS_DB_USER: {{ db_server_user }}
+    CONNECTIONS_DB_PASSWORD: {{ db_server_password }}
+
+    # -------- DB2 variables ------------
+    CONNECTIONS_DB_TYPE: db2
+    CONNECTIONS_DB_PORT: 50000
+    # Connection string is built from other variables:
+    # CONNECTIONS_DB_CONNECT_STRING: HOSTNAME=${host};PORT=${port};PROTOCOL=TCPIP;UID=${user};PWD=${password};CHARSET=UTF8;
+
+    # -------- Microsoft variables -------
+    # CONNECTIONS_DB_TYPE: mssql
+    # CONNECTIONS_DB_PORT: 1433
+    # CONNECTIONS_DB_DOMAIN: domain
+
+    # -------- Oracle variables ----------
+    # CONNECTIONS_DB_TYPE: oracle
+    # CONNECTIONS_DB_PORT: 1531
+    # CONNECTIONS_DB_SID: DATABASE
+    # Connection string is built from other variables:
+    # CONNECTIONS_DB_CONNECT_STRING: ${host}:${port}/${sid}
+
+    # -------- Other options -------------
+    # PROCESSING_PAGE_SIZE: 10
+    # PROCESSING_LOG_EVERY: 50
+    # IMMEDIATELY_PROCESS_ALL: false
+    # COMPLETE_ACTIVITY_AFTER_MIGRATED: false
+    # CREATE_LINK_IN_ACTIVITY_AFTER_MIGRATED: false

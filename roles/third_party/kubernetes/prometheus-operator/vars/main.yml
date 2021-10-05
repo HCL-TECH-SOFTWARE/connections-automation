@@ -61,7 +61,7 @@ __jmx_large_deployment:
   - { name: 'Profiles', port: '8064'}
   - { name: 'Search', port: '8065'}
   - { name: 'Homepage', port: '8066'}
-  - { name: 'Moderation', port: '8066'}
+  - { name: 'Moderation', port: '8067'}
   - { name: 'RTE', port: '8068'}
   - { name: 'Activities', port: '8069'}
   - { name: 'Blogs', port: '8070'}
