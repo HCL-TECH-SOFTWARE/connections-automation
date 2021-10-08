@@ -65,6 +65,7 @@ cnx_force_repopulation:                          True
 
 cnx_enable_moderation:                           true
 cnx_enable_invite:                               true
+cnx_enable_full_icec:                            true
 
 enable_prometheus_jmx_exporter:                  True
 

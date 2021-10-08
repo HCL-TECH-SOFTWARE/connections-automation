@@ -18,26 +18,25 @@
 
 
 - name:               Edit cfg.properties
-  lineinfile:
+  replace:
     path:            "{{ __viewer_cfg_prop_location }}/cfg.properties"
-    regex:           "{{ item.prop_name }}"
-    line:            "{{ item.prop_value }}"
-    state:           present
+    regexp:           "^(#?){{ item.prop_name }} ?=(.*)$"
+    replace:         "{{ item.prop_name }}={{ item.prop_value }}"
   with_items:
-    - { prop_name: "{{ __viewer_install_root }}", prop_value: "{{ __viewer_install_root_r }}" }
-    - { prop_name: "{{ __viewer_shared_data_dir }}", prop_value: "{{ __viewer_shared_data_dir_r }}" }
-    - { prop_name: "{{ __docs_shared_data_dir }}", prop_value: "{{ __docs_shared_data_dir_r }}" }
-    - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "{{ __conversion_url }}", prop_value: "{{ __conversion_url_r }}" }
-    - { prop_name: "{{ __files_path }}", prop_value: "{{ __files_path_r }}" }
-    - { prop_name: "{{ __editor_installed }}", prop_value: "{{ __editor_installed_r }}" }
-    - { prop_name: "{{ __scope_name }}", prop_value: "{{ __viewer_scope_name_r }}" }
-    - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
-    - { prop_name: "{{ __files_url }}", prop_value: "{{ __files_url_r }}" }
-    - { prop_name: "{{ __docs_url }}", prop_value: "{{ __docs_url_r }}" }
-    - { prop_name: "{{ __ecm_fncmis_server_url }}", prop_value: "{{ __ecm_fncmis_server_url }}" }
-    - { prop_name: "{{ __ecm_fncs_server_url }}", prop_value: "{{ __ecm_fncs_server_url }}" }
-    - { prop_name: "{{ __ecm_community_server_url }}", prop_value: "{{ __ecm_community_server_url }}" }
+    - { prop_name: "viewer_install_root", prop_value: "{{ __viewer_install_root_r }}" }
+    - { prop_name: "shared_data_dir", prop_value: "{{ __viewer_shared_data_dir_r }}" }
+    - { prop_name: "docs_shared_data_dir", prop_value: "{{ __docs_shared_data_dir_r }}" }
+    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
+    - { prop_name: "conversion_url", prop_value: "{{ __conversion_url_r }}" }
+    - { prop_name: "files_path", prop_value: "{{ __files_path_r }}" }
+    - { prop_name: "editor_installed", prop_value: "{{ __editor_installed_r }}" }
+    - { prop_name: "scope_name", prop_value: "{{ __viewer_scope_name_r }}" }
+    - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
+    - { prop_name: "files_url", prop_value: "{{ __files_url_r }}" }
+    - { prop_name: "docs_url", prop_value: "{{ __docs_url_r }}" }
+    - { prop_name: "ecm_fncmis_server_url", prop_value: "{{ __ecm_fncmis_server_url }}" }
+    - { prop_name: "ecm_fncs_server_url", prop_value: "{{ __ecm_fncs_server_url }}" }
+    - { prop_name: "ecm_community_server_url", prop_value: "{{ __ecm_community_server_url }}" }
   when:
     - not viewer_already_installed.stat.exists
 

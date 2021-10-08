@@ -6,14 +6,20 @@ AdminTask.addIdMgrLDAPServer('[-id {{ __ldap_repo }} -host {{ __ldap_server }} -
 AdminTask.addIdMgrRepositoryBaseEntry('[-id {{ __ldap_repo }} -name {{ __ldap_realm }} -nameInRepository {{ __ldap_realm }}]')
 AdminTask.addIdMgrRealmBaseEntry('[-name defaultWIMFileBasedRealm -baseEntry {{ __ldap_realm }}]')
 
-#Add Entity Types
-{% if cnx_setup_mt is defined %}
+#Add Entity Types, Group attribute definition and external id attributes mapping
+{% if (cnx_setup_mt is defined | default(false) and cnx_setup_mt|bool) or (ldap_setup_internal is defined | default(false) and ldap_setup_internal|bool) %}
 AdminTask.addIdMgrLDAPEntityType('[-id {{ __ldap_repo }} -name OrgContainer -objectClasses organization;organizationalUnit;domain;container -searchBases cn=Organizations,{{ __ldap_realm }} -searchFilter ]')
 AdminTask.addIdMgrLDAPEntityType('[-id {{ __ldap_repo }} -name PersonAccount -objectClasses inetOrgPerson;ibm-socialPerson -searchBases cn=Users,{{ __ldap_realm }} -searchFilter ]')
 AdminTask.addIdMgrLDAPEntityType('[-id {{ __ldap_repo }} -name Group -objectClasses groupOfNames;groupOfUniqueNames -searchBases cn=Groups,{{ __ldap_realm }} -searchFilter ]')
+AdminTask.addIdMgrLDAPGroupMemberAttr('[-id {{ __ldap_repo }} -name member -objectClass groupOfNames -scope direct]')
+AdminTask.addIdMgrLDAPGroupMemberAttr('[-id {{ __ldap_repo }} -name uniquemember -objectClass groupOfUniqueNames -scope direct]')
+AdminTask.addIdMgrLDAPExternalIdAttr('[-id {{ __ldap_repo }} -name entryUUID -wimGenerate false]')
 {% endif %}
 
 #Save and Synchronise
 AdminConfig.save()
+
 AdminNodeManagement.syncActiveNodes()
+
+
 # End of File

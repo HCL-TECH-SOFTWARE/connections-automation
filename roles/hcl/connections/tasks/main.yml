@@ -42,13 +42,6 @@
 
 - name:          Enable Prometheus JMX exporter
   include_tasks: enable_prometheus_jmx_exporter.yml
-  when:          
-   - __enable_prometheus_jmx_exporter
-   - not __cnx_uninstall
-
-- name:          Clean CNX temp folder (if upgrade)
-  include_tasks: clean_was_temp.yml
   when:
-   - cnx_updates_enabled |bool
-   - inventory_hostname in groups["was_servers"]
+   - __enable_prometheus_jmx_exporter
    - not __cnx_uninstall

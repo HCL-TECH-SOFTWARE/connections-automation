@@ -27,8 +27,3 @@
       become:              true
   when:
     - inventory_hostname in groups["was_servers"]
-
-- name:                    Clean CNX temp folder
-  include_tasks:           ../../tasks/clean_was_temp.yml
-  when:
-    - inventory_hostname in groups["was_servers"]

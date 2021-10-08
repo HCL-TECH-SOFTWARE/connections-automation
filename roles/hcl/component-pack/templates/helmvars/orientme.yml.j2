@@ -1,7 +1,14 @@
+#jinja2: trim_blocks:False
 global:
   onPrem: true
-  image: 
+  image:
     repository: {{ __docker_registry_url }}/connections
+{% if cnx_setup_mt is defined | default(false) and cnx_setup_mt|bool %}
+  # for orient-web-client
+  mt:
+    orient_cnx_use_rel_path: true
+    use_request_host_for_cnx: true
+{% endif %}
 itm-services:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
@@ -21,7 +28,7 @@ orient-web-client:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   service:
-    nodePort: 
+    nodePort:
 orient-indexing-service:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}

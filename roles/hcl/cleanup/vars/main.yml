@@ -4,8 +4,36 @@ __force_destroy_db2:                      "{{ force_destroy_db2 | default(false)
 __force_destroy_ihs:                      "{{ force_destroy_ihs | default(false) }}"
 __force_destroy_websphere:                "{{ force_destroy_websphere | default(false) }}"
 __force_destroy_oracle:                   "{{ force_destroy_oracle | default(false) }}"
+__force_destroy_containerd_images:        "{{ force_destroy_containerd_images | default(false) }}"
 
 __nfsMasterAddress:                       "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
 __persistentVolumePath:                   "{{ persistentVolumePath | default('pv-connections') }}"
 __nfs_master_files_dest:                  "{{ __nfsMasterAddress }}:/{{ __persistentVolumePath }}"
 __nfs_master_files_mount:                 "/mnt/pv-connections"
+
+__ansible_cache:                          "{{ ansible_cache | default('/tmp/k8s_ansible') }}"
+__helm_install_dir:                       "{{ helm_install_dir | default('/opt/helm') }}"
+__kube_dir:                               "{{ kube_dir | default('/root/.kube') }}"
+__docker_registry_dir:                    "{{ docker_registry_dir | default('/etc/docker/registry') }}"
+__kubernetes_etc_dir:                     "{{ kubernetes_etc_dir | default('/etc/kubernetes') }}"
+__etcd_dir:                               "{{ etcd_dir | default('/var/lib/etcd') }}"
+
+__db2_instance_fenced_homedir:            "{{ db2_instance_fenced_homedir | default('/home/db2fenc1') }}"
+__db2_instance_homedir:                   "{{ db2_instance_homedir | default('/home/db2inst1') }}"
+__db_installation_folder_dir:             "{{ db_installation_folder_dir | default('/opt/IBM/db2') }}"
+
+__ihs_install_location:                   "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+__iim_install_location:                   "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__var_ibm_base_location:                  "{{ var_ibm_base_location  | default('/var/ibm') }}"
+
+__iim_install_location_dir:               "{{ __iim_install_location }}/"
+__var_ibm_base_location_dir:              "{{ __var_ibm_base_location }}/"
+
+__websphere_base_location:                "{{ websphere_base_location  | default('/opt/IBM/WebSphere') }}"
+__imshared_location:                      "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+
+__ora_rsp_oracle_base:                    "{{ ora_rsp_oracle_base | default('/opt/oracle') }}"
+__oraclfmap_oracle_base:                  "{{ oraclfmap_oracle_base | default('/opt/ORCLfmap') }}"
+__oracltab_oracle_base:                   "{{ oracltab_oracle_base | default('/etc/oratab') }}"
+__orainst_oracle_base:                    "{{ orainst_oracle_base | default('/etc/oraInst.loc') }}"
+__oracle_temp:                            "{{ oracle_temp | default('/tmp/.oracle') }}"

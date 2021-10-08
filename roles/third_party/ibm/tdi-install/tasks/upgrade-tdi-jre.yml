@@ -75,7 +75,7 @@
     marker:                 "// {mark} Grant all permissions to all files in the SDI install dir"
     insertafter:            "// Standard extensions get all permissions by default"
     block:                  |
-                            grant codeBase "file:"{{ __tdi_user_install_dir }}"/-" {
+                            grant codeBase "file:"{{ __tdi_user_install_dir }}"/*" {
                                     permission java.security.AllPermission;
                             };
   when:
@@ -91,7 +91,7 @@
     insertafter:            "grant {"
     block:                  |1
              // Allows anyone to listen on un-privileged ports
-             permission java.net.SocketPermission "localhost:{{ __tdi_cs_port }}-", "listen";
+             permission java.net.SocketPermission "localhost:{{ __tdi_cs_port }}", "listen, resolve";
   when:
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists

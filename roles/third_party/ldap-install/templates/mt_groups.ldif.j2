@@ -36,8 +36,8 @@ uniqueMember:	uid={{ __mt_ldap_orgb_userid }}12,cn=Users,{{ ldap_realm }}
 uniqueMember:	uid={{ __mt_ldap_orgb_userid_ext }}2,cn=Users,{{ ldap_realm }}
 uniqueMember:	uid={{ __mt_ldap_orgb_userid_ext }}4,cn=Users,{{ ldap_realm }}
 
-dn: cn=OrgAdmins,CN=Groups,{{ ldap_realm }}
-CN: OrgAdmins
+dn: cn={{ __mt_orgadmin_group }},CN=Groups,{{ ldap_realm }}
+CN: {{ __mt_orgadmin_group }}
 objectclass: groupOfUniqueNames
 objectclass: top
 uniqueMember:	uid={{ __mt_ldap_orga_userid }}1,cn=Users,{{ ldap_realm }}

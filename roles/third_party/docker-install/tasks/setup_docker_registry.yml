@@ -112,12 +112,21 @@
    - ansible_os_family == "RedHat" or ansible_distribution == "SLES"
   register: docker_registry_status
 
-- name:                             Save Docker Registry status
+- name:                             "Save Docker Registry status when ansible_version < 2.10"
   set_fact:
     docker_registry_is_running:     "{{ docker_registry_status.ansible_facts.docker_container.State.Running }}"
   when:
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
+   - "ansible_version.full is version_compare('2.9', '<=')"
+
+- name:                             "Save Docker Registry status when ansible_version >= 2.10"
+  set_fact:
+    docker_registry_is_running:     "{{ docker_registry_status.container.State.Running }}"
+  when:
+   - inventory_hostname == groups['docker_registry'][0]
+   - ansible_os_family == "RedHat"
+   - "ansible_version.full is version_compare('2.10', '>=')"
 
 - name:                             Fail if Docker Registry is not running
   fail:

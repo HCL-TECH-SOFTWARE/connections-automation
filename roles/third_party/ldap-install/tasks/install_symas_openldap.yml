@@ -11,10 +11,27 @@
     daemon_reload:          yes
   ignore_errors:            true
 
+- name:                     Remove openldap-clients if already installed
+  yum:
+    name:                   openldap-clients
+    state:                  absent
+  ignore_errors:            true
+
+- name:                     Remove openldap-servers if already installed
+  yum:
+    name:                   openldap-servers
+    state:                  absent
+  ignore_errors:            true
+
 - name:                     Download Symas OpenLDAP for Linux on RHEL8
   get_url:
     url:                    https://repo.symas.com/configs/SOFL/rhel8/sofl.repo
     dest:                   /etc/yum.repos.d/sofl.repo
+
+- name:                     Upgrade all packages
+  yum:
+    name:                   '*'
+    state:                  latest
 
 - name:                     Install symas-openldap-clients for Linux on RHEL8
   package:

@@ -5,33 +5,8 @@
   when:
    - __force_destroy_kubernetes == true
 
-- name:                    Create local mount point "{{ __nfs_master_files_mount }}"
-  file:
-    path:                  "{{ __nfs_master_files_mount }}"
-    state:                 directory
-    mode:                  '0755'
-  tags:                    k8s_cleanup
-  ignore_errors:           true
-  when:
-   - inventory_hostname == groups['k8s_masters'][0]
-   - __force_destroy_kubernetes == true
-
-- name:                    Mount "{{ __nfs_master_files_dest }}" to "{{ __nfs_master_files_mount }}" first
-  mount:
-    fstype:                nfs
-    opts:                  defaults
-    dump:                  0
-    passno:                0
-    state:                 mounted
-    src:                   "{{ __nfs_master_files_dest }}"
-    path:                  "{{ __nfs_master_files_mount }}"
-  tags:                    k8s_cleanup
-  when:
-   - inventory_hostname == groups['k8s_masters'][0]
-   - __force_destroy_kubernetes == true
-
 - name:                    Cleanup K8S
-  command:                 sudo yum remove kubeadm kubectl kubelet kubernetes-cni kube* -y
+  command:                 yum remove kubeadm kubectl kubelet kubernetes-cni kube* -y
   ignore_errors:           true
   tags:                    k8s_cleanup
   when:
@@ -54,30 +29,6 @@
   when:
    - __force_destroy_kubernetes == true and kubectl_loc.rc == 0
 
-- name:                    Cleanup CP NFS data
-  shell:                   "rm -rf {{ __nfs_master_files_mount }}/*/*"
-  ignore_errors:           true
-  tags:                    k8s_cleanup
-  when:
-   - inventory_hostname == groups['k8s_masters'][0]
-   - __force_destroy_kubernetes == true
-
-- name:                    Unmount /mnt/customizations
-  command:                 umount -f /mnt/customizations
-  tags:                    k8s_cleanup
-  when:
-   - inventory_hostname == groups['k8s_masters'][0]
-   - __force_destroy_kubernetes == true
-  ignore_errors:           true
-
-- name:                    Unmount {{ __nfs_master_files_mount }}
-  command:                 umount -f {{ __nfs_master_files_mount }}
-  tags:                    k8s_cleanup
-  when:
-   - inventory_hostname == groups['k8s_masters'][0]
-   - __force_destroy_kubernetes == true
-  ignore_errors:           true
-
 - name:                    Cleanup folders
   file:
     path:                  "{{ item }}"
@@ -86,13 +37,12 @@
   when:
    - __force_destroy_kubernetes == true
   with_items:
-   - /tmp/k8s_ansible
-   - /opt/helm
-   - /root/.kube
-   - /pv-connections
-   - /etc/docker/registry
-   - /etc/kubernetes
-   - /var/lib/etcd
+   - "{{ __ansible_cache }}"
+   - "{{ __helm_install_dir }}"
+   - "{{ __kube_dir }}"
+   - "{{ __docker_registry_dir }}"
+   - "{{ __kubernetes_etc_dir }}"
+   - "{{ __etcd_dir }}"
 
 - name:                    Stop db2fmcd process
   systemd:
@@ -118,9 +68,9 @@
   when:
    - __force_destroy_db2 == true
   with_items:
-   - /home/db2fenc1
-   - /home/db2inst1
-   - /opt/IBM/db2
+   - "{{ __db2_instance_fenced_homedir }}"
+   - "{{ __db2_instance_homedir }}"
+   - "{{ __db_installation_folder_dir }}"
 
 - name:                    Kill all IHSs processes
   shell:                   ps -ef | grep http | awk {'print $2'} | xargs kill -9
@@ -138,47 +88,12 @@
   when:
    - __force_destroy_ihs == true
   with_items:
-   - /opt/IBM/HTTPServer
-   - /opt/IBM/InstallationManager
-   - /var/ibm
+   - "{{ __ihs_install_location }}"
+   - "{{ __iim_install_location }}"
+   - "{{ __var_ibm_base_location }}"
 
 - name:                    Kill all WebSphere/Connections processes
   shell:                   ps -ef | grep java | awk {'print $2'} | xargs kill -9
-  ignore_errors:           true
-  tags: was_cleanup
-  when:
-   - __force_destroy_websphere == true
-
-- name:                    Cleanup content of mounted folders
-  shell:                   "rm -rf {{ item }}/*"
-  ignore_errors:           true
-  tags: was_cleanup
-  when:
-   - __force_destroy_websphere == true
-  with_items:
-   - /opt/IBM/SharedArea
-   - /opt/HCL/MessageStore
-   - /nfs/data/shared
-   - /nfs/data/messageStores
-
-- name:                    Unmount /opt/IBM/SharedArea
-  command:                 umount -f /opt/IBM/SharedArea
-  ignore_errors:           true
-  tags: was_cleanup
-  when:
-   - __force_destroy_websphere == true
-
-- name:                    Unmount /opt/HCL/MessageStore
-  command:                 umount -f /opt/HCL/MessageStore
-  ignore_errors:           true
-  tags: was_cleanup
-  when:
-   - __force_destroy_websphere == true
-
-- name:                    Cleanup /opt/HCL/MessageStore
-  file:
-    path:                  /opt/HCL/MessageStore/
-    state:                 absent
   ignore_errors:           true
   tags: was_cleanup
   when:
@@ -193,12 +108,10 @@
   when:
    - __force_destroy_websphere == true
   with_items:
-   - /opt/IBM/InstallationManager/
-   - /opt/HCL
-   - /var/ibm
-   - /opt/IBM/WebSphere
-   - /opt/IBM/SharedArea
-   - /opt/IBM/IMShared
+   - "{{ __iim_install_location_dir }}"
+   - "{{ __websphere_base_location }}"
+   - "{{ __imshared_location }}"
+   - "{{ __var_ibm_base_location_dir }}"
 
 - name:                    Kill all Oracle processes
   shell:                   ps -ef | grep ora | awk {'print $2'} | xargs kill -9
@@ -215,8 +128,8 @@
   when:
    - __force_destroy_oracle == true
   with_items:
-   - /opt/oracle
-   - /opt/ORCLfmap
-   - /etc/oratab
-   - /etc/oraInst.loc
-   - /tmp/.oracle
+   - "{{ __ora_rsp_oracle_base }}"
+   - "{{ __oraclfmap_oracle_base }}"
+   - "{{ __oracltab_oracle_base }}"
+   - "{{ __orainst_oracle_base }}"
+   - "{{ __oracle_temp }}"

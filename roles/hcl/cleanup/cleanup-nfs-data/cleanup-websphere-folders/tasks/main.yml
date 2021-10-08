@@ -1,0 +1,9 @@
+- name:                    Cleanup WebSphere/Connections folders
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags: was_cleanup
+  ignore_errors:           true
+  with_items:
+   - "{{ __cnx_shared_area }}"
+   - "{{ __cnx_install_base_dir }}"

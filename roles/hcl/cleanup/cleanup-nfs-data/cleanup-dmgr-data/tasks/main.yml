@@ -1,0 +1,55 @@
+- name:                      Unmount "{{ __cnx_shared_area }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    state:                   unmounted
+    path:                    "{{ __cnx_shared_area }}"
+  ignore_errors:             true
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['dmgr'] }}"
+   - "{{ groups['was_servers'] }}"
+  register: result
+  retries: 3
+  delay: 15
+  until: result is not failed
+
+- name:                      Remove fstab entry for "{{ __cnx_shared_area }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    state:                   absent
+    path:                    "{{ __cnx_shared_area }}"
+  ignore_errors:             true
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['dmgr'] }}"
+   - "{{ groups['was_servers'] }}"
+
+- name:                      Unmount "{{ __cnx_message_store }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    state:                   unmounted
+    path:                    "{{ __cnx_message_store }}"
+  ignore_errors:             true
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['dmgr'] }}"
+   - "{{ groups['was_servers'] }}"
+  register: result
+  retries: 3
+  delay: 15
+  until: result is not failed
+
+- name:                      Remove fstab entry for "{{ __cnx_message_store }}"
+  mount:
+    fstype:                  nfs
+    opts:                    defaults
+    state:                   absent
+    path:                    "{{ __cnx_message_store }}"
+  ignore_errors:             true
+  delegate_to:               "{{ item }}"
+  with_items:
+   - "{{ groups['dmgr'] }}"
+   - "{{ groups['was_servers'] }}"

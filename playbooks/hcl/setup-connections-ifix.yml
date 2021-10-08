@@ -28,6 +28,12 @@
   roles:
     - roles/hcl/connections/ifix
 
+- name:                    Clean WAS temp folders
+  hosts:                   dmgr, was_servers
+  become:                  true
+  roles:
+    - roles/hcl/connections/clean_was_temp
+
 - name:                    Start WAS Nodes
   hosts:                   was_servers
   become:                  true

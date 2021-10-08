@@ -114,3 +114,38 @@
     state:            touch
   when:
     - mt_update_performed is not skipped
+
+- name:               Update application J2EE org-admin role
+  include_role:
+    name:             roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:            "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "org-admin", __everyone: "no", __allauth: 'no', __users: '""', __groups: "{{ __mt_orgadmin_group }}@{{ __mt_oidc_realmname }}", __allauth_trusted: 'no', __mappeduseraccessids: '""', __mappedgroupaccessids: "group:{{ __mt_oidc_realmname }}/{{ __mt_orgadmin_group }}" }
+  with_items:
+    - Activities
+    - Blogs
+    - Communities
+    - Files
+    - Forums
+    - Homepage
+    - MetricsUI
+    - Mobile Administration
+    - News
+    - Profiles
+    - WidgetContainer
+    - Wikis
+  when:
+    - mt_oidc_enabled is defined and mt_oidc_enabled|bool
+
+- name:                Update application J2EE orgadmin role
+  include_role:
+    name:              roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:             "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "orgadmin", __everyone: "no", __allauth: 'no', __users: '""', __groups: "{{ __mt_orgadmin_group }}@{{ __mt_oidc_realmname }}", __allauth_trusted: 'no', __mappeduseraccessids: '""', __mappedgroupaccessids: "group:{{ __mt_oidc_realmname }}/{{ __mt_orgadmin_group }}" }
+  with_items:
+    - Common
+  when:
+    - mt_oidc_enabled is defined and mt_oidc_enabled|bool
