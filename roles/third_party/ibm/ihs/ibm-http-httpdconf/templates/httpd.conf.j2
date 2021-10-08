@@ -972,8 +972,8 @@ ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-add
 ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 
 # jsonapi
-ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
-ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+#ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+#ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
 
 #keycloak
 Redirect "/auth" "/auth/"
@@ -1056,8 +1056,8 @@ ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-add
 ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 
 # jsonapi
-ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
-ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+#ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+#ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
 
 <Location /auth >
    RequestHeader set X-Forwarded-Proto "https"
