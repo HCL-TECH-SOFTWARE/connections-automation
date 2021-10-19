@@ -1,13 +1,13 @@
 ---
 - name: Is restrict_reader_access
   set_fact:
-    __allauth_value:                   "{{ 'yes' if (restrict_reader_access is defined and restrict_reader_access |bool) }}"
+    __allauth_value:                   "{{ 'yes' if (restrict_reader_access is defined and restrict_reader_access |bool) else '' }}"
 
 - debug: var=__allauth_value
 
 - name: Is restrict_reader_access__trusted_realms
   set_fact:
-    __allauth_trusted_value:         "{{ 'yes' if (restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms |bool) }}"
+    __allauth_trusted_value:         "{{ 'yes' if (restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms |bool) else '' }}"
 
 - debug: var=__allauth_trusted_value
 
