@@ -52,7 +52,7 @@
   become:            false
 
 - name:              Wait for tiller pod to be ready
-  shell:             kubectl wait --for=condition=ready pod $(kubectl get pods -n kube-system |grep tiller-deploy|head -1|awk '{print $1}') -n kube-system --timeout=600s
+  shell:             kubectl wait --for=condition=ready pod -l name=tiller -n kube-system --timeout=600s
   when:
     - (helm_version.stdout == "v2")
   become:            false
