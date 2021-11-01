@@ -42,7 +42,7 @@ __cnx_shared_area_files_dest: "{{ __nfsMasterAddress }}:{{ __cnx_shared_area_nfs
 __cnx_webserver:             "{{ cnx_webserver | default( hostvars[groups['ihs_servers'][0]]['inventory_hostname_short'] ) }}"
 
 __cnx_message_store:         "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"
-__cnx_message_store_nfs:     "/nfs/data/messageStores"
+__cnx_message_store_nfs:     "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"
 __cnx_messagestore_files_dest: "{{ __nfsMasterAddress }}:{{ __cnx_message_store_nfs }}"
 
 __this_version:              "{{ cnx_version | default('6.5.0.0_20191121_2323') }}"
