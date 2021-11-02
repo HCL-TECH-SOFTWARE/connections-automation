@@ -30,7 +30,7 @@
     xpath:                                  "{{ __selfreg_invite_usertype_xpath }}"
     value:                                  "{{ invite_user_type | default('internal') }}"
   when:
-    - __cnx_major_version == '7'
+    - __cnx_major_version is version('7', '>=')
 
 
 - name:                                     Set Invite LDAP server href and ssl_href
