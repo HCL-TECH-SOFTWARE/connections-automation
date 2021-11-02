@@ -2,6 +2,10 @@
 db2_wizards_download_locaiton:  "{{ connections_wizards_download_location }}"
 db2_wizards_package_name:       "{{ connections_wizards_package_name }}"
 
+__cnx_fixes_version:            "{{ cnx_fixes_version }}"
+__cnx_db_updates_url:           "{{ cnx_db_updates_url }}"
+__cnx_db_update_file:          "{{ cnx_db_update_file | default('65cr1-database-updates.zip') }}"
+
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
 __db_version:                   "{{ db_version | default('7.0') }}"
 __download_location:            "{{ connections_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
@@ -41,7 +45,7 @@ __ora_success_file:             "{{ __dbw_oracle_base }}/migration.success"
 __ora_ic360_success_file:       "{{ __dbw_oracle_base }}/ic360_migration.success"
 __ora_sharepoint_success_file:  "{{ __dbw_oracle_base }}/sharepoint_migration.success"
 __ora_docs_success_file:        "{{ __dbw_oracle_base }}/docs.migration.success"
-__oracle_migration_cmd:         "{{ __dbw_oracle_home }}/bin/sqlplus SYS/{{ __dbw_oracle_password }} as SYSDBA @" 
+__oracle_migration_cmd:         "{{ __dbw_oracle_home }}/bin/sqlplus SYS/{{ __dbw_oracle_password }} as SYSDBA @"
 
 __sql_data_folder:              "{{ sql_data_folder | default('/var/opt/mssql/data') }}"
 __sql_sa_password:              "{{ sql_sa_password | default('Pa55w0rd') }}"
