@@ -62,6 +62,13 @@
 - name:              "Get the installation ID"
   shell:             cat "{{ __tmp_dir }}/cnx/HCL_Connections_Install/HCLConnections/repository.xml" | grep "offering id" | grep version | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2
   register:          cnx_upgrade_version
+  when:              (cnx_fixes_version is not defined)
+
+- name:              "Get the installation ID from CR1"
+  # offering id appears three times in the repository file, so limiting to last occurrence
+  shell:             cat "{{ __tmp_dir }}/cnx-cr/updates/repository.xml" | grep "offering id" | tail -n1 | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2
+  register:          cnx_upgrade_version
+  when:              (cnx_fixes_version is defined)
 
 - debug: var=cnx_upgrade_version.stdout
   run_once: true
