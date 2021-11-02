@@ -43,6 +43,7 @@ ihs_fixes_repository_url:                        http://{{ groups['installer'][0
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections6.5
 cnx_fixes_url:                                   http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
+cnx_db_updates_url:                              http://{{ groups['installer'][0] }}:8001/cnx65_dbupdates
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 
 # Falling back to the defaults for Connections 6.5.0.1
@@ -75,6 +76,7 @@ cnx_fixes_version:                               "6.5.0.0_CR1"
 cnx_fixes_files:
   - { file_name: "HC6.5_CR1.zip" }
 db_version:                                      "6.5"
+cnx_db_update_file:                              "65cr1-database-updates.zip"
 elasticsearch_default_version:                   "5"
 
 # Globals
