@@ -16,11 +16,11 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup orientme
-  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }}"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for people-migrate pod to become ready
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=300s
+  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=600s
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if orientme is up and running
