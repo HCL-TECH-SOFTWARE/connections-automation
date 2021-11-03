@@ -39,4 +39,5 @@
   include_tasks:              update_connections_db_db2.yml
   when:
     - "'db2_servers' in groups"
-    - __cnx_fixes_version == '6.5.0.0_CR1'
+    - cnx_fixes_version is defined
+    - cnx_fixes_version == '6.5.0.0_CR1'

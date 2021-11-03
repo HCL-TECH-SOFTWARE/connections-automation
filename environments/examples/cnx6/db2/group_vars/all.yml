@@ -42,7 +42,7 @@ ihs_repository_url:                              http://{{ groups['installer'][0
 ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP16
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections6.5
-cnx_fixes_url:                                   http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
+cnx_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
 cnx_db_updates_url:                              http://{{ groups['installer'][0] }}:8001/cnx65_dbupdates
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 
