@@ -3,3 +3,10 @@ cnx-automation
 
 .DS_Store
 environments/hcl
+environments/a21c-cnx65/
+environments/stoeps-cnx65/
+environments/stoeps-cnx7/
+ansible.cfg
+
+playbooks/setup-cnx-and-docs.yml
+.gitignore
