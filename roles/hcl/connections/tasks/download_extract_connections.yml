@@ -72,7 +72,7 @@
 
 - name:              Set cnx_upgrade_version
   set_fact:
-    cnx_upgrade_version:  "{{ cnx_upgrade_version_base if (cnx_upgrade_version_base is defined) else cnx_upgrade_version_cr }}"
+    cnx_upgrade_version:  "{{ cnx_upgrade_version_base if (cnx_upgrade_version_base is changed) else cnx_upgrade_version_cr }}"
 
 - debug: var=cnx_upgrade_version.stdout
   run_once: true
