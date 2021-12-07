@@ -1,8 +1,11 @@
 ---
 __kubectl_user:                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
 
-__containerd_version:           "{{ containerd_version | default('1.4.4-3.1.el7') }}"
-__docker_version:               "{{ docker_version | default('19.03.15-3.el7') }}"
+__containerd_default_version:   "{{ '1.4.4-3.1.el8' if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8' else '1.4.4-3.1.el7' }}"
+__containerd_version:           "{{ containerd_version | default( __containerd_default_version ) }}"
+
+__docker_default_version:       "{{ '19.03.15-3.el8' if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8' else '19.03.15-3.el7' }}"
+__docker_version:               "{{ docker_version | default( __docker_default_version ) }}"
 
 __docker_daemon_json_template:  "docker.daemon.overlay.json.j2"
 __docker_daemon_json_location:  "/etc/docker/daemon.json"
