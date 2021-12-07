@@ -1,5 +1,7 @@
 ---
-__containerd_version:                                  "{{ containerd_version | default('1.4.4-3.1.el7') }}"
+__containerd_default_version:                          "{{ '1.4.4-3.1.el8' if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8' else '1.4.4-3.1.el7' }}"
+__containerd_version:                                  "{{ containerd_version | default( __containerd_default_version ) }}"
+
 __modules_containerd_conf_template:                    "containerd.conf.j2"
 __modules_containerd_conf_location:                    "/etc/modules-load.d/containerd.conf"
 
