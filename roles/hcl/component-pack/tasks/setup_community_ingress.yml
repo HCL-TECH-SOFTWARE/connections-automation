@@ -56,6 +56,14 @@
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
+- name:                      Delete configmaps
+  shell:                     kubectl delete configmaps ingress-controller-leader ingress-controller-leader-nginx -n {{ __default_namespace }}
+  when:
+   - helm_version.stdout != "v2"
+   - cnx_ingress_already_provisioned_helm3.rc == 0
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
 - name:                      Give it some space...
   pause:
     seconds:                 15
