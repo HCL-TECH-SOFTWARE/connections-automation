@@ -34,11 +34,13 @@ webfront:
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
-      - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  __ingress_multi_domain_enabled == "true"  %}
 {% if  load_balancer_dns != frontend_fqdn %}
-      - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+    - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
 {% endif %}
-
+{% else %}
+    - "{{ cnx_application_ingress }}"
+{% endif %}
 
 core:
   image:
@@ -53,14 +55,19 @@ core:
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
+      kubernetes.io/ingress.class: nginx
     path: /api-boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
-      - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
 {% if  load_balancer_dns != frontend_fqdn %}
-      - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+    - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+{% endif %}
+{% else %}
+    - "{{ cnx_application_ingress }}"
 {% endif %}
 
 licence:
