@@ -6,6 +6,7 @@ global:
 multiDomainEnabled: {{ __ingress_multi_domain_enabled  }}
 ingress:
   hosts:
+    host: {{ cnx_application_ingress }}
     domain: {{ hostvars[inventory_hostname]['ansible_domain'] }}
     publicdomain: {{ frontend_domain }}
 
