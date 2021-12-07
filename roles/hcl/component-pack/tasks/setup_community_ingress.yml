@@ -189,6 +189,6 @@
     dest:                    "{{ __cnxingressonly_env }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Setup cnx-ingress Ingress Rule Only helm upgrade cnx-ingress-rule {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingressonly_env }} --namespace {{ __default_namespace }} --wait
+- name:                      Setup cnx-ingress Ingress Rule Only helm upgrade cnx-ingress-rule {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingressonly_env }} --namespace {{ __default_namespace }} --wait 
   command:                   "helm upgrade cnx-ingress-rule {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingressonly_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
