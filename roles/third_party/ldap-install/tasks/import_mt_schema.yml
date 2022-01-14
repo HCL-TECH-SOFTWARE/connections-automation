@@ -1,0 +1,78 @@
+---
+- name:                     "Verify if database is already created"
+  stat:
+    path:                   "{{ __db_ldif_success_file }}"
+  register:                 ldap_database_already_created
+
+- name:                     "Verify if MT custom schema is already created"
+  stat:
+    path:                   "{{ __mt_custom_schema_success_file }}"
+  register:                 mt_custom_ldap_schema_already_created
+
+- name:                     "Verify if MT config is already added"
+  stat:
+    path:                   "{{ __mt_config_added_success_file }}"
+  register:                 mt_config_already_added
+
+- name:                     "Create {{ __mt_tmp_files_location }}"
+  file:
+    path:                   "{{ __mt_tmp_files_location }}"
+    state:                  directory
+    mode:                   0775
+  when:
+    - not mt_config_already_added.stat.exists or not mt_custom_ldap_schema_already_created.stat.exists
+
+- name:                     "Add MT schema to LDAP schemas"
+  copy:
+    src:                    "{{ item.file }}"
+    dest:                   "{{ item.dest }}"
+  with_items:
+    - { file: "{{ __mt_custom_schema_file }}", dest: "/etc/openldap/schema/" }
+    - { file: "{{ __mt_slapd_config_file }}", dest: "{{ __mt_tmp_files_location }}/conf/" }
+  register:                 mt_schema_added
+  when:
+    - not mt_custom_ldap_schema_already_created.stat.exists
+
+- name:                     "Create {{ __mt_custom_schema_success_file }} file"
+  file:
+    path:                   "{{ __mt_custom_schema_success_file }}"
+    state:                  touch
+  when:
+    - mt_schema_added is not skipped
+
+- name:                     "Convert config file to directory format"
+  command:                  "{{ __ldap_slaptest_cmd }} {{ __mt_tmp_files_location }}/conf/mt.conf -F {{ __mt_tmp_files_location }}/conf"
+  register:                 config_converted
+  failed_when:              ( config_converted.rc not in [0] )
+  when:
+    - not mt_config_already_added.stat.exists
+
+- name:                     "Copy the ldif files to OpenLDAP config directory"
+  copy:
+    src:                    "{{ __mt_tmp_files_location }}/conf/cn=config/cn=schema/"
+    dest:                   "/etc/openldap/slapd.d/cn=config/cn=schema/"
+    remote_src:             yes
+  register:                 config_copied
+  when:
+   - config_converted is changed
+
+- name:                     "Create {{ __mt_config_added_success_file }} file"
+  file:
+    path:                   "{{ __mt_config_added_success_file }}"
+    state:                  touch
+  when:
+    - config_converted is not skipped
+    - config_copied is not skipped
+
+- name:                     "Cleanup {{ __mt_tmp_files_location }}"
+  file:
+    path:                   "{{ __mt_tmp_files_location }}"
+    state:                  absent
+  when:
+    - not mt_custom_ldap_schema_already_created.stat.exists or not mt_config_already_added.stat.exists
+
+- name:                     "Restart slapd service"
+  service:
+    name:                   slapd
+    state:                  restarted
+    daemon_reload:          yes

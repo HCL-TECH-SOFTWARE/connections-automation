@@ -1,0 +1,16 @@
+# Node Exporter
+__setup_prometheus_node_exporter:        "{{ setup_prometheus_node_exporter | default(true) }}"
+__prometheus_exporters_common_user:      "prometheus"
+__prometheus_exporters_common_group:     "prometheus"
+
+__prometheus_exporters_common_root_dir:  "/opt/prometheus/exporters"
+__prometheus_exporters_common_dist_dir:  "{{ __prometheus_exporters_common_root_dir }}/dist"
+__prometheus_exporters_common_log_dir:   "/var/log/prometheus"
+
+# minimum supported version:             "0.15"
+__prometheus_node_exporter_version:      "0.18.1"
+__prometheus_node_exporter_release_name: "node_exporter-{{ __prometheus_node_exporter_version }}.linux-amd64"
+
+__prometheus_url:                        "{% if prometheus_node_exporter_url is not defined %}{% if __prometheus_node_exporter_version is version_compare('0.13.0', '>=') %}https://github.com/prometheus/node_exporter/releases/download/v{{ __prometheus_node_exporter_version }}/{{ __prometheus_node_exporter_release_name }}.tar.gz{% else %}https://github.com/prometheus/node_exporter/releases/download/{{ __prometheus_node_exporter_version }}/{{ __prometheus_node_exporter_release_name }}.tar.gz{% endif %}{% else %}{{ prometheus_node_exporter_url }}{% endif %}"
+
+__node_exporter_port:                    "{{ node_exporter_port | default('9108') }}"

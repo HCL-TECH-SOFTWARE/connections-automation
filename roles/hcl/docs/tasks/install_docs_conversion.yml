@@ -4,27 +4,26 @@
   register:           conversion_already_installed
 
 - name:               Edit cfg.properties
-  lineinfile:
+  replace:
     path:            "{{ __conversion_cfg_prop_location }}/cfg.properties"
-    regex:           "{{ item.prop_name }}"
-    line:            "{{ item.prop_value }}"
-    state:           present
+    regexp:           "^(#?){{ item.prop_name }} ?=(.*)$"
+    replace:         "{{ item.prop_name }}={{ item.prop_value }}"
   with_items:
-    - { prop_name: "{{ __conversion_install_root }}", prop_value: "{{ __conversion_install_root_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_type }}", prop_value: "{{ __docs_shared_storage_type_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_type }}", prop_value: "{{ __viewer_shared_storage_type_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_local_path }}", prop_value: "{{ __docs_shared_storage_local_path_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_remote_server }}", prop_value: "{{ __docs_shared_storage_remote_server_r }}" }
-    - { prop_name: "{{ __docs_shared_storage_remote_path }}", prop_value: "{{ __docs_shared_storage_remote_path_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_local_path }}", prop_value: "{{ __viewer_shared_storage_local_path_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_remote_server }}", prop_value: "{{ __viewer_shared_storage_remote_server_r }}" }
-    - { prop_name: "{{ __viewer_shared_storage_remote_path }}", prop_value: "{{ __viewer_shared_storage_remote_path_r }}" }
-    - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
-    - { prop_name: "{{ __scope_name }}", prop_value: "{{ __scope_name_r  }}" }
-    - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
-    - { prop_name: "{{ __viewer_url }}", prop_value: "{{ __viewer_url_r }}" }
-  when:              conversion_already_installed.stat.exists == false
+    - { prop_name: "conversion_install_root", prop_value: "{{ __conversion_install_root_r }}" }
+    - { prop_name: "docs_shared_storage_type", prop_value: "{{ __docs_shared_storage_type_r }}" }
+    - { prop_name: "viewer_shared_storage_type", prop_value: "{{ __viewer_shared_storage_type_r }}" }
+    - { prop_name: "docs_shared_storage_local_path", prop_value: "{{ __docs_shared_storage_local_path_r }}" }
+    - { prop_name: "docs_shared_storage_remote_server", prop_value: "{{ __docs_shared_storage_remote_server_r }}" }
+    - { prop_name: "docs_shared_storage_remote_path", prop_value: "{{ __docs_shared_storage_remote_path_r }}" }
+    - { prop_name: "viewer_shared_storage_local_path", prop_value: "{{ __viewer_shared_storage_local_path_r }}" }
+    - { prop_name: "viewer_shared_storage_remote_server", prop_value: "{{ __viewer_shared_storage_remote_server_r }}" }
+    - { prop_name: "viewer_shared_storage_remote_path", prop_value: "{{ __viewer_shared_storage_remote_path_r }}" }
+    - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
+    - { prop_name: "scope_name", prop_value: "{{ __scope_name_r  }}" }
+    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
+    - { prop_name: "non_job_mgr_mode", prop_value: "{{ __non_job_mgr_mode_r }}" }
+    - { prop_name: "viewer_url", prop_value: "{{ __viewer_url_r }}" }
+  when:              not conversion_already_installed.stat.exists
 
 # need to copy cfg to cfg.node before install per documentation
 - name:               Copy cfg.properties to cfg.node.properties
@@ -32,26 +31,26 @@
     src:              "{{ __conversion_cfg_prop_location }}/cfg.properties"
     dest:             "{{ __conversion_cfg_prop_location }}/cfg.node.properties"
     remote_src:       yes
-  when:              conversion_already_installed.stat.exists == false
+  when:               not conversion_already_installed.stat.exists
 
 - name:              Run the Docs Conversion installer
   shell:
-    chdir:           "{{ __extraction_folder }}/DocsConversion/installer"
+    chdir:           "{{ __extraction_folder }}/{{ __conversion_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -mapWebserver true -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - conversion_already_installed.stat.exists == false
+    - not conversion_already_installed.stat.exists
   register:          sec_install_performed
 
 - name:              Search for success message in install log
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_conversion_install_location }}/logs/conversion_install.log"
   register:          conversion_success_message_found
-  failed_when:       conversion_success_message_found.stdout == ""
+  failed_when:       conversion_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
 
 - name:              "Create {{ __conversion_install_success_file }} file"
   file:
     path:            "{{ __conversion_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and conversion_success_message_found.stdout != ""
+  when:              sec_install_performed is not skipped and conversion_success_message_found.stdout|length > 0

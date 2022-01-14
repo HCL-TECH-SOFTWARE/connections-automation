@@ -1,0 +1,19 @@
+dn:{{ ldap_realm }}
+objectClass:organizationalUnit
+objectClass:top
+ou:{{ __mt_org_unit_name }}
+
+dn:cn=Users,{{ ldap_realm }}
+objectClass:container
+objectClass:top
+cn:Users
+
+dn:cn=Organizations,{{ ldap_realm }}
+objectClass:container
+objectClass:top
+cn:Organizations
+
+dn:cn=Groups,{{ ldap_realm }}
+objectClass:container
+objectClass:top
+cn:Groups

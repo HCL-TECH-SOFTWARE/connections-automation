@@ -29,13 +29,15 @@
     path:                                   "{{ __selfreg_full_path }}"
     xpath:                                  "{{ __selfreg_invite_usertype_xpath }}"
     value:                                  "{{ invite_user_type | default('internal') }}"
+  when:
+    - __cnx_major_version is version('7', '>=')
 
 
 - name:                                     Set Invite LDAP server href and ssl_href
   xml:
     path:                                   "{{ __selfreg_full_path }}"
     xpath:                                  "{{ __selfreg_ldap_server_xpath }}"
-    value:                                  "{{ item.protocol }}://{{ ldap_server }}:{{ item.port }}"
+    value:                                  "{{ item.protocol }}://{{ __ldap_server }}:{{ item.port }}"
     attribute:                              "{{ item.prop }}"
   with_items:
     - { protocol: 'ldap', prop: 'href', port: "{{ ldap_href_port | default('389') }}" }
@@ -48,9 +50,9 @@
     xpath:                                  "{{ item.prop }}"
     value:                                  "{{ item.value }}"
   with_items:
-    - { prop: "{{ __selfreg_ldap_auth_user_xpath }}", value: "{{ ldap_bind_user }}" }
-    - { prop: "{{ __selfreg_ldap_auth_pwd_xpath }}", value: "{{ ldap_bind_pass }}" }
-    - { prop: "{{ __selfreg_ldap_parent_dn_xpath }}", value: "{{ ldap_realm }}" }
+    - { prop: "{{ __selfreg_ldap_auth_user_xpath }}", value: "{{ __ldap_bind_user }}" }
+    - { prop: "{{ __selfreg_ldap_auth_pwd_xpath }}", value: "{{ __ldap_bind_pass }}" }
+    - { prop: "{{ __selfreg_ldap_parent_dn_xpath }}", value: "{{ __ldap_realm }}" }
     - { prop: "{{ __selfreg_ldap_guid_xpath }}", value: "{{ ldap_guid_field  | default('entryUUID') }}" }
 
 - name:                                     Set Invite Profile base guid

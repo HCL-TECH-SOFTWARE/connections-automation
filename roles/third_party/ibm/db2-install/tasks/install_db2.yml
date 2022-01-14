@@ -1,25 +1,12 @@
-- name:                     "Render {{ __db2_server_rsp_location }}" 
+- name:                    "Render {{ __db2_server_rsp_location }}"
   template:
-    src:                    "{{ __db2_server_rsp_template }}"
-    dest:                   "{{ __db2_server_rsp_location }}"
-
-- name:                     Check if DB2 is already up and running
-  shell:                    ps -ef | grep db2 | grep -v root
-  changed_when:             true
-  register:                 db2_running
-  ignore_errors:            true
-
-- debug: 
-    msg:                    "DB2 is already up and running"
-  when:
-    - db2_running.rc == 0
+    src:                   "{{ __db2_server_rsp_template }}"
+    dest:                  "{{ __db2_server_rsp_location }}"
 
 - name:                    Create db2group group
   group:
     name:                  "db2group"
     state:                 present
-  when:
-    - db2_running.rc != 0
 
 - name:                    Generate password for users
   command:                 "openssl passwd -salt sha512 -1 {{ __db2_users_password }}"
@@ -32,10 +19,6 @@
     password:              "{{ db2_generated_password.stdout }}"
   with_items:
    - "{{ __db2_users }}"
-  when:
-    - db2_running.rc != 0
 
 - name:                    "Install DB2"
   command:                 "{{ __installation_folder }}/db2setup -r {{ __db2_server_rsp_location }}"
-  when:
-    - db2_running.rc != 0

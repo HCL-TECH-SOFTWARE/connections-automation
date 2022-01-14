@@ -15,7 +15,6 @@
     url:         "{{ was_repository_url }}/{{ item.file_name }}"
     dest:        "{{ __tmp_dir }}/{{ item.file_name }}"
     mode:        0755
-    checksum:    sha256:{{ item.check_sum }}
   with_items:    "{{ __was_files }}"
 
 - name:          Extract WAS ND V8.5.5 Files
@@ -33,7 +32,7 @@
 - name:          Install IBM WAS Software
   command:
     chdir={{ __tmp_dir }}
-    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense -sVP -log {{ __log_file }} input {{ __rsp_file }}
+    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }} -sVP -log {{ __log_file }} input {{ __rsp_file }}
   register:      cout
   changed_when:  ( cout.stdout.find( __version_check ) != -1)
 

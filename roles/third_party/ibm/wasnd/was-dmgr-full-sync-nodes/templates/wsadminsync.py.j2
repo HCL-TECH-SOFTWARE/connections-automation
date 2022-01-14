@@ -22,7 +22,7 @@ def nodeIsDmgr( nodename ):
 
 def nodeIsUnmanaged( nodename ):
     """Return true if the node is an unmanaged node."""
-    return not nodeHasServerOfType( nodename, 'NODE_AGENT' ) 
+    return not nodeHasServerOfType( nodename, 'NODE_AGENT' )
 #endDef
 
 def getCellName():
@@ -31,7 +31,7 @@ def getCellName():
     # available if we're connected to a running server.
     cellObjects = getObjectsOfType('Cell')  # should only be one
     cellname = getObjectAttribute(cellObjects[0], 'name')
-    return cellname       
+    return cellname
 #endDef
 
 def getNodeName(node_id):
@@ -41,7 +41,7 @@ def getNodeName(node_id):
 
 def getNodeId( nodename ):
     """Given a node name, get its config ID"""
-    return AdminConfig.getid( '/Cell:%s/Node:%s/' % ( getCellName(), nodename ) )    
+    return AdminConfig.getid( '/Cell:%s/Node:%s/' % ( getCellName(), nodename ) )
 #endDef
 
 def nodeHasServerOfType( nodename, servertype ):
@@ -51,7 +51,7 @@ def nodeHasServerOfType( nodename, servertype ):
         sType = AdminConfig.showAttribute( serverEntry, "serverType" )
         if sType == servertype:
             return 1
-    return 0    
+    return 0
 #endDef
 
 ############################################################
@@ -62,7 +62,7 @@ def getSopTimestamp():
     # Assemble the formatting string in pieces, so that some code libraries do not interpret
     # the strings as special keywords and substitute them upon extraction.
     formatting_string = "[" + "%" + "Y-" + "%" + "m" + "%" + "d-" + "%" + "H" + "%" + "M-" + "%" + "S00]"
-    return time.strftime(formatting_string)    
+    return time.strftime(formatting_string)
 #endDef
 
 def sop(methodname,message):
@@ -172,8 +172,12 @@ def syncall():
         # We do, however, have to skip unmanaged nodes.  These will show up
         # when there is a web server defined on a remote machine.
         if not nodeIsDmgr( nodename ) and not nodeIsUnmanaged( nodename ):
+            nodeRepo = AdminControl.completeObjectName('type=ConfigRepository,process=nodeagent,node=' + nodename + ',*')
+            if nodeRepo:
+               AdminControl.invoke(nodeRepo, 'refreshRepositoryEpoch')
+
             sop(m,"Sync config to node %s" % nodename)
-            Sync1 = AdminControl.completeObjectName( "type=cellSync,node=%s,*" % nodename )
+            Sync1 = AdminControl.completeObjectName('cell=' + getCellName() + ',node=' + nodename + ',type=NodeSync,*')
             if Sync1:
                 rc = AdminControl.invoke( Sync1, 'sync' )
                 if rc != 'true':  # failed
@@ -208,12 +212,12 @@ def saveAndSync():
 def saveAndSyncAndPrintResult():
     """Save config changes and sync them - prints save.result(0) on sync success, save.result(non-zero) on failure"""
     rc = saveAndSync()
-    print "save.result(%s)" % (rc)        
+    print "save.result(%s)" % (rc)
 #endDef
 
 def main():
     saveAndSyncAndPrintResult()
-#endDef  
+#endDef
 
 DEBUG_SOP=1
 # Allow this file to be used as a module

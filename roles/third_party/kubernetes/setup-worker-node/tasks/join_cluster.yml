@@ -10,17 +10,17 @@
   template:
     src:              "{{ __join_command_template }}"
     dest:             "{{ __join_command_location }}"
-  when: 
+  when:
     - node_already_joined.rc != 0
 
 - name:               Make the script executable
   file:
     dest:             "{{ __join_command_location }}"
     mode:             a+x
-  when: 
+  when:
     - node_already_joined.rc != 0
 
 - name:               Join Kubernetes cluster as node
   command:            "sh {{ __join_command_location }}"
-  when: 
+  when:
     - node_already_joined.rc != 0

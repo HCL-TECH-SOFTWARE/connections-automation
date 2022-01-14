@@ -1,0 +1,151 @@
+---
+- name:               Verify if AutoDeploy is already installed ({{ __autodeploy_install_success_file }})
+  stat:
+    path:             "{{ __autodeploy_install_success_file }}"
+  register:           autodeploy_already_installed
+
+- name:               Verify if MT (Dmgr) is already updated ({{ __mt_update_success_file }})
+  stat:
+    path:             "{{ __mt_update_success_file }}"
+  register:           mt_already_installed
+
+- name:               Edit config.properties (HCL Connections and MT provisioning configuration properties)
+  replace:
+    path:             "{{ __tmp_dir }}/mt/install/config.properties"
+    regexp:           "^(?!#){{ item.prop_name }}=(.*)$"
+    replace:          "{{ item.prop_name }}={{ item.prop_value }}"
+  with_items:
+    - { prop_name: "mt.connections.url", prop_value: "{{ __mt_cnx_url_r }}" }
+    - { prop_name: "mt.connections.url.parent", prop_value: "{{ __mt_cnx_url_r.split('.')[1:] | join('.') }}" }
+    - { prop_name: "mt.ldap.url", prop_value: "{{ __mt_ldap_url_r }}" }
+    - { prop_name: "mt.ldap.security.authentication", prop_value: "{{ __mt_ldap_auth_r }}" }
+    - { prop_name: "mt.ldap.security.principal", prop_value: "{{ __mt_ldap_sec_principal_r }}" }
+    - { prop_name: "mt.ldap.baseDN", prop_value: "{{ __mt_ldap_basedn_r }}" }
+    - { prop_name: "mt.ldap.security.password", prop_value: "{{ __mt_ldap_sec_password_r }}" }
+    - { prop_name: "provision.mt.url", prop_value: "https://{{ __provision_mt_url_r }}" }
+    - { prop_name: "provision.mt.ldapurl", prop_value: "{{ __provision_mt_ldap_url_r }}" }
+    - { prop_name: "provision.mt.ldapUserName", prop_value: "{{ __provision_mt_ldapusername_r }}" }
+    - { prop_name: "provision.mt.ldapPassword", prop_value: "{{ __provision_mt_ldappassword_r }}" }
+    - { prop_name: "provision.mt.saasOrganizationsLdapDN", prop_value: "{{ __provision_mt_saasorgldapdn_r }}" }
+    - { prop_name: "provision.mt.defaultSubscriberLocale", prop_value: "{{ __provision_mt_defaultsubscriberlocal_r }}" }
+    - { prop_name: "provision.mt.bssAdminUsername", prop_value: "{{ __provision_mt_bssadminusername_r }}" }
+    - { prop_name: "provision.mt.bssAdminPassword", prop_value: "{{ __provision_mt_bssadminpassword_r }}" }
+    - { prop_name: "provision.mt.saasOrganizationId", prop_value: "{{ __provision_mt_saasorgid_r }}" }
+    - { prop_name: "provision.mt.saasSubscriptionsRDN", prop_value: "cn={{ __provision_mt_saassubscription_rdn_r }}" }
+    - { prop_name: "provision.mt.saasSubscriptionId", prop_value: "{{ __provision_mt_saassubscription_id_r }}" }
+    - { prop_name: "provision.mt.defaultQuotaSize", prop_value: "{{ __provision_mt_defaultquotasize_r }}" }
+    - { prop_name: "provision.mt.defaultTransferQuota", prop_value: "{{ __provision_mt_defaulttransferquota_r }}" }
+    - { prop_name: "provision.mt.defaultAllowDataOverage", prop_value: "{{ __provision_mt_defaultallowdataoverage_r }}" }
+    - { prop_name: "provision.mt.ldapOrganizationFilter", prop_value: "{{ __provision_mt_ldap_org_filter_r }}" }
+    - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
+    - { prop_name: "mt.oidc.enabled", prop_value: "{{ __mt_oidc_enabled_r|lower }}" }
+    #  update mt.oidc.enabled above so it can be turned off quickly
+
+- name:               Edit config.properties (OIDC configuration properties)
+  replace:
+    path:             "{{ __tmp_dir }}/mt/install/config.properties"
+    regexp:           "^(?!#){{ item.prop_name }}=(.*)$"
+    replace:          "{{ item.prop_name }}={{ item.prop_value }}"
+  with_items:
+    - { prop_name: "mt.oidc.realmName", prop_value: "{{ __mt_oidc_realmname_r }}" }
+    - { prop_name: "mt.oidc.identifier", prop_value: "{{ __mt_oidc_identifier_r }}" }
+    - { prop_name: "mt.oidc.clientId", prop_value: "{{ __mt_oidc_clientid_r }}" }
+    - { prop_name: "mt.oidc.clientSecret", prop_value: "{{ __mt_oidc_clientsecret_r }}" }
+    - { prop_name: "mt.oidc.rte.clientId", prop_value: "{{ __mt_oidc_rte_clientid_r }}" }
+    - { prop_name: "mt.oidc.rte.clientSecret", prop_value: "{{ __mt_oidc_rte_clientsecret_r }}" }
+    - { prop_name: "mt.oidc.ee.clientId", prop_value: "{{ __mt_oidc_ee_clientid_r }}" }
+    - { prop_name: "mt.oidc.ee.clientSecret", prop_value: "{{ __mt_oidc_ee_clientsecret_r }}" }
+    - { prop_name: "mt.oidc.scope", prop_value: "{{ __mt_oidc_scope_r }}" }
+    - { prop_name: "mt.oidc.host", prop_value: "{{ __mt_oidc_host_r }}" }
+    - { prop_name: "mt.oidc.port", prop_value: "{{ __mt_oidc_port_r }}" }
+    - { prop_name: "mt.oidc.discoveryEndpointUrl", prop_value: "{{ __mt_oidc_discovery_url_r }}" }
+    - { prop_name: "mt.oidc.authorizeEndpointUrl", prop_value: "{{ __mt_oidc_auth_url_r }}" }
+    - { prop_name: "mt.oidc.tokenEndpointUrl", prop_value: "{{ __mt_oidc_token_url_r }}" }
+    - { prop_name: "mt.oidc.logoutEndpointUrl", prop_value: "{{ __mt_oidc_logout_url_r }}" }
+    - { prop_name: "mt.oidc.introspectEndpointUrl", prop_value: "{{ __mt_oidc_introspect_url_r }}" }
+    - { prop_name: "mt.oidc.jwkEndpointUrl", prop_value: "{{ __mt_oidc_jwk_url_r }}" }
+    - { prop_name: "mt.oidc.issuerIdentifier", prop_value: "{{ __mt_oidc_issueid_url_r }}" }
+    - { prop_name: "mt.oidc.signVerifyAlias", prop_value: "{{ __mt_oidc_signverifyalias_r }}" }
+  when:                __mt_oidc_enabled_r|bool
+
+- name:                Remove old rc file
+  file:
+    path:              "{{ __tmp_dir }}/mt/install/mtupdate.rc"
+    state:             absent
+
+- name:                Run MT Update (Dmgr), log file {{ __tmp_dir }}/mt/install/mtupdate.log
+  shell: |
+     set timeout 15m
+     ./connections-mt-update-cli.sh -s -f config.properties 2>&1 | tee mtupdate.log
+     echo ${PIPESTATUS[0]} > mtupdate.rc
+  args:
+      chdir:           "{{ __tmp_dir }}/mt/install"
+  become:              true
+  when:
+      - autodeploy_already_installed.stat.exists
+  register:            mt_update_performed
+
+- name:                Check install return code
+  become:              yes
+  shell:               "cat {{ __tmp_dir }}/mt/install/mtupdate.rc"
+  register:            return_code
+  failed_when:
+    - return_code.stdout != "0"
+  when:
+    - mt_update_performed is not skipped
+
+- name:               Search for success message in log
+  become:             yes
+  shell:              "grep -i 'Upgrade HCL Connections configuration to MT completed' {{ __tmp_dir }}/mt/install/mtupdate.log"
+  register:           grep_success_message
+  failed_when:        grep_success_message.stdout|length == 0
+  when:               not __mt_skip_error_checking|bool and mt_update_performed is not skipped
+
+- name:               Search for potential errors in log
+  become:             yes
+  shell:              "grep -i 'exception' {{ __tmp_dir }}/mt/install/mtupdate.log"
+  register:           mt_update_exception_found
+  failed_when:        mt_update_exception_found.stdout|length != 0
+  when:               not __mt_skip_error_checking|bool and mt_update_performed is not skipped
+
+- name:               "Create {{ __mt_update_success_file }} file"
+  file:
+    path:             "{{ __mt_update_success_file }}"
+    state:            touch
+  when:
+    - mt_update_performed is not skipped
+
+- name:               Update application J2EE org-admin role
+  include_role:
+    name:             roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:            "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "org-admin", __everyone: "no", __allauth: 'no', __users: '""', __groups: "{{ __mt_orgadmin_group }}@{{ __mt_oidc_realmname }}", __allauth_trusted: 'no', __mappeduseraccessids: '""', __mappedgroupaccessids: "group:{{ __mt_oidc_realmname }}/{{ __mt_orgadmin_group }}" }
+  with_items:
+    - Activities
+    - Blogs
+    - Communities
+    - Files
+    - Forums
+    - Homepage
+    - MetricsUI
+    - Mobile Administration
+    - News
+    - Profiles
+    - WidgetContainer
+    - Wikis
+  when:
+    - mt_oidc_enabled is defined and mt_oidc_enabled|bool
+
+- name:                Update application J2EE orgadmin role
+  include_role:
+    name:              roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:             "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "orgadmin", __everyone: "no", __allauth: 'no', __users: '""', __groups: "{{ __mt_orgadmin_group }}@{{ __mt_oidc_realmname }}", __allauth_trusted: 'no', __mappeduseraccessids: '""', __mappedgroupaccessids: "group:{{ __mt_oidc_realmname }}/{{ __mt_orgadmin_group }}" }
+  with_items:
+    - Common
+  when:
+    - mt_oidc_enabled is defined and mt_oidc_enabled|bool

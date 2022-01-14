@@ -1,11 +1,11 @@
 ---
-__haproxy_version:                       "{{ haproxy_version | default('1.8.3') }}"
-__haproxy_major_version:                 "{{ haproxy_major_version | default('1.8') }}"
+__haproxy_version:                       "{{ haproxy_version | default('2.4.0') }}"
+__haproxy_major_version:                 "{{ haproxy_major_version | default('2.4') }}"
 __haproxy_url:                           "http://www.haproxy.org/download/{{ __haproxy_major_version }}/src/haproxy-{{ __haproxy_version }}.tar.gz"
 __haproxy_download_dir:                  "/tmp/haproxy-{{ __haproxy_version }}"
 
-__main_port:                             "{{ main_port | default('80') }}"
-__main_ssl_port:                         "{{ main_ssl_port | default('443') }}"
+__main_port:                             "{{ main_port | default('81') }}"
+__main_ssl_port:                         "{{ main_ssl_port | default('444') }}"
 
 __haproxy_user:                          "{{ haproxy_user | default('haproxy') }}"
 __haproxy_group:                         "{{ haproxy_group | default('haproxy') }}"

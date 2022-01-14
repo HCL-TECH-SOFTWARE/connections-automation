@@ -1,0 +1,8 @@
+# Setup Conteinerd
+---
+- name:                    Setup Containerd
+  hosts:                   k8s_masters,k8s_workers
+  become:                  true
+  roles:
+    - roles/third_party/containerd-install
+

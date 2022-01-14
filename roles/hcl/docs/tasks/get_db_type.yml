@@ -1,0 +1,4 @@
+---
+- name:                          Set db_type for Docs install
+  set_fact:
+    __db_type:                   "{{ 'db2' if (db_type|lower == 'db2') else 'oracle' if (db_type|lower == 'oracle') else 'sqlserver' if (db_type|lower == 'sql server') else db_type }}"

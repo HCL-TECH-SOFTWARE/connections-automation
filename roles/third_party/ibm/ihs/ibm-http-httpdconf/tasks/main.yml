@@ -1,6 +1,7 @@
 ---
 - name:                 Backup httpd.conf
   command:              cp {{ __ihs_install_location }}/conf/httpd.conf {{ __ihs_install_location }}/conf/httpd.conf_{{ __now }}
+  ignore_errors:        true
 
 - name:                 Clean up old certificates
   command:              "rm -rf {{ item }}"
@@ -17,9 +18,13 @@
     creates:            "{{ __ihs_kdb_filename }}"
 
 - name:                 Generate self signed certificate
-  shell:                "{{ __ihs_gsk_api }} -cert -create -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -size 2048 -dn \"{{ __ihs_cert_dn }}\" -label {{ __ihs_hostname_fqdn }} -default_cert yes"
+  shell:                "{{ __ihs_gsk_api }} -cert -create -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -sigalg SHA256WithRSA -size 4096 -dn \"{{ __ihs_cert_dn }}\" -san_dnsname {{ __ihs_hostname_fqdn }} -label {{ __ihs_hostname_fqdn }} -default_cert yes"
   args:
     chdir:              "{{ __ihs_bin_directory }}"
+
+- name:                 "Am I going to enable ActivitiesPlus?"
+  debug:
+    msg:                "{{ __setup_kudosboards }}"
 
 - name:                 "Generate httpd.conf"
   template:

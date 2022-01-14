@@ -13,7 +13,7 @@
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-  when: dmgr_is_running.rc == 0   
+  when: dmgr_is_running.rc == 0
 
 - name:                 "Full Synchronize with nodes"
   command:

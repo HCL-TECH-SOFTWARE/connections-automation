@@ -12,3 +12,13 @@ dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 replace: olcRootPW
 olcRootPW: {{ slappasswd_output['stdout'] }}
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+replace: olcDbIndex
+olcDbIndex: objectclass eq,pres
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+add: olcDbIndex
+olcDbIndex: uid,ou,cn,mail,sn eq,pres,sub

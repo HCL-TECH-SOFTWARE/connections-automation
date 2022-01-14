@@ -1,6 +1,11 @@
 ---
 __cnx_major_version:         "{{ cnx_major_version | default('7') }}"
 
+__cnx_uninstall:             "{{ cnx_uninstall | default(false) }}"
+
+__iim_keep_fetched_files:    "{{ iim_keep_fetched_files | default(false) }}"
+__iim_preserve_artifacts:    "{{ iim_preserve_artifacts | default(false) }}"
+
 __profile_name:              "{{ profile_name | default('Dmgr01') }}"
 __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
 __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
@@ -9,27 +14,35 @@ __logs_dir:                  "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
 __iim_install_location:      "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
 __was_install_location:      "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __imshared_location:         "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__cell_location:             "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}"
+__lcc_location:              "{{ __cell_location }}/LotusConnections-config"
 __now:                       "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
 __os_bin:                    "{{ os_bin | default('/usr/local/bin') }}"
 
 __rsp_file:                  "{{ __logs_dir }}/connections_install.rsp"
-__log_file:                  "{{ __logs_dir }}/cnx6_install.{{ __now }}.log"
+__log_file:                  "{{ __logs_dir }}/cnx{{ __cnx_major_version }}_install.{{ __now }}.log"
 __tpl_file:                  "LC.{{ __cnx_major_version }}.rsp.j2"
+
+__rsp_uninstall_file:        "{{ __logs_dir }}/connections_uninstall.rsp"
+__log_uninstall_file:        "{{ __logs_dir }}/cnx{{ __cnx_major_version }}_uninstall.{{ __now }}.log"
+__tpl_uninstall_file:        "LC.{{ __cnx_major_version }}.uninstall.rsp.j2"
 
 __cnx_install_location:      "{{ cnx_install_location  | default('/opt/HCL/Connections') }}"
 __cnx_tmp_dir:               "{{ cnx_tmp_dir  | default('/opt/HCL/CnxTempDir') }}"
 
+__skip_nfs_mount:            "{{ skip_nfs_mount_for_connections | default(false) }}"
 __firstNfsNode:              "{{ hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] }}"
 
 __nfsMasterAddress:          "{{ nfsMasterAddress | default( __firstNfsNode ) }}"
 
 __cnx_shared_area:           "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
-__cnx_shared_area_nfs:       "/nfs/data/shared"
+__cnx_shared_area_nfs:       "{{ cnx_shared_area_nfs | default('/nfs/data/shared') }}"
 __cnx_shared_area_files_dest: "{{ __nfsMasterAddress }}:{{ __cnx_shared_area_nfs }}"
 
+__cnx_webserver:             "{{ cnx_webserver | default( hostvars[groups['ihs_servers'][0]]['inventory_hostname_short'] ) }}"
 
 __cnx_message_store:         "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"
-__cnx_message_store_nfs:     "/nfs/data/messageStores"
+__cnx_message_store_nfs:     "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"
 __cnx_messagestore_files_dest: "{{ __nfsMasterAddress }}:{{ __cnx_message_store_nfs }}"
 
 __this_version:              "{{ cnx_version | default('6.5.0.0_20191121_2323') }}"
@@ -50,7 +63,7 @@ __cnx_prom_jmx_destination:       "{{ __was_install_location }}/profiles/{{ __pr
 __cnx_prom_cfg_template:          "prometheus_config.j2"
 __cnx_prom_cfg_destination:       "{{ __jmx_install_location }}/config.yml"
 
-
+__cnx_enable_moderation:          "{{ cnx_enable_moderation | default('false') }}"
 
 # Connections Files
 __cnx_package:               "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
@@ -60,11 +73,8 @@ __cnx_files:
 __cnx_fixes_version:         "{{ cnx_fixes_version | default( __cnx_fixes_version_latest ) }}"
 __cnx_fixes_files:           "{{ cnx_fixes_files | default( __cnx_fixes_files_latest ) }}"
 
-__cnx_deploy_type:          "small"
+__cnx_deploy_type:           "{{ cnx_deploy_type | default('small') }}"
 
-__cnx_hosts:                 "{{ groups['connections-servers'] }}"
-__cnx_domainname:            "{{ cnx_domainname }}"
-__was_domainname:            "{{ was_domainname }}"
 __smtp_hostname:             "{{ smtp_hostname }}"
 __smtp_port:                 "{{ smtp_port  | default('25') }}"
 
@@ -73,7 +83,10 @@ __db_username:               "{{ db_username  | default('LCUSER') }}"
 __db_password:               "{{ db_password }}"
 __db_hostname:               "{{ db_hostname }}"
 __db_port:                   "{{ db_port  | default('50000') }}"
-__db_jdbc_file:              "{{ db_jdbc_file  | default('/opt/IBM/db2/V11.1/java') }}"
+
+__install_latest_db2:        "{{ install_latest_db2 | default(false) }}"
+__db2_default_jdbc_file:     "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+__db_jdbc_file:              "{{ db_jdbc_file  | default(__db2_default_jdbc_file) }}"
 __db_type:                   "{{ db_type  | default('DB2') }}"
 
 __was_encoded_password:      "WAS_ENCODED_PASSWORD"
@@ -102,25 +115,91 @@ __push_app:                  "{{ push_app  | default( {} ) }}"
 __ic360_app:                 "{{ ic360_app  | default( {} ) }}"
 
 __cnx_deploy:
-  - { name: 'activities', cluster_name: "{{ __activities_app.cluster_name  | default('clActivities') }}",  nodes: "{{ __activities_app.nodes | default( cnx_node_list ) }}"}
-  - { name: 'blogs', cluster_name: "{{ __blogs_app.cluster_name  | default('clBlogs') }}",  nodes: "{{ __blogs_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'dogear', cluster_name: "{{ __dogear_app.cluster_name  | default('clDogear') }}",  nodes: "{{ __dogear_app.nodes | default( cnx_node_list ) }}"}
-  - { name: 'communities', cluster_name: "{{ __communities_app.cluster_name  | default('clCommunities') }}",  nodes: "{{ __communities_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'files', cluster_name: "{{ __files_app.cluster_name  | default('clFiles') }}",  nodes: "{{ __files_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'forums', cluster_name: "{{ __forums_app.cluster_name  | default('clForums') }}",  nodes: "{{ __forums_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'homepage', cluster_name: "{{ __homepage_app.cluster_name  | default('clHomepage') }}",  nodes: "{{ __homepage_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'metrics', cluster_name: "{{ __metrics_app.cluster_name  | default('clMetrics') }}",  nodes: "{{ __metrics_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'mobile', cluster_name: "{{ __mobile_app.cluster_name  | default('clMobile') }}",  nodes: "{{ __mobile_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'moderation', cluster_name: "{{ __moderation_app.cluster_name  | default('clModeration') }}",  nodes: "{{ __moderation_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'news', cluster_name: "{{ __news_app.cluster_name  | default('clNews') }}",  nodes: "{{ __news_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'profiles', cluster_name: "{{ __profiles_app.cluster_name  | default('clProfiles') }}",  nodes: "{{ __profiles_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'search', cluster_name: "{{ __search_app.cluster_name  | default('clSearch') }}",  nodes: "{{ __search_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'wikis', cluster_name: "{{ __wikis_app.cluster_name  | default('clWikis') }}",  nodes: "{{ __wikis_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'rte', cluster_name: "{{ __rte_app.cluster_name  | default('clRTE') }}",  nodes: "{{ __rte_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'common', cluster_name: "{{ __common_app.cluster_name  | default('clCommon') }}",  nodes: "{{ __common_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('clWidget') }}",  nodes: "{{ __widgets_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('clPush') }}",  nodes: "{{ __push_app.nodes  | default( cnx_node_list ) }}"}
-  - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('clic360') }}",  nodes: "{{ __ic360_app.nodes  | default( cnx_node_list ) }}"}
+  - { name: 'activities', cluster_name: "{{ __activities_app.cluster_name  | default('Activities') }}",  nodes: "{{ __activities_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'blogs', cluster_name: "{{ __blogs_app.cluster_name  | default('Blogs') }}",  nodes: "{{ __blogs_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'dogear', cluster_name: "{{ __dogear_app.cluster_name  | default('Dogear') }}",  nodes: "{{ __dogear_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'communities', cluster_name: "{{ __communities_app.cluster_name  | default('Communities') }}",  nodes: "{{ __communities_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'files', cluster_name: "{{ __files_app.cluster_name  | default('Files') }}",  nodes: "{{ __files_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'forums', cluster_name: "{{ __forums_app.cluster_name  | default('Forums') }}",  nodes: "{{ __forums_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'homepage', cluster_name: "{{ __homepage_app.cluster_name  | default('Homepage') }}",  nodes: "{{ __homepage_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'metrics', cluster_name: "{{ __metrics_app.cluster_name  | default('Metrics') }}",  nodes: "{{ __metrics_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'mobile', cluster_name: "{{ __mobile_app.cluster_name  | default('Mobile') }}",  nodes: "{{ __mobile_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'moderation', cluster_name: "{{ __moderation_app.cluster_name  | default('Moderation') }}",  nodes: "{{ __moderation_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'news', cluster_name: "{{ __news_app.cluster_name  | default('News') }}",  nodes: "{{ __news_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'profiles', cluster_name: "{{ __profiles_app.cluster_name  | default('Profiles') }}",  nodes: "{{ __profiles_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'search', cluster_name: "{{ __search_app.cluster_name  | default('Search') }}",  nodes: "{{ __search_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'wikis', cluster_name: "{{ __wikis_app.cluster_name  | default('Wikis') }}",  nodes: "{{ __wikis_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'rte', cluster_name: "{{ __rte_app.cluster_name  | default('RTE') }}",  nodes: "{{ __rte_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'common', cluster_name: "{{ __common_app.cluster_name  | default('Common') }}",  nodes: "{{ __common_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Widget') }}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('Push') }}",  nodes: "{{ __push_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('IC360') }}",  nodes: "{{ __ic360_app.nodes  | default( __cnx_node_list ) }}"}
+
+__cnx_deploy_large:
+  - { name: 'activities', cluster_name: "{{ __activities_app.cluster_name  | default('Activities') }}",  nodes: "{{ __activities_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'blogs', cluster_name: "{{ __blogs_app.cluster_name  | default('Blogs') }}",  nodes: "{{ __blogs_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'dogear', cluster_name: "{{ __dogear_app.cluster_name  | default('Dogear') }}",  nodes: "{{ __dogear_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'communities', cluster_name: "{{ __communities_app.cluster_name  | default('Communities') }}",  nodes: "{{ __communities_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'files', cluster_name: "{{ __files_app.cluster_name  | default('Files') }}",  nodes: "{{ __files_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'forums', cluster_name: "{{ __forums_app.cluster_name  | default('Forums') }}",  nodes: "{{ __forums_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'homepage', cluster_name: "{{ __homepage_app.cluster_name  | default('Homepage') }}",  nodes: "{{ __homepage_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'metrics', cluster_name: "{{ __metrics_app.cluster_name  | default('Metrics') }}",  nodes: "{{ __metrics_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'mobile', cluster_name: "{{ __mobile_app.cluster_name  | default('Mobile') }}",  nodes: "{{ __mobile_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'moderation', cluster_name: "{{ __moderation_app.cluster_name  | default('Moderation') }}",  nodes: "{{ __moderation_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'news', cluster_name: "{{ __news_app.cluster_name  | default('News') }}",  nodes: "{{ __news_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'profiles', cluster_name: "{{ __profiles_app.cluster_name  | default('Profiles') }}",  nodes: "{{ __profiles_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'search', cluster_name: "{{ __search_app.cluster_name  | default('Search') }}",  nodes: "{{ __search_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'wikis', cluster_name: "{{ __wikis_app.cluster_name  | default('Wikis') }}",  nodes: "{{ __wikis_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'rte', cluster_name: "{{ __rte_app.cluster_name  | default('RTE') }}",  nodes: "{{ __rte_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'common', cluster_name: "{{ __common_app.cluster_name  | default('Common') }}",  nodes: "{{ __common_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Widgets')}}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('Push') }}",  nodes: "{{ __push_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('IC360') }}",  nodes: "{{ __ic360_app.nodes  | default( __cnx_node_list ) }}"}
+
+__cnx_deploy_medium:
+  - { name: 'activities', cluster_name: "{{ __activities_app.cluster_name  | default('Apps') }}",  nodes: "{{ __activities_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'blogs', cluster_name: "{{ __blogs_app.cluster_name  | default('Apps') }}",  nodes: "{{ __blogs_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'dogear', cluster_name: "{{ __dogear_app.cluster_name  | default('Apps') }}",  nodes: "{{ __dogear_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'communities', cluster_name: "{{ __communities_app.cluster_name  | default('Infra') }}",  nodes: "{{ __communities_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'files', cluster_name: "{{ __files_app.cluster_name  | default('Apps') }}",  nodes: "{{ __files_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'forums', cluster_name: "{{ __forums_app.cluster_name  | default('Apps') }}",  nodes: "{{ __forums_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'homepage', cluster_name: "{{ __homepage_app.cluster_name  | default('Util') }}",  nodes: "{{ __homepage_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'metrics', cluster_name: "{{ __metrics_app.cluster_name  | default('Apps') }}",  nodes: "{{ __metrics_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'mobile', cluster_name: "{{ __mobile_app.cluster_name  | default('Apps') }}",  nodes: "{{ __mobile_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'moderation', cluster_name: "{{ __moderation_app.cluster_name  | default('Util') }}",  nodes: "{{ __moderation_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'news', cluster_name: "{{ __news_app.cluster_name  | default('Infra') }}",  nodes: "{{ __news_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'profiles', cluster_name: "{{ __profiles_app.cluster_name  | default('Infra') }}",  nodes: "{{ __profiles_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'search', cluster_name: "{{ __search_app.cluster_name  | default('Infra') }}",  nodes: "{{ __search_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'wikis', cluster_name: "{{ __wikis_app.cluster_name  | default('Apps') }}",  nodes: "{{ __wikis_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'rte', cluster_name: "{{ __rte_app.cluster_name  | default('Util') }}",  nodes: "{{ __rte_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'common', cluster_name: "{{ __common_app.cluster_name  | default('Infra') }}",  nodes: "{{ __common_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Infra') }}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('Push') }}",  nodes: "{{ __push_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('Apps') }}",  nodes: "{{ __ic360_app.nodes  | default( __cnx_node_list ) }}"}
+
+__cnx_deploy_small:
+  - { name: 'activities', cluster_name: "{{ __activities_app.cluster_name  | default('Apps') }}",  nodes: "{{ __activities_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'blogs', cluster_name: "{{ __blogs_app.cluster_name  | default('Apps') }}",  nodes: "{{ __blogs_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'dogear', cluster_name: "{{ __dogear_app.cluster_name  | default('Apps') }}",  nodes: "{{ __dogear_app.nodes | default( __cnx_node_list ) }}"}
+  - { name: 'communities', cluster_name: "{{ __communities_app.cluster_name  | default('Apps') }}",  nodes: "{{ __communities_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'files', cluster_name: "{{ __files_app.cluster_name  | default('Apps') }}",  nodes: "{{ __files_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'forums', cluster_name: "{{ __forums_app.cluster_name  | default('Apps') }}",  nodes: "{{ __forums_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'homepage', cluster_name: "{{ __homepage_app.cluster_name  | default('Apps') }}",  nodes: "{{ __homepage_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'metrics', cluster_name: "{{ __metrics_app.cluster_name  | default('Apps') }}",  nodes: "{{ __metrics_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'mobile', cluster_name: "{{ __mobile_app.cluster_name  | default('Apps') }}",  nodes: "{{ __mobile_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'moderation', cluster_name: "{{ __moderation_app.cluster_name  | default('Apps') }}",  nodes: "{{ __moderation_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'news', cluster_name: "{{ __news_app.cluster_name  | default('Apps') }}",  nodes: "{{ __news_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'profiles', cluster_name: "{{ __profiles_app.cluster_name  | default('Apps') }}",  nodes: "{{ __profiles_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'search', cluster_name: "{{ __search_app.cluster_name  | default('Apps') }}",  nodes: "{{ __search_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'wikis', cluster_name: "{{ __wikis_app.cluster_name  | default('Apps') }}",  nodes: "{{ __wikis_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'rte', cluster_name: "{{ __rte_app.cluster_name  | default('Apps') }}",  nodes: "{{ __rte_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'common', cluster_name: "{{ __common_app.cluster_name  | default('Apps') }}",  nodes: "{{ __common_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Apps') }}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('Apps') }}",  nodes: "{{ __push_app.nodes  | default( __cnx_node_list ) }}"}
+  - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('Apps') }}",  nodes: "{{ __ic360_app.nodes  | default( __cnx_node_list ) }}"}
+
+# for update_was_resource.yml
+__ic360_cluster_name:               "{{ __ic360_app.cluster_name if ( __ic360_app.cluster_name is defined) else 'Apps' if (__cnx_deploy_type == 'small') else 'Apps' if (__cnx_deploy_type == 'medium') else 'IC360' }}"
 
 __cnx_db_info:
   - { app: 'activities', name: "{{ activities_db.name | default('OPNACT') }}", server: '{{ activities_db.server  | default( __db_hostname ) }}', port: '{{ activities_db.port  | default(  __db_port ) }}', jdbc_file: '{{ activities_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ activities_db.type  | default(  __db_type ) }}', user: '{{ activities_db.user  | default(  __db_username ) }}', pw: '{{ activities_db.pw  | default(  __db_password ) }}' }
@@ -139,3 +218,33 @@ __cnx_db_info:
   - { app: 'pushNotification', name: "{{ push_db.name | default('PNS') }}", server: '{{ push_db.server  | default( __db_hostname ) }}', port: '{{ push_db.port  | default(  __db_port ) }}', jdbc_file: '{{ push_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ push_db.type  | default(  __db_type ) }}', user: '{{ push_db.user  | default(  __db_username ) }}', pw: '{{ push_db.pw  | default(  __db_password ) }}' }
   - { app: 'icec', name: "{{ icec_db.name | default('XCC') }}", server: '{{ icec_db.server  | default( __db_hostname ) }}', port: '{{ icec_db.port  | default(  __db_port ) }}', jdbc_file: '{{ icec_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ icec_db.type  | default(  __db_type ) }}', user: '{{ icec_db.user  | default(  __db_username ) }}', pw: '{{ icec_db.pw  | default(  __db_password ) }}' }
   - { app: 'ic360', name: "{{ ic360_db.name | default('ESSAPPS') }}", server: '{{ ic360_db.server  | default( __db_hostname ) }}', port: '{{ ic_db.port  | default(  __db_port ) }}', jdbc_file: '{{ ic360_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ ic360_db.type  | default(  __db_type ) }}', user: '{{ ic360_db.user  | default(  __db_username ) }}', pw: '{{ ic360_db.pw  | default(  __db_password ) }}' }
+
+__jmx_small_deployment:
+  - { name: 'Apps', port: '8070'}
+
+__jmx_medium_deployment:
+  - { name: 'Apps', port: '8070'}
+  - { name: 'Infra', port: '8071'}
+  - { name: 'Util', port: '8072'}
+  - { name: 'Push', port: '8073'}
+
+__jmx_large_deployment:
+  - { name: 'Common', port: '8060'}
+  - { name: 'Communities', port: '8061'}
+  - { name: 'News', port: '8062'}
+  - { name: 'Widgets', port: '8063'}
+  - { name: 'Profiles', port: '8064'}
+  - { name: 'Search', port: '8065'}
+  - { name: 'Homepage', port: '8066'}
+  - { name: 'Moderation', port: '8067'}
+  - { name: 'RTE', port: '8068'}
+  - { name: 'Activities', port: '8069'}
+  - { name: 'Blogs', port: '8070'}
+  - { name: 'Dogear', port: '8071'}
+  - { name: 'Files', port: '8072'}
+  - { name: 'Forums', port: '8073'}
+  - { name: 'Metrics', port: '8084'}
+  - { name: 'Mobile', port: '8075'}
+  - { name: 'Wikis', port: '8076'}
+  - { name: 'IC360', port: '8077'}
+  - { name: 'Push', port: '8078'}

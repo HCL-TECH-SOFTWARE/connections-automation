@@ -2,7 +2,7 @@
   shell:                     helm ls | grep mw-proxy | grep DEPLOYED
   changed_when:              true
   register:                  customizer_completed
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Find mw-proxy helm file
@@ -54,7 +54,7 @@
   with_items:
    - "{{ __support_folder }}/ms-teams"
   when:
-   - __setup_teams == true
+   - __setup_teams |bool
 
 - name:                      Copy HelloWorld js for customizer to "{{ __customizer_js_files_mount }}"
   copy:
@@ -65,17 +65,17 @@
   template:
     src:                     "helmvars/customizer.yml.j2"
     dest:                    "{{ __customizer_env }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup customizer
-  command:                   "helm upgrade mw-proxy {{ customizer_tgz.files[0].path }} -i -f {{ __customizer_env }} --recreate-pods"
-  become:                    false
+  command:                   "helm upgrade mw-proxy {{ customizer_tgz.files[0].path }} -i -f {{ __customizer_env }} --namespace {{ __default_namespace }} --wait"
+  become_user:               "{{ __sudo_user }}"
 
-- name:                      Give it some space...
-  pause:
-    seconds:                 30
+- name:                      Wait for mw-proxy to come up
+  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=name=mw-proxy --timeout=300s
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if customizer is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mw-proxy | grep -i Running
-  when:                      __skip_pod_checks == false
-  become:                    false
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"

@@ -1,0 +1,21 @@
+{% for server in ['db_servers'] %}
+{% for host in groups[server] %}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  annotations:
+     prometheus.io/scrape: "true"
+  namespace: monitoring
+  name: oracledb-exporter-{{ host.split(".")[0] }}
+  labels:
+    app: oracledb-exporter-{{ host.split(".")[0] }}
+subsets:
+- addresses:
+  - ip: {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+  ports:
+  - name: metrics
+    port: {{ __oracledb_exporter_port }}
+    protocol: TCP
+{% endfor %}
+{% endfor %}

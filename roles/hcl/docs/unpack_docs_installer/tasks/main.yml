@@ -27,5 +27,4 @@
     dest:                "{{ __extraction_folder }}/{{ __app_name }}/installer/update_webserver.sh"
     mode:                "740"
   when:
-    - __app_name  == "DocsProxy"
-
+    - __app_name  == __proxy_install_folder

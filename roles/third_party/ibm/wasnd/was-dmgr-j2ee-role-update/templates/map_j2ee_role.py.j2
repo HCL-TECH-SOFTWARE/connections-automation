@@ -1,4 +1,56 @@
-# Map j2ee roles
+#jinja2: trim_blocks:False
 
-AdminApp.edit( '{{ __app }}', '[ -MapRolesToUsers [[ {{ __role }} {{ __everyone }} {{ __allauth }} "{{ __users }}" "{{ __groups }}" no "" "" ]]]' )
+# Map app j2ee roles
+import sys
+
+# check if app exists before mapping
+appList = AdminApp.list().splitlines()
+for app in appList:
+  if app == '{{ __app }}':
+    # app found
+     break
+else:
+  # app does not exist
+  sys.exit(0)
+
+
+# construct role mappings for the app eg. [reader no "" "" "" yes "" ""] [everyone no "" "" "" yes "" ""] [metrics-reader no "" "" "" yes "" ""]
+{% set vars = {'rolemap': ""} %}
+{% for role in __role_mapping_prop %}
+   {% if role.__allauth == '""' %}
+      {% set allauth_value = '""' %}
+   {% elif role.__allauth|bool %}
+     {% set allauth_value = "yes" %}
+   {% else %}
+     {% set allauth_value = 'no' %}
+   {% endif %}
+
+   {% if role.__allauth_trusted == '""' %}
+      {% set allauth_trusted_value = '""' %}
+   {% elif role.__allauth_trusted|bool %}
+     {% set allauth_trusted_value = "yes" %}
+   {% else %}
+     {% set allauth_trusted_value = 'no'  %}
+   {% endif %}
+
+   {% set rolevalues=role.__role+" "+role.__everyone+" "+ allauth_value +" "+role.__users+" "+role.__groups+" "+ allauth_trusted_value +" "+role.__mappeduseraccessids+" "+role.__mappedgroupaccessids %}
+
+   # add to the list
+   {% if vars.update({'rolemap': vars.rolemap + " [" + rolevalues + "]" }) %} {% endif %}
+{% endfor %}
+
+AdminApp.edit( '{{ __app }}', '[ -MapRolesToUsers [ {{ vars.rolemap }} ] ]' )
 AdminConfig.save()
+
+
+################################################################
+# Parameters:
+# Role
+# Everyone - "yes"/"no"
+# AllAuthenticated - "yes"/"no"
+# Mapped users - a user or a pipe-delimited list of users
+# Mapped groups - a group of users or a pipe-delimited list of groups.
+# AllAuthenticatedInTrustedRealms - "yes"/"no"
+# MappedUsersAccessIDs - a user or a pipe-delimited list of users access identification numbers.
+# MappedGroupsAccessIDs - a group or a pipe-delimited list of groups access identification numbers.
+################################################################

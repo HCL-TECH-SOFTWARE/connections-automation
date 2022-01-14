@@ -10,21 +10,18 @@
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-#  when:                 plugin_already_configured.stat.exists == false
 
 - name:                 "Configure WebSphere Plugin {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }}"
   command:
     chdir={{ __wct_install_location }}
-    {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }} 
+    {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }}
   register:             cout
   changed_when:         cout.rc == 0
-#  when:                 plugin_already_configured.stat.exists == false
 
 - name:                 "Change admin.passwd"
   command:              "{{ __ihs_install_location }}/bin/htpasswd -bcm {{ __ihs_install_location }}/conf/admin.passwd {{ __ihs_username }} {{ ihs_password }}"
   register:             cout
   changed_when:         cout.rc == 0
-#  when:                 plugin_already_configured.stat.exists == false
 
 - name:                 Create temporary folder
   file:
@@ -41,7 +38,7 @@
     path:               "/tmp/wct_plugins_{{ __ihs_hostname }}"
     dest:               "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
     format:             zip
-  
+
 - name:                 Synchronize /tmp/wct_plugins_{{ __ihs_hostname }}.zip with {{ dmgr_hostname }}
   synchronize:
     src:                "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
@@ -51,7 +48,7 @@
   become:               false
 
 - name:                 Remove /tmp/wct_plugins_{{ __ihs_hostname }} if it already exists
-  file:                 
+  file:
     path:               "/tmp/wct_plugins_{{ __ihs_hostname }}"
     state:              absent
   delegate_to:          "{{ dmgr_hostname }}"
@@ -141,10 +138,10 @@
     dest:               /tmp/
     remote_src:         yes
 
-- name:                 Copy the files to /opt/IBM/WebSphere/Plugins/config/{{ inventory_hostname_short }}/
+- name:                 Copy the files to {{ __plg_install_location }}/config/{{ inventory_hostname_short }}/
   copy:
     src:                "{{ item }}"
-    dest:               "/opt/IBM/WebSphere/Plugins/config/{{ inventory_hostname_short }}/"
+    dest:               "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/"
     remote_src:         yes
   with_items:
    - "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-cfg.xml"

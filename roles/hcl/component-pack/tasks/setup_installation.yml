@@ -18,7 +18,7 @@
     state:               directory
   with_items: 
    - "{{ __ansible_cache_charts }}"
-  become:                false
+  become_user:           "{{ __sudo_user }}"
 
 - name:                  Clean up installation folder(s)
   file:
@@ -31,9 +31,9 @@
     state:               directory
 
 
-- name:                  "Download and unzip installation http://{{ __download_location }}/{{ __package_name }} to the {{ __extraction_folder }}"
+- name:                  "Unzip installation {{ __download_location }}/{{ __package_name }} to the {{ __extraction_folder }}"
   unarchive:
-    src:                 "http://{{ __download_location }}/{{ __package_name }}"
+    src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __extraction_folder }}"
     remote_src:          yes
   register: download_and_unpack_component_pack

@@ -5,11 +5,19 @@
 
 - name:               Run the IHS Plugins updates script bundled in the Docs Editor Proxy installer
   shell:
-    chdir:            "{{ __extraction_folder }}/DocsProxy/installer"
+    chdir:            "{{ __docs_editor_install_location }}/proxy/installer"
     cmd:              "./update_webserver.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense"
   become:             true
   when:
-    - editor_proxy_already_installed.stat.exists == true
+    - editor_proxy_already_installed.stat.exists |bool
+  register:           update_webserver_performed
+
+- name:               Search for success message in install log
+  become:             yes
+  shell:              "grep -i '{{ __install_success_message }}' {{ __docs_editor_install_location }}/proxy/logs/proxy_update_webserver.log"
+  register:           update_webserver_success_message_found
+  failed_when:        update_webserver_success_message_found.stdout|length == 0
+  when:               update_webserver_performed is not skipped
 
 - name:                 Create temporary folder
   file:

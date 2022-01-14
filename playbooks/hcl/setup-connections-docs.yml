@@ -1,10 +1,17 @@
 # Install Docs 2.0.1
 ---
+- name:                    Gather facts
+  hosts:                   nfs_servers
+  tasks:                   []
+
 - name:                    Setup NFS
-  hosts:                   docs_servers, conversion_servers, viewer_servers
+  hosts:                   conversion_servers, viewer_servers, docs_servers
   become:                  true
   roles:
-    - roles/third_party/nfs-install
+    - { role: roles/third_party/nfs-install,
+        when: "docs_shared_storage_type == 'nfs' or viewer_shared_storage_type == 'nfs' or cnx_shared_storage_type == 'nfs'" }
+  vars:
+    is_docs_install:       true
 
 - name:                    Setup environment
   hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, db2_servers, dmgr, ihs_servers
@@ -13,7 +20,7 @@
     - roles/hcl/docs/setup-environment
 
 - name:                    Setup Docs database
-  hosts:                   db2_servers
+  hosts:                   db2_servers, oracle_servers, mssql_servers
   become:                  true
   roles:
     - roles/hcl/connections-wizards
@@ -60,6 +67,8 @@
     - roles/third_party/ibm/wasnd/was-profile-create
     - roles/third_party/ibm/wasnd/was-nodeagent-start
     - roles/third_party/ibm/db2-install
+    - roles/third_party/oracle-install
+    - roles/third_party/mssql-install
 
 - name:                    Create Docs Clusters
   hosts:                   dmgr
@@ -79,13 +88,11 @@
   roles:
     - roles/hcl/docs
 
-- name:                    Restart WAS Nodes
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
-  serial:                  1
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-nodeagent-stop
-    - roles/third_party/ibm/wasnd/was-nodeagent-start
+    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
 
 - name:                    Restart CNX Cluster
   hosts:                   dmgr

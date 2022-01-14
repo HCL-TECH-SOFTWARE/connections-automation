@@ -5,5 +5,13 @@
 - name:                       Download and install TDI
   include_tasks:              tdi_install.yml
 
+- name:                       Download and upgrade TDI
+  include_tasks:              tdi_upgrade.yml
+  when:                       __tdi_upgrade | bool
+
+- name:                       TDI Upgrade from java 7 to 8
+  include_tasks:              upgrade-tdi-jre.yml
+  when:                       __upgrade_tdi_jre | bool
+
 - name:                       Download and install tdisol
   include_tasks:              tdisol_install.yml

@@ -13,21 +13,21 @@
   stat:
     path:               "{{ __success_file }}"
   register:             cluster_already_configured
-  when:                 profile_already_exists.stat.exists == true
+  when:                 profile_already_exists.stat.exists |bool
 
 - name:                 "Generate Response file"
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-  when:                 cluster_already_configured.stat.exists == false
+  when:                 not cluster_already_configured.stat.exists
 
-- name:                 "Configure Cluster" 
+- name:                 "Configure Cluster"
   command:
     chdir={{ __bin_dir }}
     {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_file }}
   register:             cout
   changed_when:         cout.rc == 0
-  when:                 cluster_already_configured.stat.exists == false
+  when:                 not cluster_already_configured.stat.exists
 
 - name:                 "Create .success file"
   file:

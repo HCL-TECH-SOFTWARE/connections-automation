@@ -1,0 +1,74 @@
+---
+- name: Check if fixes in files are already deployed
+  shell: |
+    db2 connect to files > /dev/null
+    db2 -x select POSTSCHEMAVER from FILES.PRODUCT
+    db2 connect reset > /dev/null
+  become: true
+  become_user: "{{ __db2_user }}"
+  environment:
+    DB2INSTANCE:          "{{ __db2_user }}"
+    IBM_DB_LIB:           "{{ __db2_instance_homedir }}/sqllib/lib"
+    IBM_DB_DIR:           "{{ __db2_instance_homedir }}/sqllib"
+    LD_LIBRARY_PATH:      "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
+    IBM_DB_INCLUDE:       "{{ __db2_instance_homedir }}/sqllib/include"
+    DB2LIB:               "{{ __db2_instance_homedir }}/sqllib/lib"
+    DB2_HOME:             "{{ __db2_instance_homedir }}/sqllib"
+    PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  register: files_version
+
+- name: Check if fixes wikis are already deployed
+  shell: |
+    db2 connect to wikis > /dev/null
+    db2 -x select POSTSCHEMAVER from WIKIS.PRODUCT
+    db2 connect reset > /dev/null
+  become: true
+  become_user: "{{ __db2_user }}"
+  environment:
+    DB2INSTANCE:          "{{ __db2_user }}"
+    IBM_DB_LIB:           "{{ __db2_instance_homedir }}/sqllib/lib"
+    IBM_DB_DIR:           "{{ __db2_instance_homedir }}/sqllib"
+    LD_LIBRARY_PATH:      "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
+    IBM_DB_INCLUDE:       "{{ __db2_instance_homedir }}/sqllib/include"
+    DB2LIB:               "{{ __db2_instance_homedir }}/sqllib/lib"
+    DB2_HOME:             "{{ __db2_instance_homedir }}/sqllib"
+    PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  register: wikis_version
+
+- name: Download and unzip database update for 6.5CR1
+  unarchive:
+    src: "{{ __cnx_db_updates_url }}/{{ __cnx_db_update_file }}"
+    dest: "{{ __db_extraction_folder }}"
+    remote_src: yes
+  when: ( files_version.stdout|float < 147.3) or (wikis_version.stdout|float < 147.3)
+  retries: 3
+
+- name: Update Files database
+  shell: "db2 -td@ -vf {{ __db_extraction_folder }}/65cr1-database-updates/From-65/db2/65-65CR1-files-db2.sql"
+  environment:
+    DB2INSTANCE:          "{{ __db2_user }}"
+    IBM_DB_LIB:           "{{ __db2_instance_homedir }}/sqllib/lib"
+    IBM_DB_DIR:           "{{ __db2_instance_homedir }}/sqllib"
+    LD_LIBRARY_PATH:      "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
+    IBM_DB_INCLUDE:       "{{ __db2_instance_homedir }}/sqllib/include"
+    DB2LIB:               "{{ __db2_instance_homedir }}/sqllib/lib"
+    DB2_HOME:             "{{ __db2_instance_homedir }}/sqllib"
+    PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  become: true
+  become_user: "{{ __db2_user }}"
+  when: files_version.stdout|float < 147.3
+
+- name: Update Wikis database
+  shell: "db2 -td@ -vf  {{ __db_extraction_folder }}/65cr1-database-updates/From-65/db2/65-65CR1-wikis-db2.sql"
+  environment:
+    DB2INSTANCE:          "{{ __db2_user }}"
+    IBM_DB_LIB:           "{{ __db2_instance_homedir }}/sqllib/lib"
+    IBM_DB_DIR:           "{{ __db2_instance_homedir }}/sqllib"
+    LD_LIBRARY_PATH:      "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
+    IBM_DB_INCLUDE:       "{{ __db2_instance_homedir }}/sqllib/include"
+    DB2LIB:               "{{ __db2_instance_homedir }}/sqllib/lib"
+    DB2_HOME:             "{{ __db2_instance_homedir }}/sqllib"
+    PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  become: true
+  become_user: "{{ __db2_user }}"
+  when: wikis_version.stdout|float < 147.3

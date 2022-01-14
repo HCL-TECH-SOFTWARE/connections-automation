@@ -1,14 +1,21 @@
-- name:                      Create local mount points
+- name:                      Create Docs data local mount points
   file:
     path:                    "{{ item }}"
     state:                   directory
     mode:                    '0755'
   with_items:
-   - "{{ __docs_editor_files_mount }}"
-   - "{{ __docs_viewer_files_mount }}"
-   - "{{ __cnx_data_mount }}"
+   - "{{ __docs_data_local_path }}"
 
-- name:                      Mount "{{ __docs_editor_files_dest }}" to "{{ __docs_editor_files_mount }}"
+- name:                      Create Viewer data local mount points
+  file:
+    path:                    "{{ item }}"
+    state:                   directory
+    mode:                    '0755'
+  with_items:
+   - "{{ __viewer_data_local_path }}"
+  when:                      inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"]
+
+- name:                      Mount "{{ __docs_editor_files_dest }}" to "{{ __docs_data_local_path }}"
   mount:
     fstype:                  nfs
     opts:                    defaults
@@ -16,9 +23,9 @@
     passno:                  0
     state:                   mounted
     src:                     "{{ __docs_editor_files_dest }}"
-    path:                    "{{ __docs_editor_files_mount }}"
+    path:                    "{{ __docs_data_local_path }}"
 
-- name:                      Mount "{{ __docs_viewer_files_dest }}" to "{{ __docs_viewer_files_mount }}"
+- name:                      Mount "{{ __docs_viewer_files_dest }}" to "{{ __viewer_data_local_path }}"
   mount:
     fstype:                  nfs
     opts:                    defaults
@@ -26,14 +33,5 @@
     passno:                  0
     state:                   mounted
     src:                     "{{ __docs_viewer_files_dest }}"
-    path:                    "{{ __docs_viewer_files_mount }}"
-
-- name:                      Mount "{{ __cnx_data_nfs_dest }}" to "{{ __cnx_data_mount }}"
-  mount:
-    fstype:                  nfs
-    opts:                    defaults
-    dump:                    0
-    passno:                  0
-    state:                   mounted
-    src:                     "{{ __cnx_data_nfs_dest }}"
-    path:                    "{{ __cnx_data_mount }}"
+    path:                    "{{ __viewer_data_local_path }}"
+  when:                      inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"]

@@ -1,0 +1,24 @@
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: {{ __ldap_olc_suffix }}
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: cn={{ __ldap_admin_user  }},{{ __ldap_olc_suffix }}
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: {{ slappasswd_output['stdout'] }}
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcDbIndex
+olcDbIndex: objectclass eq,pres
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcDbIndex
+olcDbIndex: uid,ou,cn,mail,sn eq,pres,sub

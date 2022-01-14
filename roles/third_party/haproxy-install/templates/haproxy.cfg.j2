@@ -48,7 +48,7 @@ backend masters_mwproxy
     balance roundrobin
     option forwardfor
     option httpchk HEAD / HTTP/1.1\r\nHost:localhost
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30301 check
     {% endfor %}
     http-request set-header X-Forwarded-Port %[dst_port]
@@ -84,7 +84,7 @@ backend masters_redis
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30379 check
     {% endfor %}
 
@@ -101,7 +101,7 @@ backend masters_kibana
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:32333 check
     {% endfor %}
 
@@ -118,7 +118,7 @@ backend masters_elasticsearch
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30099 check
     {% endfor %}
 
@@ -135,7 +135,7 @@ backend masters_elasticsearch7
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30098 check
     {% endfor %}
 
@@ -152,7 +152,7 @@ backend masters_cnx_ingress_http
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:32080 check
     {% endfor %}
 
@@ -169,7 +169,7 @@ backend masters_cnx_ingress_https
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:32443 check
     {% endfor %}
 
@@ -186,7 +186,7 @@ backend masters_grafana
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:31111 check
     {% endfor %}
 
@@ -203,7 +203,7 @@ backend community_template_service_masters
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30794 check
     {% endfor %}
 
@@ -220,23 +220,23 @@ backend te_creation_wizard_masters
     option tcp-check
     balance roundrobin
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
+    {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30751 check
     {% endfor %}
 
-frontend outlook_addin_frontend
-    bind *:31810
-    mode tcp
-    option tcplog
-    timeout client  10800s
-    default_backend outlook_addin_masters
+#frontend outlook_addin_frontend
+#    bind *:31810
+#    mode tcp
+#    option tcplog
+#    timeout client  10800s
+#    default_backend outlook_addin_masters
 
-backend outlook_addin_masters
-    mode tcp
-    option tcplog
-    option tcp-check
-    balance roundrobin
-    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_masters %}
-    server {{ server }} {{ server }}:31810 check
-    {% endfor %}
+#backend outlook_addin_masters
+#    mode tcp
+#    option tcplog
+#    option tcp-check
+#    balance roundrobin
+#    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+#    {% for server in groups.k8s_workers %}
+#    server {{ server }} {{ server }}:31810 check
+#    {% endfor %}

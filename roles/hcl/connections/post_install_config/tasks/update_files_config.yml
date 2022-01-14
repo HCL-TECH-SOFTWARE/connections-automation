@@ -1,0 +1,23 @@
+---
+    - name:                 Update files-config.xml to enable fileSync
+      xml:
+        path:               "{{ __filescfg_full_path }}"
+        namespaces:         "{{ __filescfg_namespaces }}"
+        xpath:              "{{ __filescfg_filesync_xpath }}"
+        attribute:          "enabled"
+        value:              "true"
+
+    - name: Is restrict_reader_access__trusted_realms
+      set_fact:
+        __allauth_trusted_value:         "{{ 'yes' if (restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms |bool) else '' }}"
+
+    - debug: var=__allauth_trusted_value
+
+    # will set to All Authenticated in Trusted Realm if restrict_reader_access__trusted_realms is true
+    - name:                 "Set filesync-user J2EE Role to All Autheticated"
+      include_role:
+        name:               roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+      vars:
+        __app:              "Files"
+        __role_mapping_prop:
+          - { __role: "filesync-user", __everyone: "no", __allauth: "yes", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }

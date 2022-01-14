@@ -1,0 +1,29 @@
+---
+- name: Show me the was_username
+  debug: var=was_username
+
+- name: Show me the connections_admin
+  debug: var=connections_admin
+
+- name: Is global_moderator set?
+  set_fact:
+    __global_moderator:                   "{{ global_moderator if (global_moderator is defined) else was_username }}"
+
+- name: Show me the __global_moderator
+  debug: var=__global_moderator
+
+- name:                      Set global_moderator role for Blogs, Common, Communities, Files, Forums, Moderation and WidgetContainer
+  include_role:
+    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:                   "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "global-moderator", __everyone: 'no', __allauth: 'no', __users: "{{ was_username }}|{{ __global_moderator }}", __groups: '""', __allauth_trusted: '""', __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+  with_items:
+    - Blogs
+    - Common
+    - Communities
+    - Files
+    - Forums
+    - Moderation
+    - WidgetContainer

@@ -1,4 +1,3 @@
-# Install Connections 6.5
 ---
 - name:                    Install WebSphere Application Server - Network Deployment
   hosts:                   dmgr,was_servers
@@ -36,6 +35,7 @@
     - roles/third_party/ibm/wasnd/was-profile-create
     - roles/third_party/ibm/wasnd/was-nodeagent-start
     - roles/third_party/ibm/db2-install
+    - roles/third_party/oracle-install
 
 - name:                    Setup HTTP Servers on DMGR
   hosts:                   dmgr
@@ -43,3 +43,12 @@
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-config-webserver
     - roles/third_party/ibm/wasnd/was-dmgr-restart
+
+- name:                    Configure HTTP Servers
+  hosts:                   ihs_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
+    - roles/third_party/ibm/ihs/ibm-http-httpdconf
+    - roles/third_party/ibm/ihs/ibm-http-server-restart

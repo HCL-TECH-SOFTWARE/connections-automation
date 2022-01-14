@@ -7,17 +7,30 @@
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
 
-- name:                     Apply repository for RHEL 7
+- name:                     Apply repository for RHEL
   template:
     src:                    "{{ __nginx_repo_template }}"
     dest:                   "{{ __nginx_repo_location }}"
   when:
    - ansible_distribution == "RedHat"
 
+- name:                     Install prerequisits for semanage
+  package:
+    name:                   "{{ item }}"
+    state:                  present
+  with_items:
+    - libselinux-python
+    - libsemanage-python
+  when:
+   - ansible_distribution == "RedHat"
+   - ansible_distribution_major_version == "7"
+
+
 - name:                     Disable SELinux
   selinux:
     state:                  disabled
   ignore_errors:            true
+  notify:                   reboot
 
 - name:                     Set httpd_can_network_connect flag on and keep it persistent across reboots
   seboolean:

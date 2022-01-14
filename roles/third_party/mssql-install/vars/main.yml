@@ -1,0 +1,24 @@
+---
+__setup_mssql_jdbc:                    "{{ setup_mssql_jdbc | default(false) }}"
+
+__accept_eula:                         "{{ mssql_accept_eula | default('Y') }}"
+__mssql_product_id:                    "{{ mssql_pid | default('evaluation') }}"
+__mssql_sa_password:                   "{{ mssql_sa_password | default('Pa55w0rd') }}"
+
+__mssql_profiles_script:               "/etc/profile.d/mssql.sh"
+
+__mssql_init_success_file:             "/opt/mssql/init.success"
+__mssql_setup_success_file:            "/opt/mssql/install.success"
+
+__jdbc_installation_folder:            "{{ mssql_jdbc_installation_folder | default('/opt/mssql/jdbc/lib') }}"
+__download_location:                   "{{ mssql_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/MSSQL') }}"
+__package_name:                        "{{ mssql_jdbc_package_name | default('sqljdbc_6.0.8112.200_enu.tar.gz') }}"
+__package_name_legacy:                 "sqljdbc_4.1.8112.200_enu.tar.gz"
+__package_name_legacy_40:              "sqljdbc_4.0.tar.gz"
+__mssql_setup_tdi_drivers:             "{{ mssql_jdbc_tdi_enable | default(true) }}"
+
+__mssql_create_admin_user:             "{{ mssql_create_admin_user | default(true) }}"
+__mssql_admin_user_name:               "{{ db_username | default('LCUSER') }}"
+__mssql_admin_user_password:           "{{ db_password | default('Pa55w0rd') }}"
+
+__upgrade_tdi_jre:                     "{{ upgrade_tdi_jre | default(false) |lower }}"

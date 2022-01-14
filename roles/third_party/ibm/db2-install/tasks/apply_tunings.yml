@@ -5,19 +5,20 @@
 
 - name:                  Setup codepage
   shell:                 "{{ item }}"
-  become_user:           "db2inst1"
+  become_user:           "{{ __db2_instance_name }}"
   environment:
-    DB2INSTANCE:         "db2inst1"
-    IBM_DB_LIB:          "/home/db2inst1/sqllib/lib"
-    IBM_DB_DIR:          "/home/db2inst1/sqllib"
-    LD_LIBRARY_PATH:     "/home/db2inst1/sqllib/lib64:/home/db2inst1/sqllib/lib64/gskit:/home/db2inst1/sqllib/lib32"
-    IBM_DB_INCLUDE:      "/home/db2inst1/sqllib/include"
-    DB2LIB:              "/home/db2inst1/sqllib/lib"
-    DB2_HOME:            "/home/db2inst1/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/db2inst1/sqllib/bin:/home/db2inst1/sqllib/adm:/home/db2inst1/sqllib/misc:/home/db2inst1/sqllib/gskit/bin:/home/db2inst1/.local/bin:/home/db2inst1/bin"
+    DB2INSTANCE:         "{{ __db2_instance_name }}"
+    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
+    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
+    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
+    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
+    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
+    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
+    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
   with_items:
    - "db2set DB2_MINIMIZE_LISTPREFETCH=YES"
    - "db2set DB2_SELECTIVITY=YES"
+   - "db2 update dbm cfg using MON_HEAP_SZ {{ __db2_instance_heap_size }}"
    - "db2stop force"
    - "db2start"
   when:

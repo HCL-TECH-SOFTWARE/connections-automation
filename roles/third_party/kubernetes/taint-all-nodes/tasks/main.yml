@@ -2,7 +2,7 @@
 - name:          Allow pods to run on master in case of single node install
   include_tasks: taint_single_node.yml
 
-- name:          Taint workers 
+- name:          Taint workers
   include_tasks: taint_workers.yml
   when:          "'k8s_workers_infra' not in group_names"
 

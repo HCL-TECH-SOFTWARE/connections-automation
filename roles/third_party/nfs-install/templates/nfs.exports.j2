@@ -1,28 +1,26 @@
-/pv-connections/mongo-node-0/data/db        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/mongo-node-1/data/db        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/mongo-node-2/data/db        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/solr-data-solr-0        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/solr-data-solr-1        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/solr-data-solr-2        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/zookeeper-data-zookeeper-0        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/zookeeper-data-zookeeper-1        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/zookeeper-data-zookeeper-2        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% for counter in range(0, __mongo_replicaset | int ) %}
+/pv-connections/mongo-node-{{ counter }}/data/db        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% endfor %}
+{% for counter in range(0, __solr_replicaset | int ) %}
+/pv-connections/solr-data-solr-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% endfor %}
+{% for counter in range(0, __zookeeper_replicaset | int ) %}
+/pv-connections/zookeeper-data-zookeeper-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% endfor %}
 /pv-connections/esbackup        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esdata-0        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esdata-1        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esdata-2        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% for counter in range(0, __es_replicaset | int ) %}
+/pv-connections/esdata-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% endfor %}
 /pv-connections/esbackup-7        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esmaster-7-0        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esmaster-7-1        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esmaster-7-2        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esdata-7-0        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esdata-7-1        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-/pv-connections/esdata-7-2        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% for counter in range(0, __es7_replicaset | int ) %}
+/pv-connections/esmaster-7-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+/pv-connections/esdata-7-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+{% endfor %}
 /pv-connections/customizations        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
 /pv-connections/kudos-boards-minio        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
-{% if __nfs_docs_setup == True %}
-/nfs/docs_data        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
-/nfs/viewer_data        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
+{% if __nfs_docs_setup|bool %}
+{{ __docs_data_shared }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
+{{ __viewer_data_shared }}      {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
+{% endif %}
 {{ __cnx_data_shared }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
 {{ __cnx_message_stores }}       {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
-{% endif %}

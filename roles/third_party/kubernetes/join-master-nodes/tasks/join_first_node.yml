@@ -11,7 +11,7 @@
 
 - name:                  Join first node to cluster
   command:               "{{ item }}"
-  when:                  inventory_hostname == groups['k8s_masters'][1] and etcd_second_node_already_joined.stat.exists == false
+  when:                  inventory_hostname == groups['k8s_masters'][1] and not etcd_second_node_already_joined.stat.exists
   with_items:
    - "kubeadm alpha phase certs all --config /tmp/kubeadm-config.yaml"
    - "kubeadm alpha phase kubelet config write-to-disk --config /tmp/kubeadm-config.yaml"
@@ -23,15 +23,15 @@
     name:                kubelet
     state:               restarted
     daemon_reload:       yes
-  when:                  inventory_hostname == groups['k8s_masters'][1] and etcd_second_node_already_joined.stat.exists == false
+  when:                  inventory_hostname == groups['k8s_masters'][1] and not etcd_second_node_already_joined.stat.exists
 
 - name:                  Waiting for cluster to be ready again
   pause:
     seconds:             15
 
 - name:                  Join me to the etcd cluster
-  command:               "{{ item }}" 
-  when:                  inventory_hostname == groups['k8s_masters'][1] and etcd_second_node_already_joined.stat.exists == false
+  command:               "{{ item }}"
+  when:                  inventory_hostname == groups['k8s_masters'][1] and not etcd_second_node_already_joined.stat.exists
   with_items:
    - "kubectl exec -n kube-system etcd-{{ hostvars[groups['k8s_masters'][0]]['inventory_hostname'] }} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2379 member add {{ hostvars[groups['k8s_masters'][1]]['inventory_hostname'] }} https://{{ hostvars[groups['k8s_masters'][1]]['ansible_default_ipv4']['address'] }}:2380"
   become:                false
@@ -39,11 +39,10 @@
 - name:                  Waiting for etcd to be available again
   pause:
     minutes:             1
-#  when:                  etcd_second_node_already_joined.stat.exists == false
 
 - name:                  Finish etcd config and deploy control plane
   command:               "{{ item }}"
-  when:                  inventory_hostname == groups['k8s_masters'][1] and etcd_second_node_already_joined.stat.exists == false
+  when:                  inventory_hostname == groups['k8s_masters'][1] and not etcd_second_node_already_joined.stat.exists
   with_items:
    - "kubeadm alpha phase etcd local --config /tmp/kubeadm-config.yaml"
    - "kubeadm alpha phase kubeconfig all --config /tmp/kubeadm-config.yaml"
@@ -55,4 +54,3 @@
     path:                "{{ __etcd_second_node_clustering_success_file }}"
     state:               touch
   when:                  inventory_hostname == groups['k8s_masters'][1]
-  

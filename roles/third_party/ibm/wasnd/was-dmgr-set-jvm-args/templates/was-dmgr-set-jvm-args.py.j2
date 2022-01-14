@@ -1,0 +1,20 @@
+#jinja2: trim_blocks:False
+import re
+
+# Set Generic JVM arguments
+
+all_servers=AdminTask.listServers('[-serverType APPLICATION_SERVER ]').splitlines()
+
+for server in all_servers:
+    jvm=AdminConfig.list('JavaVirtualMachine', server)
+    jvm_args=AdminConfig.showAttribute(jvm, "genericJvmArguments")
+    print 'Current JVM arguments ' + jvm_args
+    if jvm_args.find('-Dcom.ibm.jsse2.overrideDefaultTLS') >=0:
+        {% raw %}
+        regex='-Dcom.ibm.jsse2.overrideDefaultTLS=[^\s]+'
+        {% endraw %}
+        new_jvm_args=re.sub(regex, '-Dcom.ibm.jsse2.overrideDefaultTLS=true', jvm_args)
+    else:
+        new_jvm_args=jvm_args + ' -Dcom.ibm.jsse2.overrideDefaultTLS=true'
+    AdminConfig.modify(jvm,[['genericJvmArguments',new_jvm_args]])
+    AdminConfig.save()

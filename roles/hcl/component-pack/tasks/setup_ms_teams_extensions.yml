@@ -26,7 +26,7 @@
         Cookie: "{{ login.cookies_string }}"  
     register: get_tokens
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams Share"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Share
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false
@@ -74,53 +74,7 @@
     debug: 
       msg: "{{ request_msteams_share_status.status }}"  
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams Collapse Sidebar"
-    uri:
-      url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
-      validate_certs: false
-      method: POST
-      return_content: yes
-      status_code: 201, 400
-      headers:
-        Content-Type: "application/json"
-        ldap_orgid: "a"
-        appreg-ui-request: "true"
-        iv-groups: "\"CustomerAdministrator\""
-        appreglogging: "DeployAutomation"
-        authorization: "{{ get_tokens.authorization }}"
-        Cookie: "{{ login.cookies_string }}"
-      body: "{
-            \"name\": \"MS Teams Collapse Sidebar\",
-            \"title\": \"MS Teams Collapse Nav\",
-            \"description\": \"Collapse nav pane on content pages in MS Teams tab app\",
-            \"services\": [
-                \"Customizer\"
-            ],
-            \"extensions\": [
-                {
-                    \"name\": \"MS Teams Collapse Nav\",
-                    \"type\": \"com.ibm.customizer.ui\",
-                    \"payload\": {
-                        \"include-files\": [
-                            \"ms-teams/collapse-sidebar/wikis_sidebar_collapse.js\"
-                        ],
-                        \"cache-headers\": {
-                            \"cache-control\": \"max-age=43200\"
-                        }
-                    },
-                    \"path\": \"global\"
-                }
-            ]
-        }"
-      force_basic_auth: yes
-      body_format: json
-    register: request_msteams_sidebar_status 
-
-  - name: print request_msteams_sidebar_status   
-    debug: 
-      msg: "{{ request_msteams_sidebar_status.status }}"  
-
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams itm"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams itm
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false
@@ -213,7 +167,7 @@
     debug: 
       msg: "{{ request_msteams_itm_status.status }}"    
 
-  - name: "Use the Bearer token value to create the Authorization header on the post request - MS Teams Profile BizCard"
+  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Profile BizCard
     uri:
       url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
       validate_certs: false

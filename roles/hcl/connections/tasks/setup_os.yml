@@ -5,39 +5,85 @@
     state: present
   when: ansible_os_family == "Suse"
 
-- name:          Install pre-requisites Yum
+- name:          Install pre-requisites Yum RHEL 7
   yum:
     name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts']
     state: present
   when:
     - ansible_os_family == "RedHat"
-    - (ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Amazon")
+    - ansible_distribution_major_version == "7"
 
-- name:          Install pre-requisites Yum on app servers
+- name:          Install pre-requisites Yum RHEL 8
+  yum:
+    name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python3-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts']
+    state: present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:          Install pre-requisites Yum on app servers RHEL 7
   yum:
     name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts']
     state: present
   when:
     - ansible_os_family == "RedHat"
-    - (ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Amazon")
+    - ansible_distribution_major_version == "7"
   delegate_to:   "{{ item }}"
   with_items:    "{{ groups['was_servers'] }}"
 
-- name:          Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM
-  package:
-    name:        https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos7.x86_64.rpm
-    state:       present
-
-- name:          Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM on WAS servers
-  package:
-    name:        https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos7.x86_64.rpm
-    state:       present
+- name:          Install pre-requisites Yum on app servers RHEL 8
+  yum:
+    name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python3-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts']
+    state: present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
   delegate_to:   "{{ item }}"
   with_items:    "{{ groups['was_servers'] }}"
 
-- name:          Set file descriptors limits
+- name:                Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM
+  yum:
+    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos7.x86_64.rpm
+    state:             present
+    disable_gpg_check: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "7"
+
+- name:                Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM on WAS servers
+  yum:
+    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos7.x86_64.rpm
+    state:             present
+    disable_gpg_check: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "7"
+  delegate_to:         "{{ item }}"
+  with_items:          "{{ groups['was_servers'] }}"
+
+- name:                Install wkhtmltox-0.12.6-1.centos8.x86_64.rpm from RPM
+  yum:
+    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
+    state:             present
+    disable_gpg_check: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:                Install wkhtmltox-0.12.6-1.centos8.x86_64.rpm from RPM on WAS servers
+  yum:
+    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
+    state:             present
+    disable_gpg_check: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+  delegate_to:         "{{ item }}"
+  with_items:          "{{ groups['was_servers'] }}"
+
+- name:                Set file descriptors limits
   pam_limits:
-    domain:      '*'
-    limit_type:  '-'
-    limit_item:  nofile
-    value:       64000
+    domain:            '*'
+    limit_type:        '-'
+    limit_item:        nofile
+    value:             64000

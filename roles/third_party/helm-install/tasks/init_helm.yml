@@ -5,7 +5,19 @@
   become:            false
   ignore_errors:     true
 
+- name:              Check Helm Version
+  shell:             helm version -c|awk -F "," '{print $1}'|cut -d ":" -f 3|sed "s/\"//g"|sed "s/v//g"
+  changed_when:      true
+  register:          helm_ver
+  become:            false
+  ignore_errors:     true
+
 - debug: var=helm_version.stdout
+
+- debug: var=helm_ver.stdout
+
+- set_fact:
+    helm_vers={{ helm_ver.stdout }}
 
 - name:              Check if tiller is already initialized
   shell:             kubectl get pods -n kube-system | grep tiller
@@ -15,7 +27,7 @@
   ignore_errors:     true
 
 - name:              Init Helm and create tiller service account
-  command:           "helm init --service-account tiller" 
+  command:           "helm init --service-account tiller --stable-repo-url=https://charts.helm.sh/stable"
   when:
     - (helm_already_initialized.rc != 0) and (helm_version.stdout == "v2")
   become:            false
@@ -33,3 +45,21 @@
     - (helm_already_initialized.rc != 0) and (helm_version.stdout == "v2")
   become:            false
 
+- name:              Apply tiller-deploy "kubectl --namespace=kube-system set image deployments/tiller-deploy tiller=ghcr.io/helm/tiller:v{{ helm_vers }}"
+  command:           "kubectl --namespace=kube-system set image deployments/tiller-deploy tiller=ghcr.io/helm/tiller:v{{ helm_vers }}"
+  when:
+    - (helm_version.stdout == "v2" ) and (helm_ver.stdout != "2.17.0")
+  become:            false
+  register:          set_tiller_image
+  retries:           10
+  delay:             2
+  until:             set_tiller_image.stdout|lower is search("tiller-deploy image updated")
+  ignore_errors:     true
+
+- name:              Wait for tiller pod to be ready
+  shell:             kubectl wait --for=condition=ready pod -l name=tiller -n kube-system --timeout=60s
+  register:          wait
+  failed_when:       wait.stdout|lower is not search("condition met")
+  when:
+    - (helm_version.stdout == "v2")
+  become:            false

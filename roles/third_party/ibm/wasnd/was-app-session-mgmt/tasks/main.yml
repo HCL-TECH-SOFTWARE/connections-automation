@@ -1,4 +1,22 @@
 ---
+- name:                 Use small topology names
+  set_fact:
+    __cluster_name:     "{{ __small_topology }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:                 Use medium topology names
+  set_fact:
+    __cluster_name:     "{{ __medium_topology }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:                 Use large topology names
+  set_fact:
+    __cluster_name:     "{{ __large_topology }}"
+  when:
+    - __cnx_deploy_type == "large"
+
 - name:                 "Verifiy if Profile already exists"
   stat:
     path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}"
@@ -13,8 +31,8 @@
   stat:
     path:               "{{ __success_file }}"
   register:             app_sec_already_configured
-  when:                 profile_already_exists.stat.exists == true
+  when:                 profile_already_exists.stat.exists |bool
 
 - name:                 "Session Management - Restrict cookies to HTTPS sessions"
   include_tasks:        was_app_config_session_mgmt.yml
-  when:                 app_sec_already_configured.stat.exists == false
+  when:                 not app_sec_already_configured.stat.exists

@@ -1,14 +1,14 @@
 ---
 - name:          Drain master node
   include_tasks: drain_node.yml
-  when:          single_node_installation is not defined
+  when:          ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:          Upgrade kubeadm, kubectl and kubelet
   include_tasks: upgrade_binaries.yml
 
 - name:          Upgrade kubelet config
   include_tasks: upgrade_kubelet_config.yml
-  when:          (__kubernetes_version is version('1.14.10', '=')) and (single_node_installation is not defined)
+  when:          (__kubernetes_version is version('1.14.10', '=')) and (((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true)
 
 - name:          Upgrade control plane
   include_tasks: upgrade_cluster_legacy.yml
@@ -22,5 +22,5 @@
   include_tasks: upgrade_kubelet.yml
 
 - name:          Uncordon node
-  include_tasks: uncordon_node.yml 
-  when:          single_node_installation is not defined
+  include_tasks: uncordon_node.yml
+  when:          ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true

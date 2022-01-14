@@ -1,31 +1,55 @@
-- name:                                             Setup PV folders
+- name:                                             Setup PV folders for root, kudos-board and backups
   file:
     path:                                           "{{ item }}"
     mode:                                           '0700'
     state:                                          directory
   with_items:
    - "/pv-connections"
-   - "/pv-connections/mongo-node-0/data/db"
-   - "/pv-connections/mongo-node-1/data/db"
-   - "/pv-connections/mongo-node-2/data/db"
-   - "/pv-connections/solr-data-solr-0"
-   - "/pv-connections/solr-data-solr-1"
-   - "/pv-connections/solr-data-solr-2"
-   - "/pv-connections/zookeeper-data-zookeeper-0"
-   - "/pv-connections/zookeeper-data-zookeeper-1"
-   - "/pv-connections/zookeeper-data-zookeeper-2"
    - "/pv-connections/esbackup"
-   - "/pv-connections/esdata-0"
-   - "/pv-connections/esdata-1"
-   - "/pv-connections/esdata-2"
    - "/pv-connections/esbackup-7"
-   - "/pv-connections/esdata-7-0"
-   - "/pv-connections/esdata-7-1"
-   - "/pv-connections/esdata-7-2"
-   - "/pv-connections/esmaster-7-0"
-   - "/pv-connections/esmaster-7-1"
-   - "/pv-connections/esmaster-7-2"
    - "/pv-connections/kudos-boards-minio"
+
+- name:                                             Setup PV folders for mongo
+  file:
+    path:                                           "/pv-connections/mongo-node-{{ item }}/data/db"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __mongo_replicaset | int - 1 }}
+
+- name:                                             Setup PV folders for solr
+  file:
+    path:                                           "/pv-connections/solr-data-solr-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __solr_replicaset | int - 1 }}
+
+- name:                                             Setup PV folders for zookeeper
+  file:
+    path:                                           "/pv-connections/zookeeper-data-zookeeper-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __zookeeper_replicaset | int - 1 }}
+
+- name:                                             Setup PV folders for es5 data
+  file:
+    path:                                           "/pv-connections/esdata-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __es_replicaset | int - 1 }}
+
+- name:                                             Setup PV folders for es7 data
+  file:
+    path:                                           "/pv-connections/esdata-7-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 }}
+
+- name:                                             Setup PV folders for es7 master
+  file:
+    path:                                           "/pv-connections/esmaster-7-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 }}
 
 - name:                                             Setup Connections & Docs folders
   file:
@@ -33,8 +57,8 @@
     mode:                                           '0775'
     state:                                          directory
   with_items:
-   - "/nfs/docs_data" 
-   - "/nfs/viewer_data" 
+   - "{{ __docs_data_shared }}"
+   - "{{ __viewer_data_shared }}"
    - "{{ __cnx_data_shared }}"
    - "{{ __cnx_message_stores }}"
 
@@ -49,7 +73,7 @@
 
 - name:                                             Render /etc/exports
   template:
-    src:                                            "{{ __nfs_exports_template }}" 
+    src:                                            "{{ __nfs_exports_template }}"
     dest:                                           "{{ __nfs_exports_destination }}"
 
 - name:                                             Enable and start nfs-server

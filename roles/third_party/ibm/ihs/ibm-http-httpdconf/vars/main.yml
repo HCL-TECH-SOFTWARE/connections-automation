@@ -1,32 +1,34 @@
 ---
-__ihs_install_location:  "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
-__now:                   "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__ihs_install_location:    "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+__now:                     "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
 
-__ihs_hostname:          "{{ inventory_hostname_short }}"
-__ihs_hostname_fqdn:     "{{ inventory_hostname }}"
+__ihs_hostname:            "{{ inventory_hostname_short }}"
+__ihs_hostname_fqdn:       "{{ inventory_hostname }}"
 
-__sharedarea :           "{{ sharedarea  | default('/opt/IBM/SharedArea') }}"
+__sharedarea :             "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
 
-__ssh_keyfile :          "{{ ssh_keyfile  | default('connections.company.com') }}"
-__cnx_fqdn :             "{{ cnx_fqdn  | default('connections.company.com') }}"
-__cnx_domain :           "{{ cnx_domain  | default('company.com') }}"
+__ssh_keyfile :            "{{ ssh_keyfile  | default('connections.company.com') }}"
+__cnx_fqdn :               "{{ cnx_fqdn  | default('connections.company.com') }}"
+__cnx_domain :             "{{ cnx_domain  | default('company.com') }}"
 
-__ihs_bin_directory:     "{{ __ihs_install_location }}/bin/"
+__ihs_bin_directory:       "{{ __ihs_install_location }}/bin/"
 
-__ihs_kdb_password:      "{{ ihs_kdb_password | default('password') }}"
-__ihs_gsk_api:           "{{ __ihs_install_location }}/bin/gskcapicmd"
-__ihs_kdb_filename:      "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.kdb"
-__ihs_cert_dn:           "cn={{ __ihs_hostname_fqdn }},o=pnp-hcl,c=US"
+__ihs_kdb_password:        "{{ ihs_kdb_password | default('password') }}"
+__ihs_gsk_api:             "{{ __ihs_install_location }}/bin/gskcapicmd"
+__ihs_kdb_filename:        "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.kdb"
+__ihs_cert_dn:             "cn={{ __ihs_hostname_fqdn }},o=pnp-hcl,c=US"
 
-__ihs_http_port:         "{{ ihs_http_port | default('80') }}"
-__ihs_https_port:        "{{ ihs_https_port | default('443') }}"
+__ihs_http_port:           "{{ ihs_http_port | default('80') }}"
+__ihs_https_port:          "{{ ihs_https_port | default('443') }}"
 
-__thread_limit:          "{{ ihs_thread_limit | default('50') }}"
-__server_limit:          "{{ ihs_server_limit | default('128') }}"
-__start_servers:         "{{ ihs_start_servers | default('1') }}"
-__max_clients:           "{{ ihs_max_clients | default('2000') }}"
-__min_spare_threads:     "{{ ihs_min_spare_threads | default('50') }}"
-__max_spare_threads:     "{{ ihs_max_spare_threads | default('150') }}"
-__max_request_per_child: "{{ ihs_max_request_per_child | default('0') }}"
+__thread_limit:            "{{ ihs_thread_limit | default('50') }}"
+__server_limit:            "{{ ihs_server_limit | default('128') }}"
+__start_servers:           "{{ ihs_start_servers | default('1') }}"
+__max_clients:             "{{ ihs_max_clients | default('2000') }}"
+__min_spare_threads:       "{{ ihs_min_spare_threads | default('50') }}"
+__max_spare_threads:       "{{ ihs_max_spare_threads | default('150') }}"
+__max_request_per_child:   "{{ ihs_max_request_per_child | default('0') }}"
 
-__load_balancer_fqdn:    "{{ cnx_component_pack_ingress | default( inventory_hostname ) }}"
+__load_balancer_fqdn:      "{{ cnx_component_pack_ingress | default( inventory_hostname ) }}"
+
+__setup_kudosboards:       "{{ setup_kudosboards | default(true) |lower }}"

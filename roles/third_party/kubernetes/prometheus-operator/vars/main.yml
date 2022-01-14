@@ -1,0 +1,75 @@
+---
+__ansible_cache:                             "/tmp/k8s_ansible"
+__sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
+__setup_prometheus_operator:                 "{{ setup_prometheus_operator | default(true) }}"
+
+__monitoring_namespace:                      "{{ monitoring_namespace | default('monitoring') }}"
+__grafana_password:                          "{{ grafana_password | default('kube-connections') }}"
+__grafana_node_port:                         "{{ grafana_node_port | default('31111') }}"
+__prometheus_node_port:                      "{{ prometheus_node_port | default('30009') }}"
+__grafana_root_url:                          "http://{{ frontend_domain }}/grafana/"
+__grafana_serv_from_subpath:                 "{{ grafana_serv_from_subpath | default('true') }}"
+__prometheus_io_port:                        "{{ prometheus_io_port | default('10254') }}"
+
+__jmx_prometheus_service_template:           "connection-service.yml.j2"
+__jmx_prometheus_sermonitor_template:        "connection-servicemonitor.yml.j2"
+__jmx_prometheus_endpoint_template:          "connection-endpoint.yml.j2"
+__jmx_prometheus_service_destination:        "{{ __ansible_cache }}/connection-service.yml"
+__jmx_prometheus_sermonitor_destination:     "{{ __ansible_cache }}/connection-servicemonitor.yml"
+__jmx_prometheus_endpoint_destination:       "{{ __ansible_cache }}/connection-endpoint.yml"
+
+__node_exporter_port:                        "{{ node_exporter_port | default('9108') }}"
+__node_exporter_service_template:            "node-exporter-service.yml.j2"
+__node_exporter_sermonitor_template:         "node-exporter-servicemonitor.yml.j2"
+__node_exporter_endpoint_template:           "node-exporter-endpoint.yml.j2"
+__node_exporter_service_destination:         "{{ __ansible_cache }}/node-exporter-service.yml"
+__node_exporter_sermonitor_destination:      "{{ __ansible_cache }}/node-exporter-servicemonitor.yml"
+__node_exporter_endpoint_destination:        "{{ __ansible_cache }}/node-exporter-endpoint.yml"
+
+__jmx_jar_name:                              "{{ jmx_jar_name  | default('jmx_prometheus_javaagent-0.14.0.jar') }}"
+__jmx_install_location:                      "{{ jmx_install_location  | default('/opt/IBM/jmx_exporter') }}"
+__jmx_download_url:                          "{{ jmx_download_url  | default('https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.14.0/jmx_prometheus_javaagent-0.14.0.jar') }}"
+__jvm_config_file:                           "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/ConnectionsCell/nodes/{{ inventory_hostname_short }}-dmgr/servers/dmgr/server.xml"
+__helm2_prometheus_chart:                    "{{ 'kube-prometheus-stack-12.0.4_helm2.tgz' }}"
+__helm2_packages_dir:                        "{{ 'helm2_packages' }}"
+__helm2_prometheus_url:                      "{{ __download_location.split('/')[0] }}/{{ __helm2_packages_dir }}/{{ __helm2_prometheus_chart }}"
+
+__cnx_deploy_type:                           "{{ cnx_deploy_type | default('small') }}"
+
+__oracledb_exporter_port:                    "{{ oracledb_exporter_port | default('9161') }}"
+__oracledb_exporter_service_template:        "oracledb-exporter-service.yml.j2"
+__oracledb_exporter_sermonitor_template:     "oracledb-exporter-servicemonitor.yml.j2"
+__oracledb_exporter_endpoint_template:       "oracledb-exporter-endpoint.yml.j2"
+__oracledb_exporter_service_destination:     "{{ __ansible_cache }}/oracledb-exporter-service.yml"
+__oracledb_exporter_sermonitor_destination:  "{{ __ansible_cache }}/oracledb-exporter-servicemonitor.yml"
+__oracledb_exporter_endpoint_destination:    "{{ __ansible_cache }}/oracledb-exporter-endpoint.yml"
+
+__jmx_small_deployment:
+  - { name: 'Apps', port: '8070'}
+
+__jmx_medium_deployment:
+  - { name: 'Apps', port: '8070'}
+  - { name: 'Infra', port: '8071'}
+  - { name: 'Util', port: '8072'}
+  - { name: 'Push', port: '8073'}
+
+__jmx_large_deployment:
+  - { name: 'Common', port: '8060'}
+  - { name: 'Communities', port: '8061'}
+  - { name: 'News', port: '8062'}
+  - { name: 'Widgets', port: '8063'}
+  - { name: 'Profiles', port: '8064'}
+  - { name: 'Search', port: '8065'}
+  - { name: 'Homepage', port: '8066'}
+  - { name: 'Moderation', port: '8067'}
+  - { name: 'RTE', port: '8068'}
+  - { name: 'Activities', port: '8069'}
+  - { name: 'Blogs', port: '8070'}
+  - { name: 'Dogear', port: '8071'}
+  - { name: 'Files', port: '8072'}
+  - { name: 'Forums', port: '8073'}
+  - { name: 'Metrics', port: '8084'}
+  - { name: 'Mobile', port: '8075'}
+  - { name: 'Wikis', port: '8076'}
+  - { name: 'IC360', port: '8077'}
+  - { name: 'Push', port: '8078'}

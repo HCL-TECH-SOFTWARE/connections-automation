@@ -1,0 +1,88 @@
+---
+- name:                     Show me Linux distribution
+  debug:
+    msg:                    "{{ ansible_distribution }}"
+
+- name:                     Show me Linux distribution major version
+  debug:
+    msg:                    "{{ ansible_distribution_major_version }}"
+
+- name:                     Show me Linux distribution version
+  debug:
+    msg:                    "{{ ansible_distribution_version }}"
+
+- name:                     Add Docker repo
+  get_url:
+    url:                    https://download.docker.com/linux/centos/docker-ce.repo
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+
+- name:                     Replace baseurl on RedHat 7
+  replace:
+    path:                   /etc/yum.repos.d/docker-ce.repo
+    regexp:                 '^baseurl.*$'
+    replace:                'baseurl=https://download.docker.com/linux/centos/7/x86_64/stable'
+  when:
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version == "7"
+
+- name:                     Replace baseurl on RedHat 8
+  replace:
+    path:                   /etc/yum.repos.d/docker-ce.repo
+    regexp:                 '^baseurl.*$'
+    replace:                'baseurl=https://download.docker.com/linux/centos/8/x86_64/stable'
+  when:
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:                     Enable Docker stable repo
+  ini_file:
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    section:                'docker-ce-stable'
+    option:                 enabled
+    value:                  1
+
+- name:                     Disable Docker Edge repo
+  ini_file:
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    section:                'docker-ce-edge'
+    option:                 enabled
+    value:                  0
+
+- name:                     Disable Docker Test repo
+  ini_file:
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    section:                'docker-ce-test'
+    option:                 enabled
+    value:                  0
+
+- name:                     Install containerd.io {{ __containerd_version }}
+  package:
+    name:                   containerd.io-{{ __containerd_version }}
+    state:                  present
+    allow_downgrade:        yes
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:                     Create containerd folders
+  file:
+    path:                   "/etc/containerd"
+    state:                  directory
+
+- name:                     Configure containerd
+  shell:                    containerd config default > /etc/containerd/config.toml
+
+- name:                     Use systemd as cgroup driver
+  replace:
+    path:                   /etc/containerd/config.toml
+    regexp:                 'systemd_cgroup.=.*$'
+    replace:                'systemd_cgroup = true'
+  when:
+   - ansible_distribution == "RedHat"
+   - ansible_distribution_major_version == "7"
+
+- name:                     Restart containerd
+  service:
+    name:                   containerd
+    state:                  started
+    enabled:                yes
+    daemon_reload:          yes

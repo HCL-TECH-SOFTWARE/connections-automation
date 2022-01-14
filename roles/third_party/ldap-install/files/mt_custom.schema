@@ -1,0 +1,119 @@
+#
+# HCL Connections directory schema items
+#
+# depends upon:
+#  core.schema
+#  cosine.schema
+#  inetorgperson.schema
+#
+# These are provided to enable multi-tenancy support and
+# true visitor-model for HCL Connections as the Social Business
+#
+
+
+# HCL Connections attribute types
+
+# ibm-socialPersonId
+attributetype ( 1.3.18.0.2.4.4011
+ NAME 'ibm-socialPersonId'
+ DESC 'HCL Connections User Profile Identifier for Social Business'
+ EQUALITY caseIgnoreIA5Match
+ SUBSTR caseIgnoreIA5SubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+# ibm-socialGroupId
+attributetype ( 1.3.18.0.2.4.4012
+ NAME 'ibm-socialGroupId'
+ DESC 'HCL Connections Group Identifier for Social Business'
+ EQUALITY caseIgnoreIA5Match
+ SUBSTR caseIgnoreIA5SubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+# ibm-socialOrganizationId
+attributetype ( 1.3.18.0.2.4.4013
+ NAME 'ibm-socialOrganizationId'
+ DESC 'HCL Connections Organization Identifier for Social Business'
+ EQUALITY caseIgnoreIA5Match
+ SUBSTR caseIgnoreIA5SubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+# ibm-socialPersonalRole
+attributetype ( 1.3.18.0.2.4.4014
+ NAME 'ibm-socialPersonalRole'
+ DESC 'HCL Connections Personal Role for Social Business'
+ EQUALITY caseIgnoreMatch
+ SUBSTR caseIgnoreSubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128} )
+
+# ibm-socialOrganizationalHostURL
+attributetype ( 1.3.18.0.2.4.4015
+ NAME 'ibm-socialOrganizationalHostURL'
+ DESC 'HCL Connections Organizational Host-based URL for Social Business'
+ EQUALITY caseIgnoreMatch
+ SUBSTR caseIgnoreSubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128} )
+
+# ibm-socialResellerId
+attributetype ( 1.3.18.0.2.4.4016
+ NAME 'ibm-socialResellerId'
+ DESC 'HCL Connections Vendor/Reseller Identifier for Social Business'
+ EQUALITY caseIgnoreIA5Match
+ SUBSTR caseIgnoreIA5SubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+# ibm-socialPersonalEntitlement
+attributetype ( 1.3.18.0.2.4.4017
+ NAME 'ibm-socialPersonalEntitlement'
+ DESC 'HCL Connections Personal Entitlement for Social Business'
+ EQUALITY caseIgnoreMatch
+ SUBSTR caseIgnoreSubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128} )
+
+# ibm-socialOrganizationName
+attributetype ( 1.3.18.0.2.4.4018
+ NAME 'ibm-socialOrganizationName'
+ DESC 'HCL Connections Organization Name for Social Business'
+ EQUALITY caseIgnoreIA5Match
+ SUBSTR caseIgnoreIA5SubstringsMatch
+ SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+# ibm-entryUuid
+attributetype ( 2.25.128424792425578037463837247958458780603.1
+  NAME 'ibm-entryUuid'
+  DESC 'Uniquely identifies a directory entry throughout its life.'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+  USAGE userApplications)
+
+# HCL Connections object classes
+
+# ibm-socialPerson
+objectClass ( 1.3.18.0.2.6.705
+ NAME 'ibm-socialPerson'
+ DESC 'HCL Connections User Profile Object'
+ AUXILIARY
+ MUST ( ibm-socialPersonId )
+ MAY ( ibm-entryUuid $ ibm-socialOrganizationId $ ibm-socialOrganizationName $ ibm-socialPersonalRole $ ibm-socialPersonalEntitlement) )
+
+# ibm-socialGroup
+objectClass ( 1.3.18.0.2.6.706
+ NAME 'ibm-socialGroup'
+ DESC 'HCL Connections Group Object'
+ AUXILIARY
+ MUST ( ibm-socialGroupId )
+ MAY ( ibm-entryUuid $ ibm-socialOrganizationId ) )
+
+# ibm-socialOrganization
+objectClass ( 1.3.18.0.2.6.707
+ NAME 'ibm-socialOrganization'
+ DESC 'HCL Connections Organization Object'
+ AUXILIARY
+ MUST ( ibm-socialOrganizationId )
+ MAY ( ibm-entryUuid $ ibm-socialOrganizationalHostURL $ ibm-socialResellerId) )
+
+objectclass ( 1.2.840.113556.1.3.23
+       NAME 'container'
+       SUP top
+       STRUCTURAL
+       MUST ( cn ) )

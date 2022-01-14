@@ -1,5 +1,8 @@
-- name:                  Setup DB2
-  import_playbook:       third_party/setup-db2.yml
+- name:                  Setup Database
+  import_playbook:       third_party/setup-database.yml
+
+- name:                  Setup NFS
+  import_playbook:       third_party/setup-nfs.yml
 
 - name:                  Setup Connections Wizards
   import_playbook:       hcl/setup-connections-wizards.yml
@@ -10,5 +13,8 @@
 - name:                  Setup IBM SDI
   import_playbook:       third_party/setup-tdi.yml
 
-- name:                  Setup Connections
-  import_playbook:       hcl/setup-connections.yml
+- name:                  Setup WebSphere ND
+  import_playbook:       third_party/setup-webspherend.yml
+
+- name:                  Setup HCL Connections
+  import_playbook:       hcl/setup-connections-only.yml

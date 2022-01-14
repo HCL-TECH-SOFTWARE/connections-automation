@@ -11,7 +11,7 @@
   template:
     src:              "{{ __join_command_template }}"
     dest:             "{{ __join_command_location }}"
-  when: 
+  when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0
 
@@ -19,12 +19,12 @@
   file:
     dest:             "{{ __join_command_location }}"
     mode:             a+x
-  when: 
+  when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0
 
 - name:               Joining {{ inventory_hostname }} as control plane node
   command:            "sh {{ __join_command_location }}"
-  when: 
+  when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0

@@ -2,8 +2,8 @@
   command:              "kubectl label nodes {{ item }} type=infrastructure --overwrite"
   with_items:
    - "{{ groups['k8s_workers_infra'] }}"
-  when:                
-    - single_node_installation is not defined
+  when:
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
     - inventory_hostname in groups['k8s_workers_infra']
   become:               false
 
@@ -11,7 +11,7 @@
   command:              "kubectl taint nodes {{ item }} dedicated=infrastructure:NoSchedule --overwrite"
   with_items:
    - "{{ groups['k8s_workers_infra'] }}"
-  when:                
-    - single_node_installation is not defined
+  when:
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
     - inventory_hostname in groups['k8s_workers_infra']
   become:               false

@@ -1,0 +1,13 @@
+---
+- name: sudo_group should be defined
+  assert:
+    that:
+    - sudo_group|length > 0
+    msg: "Set the value of 'sudo_group' in the inventory file."
+
+- name: nfs_servers should be defined
+  assert:
+    that:
+    - "groups['nfs_servers'] |length > 0"
+    msg: "Set the value of 'nfs_servers' in the inventory file."
+  when: docs_shared_storage_type == 'nfs' or viewer_shared_storage_type == 'nfs' or cnx_shared_storage_type == 'nfs'

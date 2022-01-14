@@ -13,13 +13,31 @@
   stat:
     path:               "{{ __bin_dir }}/{{ __resource_env_entry }}-res-env-prop.success"
   register:             res_entry_already_created
-  when:                 profile_already_exists.stat.exists == true
+  when:                 profile_already_exists.stat.exists |bool
+
+- name:                 Use small topology names
+  set_fact:
+    __cluster_name:     "{{ __small_topology }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:                 Use medium topology names
+  set_fact:
+    __cluster_name:     "{{ __medium_topology }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:                 Use large topology names
+  set_fact:
+    __cluster_name:     "{{ __large_topology }}"
+  when:
+    - __cnx_deploy_type == "large"
 
 - name:                 "Generate Response file"
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-  when:                 res_entry_already_created.stat.exists == false
+  when:                 not res_entry_already_created.stat.exists
 
 - name:                 "Configure WAS resource environment property"
   command:
@@ -27,7 +45,7 @@
     {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_file }}
   register:             cout
   changed_when:         cout.rc == 0
-  when:                 res_entry_already_created.stat.exists == false
+  when:                 not res_entry_already_created.stat.exists
 
 - name:                 "Create {{ __bin_dir }}/{{ __resource_env_entry }}-res-env-prop.success file"
   file:

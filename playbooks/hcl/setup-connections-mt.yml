@@ -1,0 +1,69 @@
+# Install Connections MT - INTERNAL USE ONLY
+---
+- name:                    Gather facts
+  hosts:                   dmgr
+  tasks:                   []
+
+- name:                    Start DMGR
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start
+
+- name:                    Start WAS Nodes
+  hosts:                   was_servers
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+- name:                    Start CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Install Connections MT
+  hosts:                   dmgr, was_servers, ihs_servers, db2_servers
+  become:                  true
+  roles:
+    - roles/hcl/connections/mt
+  any_errors_fatal:        true
+
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+
+- name:                    Regenerate the IBM Http Server plugin
+  hosts:                   ihs_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/ihs/ibm-http-config-plgwct
+    - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
+    - roles/third_party/ibm/ihs/ibm-http-server-restart
+
+- name:                    Stop CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+
+- name:                    Restart DB
+  hosts:                   db2_servers
+  become:                  true
+  roles:
+    - roles/third_party/ibm/db2-install/db2-restart
+
+- name:                    Start CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Provision Users
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/mt/provision_users

@@ -1,0 +1,46 @@
+dn: cn={{ __mt_ldap_orga_name }}-internal,CN=Groups,{{ ldap_realm }}
+CN: {{ __mt_ldap_orga_name }}-internal
+objectclass: groupOfUniqueNames
+objectclass: top
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}1,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}3,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}5,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}7,cn=Users,{{ ldap_realm }}
+
+dn: cn={{ __mt_ldap_orga_name }}-external,CN=Groups,{{ ldap_realm }}
+CN: {{ __mt_ldap_orga_name }}-external
+objectclass: groupOfUniqueNames
+objectclass: top
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}3,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}9,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}11,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid_ext }}1,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid_ext }}2,cn=Users,{{ ldap_realm }}
+
+dn: cn={{ __mt_ldap_orgb_name }}-internal,CN=Groups,{{ ldap_realm }}
+CN: {{ __mt_ldap_orgb_name }}-internal
+objectclass: groupOfUniqueNames
+objectclass: top
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}2,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}4,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}6,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}8,cn=Users,{{ ldap_realm }}
+
+dn: cn={{ __mt_ldap_orgb_name }}-external,CN=Groups,{{ ldap_realm }}
+CN: {{ __mt_ldap_orgb_name }}-external
+objectclass: groupOfUniqueNames
+objectclass: top
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}6,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}10,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}12,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid_ext }}2,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid_ext }}4,cn=Users,{{ ldap_realm }}
+
+dn: cn={{ __mt_orgadmin_group }},CN=Groups,{{ ldap_realm }}
+CN: {{ __mt_orgadmin_group }}
+objectclass: groupOfUniqueNames
+objectclass: top
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}1,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orga_userid }}2,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}1,cn=Users,{{ ldap_realm }}
+uniqueMember:	uid={{ __mt_ldap_orgb_userid }}2,cn=Users,{{ ldap_realm }}

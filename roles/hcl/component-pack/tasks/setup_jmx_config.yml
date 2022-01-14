@@ -10,7 +10,7 @@
     src:        config.yml
     dest:       "{{ __jmx_install_location }}"
     mode:       '0777'
-  become:       false
+  become_user:  "{{ __sudo_user }}"
 
 - name: Download jmx-exporter jar using get_url
   get_url:

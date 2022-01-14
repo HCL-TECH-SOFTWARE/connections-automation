@@ -1,27 +1,65 @@
 ---
+db2_wizards_download_locaiton:  "{{ connections_wizards_download_location }}"
+db2_wizards_package_name:       "{{ connections_wizards_package_name }}"
+
+__cnx_fixes_version:            "{{ cnx_fixes_version }}"
+__cnx_db_updates_url:           "{{ cnx_db_updates_url }}"
+__cnx_db_update_file:           "{{ cnx_db_update_file | default('65cr1-database-updates.zip') }}"
+
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
 __db_version:                   "{{ db_version | default('7.0') }}"
-__download_location:            "{{ db2_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
-__package_name:                 "{{ db2_wizards_package_name | default('HCL_Connections_7.0_wizards_lin_aix.tar') }}"
-__extraction_folder:            "/opt/HCL/DB2Wizards"
-__installation_folder:          "{{ __extraction_folder }}/Wizards"
+__download_location:            "{{ connections_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
+__package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_7.0_wizards_lin_aix.tar') }}"
+__db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
+__installation_folder:          "{{ __db_extraction_folder }}/Wizards"
 
 __docs_download_location:       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
 __docs_package_name:            "{{ cnx_docs_package_name | default('IBMConnectionsDocs_2.0.1.zip') }}"
-__docs_extraction_folder:       "/opt/HCL/InstallBinaries/Docs"
-__docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB/db2"
+__docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
+__docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"
 
-__db2_user:                     "db2inst1"
-__db2_migration_cmd:            "/opt/IBM/db2/V11.1/bin/db2 -td@ -vf"
-__db2_icec_migration_cmd:       "/opt/IBM/db2/V11.1/bin/db2 -tvf"
+__install_latest_db2:           "{{ install_latest_db2 | default(false) }}"
+__db2_default_install_path:     "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
+__db2_installation_folder:      "{{ db2_installation_folder | default(__db2_default_install_path) }}"
+__db2_user:                     "{{ db2_user | default('db2inst1') }}"
+__db2_migration_cmd:            "{{ __db2_installation_folder }}/bin/db2 -td@ -vf"
+__db2_icec_migration_cmd:       "{{ __db2_installation_folder }}/bin/db2 -tvf"
+__db2_home:                     "/home/{{ __db2_user }}"
+__db2_instance_homedir:         "{{ db2_instance_homedir | default(__db2_home) }}"
 
 __cnx_force_repopulation:       "{{ cnx_force_repopulation | default(false) }}"
 __cnx_docs_force_repopulation:  "{{ cnx_docs_force_repopulation | default(false)|bool }}"
 
-__success_file:                 "/home/{{ __db2_user }}/migration.success"
-__ic360_success_file:           "/home/{{ __db2_user }}/ic360_migration.success"
-__sharepoint_success_file:      "/home/{{ __db2_user }}/sharepoint_migration.success"
-__docs_success_file:            "/home/{{ __db2_user }}/docs.migration.success"
+__success_file:                 "{{ __db2_instance_homedir }}/migration.success"
+__ic360_success_file:           "{{ __db2_instance_homedir }}/ic360_migration.success"
+__sharepoint_success_file:      "{{ __db2_instance_homedir }}/sharepoint_migration.success"
+__docs_success_file:            "{{ __db2_instance_homedir }}/docs.migration.success"
 
 __setup_connections_wizards:    "{{ setup_connections_wizards | default(true) }}"
 __setup_connections_docs:       "{{ setup_connections_docs | default(false)|bool}}"
+
+__dbw_oracle_base:              "{{ ora_rsp_oracle_base | default('/opt/oracle') }}"
+__dbw_oracle_home:              "{{ ora_rsp_oracle_home | default('/opt/oracle/product/19.0.0/db_1') }}"
+__dbw_oracle_sid:               "{{ ora_rsp_starter_db_name | default('LSCONN') }}"
+__dbw_oracle_password:          "{{ db_password | default('password') }}"
+
+__ora_success_file:             "{{ __dbw_oracle_base }}/migration.success"
+__ora_ic360_success_file:       "{{ __dbw_oracle_base }}/ic360_migration.success"
+__ora_sharepoint_success_file:  "{{ __dbw_oracle_base }}/sharepoint_migration.success"
+__ora_docs_success_file:        "{{ __dbw_oracle_base }}/docs.migration.success"
+__oracle_migration_cmd:         "{{ __dbw_oracle_home }}/bin/sqlplus SYS/{{ __dbw_oracle_password }} as SYSDBA @"
+
+__sql_data_folder:              "{{ sql_data_folder | default('/var/opt/mssql/data') }}"
+__sql_sa_password:              "{{ mssql_sa_password | default('Pa55w0rd') }}"
+
+__sql_user_name:                "{{ db_username | default('LCUSER') }}"
+__sql_user_password:            "{{ db_password | default('Pa55w0rd') }}"
+
+__sql_tools_path:               "{{ sql_tools_path | default('/opt/mssql-tools/bin') }}"
+__sql_migration_cmd:            "{{ __sql_tools_path }}/sqlcmd -U {{ __sql_user_name }} -P {{ __sql_user_password }} -i "
+__sql_migration_cmd_args:       "-v filepath={{ __sql_data_folder }} password={{ __sql_user_password }}"
+
+__sql_success_file:             "{{ __sql_data_folder }}/migration.success"
+__sql_ic360_success_file:       "{{ __sql_data_folder }}/ic360_migration.success"
+__sql_sharepoint_success_file:  "{{ __sql_data_folder }}/sharepoint_migration.success"
+__sql_docs_success_file:        "{{ __sql_data_folder }}/docs.migration.success"

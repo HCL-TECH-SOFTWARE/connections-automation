@@ -95,12 +95,12 @@ KeepAliveTimeout 10
 <IfModule worker.c>
 ThreadLimit         {{ __thread_limit }}
 ServerLimit         {{ __server_limit }}
-StartServers        {{ __start_servers }} 
+StartServers        {{ __start_servers }}
 MaxClients          {{ __max_clients }}
 MinSpareThreads     {{ __min_spare_threads }}
 MaxSpareThreads     {{ __max_spare_threads }}
 ThreadsPerChild     {{ __thread_limit }}
-MaxRequestsPerChild {{ __max_request_per_child }} 
+MaxRequestsPerChild {{ __max_request_per_child }}
 </IfModule>
 
 #
@@ -933,17 +933,14 @@ ProxyPassReverse "/appreg" "http://{{ __load_balancer_fqdn }}:32080/appreg/"
 ProxyPass "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 
+{% if __setup_kudosboards |bool %}
 # Kudosboards Config
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
-
-# teams-tab-api
-ProxyPass "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-ProxyPassReverse "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-
+{% endif %}
 
 # teams-share-service
 ProxyPass "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080/teams-share-service"
@@ -953,9 +950,9 @@ ProxyPassReverse "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080
 ProxyPass "/teams-share-ui" "http://{{ __load_balancer_fqdn }}:32080/teams-share-ui"
 ProxyPassReverse "/teams-share-ui" "http://{{ __load_balancer_fqdn }}:32080/teams-share-ui"
 
-# teams-tab-api
-ProxyPass "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-ProxyPassReverse "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
+# teams-tab/api
+ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
+ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
 
 # proxy rules for admin-portal
 ProxyPass "/cnxadmin" "http://{{ __load_balancer_fqdn }}:32080/cnxadmin"
@@ -971,8 +968,8 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 
 # proxy rules for outlook plugin
 Redirect "/outlook-addin" "/outlook-addin/"
-ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
-ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
+ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 
 #keycloak
 Redirect "/auth" "/auth/"
@@ -1012,20 +1009,22 @@ ProxyPassReverse "/appreg" "http://{{ __load_balancer_fqdn }}:32080/appreg/"
 ProxyPass "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 
+{% if __setup_kudosboards |bool %}
 # Kudosboards Config
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
 ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
+{% endif %}
 
 # teams-tab-ui
 ProxyPass "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 ProxyPassReverse "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 
-# teams-tab-api
-ProxyPass "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
-ProxyPassReverse "/teams-tab-api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab-api"
+# teams-tab/api
+ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
+ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
 
 # teams-share-service
 ProxyPass "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080/teams-share-service"
@@ -1049,8 +1048,8 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 
 # proxy rules for outlook plugin
 Redirect "/outlook-addin" "/outlook-addin/"
-ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
-ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
+ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 
 <Location /auth >
    RequestHeader set X-Forwarded-Proto "https"
@@ -1058,6 +1057,8 @@ ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
 
 ProxyPass "/auth/" "https://localhost:10443/auth/"
 ProxyPassReverse "/auth/" "https://localhost:10443/auth/"
+
+SSLProtocolDisable SSLv2 SSLv3 TLSv10 TLSv11
 
 </VirtualHost>
 </IfModule>
@@ -1117,9 +1118,6 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
 RewriteCond %{REQUEST_URI} ^/$ [OR]
 RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
-
-#rewrite help urls to new scheme
-RedirectMatch 301 ^/help/(SSYGQH_KCCI)/(.*)\.(dita|html) /help/$2.html
 </IfModule>
 
 # Allow CORS related access control headers in requests for /oauth2
@@ -1136,4 +1134,4 @@ RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=200,L]
 
 # Teams SameSite Fix
-Header edit Set-Cookie ^(.*)$ "$1; SameSite=None"
+# Header edit Set-Cookie ^(.*)$ "$1; SameSite=None"

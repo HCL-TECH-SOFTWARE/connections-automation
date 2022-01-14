@@ -1,0 +1,86 @@
+{% set total_users_orga = __mt_ldap_orga_nr_of_users | int + 1 %}
+{% set total_users_orgb = __mt_ldap_orgb_nr_of_users | int + 1 %}
+{% set total_users_ext_orga = __mt_ldap_orga_nr_of_ext_users | int + 1 %}
+{% set total_users_ext_orgb = __mt_ldap_orgb_nr_of_ext_users | int + 1 %}
+
+{% for counter in range(1, total_users_orga) %}
+dn: uid={{ __mt_ldap_orga_userid }}{{ counter }},CN=Users,{{ ldap_realm }}
+uid: {{ __mt_ldap_orga_userid }}{{ counter }}
+mail: {{ __mt_ldap_orga_userid }}{{ counter }}@{{ __ldap_user_mail_domain }}
+givenName: {{ __mt_ldap_orga_givenname }}
+SN: {{ __mt_ldap_orga_sn }}{{ counter }}
+CN: {{ __mt_ldap_orga_givenname }} {{ __mt_ldap_orga_sn }}{{ counter }}
+ibm-socialOrganizationId: 4000000001
+ibm-socialOrganizationName: {{ __mt_ldap_orga_name }}
+ibm-socialPersonId: {{ 1000000000+counter }}
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: person
+objectclass: top
+objectclass: ibm-socialPerson
+ibm-entryuuid: {{ (1000000000+counter+4000000001) | to_uuid }}
+userPassword: {{ __mt_ldap_orga_user_password }}
+
+{% endfor %}
+
+{% for counter in range(1, total_users_ext_orga) %}
+dn: uid={{ __mt_ldap_orga_userid_ext }}{{ counter }},CN=Users,{{ ldap_realm }}
+uid: {{ __mt_ldap_orga_userid_ext }}{{ counter }}
+mail: {{ __mt_ldap_orga_userid_ext }}{{ counter }}@{{ __ldap_user_mail_domain }}
+givenName: {{ __mt_ldap_orga_givenname }}
+SN: {{ __mt_ldap_orga_sn_ext }}{{ counter }}
+CN: {{ __mt_ldap_orga_givenname }} {{ __mt_ldap_orga_sn_ext }}{{ counter }}
+ibm-socialOrganizationId: 4000000001
+ibm-socialOrganizationName: {{ __mt_ldap_orga_name }}
+ibm-socialPersonalRole: visitor
+ibm-socialPersonId: {{ 1100000000+counter }}
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: person
+objectclass: top
+objectclass: ibm-socialPerson
+ibm-entryuuid: {{ (1100000000+counter) | to_uuid }}
+userPassword: {{ __mt_ldap_orga_user_password }}
+
+{% endfor %}
+
+{% for counter in range(1, total_users_orgb) %}
+dn: uid={{ __mt_ldap_orgb_userid }}{{ counter }},CN=Users,{{ ldap_realm }}
+uid: {{ __mt_ldap_orgb_userid }}{{ counter }}
+mail: {{ __mt_ldap_orgb_userid }}{{ counter }}@{{ __ldap_user_mail_domain }}
+givenName: {{ __mt_ldap_orgb_givenname }}
+SN: {{ __mt_ldap_orgb_sn }}{{ counter }}
+CN: {{ __mt_ldap_orgb_givenname }} {{ __mt_ldap_orgb_sn }}{{ counter }}
+ibm-socialOrganizationId: 4000000002
+ibm-socialOrganizationName: {{ __mt_ldap_orgb_name }}
+ibm-socialPersonId: {{ 2000000000+counter }}
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: person
+objectclass: top
+objectclass: ibm-socialPerson
+ibm-entryuuid: {{ (2000000000+counter+4000000002) | to_uuid }}
+userPassword: {{ __mt_ldap_orgb_user_password }}
+
+{% endfor %}
+
+{% for counter in range(1, total_users_ext_orgb) %}
+dn: uid={{ __mt_ldap_orgb_userid_ext }}{{ counter }},CN=Users,{{ ldap_realm }}
+uid: {{ __mt_ldap_orgb_userid_ext }}{{ counter }}
+mail: {{ __mt_ldap_orgb_userid_ext }}{{ counter }}@{{ __ldap_user_mail_domain }}
+givenName: {{ __mt_ldap_orgb_givenname }}
+SN: {{ __mt_ldap_orgb_sn_ext }}{{ counter }}
+CN: {{ __mt_ldap_orgb_givenname }} {{ __mt_ldap_orgb_sn_ext }}{{ counter }}
+ibm-socialOrganizationId: 4000000002
+ibm-socialOrganizationName: {{ __mt_ldap_orgb_name }}
+ibm-socialPersonalRole: visitor
+ibm-socialPersonId: {{ 2100000000+counter }}
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: person
+objectclass: top
+objectclass: ibm-socialPerson
+ibm-entryuuid: {{ (2100000000+counter) | to_uuid }}
+userPassword: {{ __mt_ldap_orgb_user_password }}
+
+{% endfor %}

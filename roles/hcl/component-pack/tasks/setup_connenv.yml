@@ -13,12 +13,11 @@
   template:
     src:                     "helmvars/connections-env.yml.j2"
     dest:                    "{{ __connections_env_install_env }}"
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Setup connections-env
-  command:                   "helm upgrade connections-env {{ connectionsenv_tgz.files[0].path }} -i -f {{ __connections_env_install_env }} --recreate-pods"
-  become:                    false
-
+  command:                   "helm upgrade connections-env {{ connectionsenv_tgz.files[0].path }} -i -f {{ __connections_env_install_env }} --namespace {{ __default_namespace }}"
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space...
   pause:
@@ -26,5 +25,5 @@
 
 - name:                      Check if connections-env configmap is created
   shell:                     kubectl get configmap -n {{ __default_namespace }} | grep -i connections-env
-  when:                      __skip_pod_checks == false
-  become:                    false
+  when:                      not __skip_pod_checks
+  become_user:               "{{ __sudo_user }}"

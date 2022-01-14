@@ -1,7 +1,42 @@
-- name:                      Run {{ __config_blue_metrics_cmd }} 
-  command:                   "{{ __config_blue_metrics_cmd }}"
+- name:                       Check whether python2 is installed on RHEL 8
+  command:                    python2 --version
+  register:                   python_installed
+  ignore_errors:              true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:                      Install python2 on RHEL 8
+  yum:
+    name:                    ['python2']
+    state:                   present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+    - python_installed.failed
+
+- name:                      Set config_blue_metrics.py command
+  set_fact:
+    __config_blue_metrics_cmd_python:  "{{ __config_blue_metrics_cmd }}"
+  when:
+    - not (ansible_os_family == "RedHat" and ansible_distribution_major_version == "8")
+
+- name:                      Set config_blue_metrics.py command for RHEL8
+  set_fact:
+    __config_blue_metrics_cmd_python:  "/usr/bin/python2 {{ __config_blue_metrics_cmd }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- debug:                     var=__config_blue_metrics_cmd_python
+
+- name:                      Run {{ __config_blue_metrics_cmd }}
+  command:                   "{{ __config_blue_metrics_cmd_python }}"
   become:                    false
+  register:                  configured_blue_metrics
   ignore_errors:             true
+
+- debug:                     var=configured_blue_metrics.stdout_lines
 
 - name:                      Cleanup {{ __es_certs_dir_temp }} if it already exists
   file:
@@ -39,7 +74,7 @@
   with_items:
    - kubectl get secret elasticsearch-secret -n connections -o=jsonpath="{.data['chain-ca\.pem']}" | base64 -d > "{{ __es_certs_dir_temp }}"/chain-ca.pem
    - kubectl get secret elasticsearch-secret -n connections -o=jsonpath="{.data['elasticsearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/elasticsearch-metrics.p12
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   when:                      __elasticsearch_default_version == "5"
 
 - name:                      Retrieve signer certificates for ES7
@@ -47,21 +82,27 @@
   with_items:
    - kubectl get secret elasticsearch-7-secret -n connections -o=jsonpath="{.data['chain-ca\.pem']}" | base64 -d > "{{ __es_certs_dir_temp }}"/chain-ca.pem
    - kubectl get secret elasticsearch-7-secret -n connections -o=jsonpath="{.data['elasticsearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/elasticsearch-metrics.p12
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
   when:                      __elasticsearch_default_version == "7"
 
 - name:                      Create the archive
   archive:
-    path:                    "{{ __es_certs_dir_temp }}" 
+    path:                    "{{ __es_certs_dir_temp }}"
     dest:                    "{{ __es_certs_dir_temp }}.zip"
     format:                  zip
   become:                    false
 
-- name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
-  synchronize: 
+- name:                      Copy {{ __es_certs_dir_temp }}.zip to local
+  fetch:
     src:                     "{{ __es_certs_dir_temp }}.zip"
-    dest:                    /tmp
-    mode:                    pull
+    dest:                    "{{ __es_certs_dir_temp }}.zip"
+    flat:                    yes
+  become:                    false
+
+- name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
+  copy:
+    src:                     "{{ __es_certs_dir_temp }}.zip"
+    dest:                    "{{ __es_certs_dir_temp }}.zip"
   delegate_to:               "{{ dmgr_hostname }}"
   become:                    false
 
@@ -128,15 +169,9 @@
   register:                 es_certs_enabled
   changed_when:             es_certs_enabled.rc == 0
   delegate_to:              "{{ dmgr_hostname }}"
-  ignore_errors:             yes
-
-- name:                     "Enable/Switch (to) ES metrics with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_metrics_enable_destination }}"
-  command:
-    chdir={{ __dmgr_bin_dir }}
-    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_metrics_enable_destination }}
-  register:                 es_certs_enabled
-  changed_when:             es_certs_enabled.rc == 0
-  delegate_to:              "{{ dmgr_hostname }}"
+  ignore_errors:            yes
+  retries:                  3
+  delay:                    10
 
 - name:                     Remove {{ __es_certs_dir }}/es_certs/ca-chain.pem on {{ dmgr_hostname }}
   file:
@@ -152,7 +187,7 @@
 
 - name:                     Create the archive
   archive:
-    path:                   "{{ __es_certs_dir }}" 
+    path:                   "{{ __es_certs_dir }}"
     dest:                   "{{ __es_certs_dir }}/es_certificates_signed.zip"
     format:                 zip
   delegate_to:              "{{ dmgr_hostname }}"
@@ -170,7 +205,7 @@
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
   ignore_errors:             yes
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Cleanup /tmp/certs if it already exists
@@ -195,7 +230,7 @@
     dest:                    "/tmp"
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Extract ES certificates on WAS hosts
@@ -205,7 +240,7 @@
     remote_src:              yes
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Copy /tmp/certs to the proper location
@@ -215,7 +250,7 @@
     remote_src:              yes
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:                      
+  when:
    - inventory_hostname != dmgr_hostname
 
 - name:                      Cleanup /tmp/certs if it already exists
@@ -241,3 +276,14 @@
     path:                    "/tmp/{{ groups['k8s_masters'][0] }}"
   become:                    false
   ignore_errors:             yes
+
+- name:                      Run {{ __config_blue_metrics_cmd }}
+  command:                   "{{ __config_blue_metrics_cmd_python }}"
+  become:                    false
+  register:                  configured_blue_metrics_repeat
+  retries:                   10
+  delay:                     2
+  until:                     configured_blue_metrics_repeat.stdout|lower is not search("error")
+  ignore_errors:             true
+
+- debug:                     var=configured_blue_metrics_repeat.stdout_lines

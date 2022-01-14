@@ -1,0 +1,47 @@
+---
+- include_vars:        ../vars/main.yml
+
+- name:               Edit config.properties (MT provisioning configuration properties)
+  replace:
+    path:             "{{ __tmp_dir }}/mt/install/config.properties"
+    regexp:           "^(?!#){{ item.prop_name }}=(.*)$"
+    replace:          "{{ item.prop_name }}={{ item.prop_value }}"
+  with_items:
+    - { prop_name: "provision.mt.url", prop_value: "https://{{ __provision_mt_url_r }}" }
+    - { prop_name: "provision.mt.ldapurl", prop_value: "{{ __provision_mt_ldap_url_r }}" }
+    - { prop_name: "provision.mt.ldapUserName", prop_value: "{{ __provision_mt_ldapusername_r }}" }
+    - { prop_name: "provision.mt.ldapPassword", prop_value: "{{ __provision_mt_ldappassword_r }}" }
+    - { prop_name: "provision.mt.saasOrganizationsLdapDN", prop_value: "{{ __provision_mt_saasorgldapdn_r }}" }
+    - { prop_name: "provision.mt.defaultSubscriberLocale", prop_value: "{{ __provision_mt_defaultsubscriberlocal_r }}" }
+    - { prop_name: "provision.mt.bssAdminUsername", prop_value: "{{ __provision_mt_bssadminusername_r }}" }
+    - { prop_name: "provision.mt.bssAdminPassword", prop_value: "{{ __provision_mt_bssadminpassword_r }}" }
+    - { prop_name: "provision.mt.saasOrganizationId", prop_value: "{{ __provision_mt_saasorgid_r }}" }
+    - { prop_name: "provision.mt.saasSubscriptionsRDN", prop_value: "cn={{ __provision_mt_saassubscription_rdn_r }}" }
+    - { prop_name: "provision.mt.saasSubscriptionId", prop_value: "{{ __provision_mt_saassubscription_id_r }}" }
+    - { prop_name: "provision.mt.defaultQuotaSize", prop_value: "{{ __provision_mt_defaultquotasize_r }}" }
+    - { prop_name: "provision.mt.defaultTransferQuota", prop_value: "{{ __provision_mt_defaulttransferquota_r }}" }
+    - { prop_name: "provision.mt.defaultAllowDataOverage", prop_value: "{{ __provision_mt_defaultallowdataoverage_r }}" }
+    - { prop_name: "provision.mt.ldapOrganizationFilter", prop_value: "{{ __provision_mt_ldap_org_filter_r }}" }
+    - { prop_name: "provision.mt.ldapSubscriptionFilter", prop_value: "{{ __provision_mt_ldap_subscription_filter_r }}" }
+
+- name:                Run MT User Provision, log file {{ __tmp_dir }}/mt/install/mtupdate_entitlements.log
+  shell:
+     ./connections-mt-init-entitlements-cli.sh -f config.properties 2>&1 | tee mtupdate_entitlements.log
+  args:
+      chdir:           "{{ __tmp_dir }}/mt/install"
+  become:              true
+  register:            mt_user_provision_performed
+
+- name:                Search for success message in log
+  become:              yes
+  shell:               "grep -i 'Initialization of User and Organization entitlements for HCL Connections MT completed' {{ __tmp_dir }}/mt/install/mtupdate_entitlements.log"
+  register:            grep_success_message
+  failed_when:         grep_success_message.stdout|length == 0
+  when:                not __mt_skip_error_checking|bool and mt_user_provision_performed is not skipped
+
+- name:                Search for potential errors
+  become:              yes
+  shell:               "grep -i 'Adding subscriber failed\\|invalid' {{ __tmp_dir }}/mt/install/mtupdate_entitlements.log"
+  register:            mt_user_provision_error_found
+  failed_when:         mt_user_provision_error_found.stdout|length != 0
+  when:                not __mt_skip_error_checking|bool and mt_user_provision_performed is not skipped

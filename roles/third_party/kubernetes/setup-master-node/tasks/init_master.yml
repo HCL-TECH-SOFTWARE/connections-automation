@@ -13,7 +13,7 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               Show me master_certificate_key_json
   debug:
@@ -21,7 +21,7 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
   ignore_errors:      true
 
 - name:               Show me master_certificate_key_json.stdout
@@ -30,17 +30,17 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
   ignore_errors:      true
-  
+
 - name:               Save master certificate key
   template:
-    src:              "{{ __master_certkey_template }}"             
+    src:              "{{ __master_certkey_template }}"
     dest:             "{{ __master_certkey_location }}"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               Read the certificate key and save it to the variable
   slurp:
@@ -48,14 +48,14 @@
   register:           master_certificate_key
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               Show me master_certificate_key
   debug:
     msg:              "{{ master_certificate_key.content | b64decode | replace('\n', '') }}"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
   ignore_errors:      true
 
 - name:               Initialize master for single node installation
@@ -63,19 +63,27 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - single_node_installation is defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
 
-- name:               Initialize master for HA 
+- name:               Initialize master for HA with load balancer dns
   command:            kubeadm init --control-plane-endpoint "{{ __load_balancer_dns  }}:6443" --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key.content | b64decode | replace('\n', '') }}
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - single_node_installation is not defined
-  
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - not( __load_balancer_dns is regex("elb.amazonaws.com"))
+
+- name:               Initialize master for HA with application load balancer
+  command:            kubeadm init --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key.content | b64decode | replace('\n', '') }}
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc != 0
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - __load_balancer_dns is regex("elb.amazonaws.com")
 
 - name:               Generate join command
   command:            kubeadm token create --print-join-command
   register:           join_command
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - single_node_installation is not defined
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true

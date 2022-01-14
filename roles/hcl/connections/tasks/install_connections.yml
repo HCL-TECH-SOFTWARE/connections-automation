@@ -26,6 +26,36 @@
   with_items:        "{{ __ccm_db_info }}"
   when:              ( ccm_install is defined )
 
+- name:              Generate node list
+  set_fact:
+    __cnx_node_list: "{{ groups['cnx_was_servers'] | list }}"
+
+- debug: var=__cnx_node_list
+  run_once: true
+
+- name:              Set deployment type to small
+  set_fact:
+    __installer_deployment_type: "{{ __cnx_deploy_small }}"
+  when:
+    - __cnx_deploy_type == "small"
+
+- name:              Set deployment type to medium
+  set_fact:
+    __installer_deployment_type: "{{ __cnx_deploy_medium }}"
+  when:
+    - __cnx_deploy_type == "medium"
+
+- name:              Set deployment type to large
+  set_fact:
+    __installer_deployment_type: "{{ __cnx_deploy_large }}"
+  when:
+    - __cnx_deploy_type == "large"
+
+- debug: var=__installer_deployment_type
+  run_once: true
+
+
+
 - name:              Generate Response file {{ __rsp_file }} from {{ __tpl_file }}
   template:
     src:             "{{ __tpl_file }}"
@@ -39,21 +69,13 @@
     backup:          yes
   ignore_errors:     true
 
-- name:              "Change SOAP request timeout in {{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props"
-  replace:
-    path:            "{{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props"
-    regexp:          '(\s*)com.ibm.SOAP.requestTimeout=180(\s*)'
-    replace:         '\1com.ibm.SOAP.requestTimeout=600\2'
-    backup:          yes
-  ignore_errors:     true
-
 # Changed for shell for CCM
 - name:              Install Connections Software
   shell: |
     mkdir -p /opt/IBM/CTemp
     export IATEMPDIR=/opt/IBM/CTemp
     export CHECK_DISK_SPACE=OFF
-    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense -sVP -log {{ __log_file }} input {{ __rsp_file }}
+    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }} -sVP -log {{ __log_file }} input {{ __rsp_file }}
   environment:
     IATEMPDIR: "/opt/IBM/CTemp"
   register:          cout

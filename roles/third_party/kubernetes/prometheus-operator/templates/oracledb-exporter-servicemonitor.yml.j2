@@ -1,0 +1,27 @@
+{% for server in ['db_servers'] %}
+{% for host in groups[server] %}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+     prometheus.io/scrape: "true"
+  namespace: monitoring
+  name: oracledb-exporter-{{ host.split(".")[0] }}
+  labels:
+    app: oracledb-exporter-{{ host.split(".")[0] }}
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      app: oracledb-exporter-{{ host.split(".")[0] }}
+      release: prometheus-operator
+  namespaceSelector:
+      matchNames:
+      - monitoring
+  endpoints:
+  - port: metrics
+    interval: 10s
+    honorLabels: true
+{% endfor %}
+{% endfor %}

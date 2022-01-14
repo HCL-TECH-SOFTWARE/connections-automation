@@ -4,26 +4,36 @@
     path:             "{{ __editor_install_success_file }}"
   register:           editor_already_installed
 
+- name:               Get database type
+  include_tasks:      get_db_type.yml
+  when:               not editor_already_installed.stat.exists
+
+- name:               Print database type
+  debug:              var=__db_type_prop_value
+
 - name:               Edit cfg.properties
-  lineinfile:
+  replace:
     path:            "{{ __editor_cfg_prop_location }}/cfg.properties"
-    regex:           "{{ item.prop_name }}"
-    line:            "{{ item.prop_value }}"
-    state:           present
+    regexp:           "^(#?){{ item.prop_name }} ?=(.*)$"
+    replace:         "{{ item.prop_name }}={{ item.prop_value }}"
   with_items:
-    - { prop_name: "{{ __editor_install_root }}", prop_value: "{{ __editor_install_root_r }}" }
-    - { prop_name: "{{ __shared_data_dir }}", prop_value: "{{ __shared_data_dir_r }}" }
-    - { prop_name: "{{ __was_install_root }}", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "{{ __scope }}", prop_value: "{{ __scope_r  }}" }
-    - { prop_name: "{{ __scope_name }}", prop_value: "{{ __editor_scope_name_r  }}" }
-    - { prop_name: "{{ __db_hostname }}", prop_value: "{{ __db_hostname_r }}" }
-    - { prop_name: "{{ __db_jdbc_driver_path }}", prop_value: "{{ __db_jdbc_driver_path_r }}" }
-    - { prop_name: "{{ __integrate_with_lc }}", prop_value: "{{ __integrate_with_lc_r }}" }
-    - { prop_name: "{{ __lc_config_xml_path }}", prop_value: "{{ __lc_config_xml_path_r }}" }
-    - { prop_name: "{{ __non_job_mgr_mode }}", prop_value: "{{ __non_job_mgr_mode_r }}" }
-    - { prop_name: "{{ __conversion_url }}", prop_value: "{{ __conversion_url_r }}" }
-    - { prop_name: "{{ __files_url }}", prop_value: "{{ __files_url_r }}" }
-  when:              editor_already_installed.stat.exists == false
+    - { prop_name: "docs_install_root", prop_value: "{{ __editor_install_root_r }}" }
+    - { prop_name: "shared_data_dir", prop_value: "{{ __shared_data_dir_r }}" }
+    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
+    - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
+    - { prop_name: "scope_name", prop_value: "{{ __editor_scope_name_r  }}" }
+    - { prop_name: "db_type", prop_value: "{{ __db_type_prop_value }}" }
+    - { prop_name: "db_name", prop_value: "{{ __db_name_prop_value }}" }
+    - { prop_name: "db_hostname", prop_value: "{{ __db_hostname_r }}" }
+    - { prop_name: "db_port", prop_value: "{{ __db_port_r }}" }
+    - { prop_name: "db_jdbc_driver_path", prop_value: "{{ __db_jdbc_driver_path_r }}" }
+    - { prop_name: "integrate_with_LC", prop_value: "{{ __integrate_with_lc_r }}" }
+    - { prop_name: "LC_config_xml_path", prop_value: "{{ __lc_config_xml_path_r }}" }
+    - { prop_name: "non_job_mgr_mode", prop_value: "{{ __non_job_mgr_mode_r }}" }
+    - { prop_name: "conversion_url", prop_value: "{{ __conversion_url_r }}" }
+    - { prop_name: "files_url", prop_value: "{{ __files_url_r }}" }
+    - { prop_name: "email_url", prop_value: "{{ __email_url_r }}" }
+  when:              not editor_already_installed.stat.exists
 
 # need to copy cfg to cfg.node before install per documentation
 - name:               Copy cfg.properties to cfg.node.properties
@@ -31,26 +41,26 @@
     src:              "{{ __editor_cfg_prop_location }}/cfg.properties"
     dest:             "{{ __editor_cfg_prop_location }}/cfg.node.properties"
     remote_src:       yes
-  when:              editor_already_installed.stat.exists == false
+  when:              not editor_already_installed.stat.exists
 
 - name:              Run the Docs Editor installer
   shell:
-    chdir:           "{{ __extraction_folder }}/DocsEditor/installer"
+    chdir:           "{{ __extraction_folder }}/{{ __editor_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -dbadminID {{ __db_concord_username }} -dbadminPW {{ db_concord_password }} -mapWebserver true -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - editor_already_installed.stat.exists == false
+    - not editor_already_installed.stat.exists
   register:          sec_install_performed
 
 - name:              Search for success message in install log
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_editor_install_location }}/logs/docs_install.log"
   register:          editor_success_message_found
-  failed_when:       editor_success_message_found.stdout == ""
+  failed_when:       editor_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
 
 - name:              "Create {{ __editor_install_success_file }} file"
   file:
     path:            "{{ __editor_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and editor_success_message_found.stdout != ""
+  when:              sec_install_performed is not skipped and editor_success_message_found.stdout|length > 0

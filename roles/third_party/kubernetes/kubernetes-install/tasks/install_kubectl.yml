@@ -1,0 +1,21 @@
+---
+- name:                    "Create install directory {{ __kube_binaries_install_dir }}"
+  file:
+    path:                  "{{ __kube_binaries_install_dir }}"
+    state:                 directory
+    mode:                  "0755"
+  become:                  true
+
+- name:                    "Download kubectl {{ __kubernetes_version }} from {{ __kube_binaries_download_url }} to {{ __kube_binaries_install_dir }}"
+  get_url:
+    url:                   "{{ __kube_binaries_download_url }}/v{{ __kubernetes_version }}/bin/linux/amd64/kubectl"
+    dest:                  "{{ __kube_binaries_install_dir }}/kubectl-{{ __kubernetes_version }}"
+    mode:                  "0755"
+  become:                  true
+
+- name:                    "Create kubectl symlink to {{ __kube_binaries_install_dir }}/kubectl-{{ __kubernetes_version }}"
+  file:
+    src:                   "{{ __kube_binaries_install_dir }}/kubectl-{{ __kubernetes_version }}"
+    dest:                  "{{ __kube_binaries_install_dir }}/kubectl"
+    state:                 link
+  become:                  true

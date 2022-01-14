@@ -1,0 +1,2 @@
+__cnx_shared_area:                          "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
+__cnx_message_store:                        "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"

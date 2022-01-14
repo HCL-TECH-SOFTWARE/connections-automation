@@ -2,19 +2,19 @@
   command:            kubectl apply -f https://docs.projectcalico.org/v{{ __calico_version }}/manifests/rbac/rbac-kdd-calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - __calico_install_latest == false
+    - not __calico_install_latest
   become:             false
 
 - name:               Install the Pod network add on as per documentation - Calico
-  command:            kubectl apply -f https://docs.projectcalico.org/v{{ __calico_version }}/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+  command:            kubectl apply -f https://docs.projectcalico.org/v{{ __calico_version }}/manifests/calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - __calico_install_latest == false
+    - not __calico_install_latest
   become:             false
 
 - name:               Install/Upgrade Calico to the latest & greatest
   command:            kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - __calico_install_latest == true 
+    - __calico_install_latest |bool
   become:             false

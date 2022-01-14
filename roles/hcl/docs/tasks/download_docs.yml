@@ -21,15 +21,15 @@
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsConversion
-    __zip_prefix:        "{{ __app_name }}"
+    __app_name:          "{{ __conversion_install_folder }}"
+    __zip_prefix:        "DocsConversion"
   when:                  inventory_hostname in groups["conversion_servers"]
 
 - name:                  Unpack Docs Editor installer
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsEditor
+    __app_name:          "{{ __editor_install_folder }}"
     __zip_prefix:        DocsApp
   when:                  inventory_hostname in groups["docs_servers"]
 
@@ -37,7 +37,7 @@
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsViewer
+    __app_name:          "{{ __viewer_install_folder }}"
     __zip_prefix:        Viewer
   when:                  inventory_hostname in groups["viewer_servers"]
 
@@ -45,7 +45,7 @@
   include_role:
     name:                roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsProxy
+    __app_name:          "{{ __proxy_install_folder }}"
     __zip_prefix:        DocsProxyFilter
   when:                  inventory_hostname in groups["proxy_servers"]
 
@@ -63,4 +63,29 @@
   vars:
     __app_name:          ViewerCnxExtension
     __zip_prefix:        ViewerLCCustomizeApp
-  when:                  inventory_hostname in groups["cnx_was_servers"]    
+  when:                  inventory_hostname in groups["cnx_was_servers"]
+
+# Docs install scripts require python2
+- name:                  Check whether python2 is installed on RHEL 8
+  command:               python2 --version
+  register:              python_installed
+  ignore_errors:         true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:                  Install python2 on RHEL 8
+  yum:
+    name:                ['python2']
+    state:               present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+    - python_installed.failed
+
+- name:                  Set python2 as default for RHEL 8
+  command:               alternatives --set python /usr/bin/python2
+  become:                true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
