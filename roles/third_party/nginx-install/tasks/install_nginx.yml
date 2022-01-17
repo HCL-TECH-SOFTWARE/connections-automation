@@ -24,7 +24,7 @@
 - name:                     Create SSL certificates
   command:                  "{{ item }}"
   with_items:
-    - openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -sha256 -config {{ __nginx_cnf_location }} -subj "/"  -keyout {{ __nginx_key_file }}  -out {{ __nginx_crt_file }} -batch
+    - openssl req -x509 -nodes -days 1825 -newkey rsa:4096 -sha256 -config {{ __nginx_cnf_location }} -subj "/C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com"  -keyout {{ __nginx_key_file }}  -out {{ __nginx_crt_file }} -batch
 
 - name:                     Start Nginx service
   service:

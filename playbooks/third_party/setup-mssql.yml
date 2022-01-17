@@ -1,5 +1,5 @@
 ---
-- hosts:                    mssql_servers, was_servers
+- hosts:                    mssql_servers, was_servers, ldap_servers
   become:                   true
   roles:
     - roles/third_party/mssql-install

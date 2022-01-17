@@ -1,4 +1,11 @@
 ---
+- name:              Use Fix Pack 20?
+  set_fact:
+    __ihs_fp_files:    "{{ __ihs_fp_files_fp20 }}"
+    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
+    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
+  when:              ( __ihs_version == __ihs_fp_version_fp20 )
+
 - name:              Use Fix Pack 19?
   set_fact:
     __ihs_fp_files:    "{{ __ihs_fp_files_fp19 }}"

@@ -20,3 +20,5 @@ __mssql_setup_tdi_drivers:             "{{ mssql_jdbc_tdi_enable | default(true)
 __mssql_create_admin_user:             "{{ mssql_create_admin_user | default(true) }}"
 __mssql_admin_user_name:               "{{ db_username | default('LCUSER') }}"
 __mssql_admin_user_password:           "{{ db_password | default('Pa55w0rd') }}"
+
+__upgrade_tdi_jre:                     "{{ upgrade_tdi_jre | default(false) |lower }}"

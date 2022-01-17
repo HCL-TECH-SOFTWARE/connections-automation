@@ -1,0 +1,11 @@
+#jinja2: trim_blocks:False
+# Set Application servers > <server> > Session management > Cookies > Restrict cookies to HTTPS sessions check box.
+
+all_servers=AdminTask.listServers('[-serverType APPLICATION_SERVER ]').splitlines()
+
+for server in all_servers:
+    sm=AdminConfig.list('SessionManager' , server)
+    cookie=AdminConfig.showAttribute(sm, 'defaultCookieSettings')
+    restrictedcookies='[secure "{{ __restrict_cookies }}"]'
+    AdminConfig.modify(cookie, [restrictedcookies])
+    AdminConfig.save()

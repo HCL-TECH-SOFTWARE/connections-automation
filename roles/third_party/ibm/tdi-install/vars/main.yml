@@ -33,7 +33,8 @@ __cnx_download_location:        "{{ cnx_repository_url | default('http://c7lb1.c
 __cnx_package_name:             "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
 __cnx_extraction_folder:        "{{ cnx_extraction_folder | default('/opt/IBM/InstallBinaries/CNX') }}"
 
-__tdi_sol_location:             "{{ __cnx_extraction_folder }}/HCL_Connections_Install/tools/tdisol.tar"
+__tdi_sol_location_kit:         "{{ __cnx_extraction_folder }}/HCL_Connections_Install/tools/tdisol.tar"
+__tdi_sol_location:             "{{ tdi_sol_location | default(__tdi_sol_location_kit) }}"
 __tdi_sol_dest:                 "{{ tdi_sol_dest | default('/opt/IBM/TDI/tdisol') }}"
 
 __tdienv_sh_template:           "tdienv.sh.j2"
@@ -43,10 +44,14 @@ __tdi_properties_template:      "profiles_tdi.properties.j2"
 __tdi_properties_dest:          "{{ __tdi_sol_dest }}/TDI/profiles_tdi.properties"
 
 __mssql_jdbc_location:          "{{ mssql_jdbc_location | default('/opt/mssql/jdbc/lib/sqljdbc_4.1/enu/jre7') }}"
+__mssql_jdbc_jre8_location:     "{{ mssql_jdbc_location | default('/opt/mssql/jdbc/lib/sqljdbc_6.0/enu/jre8') }}"
 
 __oracle_jdbc_location:         "{{ oracle_jdbc_location | default('/opt/oracle') }}"
 
-__db2_jdbc_location:            "{{ db2_jdbc_location | default('/opt/IBM/db2/V11.1/java') }}"
+__install_latest_db2:           "{{ install_latest_db2 | default(false) }}"
+__db2_default_jdbc_location:    "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+
+__db2_jdbc_location:            "{{ db_jdbc_file | default(__db2_default_jdbc_location) }}"
 __jdbc_destination:             "{{ __tdi_user_install_dir }}/jvm/jre/lib/ext"
 
 __tdi_mdbrfs_template:          "map_dbrepos_from_source.properties.j2"

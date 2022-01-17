@@ -1,0 +1,97 @@
+---
+- name:                          Check if all mandatory variables required for installing connections on an exisitng database are defined in the inventory file
+  hosts:                         db2_servers, oracle_servers, mssql_servers
+  tasks:
+  - name:                        db_type should be defined
+    fail:
+      msg:                       "Set the value of 'db_type' in the inventory file."
+    when: db_type is not defined
+  
+  - name:                        db_username should be defined
+    fail:
+      msg:                       "Set the value of 'db_username' in the inventory file."
+    when: db_username is not defined
+  
+  - name:                        db_password should be defined
+    fail:
+      msg:                       "Set the value of 'db_password' in the inventory file."
+    when: db_password is not defined
+  
+  - name:                        db_jdbc_file should be defined
+    fail:
+      msg:                       "Set the value of 'db_jdbc_file' in the inventory file."
+    when: db_jdbc_file is not defined
+  
+  - name:                        db2_user should be defined
+    fail:
+      msg:                       "Set the value of 'db2_user' in the inventory file."
+    when:
+      - "'db2_servers' in groups"
+      - db2_user is not defined
+  
+  - name:                        db2_installation_folder should be defined
+    fail:
+      msg:                       "Set the value of 'db2_installation_folder' in the inventory file."
+    when:
+      - "'db2_servers' in groups"
+      - db2_installation_folder is not defined
+  
+  - name:                        db2_instance_homedir should be defined
+    fail:
+      msg:                       "Set the value of 'db2_instance_homedir' in the inventory file."
+    when:
+      - "'db2_servers' in groups"
+      - db2_instance_homedir is not defined
+
+  - name:                        oracle_download_location should be defined
+    fail:
+      msg:                       "Set the value of 'oracle_download_location' in the inventory file."
+    when:
+      - "'oracle_servers' in groups"
+      - oracle_download_location is not defined
+
+  - name:                        ora_rsp_oracle_base should be defined
+    fail:
+      msg:                       "Set the value of 'ora_rsp_oracle_base' in the inventory file."
+    when:
+      - "'oracle_servers' in groups"
+      - ora_rsp_oracle_base is not defined
+
+  - name:                        ora_rsp_oracle_home should be defined
+    fail:
+      msg:                       "Set the value of 'ora_rsp_oracle_home' in the inventory file."
+    when:
+      - "'oracle_servers' in groups"
+      - ora_rsp_oracle_home is not defined
+
+  - name:                        ora_rsp_starter_db_name should be defined
+    fail:
+      msg:                       "Set the value of 'ora_rsp_starter_db_name' in the inventory file."
+    when:
+      - "'oracle_servers' in groups"
+      - ora_rsp_starter_db_name is not defined
+
+  - name:                        mssql_sa_password should be defined
+    fail:
+      msg:                       "Set the value of 'mssql_sa_password' in the inventory file."
+    when:
+      - "'mssql_servers' in groups"
+      - mssql_sa_password is not defined
+
+- name:                  Setup NFS
+  import_playbook:       ../third_party/setup-nfs.yml
+
+- name:                  Setup Connections Wizards
+  import_playbook:       setup-connections-wizards.yml
+
+- name:                  Setup LDAP
+  import_playbook:       ../third_party/setup-ldap.yml
+
+- name:                  Setup IBM SDI
+  import_playbook:       ../third_party/setup-tdi.yml
+
+- name:                  Setup WebSphere ND
+  import_playbook:       ../third_party/setup-webspherend.yml
+
+- name:                  Setup HCL Connections
+  import_playbook:       setup-connections-only.yml

@@ -12,16 +12,19 @@
     name: roles/third_party/ibm/wasnd/was-dmgr-start-cluster
   vars:
     __cluster_name:        "{{ __editor_cluster_name }}"
+  when:
+    - __editor_cluster_name != __conversion_cluster_name
 
 - name:                     Start Viewer Server Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-start-cluster
   vars:
     __cluster_name:        "{{ __viewer_cluster_name }}"
+  when:
+    - __viewer_cluster_name != __conversion_cluster_name
 
 - name:                     Start Editor Proxy Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-start-cluster
   vars:
     __cluster_name:        "{{ __docs_proxy_cluster_name }}"
-

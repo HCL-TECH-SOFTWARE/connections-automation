@@ -1,4 +1,11 @@
 ---
+- name:              Use Fix Pack 8.5.5.20?
+  set_fact:
+    __was_fixes_files:    "{{ __was_fp_files_fp20 }}"
+    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
+    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when:              ( __was_fixes_version == __was_fp_version_fp20 )
+
 - name:              Use Fix Pack 8.5.5.19?
   set_fact:
     __was_fixes_files:    "{{ __was_fp_files_fp19 }}"

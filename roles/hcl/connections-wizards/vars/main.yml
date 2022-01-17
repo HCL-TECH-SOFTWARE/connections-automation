@@ -4,7 +4,7 @@ db2_wizards_package_name:       "{{ connections_wizards_package_name }}"
 
 __cnx_fixes_version:            "{{ cnx_fixes_version }}"
 __cnx_db_updates_url:           "{{ cnx_db_updates_url }}"
-__cnx_db_update_file:          "{{ cnx_db_update_file | default('65cr1-database-updates.zip') }}"
+__cnx_db_update_file:           "{{ cnx_db_update_file | default('65cr1-database-updates.zip') }}"
 
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
 __db_version:                   "{{ db_version | default('7.0') }}"
@@ -18,7 +18,9 @@ __docs_package_name:            "{{ cnx_docs_package_name | default('IBMConnecti
 __docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
 __docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"
 
-__db2_installation_folder:      "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+__install_latest_db2:           "{{ install_latest_db2 | default(false) }}"
+__db2_default_install_path:     "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
+__db2_installation_folder:      "{{ db2_installation_folder | default(__db2_default_install_path) }}"
 __db2_user:                     "{{ db2_user | default('db2inst1') }}"
 __db2_migration_cmd:            "{{ __db2_installation_folder }}/bin/db2 -td@ -vf"
 __db2_icec_migration_cmd:       "{{ __db2_installation_folder }}/bin/db2 -tvf"
@@ -48,7 +50,7 @@ __ora_docs_success_file:        "{{ __dbw_oracle_base }}/docs.migration.success"
 __oracle_migration_cmd:         "{{ __dbw_oracle_home }}/bin/sqlplus SYS/{{ __dbw_oracle_password }} as SYSDBA @"
 
 __sql_data_folder:              "{{ sql_data_folder | default('/var/opt/mssql/data') }}"
-__sql_sa_password:              "{{ sql_sa_password | default('Pa55w0rd') }}"
+__sql_sa_password:              "{{ mssql_sa_password | default('Pa55w0rd') }}"
 
 __sql_user_name:                "{{ db_username | default('LCUSER') }}"
 __sql_user_password:            "{{ db_password | default('Pa55w0rd') }}"

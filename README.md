@@ -181,7 +181,7 @@ Inventory files live in environments folder. To keep things simple, there are tw
 * inventory.ini which has all FQDNs of the hosts in different groups
 * group_vars/all.yml with the variables you can customize.
 
-We strongly recommend using the current model for handling variables. However, if you still want to stick with the old model, the only thing you need to add is cnx_was_servers group to your old connections inventory file. Otherwise, it is backwards compatible. 
+We strongly recommend using the current model for handling variables. However, if you still want to stick with the old model, the only thing you need to add is cnx_was_servers group to your old connections inventory file. Otherwise, it is backwards compatible.
 
 ### SSH User
 
@@ -420,10 +420,9 @@ cnx_message_store: "/nfs/data/messageStores"
 To install iFix for HCL Connections 7 (version 7.0.0.1) on already installed HCL Connections 7, edit your connections inventory file, and append these two lines:
 
 ```
-ifix_apar:                                       LO100079
-ifix_file:                                       LO100079-IC7.0.0.0-Common-Fix.jar
-cnx_ifix_installer:                              "updateInstaller_2102.zip"
-ifix_file:                                       HCL_Connections_70_Update.jar
+ifix_apar:                                       CFix.70.2110
+ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
+cnx_ifix_installer:                              "updateInstaller_2104.zip"
 ```
 
 After it, run the iFix installation:
@@ -482,7 +481,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 
 ### Setting up Haproxy
 
-Haproxy is used as an example load balancer. To ensure it is not trying to bind to the same ports as Nginx, by default, it is going to use non standard ports (81 and 444). 
+Haproxy is used as an example load balancer. To ensure it is not trying to bind to the same ports as Nginx, by default, it is going to use non standard ports (81 and 444).
 
 If you want to change the default ports (81 and 444) edit your all.yml and set up those two variables to different values:
 
@@ -587,10 +586,6 @@ For HCL Connections Docs itself it means:
 
 ## Requirements:
 * HCL Connections has been installed using the Ansible script describe above.
-* If HCL Connections was installed with `nfs_docs_setup=false` in the inventory file, set it to `nfs_docs_setup=true` then run the `setup-nfs.yml` playbook again to setup HCL Docs and Viewer data NFS shares:
-```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nfs.yml
-```
 
 ### Have files ready for download
 * See [Have files ready for download](https://github.com/HCL-TECH-SOFTWARE/connections-automation#have-files-ready-for-download) above.
@@ -607,6 +602,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/s
 * If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [documentation](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/text/functional_verification_of_installation.html) to check if the HCL Docs and File Viewer extensions are installed and active within HCL Connections. If the modules are not listed, on the HCL Connections server, go to `{{cnx_data_path_on_cnx_server}}` based on the inventory file, then go to `/provision/webresources` in that location to make sure the jars are there. Also, go to the WAS admin console to make sure `HCLDocsProxyCluster` Proxy server cluster is running.
 * If you wish to re-install a HCL Connections Docs component, first cd to `/opt/HCL/<component>/installer` (`/opt/HCL/<component>/extension/installer` for Docs or Viewer extension) then run `sudo ./uninstall.sh` (`sudo ./uninstall_node.sh on subsequent nodes if exist`, ) to uninstall the component.  Delete the .success file in `/opt/HCL/<component>/` then run the playbook again.  It is recommended to comment out the prior steps in the playbook to save time.
 * If you run into a problem while running a playbook, examine the output to determine the specific command that is failing.  It is often best to try to manually run this command and to troubleshoot the specific problem before trying to run the playbook again. Based on this investigation, you'll either resolve the problem that prevented the step from completing, or you will have successfully run the command manually.  You can then run the playbook again and it will either complete the step or skip the step if no further work is needed.
+
 ## Acknowledgments
 
 This project was inspired by the [Ansible WebSphere/Connections 6.0 automation done by Enio Basso](https://github.com/ebasso/ansible-ibm-websphere). It is done in a way that it can interoperate with the mentioned project or parts of it.

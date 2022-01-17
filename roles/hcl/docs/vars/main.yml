@@ -24,7 +24,10 @@ __profile_name:                      "{{ was_profile_name | default('AppSrv01') 
 __was_cellname:                      "{{ was_cellname | default('ConnectionsCell') }}"
 #
 __cnx_deploy_type:                   "{{ cnx_deploy_type | default('small') }}"
-__db2_installation_folder:           "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+
+__install_latest_db2:                "{{ install_latest_db2 | default(false) }}"
+__db2_default_install_path:          "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
+__db2_installation_folder:           "{{ db2_installation_folder | default(__db2_default_install_path) }}"
 __db_concord_username:               "{{ db_concord_username | default('DOCSUSER') }}"
 #
 __firstNfsNode:                      "{{ '' if (groups['nfs_servers'] is not defined) else (hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address']) }}"
@@ -75,7 +78,8 @@ __db_name_prop_value:                     "{{ __db_name }}"
 __db_port_default:                        "{{ db_port | default('50000') }}"
 __db_port_r:                              "{{ __db_port_default }}"
 
-__db_docs_jdbc_file:                      "{{ db_docs_jdbc_file | default( db_jdbc_file ) }}"
+__db2_default_docs_jdbc_file:             "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+__db_docs_jdbc_file:                      "{{ db_docs_jdbc_file | default( __db2_default_docs_jdbc_file ) }}"
 __db_jdbc_driver_path_r:                  "{{ __db_docs_jdbc_file }}"
 __conversion_url_r:                       "https://{{ docs_url }}/conversion"
 __integrate_with_lc_r:                    "true"
