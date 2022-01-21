@@ -83,9 +83,28 @@
     - ansible_distribution_major_version == "8"
     - python_installed.failed
 
-- name:                  Set python2 as default for RHEL 8
-  command:               alternatives --set python /usr/bin/python2
-  become:                true
+- name:                  Get default python version on RHEL 8
+  command:               python --version
+  register:              python_default_version
+  ignore_errors:         true
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
+
+- name:                  Print current default python version on RHEL 8
+  debug:                 var=python_default_version
+
+- name:                  Set python2 as default for RHEL 8
+  command:               alternatives --set python /usr/bin/python2
+  become:                true
+  register:              python2_alternatives_set
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+    - (python_default_version is defined) and (python_default_version is not search("Python 2"))
+
+- name:                  Create python2_alternatives_set.success file
+  file:
+    path:                "{{ __hcl_program_folder }}/python2_alternatives_set.success"
+    state:               touch
+  when:                  python2_alternatives_set is changed
