@@ -1,2 +1,0 @@
-__customizer_js_files_mount:                "{{ customizer_js_files_mount | default('/mnt/customizations') }}"
-__nfs_master_files_mount:                   "{{ nfs_master_files_mount | default('/mnt/pv-connections') }}"

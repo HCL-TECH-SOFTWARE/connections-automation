@@ -1,2 +1,0 @@
-__cnx_shared_area:           "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
-__cnx_install_base_dir:      "{{ cnx_install_base_dir  | default('/opt/HCL/') }}"

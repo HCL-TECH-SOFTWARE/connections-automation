@@ -1,4 +1,0 @@
----
-__viewer_data_local_path:      "{{ viewer_data_local_path | default('/mnt/viewer_data') }}"
-__docs_data_local_path:        "{{ docs_data_local_path | default('/mnt/docs_data') }}"
-__cnx_data_local_path:         "{{ cnx_data_local_path | default('/mnt/cnx_data') }}"

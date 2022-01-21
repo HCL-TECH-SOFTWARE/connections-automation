@@ -44,6 +44,10 @@ cnx_docs_download_location:                      http://{{ groups['installer'][0
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 
+# Use SDI JRE8
+upgrade_tdi_jre:                                 true
+tdi_sol_location:                                http://{{ groups['installer'][0] }}:8001/Connections7/tdisol_70_java8.tar
+
 cnx_updates_enabled:                             True
 
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
@@ -81,12 +85,13 @@ cnx_force_repopulation:                          True
 
 cnx_enable_moderation:                           true
 cnx_enable_invite:                               true
+cnx_enable_full_icec:                            true
 
 enable_prometheus_jmx_exporter:                  True
 
-ifix_apar:                                       LO100079
-cnx_ifix_installer:                              "updateInstaller_2102.zip"
-ifix_file:                                       HCL_Connections_70_Update.jar
+ifix_apar:                                       CFix.70.2110
+cnx_ifix_installer:                              "updateInstaller_2104.zip"
+ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
 
 setup_docker_registry:                           true
 component_pack_package_name:                     hybridcloud_latest.zip
