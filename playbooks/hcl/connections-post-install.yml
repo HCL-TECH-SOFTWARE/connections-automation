@@ -11,19 +11,43 @@
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
 
+- name:                    Update WAS SSL configurations to TLSv1.2
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-update-ssl-config
+
+- name:                    Change SSL protocol to TLSv1.2 in WAS ssl.client.props
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-set-ssl-client-tls
+
+- name:                    Set JVM arguments for application servers to override default to TLS v1.2
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-set-jvm-args
+
+- name:                    Set Session management to secure session cookies
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-set-session-mgmt-cookies
+  vars:
+    __restrict_cookies:   "true"
+
 - name:                    Restart DMGR
   hosts:                   dmgr
   become:                  true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-restart
 
-- name:                    Restart WAS Nodes
-  hosts:                   was_servers
-  serial:                  1
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-nodeagent-stop
-    - roles/third_party/ibm/wasnd/was-nodeagent-start
+    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
 
 - name:                    Restart CNX Clusters
   hosts:                   dmgr

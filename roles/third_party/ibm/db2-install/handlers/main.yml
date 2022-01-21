@@ -3,5 +3,5 @@
   reboot:
     msg: "Reboot initiated from Ansible"
     connect_timeout: 30
-    reboot_timeout: 120
+    reboot_timeout: 200
     test_command: whoami

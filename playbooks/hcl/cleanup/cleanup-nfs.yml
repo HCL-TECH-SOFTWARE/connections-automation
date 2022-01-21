@@ -4,19 +4,19 @@
   hosts:                   nfs_servers
   become:                  true
   roles:
-    - roles/hcl/cleanup/cleanup-nfs-data/cleanup-dmgr-data
+    - roles/hcl/cleanup/cleanup-nfs-data/unmount-dmgr-folders
 
 - name:                    Unmount NFS mounts on component pack master
   hosts:                   component_pack_master
   become:                  true
   roles:
-    - roles/hcl/cleanup/cleanup-nfs-data/cleanup-cp-data
+    - roles/hcl/cleanup/cleanup-nfs-data/unmount-cp-folders
 
 - name:                    Unmount Docs and Viewer NFS shares for Conversion, Docs and Viewer and Unmount CNX data NFS shares for Viewer
   hosts:                   docs_servers, conversion_servers, viewer_servers
   become:                  true
   roles:
-    - roles/hcl/cleanup/cleanup-nfs-data/cleanup-nfs-docs-data
+    - roles/hcl/cleanup/cleanup-nfs-data/unmount-nfs-docs-folders
 
 - name:                    Cleanup NFS data on NFS master servers
   hosts:                   nfs_servers
@@ -28,4 +28,4 @@
   hosts:                   dmgr, was_servers
   become:                  true
   roles:
-    - roles/hcl/cleanup/cleanup-nfs-data/cleanup-websphere-folders
+    - roles/hcl/cleanup/cleanup-nfs-data/unmount-websphere-folders

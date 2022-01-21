@@ -1,11 +1,13 @@
 - name:                    Unmount Docs and Viewer NFS shares for Conversion, Docs and Viewer
   include_tasks:           unmount_docs_nfs_shares.yml
+  tags:                    always
   when:
      - docs_shared_storage_type == 'nfs' or viewer_shared_storage_type == 'nfs'
      - inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["viewer_servers"]
 
 - name:                    Unmount CNX data NFS shares for Viewer
   include_tasks:           unmount_cnx_nfs_shares.yml
+  tags:                    always
   when:
     - cnx_shared_storage_type == 'nfs'
     - inventory_hostname in groups["viewer_servers"]

@@ -12,6 +12,12 @@ __tpl_file:                "was_nd_fixes.rsp.j2"
 __was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp19 ) }}"
 __was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp19 ) }}"
 
+__was_fp_version_fp20:     "8.5.5020.20210708_1826"
+__was_fp_files_fp20:
+  - { file_name: 8.5.5-WS-WAS-FP020-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP020-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP020-part3.zip }
+
 __was_fp_version_fp19:     "8.5.5019.20210118_0346"
 __was_fp_files_fp19:
   - { file_name: 8.5.5-WS-WAS-FP019-part1.zip }

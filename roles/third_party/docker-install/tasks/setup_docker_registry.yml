@@ -118,7 +118,7 @@
   when:
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
-   - "ansible_version.full is version_compare('2.9', '<=')"
+   - "ansible_version.full is version_compare('2.9.999', '<=')"
 
 - name:                             "Save Docker Registry status when ansible_version >= 2.10"
   set_fact:

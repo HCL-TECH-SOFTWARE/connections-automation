@@ -33,7 +33,6 @@
   become:                  true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-config-webserver
-    - roles/third_party/ibm/wasnd/was-dmgr-restart
 
 - name:                    Restart DMGR
   hosts:                   dmgr

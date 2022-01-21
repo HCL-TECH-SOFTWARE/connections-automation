@@ -6,12 +6,12 @@ __nfs_docs_setup:                    "{{ nfs_docs_setup | default('true') }}"
 
 __nfs_export_netmask:                "{{ nfs_export_netmask | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['netmask'] ) }}"
 
-__cnx_data_shared:                   "{{ cnx_shared_area | default('/nfs/data/shared') }}"
+__cnx_data_shared:                   "{{ cnx_shared_area_nfs | default('/nfs/data/shared') }}"
 
-__cnx_message_stores:                "{{ cnx_message_store | default('/nfs/data/messageStores') }}"
+__cnx_message_stores:                "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"
 
-__docs_data_shared:                  "{{ docs_data_shared | default('/nfs/docs_data') }}"
-__viewer_data_shared:                "{{ viewer_data_shared | default('/nfs/viewer_data') }}"
+__docs_data_shared:                  "{{ docs_data_remote_path | default('/nfs/docs_data') }}"
+__viewer_data_shared:                "{{ viewer_data_remote_path | default('/nfs/viewer_data') }}"
 
 __mongo_replicaset:                  "{{ mongo_replicaset | default('3') }}"
 __es_replicaset:                     "{{ es_replicaset | default('3') }}"

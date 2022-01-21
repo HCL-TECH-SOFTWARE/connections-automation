@@ -18,7 +18,10 @@
   __cnx_install_location:      "{{ cnx_install_location  | default('/opt/HCL/Connections') }}"
   __was_install_location:      "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
   __ihs_install_location:      "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
-  __db_installation_folder:    "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+
+  __install_latest_db2:        "{{ install_latest_db2 | default(false) }}"
+  __db2_default_install_path:  "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
+  __db_installation_folder:    "{{ db2_installation_folder | default(__db2_default_install_path) }}"
   __profile_name:              "{{ profile_name | default('Dmgr01') }}"
   __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
   __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"

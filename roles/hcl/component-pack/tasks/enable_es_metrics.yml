@@ -1,5 +1,37 @@
+- name:                       Check whether python2 is installed on RHEL 8
+  command:                    python2 --version
+  register:                   python_installed
+  ignore_errors:              true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:                      Install python2 on RHEL 8
+  yum:
+    name:                    ['python2']
+    state:                   present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+    - python_installed.failed
+
+- name:                      Set config_blue_metrics.py command
+  set_fact:
+    __config_blue_metrics_cmd_python:  "{{ __config_blue_metrics_cmd }}"
+  when:
+    - not (ansible_os_family == "RedHat" and ansible_distribution_major_version == "8")
+
+- name:                      Set config_blue_metrics.py command for RHEL8
+  set_fact:
+    __config_blue_metrics_cmd_python:  "/usr/bin/python2 {{ __config_blue_metrics_cmd }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- debug:                     var=__config_blue_metrics_cmd_python
+
 - name:                      Run {{ __config_blue_metrics_cmd }}
-  command:                   "{{ __config_blue_metrics_cmd }}"
+  command:                   "{{ __config_blue_metrics_cmd_python }}"
   become:                    false
   register:                  configured_blue_metrics
   ignore_errors:             true
@@ -137,7 +169,9 @@
   register:                 es_certs_enabled
   changed_when:             es_certs_enabled.rc == 0
   delegate_to:              "{{ dmgr_hostname }}"
-  ignore_errors:             yes
+  ignore_errors:            yes
+  retries:                  3
+  delay:                    10
 
 - name:                     Remove {{ __es_certs_dir }}/es_certs/ca-chain.pem on {{ dmgr_hostname }}
   file:
@@ -244,7 +278,7 @@
   ignore_errors:             yes
 
 - name:                      Run {{ __config_blue_metrics_cmd }}
-  command:                   "{{ __config_blue_metrics_cmd }}"
+  command:                   "{{ __config_blue_metrics_cmd_python }}"
   become:                    false
   register:                  configured_blue_metrics_repeat
   retries:                   10
@@ -253,4 +287,3 @@
   ignore_errors:             true
 
 - debug:                     var=configured_blue_metrics_repeat.stdout_lines
-  

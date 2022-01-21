@@ -16,3 +16,13 @@ then run this playbook:
 ```
 ansible-playbook -i environments/examples/cnx7/connections playbooks/hcl/connections-restrict-access.yml
 ```
+
+## Set global moderator
+This playbook is useful to set global moderator after installation.  Add the following var to the inventory, assign it to the target user
+```
+global_moderator:  jjones2
+```
+then run this playbook:
+```
+ansible-playbook -i environments/examples/cnx7/connections playbooks/hcl/connections-set-global-moderator.yml
+```

@@ -1,0 +1,13 @@
+---
+# To set app J2EE roles to All Authenticated in Application's Realm, set restrict_reader_access: true in inventory
+# To set app J2EE roles to All Authenticated in Trusted Realms (i.e. OIDC), set restrict_reader_access__trusted_realms: true in inventory
+
+- name:                    Gather facts
+  hosts:                   dmgr
+  tasks:                   []
+
+- name:                    Restrict application access to All Authenticated
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/set_all_auth_role

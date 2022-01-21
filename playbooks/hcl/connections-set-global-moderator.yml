@@ -1,0 +1,10 @@
+---
+- name:                    Gather facts
+  hosts:                   dmgr
+  tasks:                   []
+
+- name:                    Set global-moderator role
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/set_cnx_global_moderator

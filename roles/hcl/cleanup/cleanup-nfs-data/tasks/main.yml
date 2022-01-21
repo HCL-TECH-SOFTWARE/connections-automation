@@ -1,4 +1,4 @@
-- name:                    Cleanup NFS master data
+- name:                    Cleanup NFS master data for ihs and websphere
   file:
     path:                  "{{ item }}"
     state:                 absent
@@ -6,8 +6,37 @@
   with_items:
    - "{{ __cnx_message_store_nfs }}"
    - "{{ __cnx_shared_area_nfs }}"
+  tags:
+    - ihs_cleanup
+    - was_cleanup
+  when:
+   - __force_destroy_ihs == true or __force_destroy_websphere == true
+   - inventory_hostname == groups['nfs_servers'][0]
+   - __preserve_nfs_data|bool == false
+
+- name:                    Cleanup NFS master data for component pack
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  ignore_errors:           true
+  with_items:
    - "{{ __nfs_master_source }}"
-   - "{{ __viewer_data_remote_path }}"
-   - "{{ __docs_data_remote_path }}"
+  tags:                    k8s_cleanup
   when:
    - inventory_hostname == groups['nfs_servers'][0]
+   - __force_destroy_kubernetes == true
+   - __preserve_nfs_data|bool == false
+
+- name:                    Cleanup NFS master data for docs
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  ignore_errors:           true
+  with_items:
+   - "{{ __viewer_data_remote_path }}"
+   - "{{ __docs_data_remote_path }}"
+  tags:                    docs_cleanup
+  when:
+   - inventory_hostname == groups['nfs_servers'][0]
+   - __force_destroy_docs == true
+   - __preserve_nfs_data|bool == false

@@ -35,6 +35,7 @@
     xpath:           "{{ __lcc_languageselector_xpath }}"
     attribute:       enabled
     value:           "true"
+  when:              __cnx_enable_lang_selector|bool
 
 - name: Update Languages in LotusConnections-config for {{ __profile_name }}
   xml:
@@ -63,3 +64,4 @@
     - { lang: 'ca', value: 'Catal\u00e0' }
     - { lang: 'ja', value: '\u65e5\u672c\u8a9e' }
     - { lang: 'th', value: '\u0e44\u0e17\u0e22' }
+  when:              __cnx_enable_lang_selector|bool

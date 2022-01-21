@@ -50,8 +50,21 @@
     - __cnx_major_version == '7'
 
 # repeat this step from enable_es_metrics.yml because it gets 404 sometimes
+- name:                      Set config_blue_metrics.py command
+  set_fact:
+    __config_blue_metrics_cmd_python:  "{{ __config_blue_metrics_cmd }}"
+  when:
+    - not (ansible_os_family == "RedHat" and ansible_distribution_major_version == "8")
+
+- name:                      Set config_blue_metrics.py command for RHEL8
+  set_fact:
+    __config_blue_metrics_cmd_python:  "/usr/bin/python2 {{ __config_blue_metrics_cmd }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
 - name:                      Run {{ __config_blue_metrics_cmd }}
-  shell:                     "{{ __config_blue_metrics_cmd }}"
+  shell:                     "{{ __config_blue_metrics_cmd_python }}"
   become:                    false
   register:                  configured_blue_metrics
   ignore_errors:             true

@@ -968,8 +968,8 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 
 # proxy rules for outlook plugin
 Redirect "/outlook-addin" "/outlook-addin/"
-ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
-ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
+ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 
 #keycloak
 Redirect "/auth" "/auth/"
@@ -1048,8 +1048,8 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 
 # proxy rules for outlook plugin
 Redirect "/outlook-addin" "/outlook-addin/"
-ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
-ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
+ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 
 <Location /auth >
    RequestHeader set X-Forwarded-Proto "https"
@@ -1057,6 +1057,8 @@ ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:31810/"
 
 ProxyPass "/auth/" "https://localhost:10443/auth/"
 ProxyPassReverse "/auth/" "https://localhost:10443/auth/"
+
+SSLProtocolDisable SSLv2 SSLv3 TLSv10 TLSv11
 
 </VirtualHost>
 </IfModule>

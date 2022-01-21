@@ -26,3 +26,7 @@ __was_java_version_check: "Installed com.ibm.websphere.IBMJAVA.v80_{{ __was_java
 
 __iim_keep_fetched_files: "{{ iim_keep_fetched_files | default(false) }}"
 __iim_preserve_artifacts: "{{ iim_preserve_artifacts | default(false) }}"
+
+__was_fixes_version:       "{{ was_fp_version | default( __was_fp_version_latest ) }}"
+__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp19 ) }}"
+__was_fp_version_fp19:     "8.5.5019.20210118_0346"

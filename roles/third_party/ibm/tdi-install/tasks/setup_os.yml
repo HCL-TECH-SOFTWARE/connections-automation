@@ -5,3 +5,11 @@
     disable_gpg_check:   yes
   when:
     - ansible_os_family == "RedHat"
+
+- name:              Install libnsl on CentOS8/RHEL8
+  yum:
+    name:            libnsl
+    state:           present
+  when:
+    - ansible_distribution == "RedHat" or ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "8"
