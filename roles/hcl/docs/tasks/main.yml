@@ -75,8 +75,7 @@
   include_tasks:           propagate_plugin.yml
   when:                    inventory_hostname in groups["ihs_servers"]
 
-
-- name:                    Cleanup Install Binaries directory
-  file:
-    state:                 absent
-    path:                  "{{ __extraction_folder }}"
+- name:                    Cleanup environments
+  include_tasks:           cleanup_env.yml
+  when:
+   - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname in groups["proxy_servers"][0]) or inventory_hostname in groups["cnx_was_servers"][0]
