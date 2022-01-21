@@ -95,7 +95,7 @@
 - name:                    Kill all WebSphere/Connections processes
   shell:                   ps -ef | grep java | awk {'print $2'} | xargs kill -9
   ignore_errors:           true
-  tags: was_cleanup
+  tags:                    was_cleanup
   when:
    - __force_destroy_websphere == true
 
@@ -103,7 +103,7 @@
   file:
     path:                  "{{ item }}"
     state:                 absent
-  tags: was_cleanup
+  tags:                    was_cleanup
   ignore_errors:           true
   when:
    - __force_destroy_websphere == true

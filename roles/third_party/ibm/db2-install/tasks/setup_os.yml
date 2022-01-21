@@ -69,6 +69,14 @@
     - ansible_os_family == "RedHat"
     - (ansible_distribution == "RedHat"or ansible_distribution == "CentOS"or ansible_distribution == "Amazon")
 
+- name:              Install pre-requisites Yum for RHEL 8
+  yum:
+    name:            ['patch', 'make', 'gcc-c++']
+    state:           present
+  when:
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version == "8"
+
 - name:              Disable SELinux
   selinux:
     state:           disabled

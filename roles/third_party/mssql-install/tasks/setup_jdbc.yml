@@ -10,7 +10,7 @@
     dest:                "{{ __jdbc_installation_folder }}"
     remote_src:          yes
 
-- name:                  Download and unzip legacy drivers to the {{ __jdbc_installation_folder }}
+- name:                  Download and unzip legacy drivers to the {{ __jdbc_installation_folder }} for TDI JRE 7
   unarchive:
     src:                 "{{ __download_location }}/{{ item }}"
     dest:                "{{ __jdbc_installation_folder }}"
@@ -19,4 +19,4 @@
     - "{{ __package_name_legacy }}"
 #    - "{{ __package_name_legacy_40 }}"
   when:
-    - __mssql_setup_tdi_drivers |bool
+    - __mssql_setup_tdi_drivers |bool and not __upgrade_tdi_jre|bool

@@ -58,7 +58,7 @@
     - __cnx_force_repopulation |bool
   ignore_errors:         yes
 
-- name:                  Dropping Connections Databases
+- name:                  Drop Connections Databases
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   become_user:           "{{ __db2_user }}"
   environment:
@@ -88,7 +88,7 @@
   ignore_errors:         yes
 
 
-- name:                  Dropping IC360 database
+- name:                  Drop IC360 database
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   become_user:           "{{ __db2_user }}"
   environment:
@@ -107,7 +107,7 @@
     - __db_version == '7.0'
   ignore_errors:         yes
 
-- name:                  Clenaup ICEC database only
+- name:                  Drop ICEC database only
   shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   register:              icec_cleanup_result
   failed_when:           ( icec_cleanup_result.rc not in [0] )
@@ -143,7 +143,7 @@
     path:                "{{ __success_file }}"
   register:              migrations_already_done
 
-- name:                  Creating Connections databases (except ICEC database)
+- name:                  Creating Connections databases (except ICEC)
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   register:              all_migrations_result
   failed_when:           ( all_migrations_result.rc not in [0, 1, 2, 3] )
@@ -221,7 +221,7 @@
     path:                "{{ __ic360_success_file }}"
   register:              ic360_migrations_already_done
 
-- name:                  Run migrations for IC360
+- name:                  Creating Connections database for IC360
   shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   register:              ic360_migration_result
   failed_when:           ( ic360_migration_result.rc not in [0, 1, 2, 3] )
@@ -242,7 +242,7 @@
     - not ic360_migrations_already_done.stat.exists
     - __db_version == '7.0'
 
-- name:                  Run migrations for ICEC only
+- name:                  Creating Connections database for ICEC
   shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   register:              icec_migrations_result
   failed_when:           ( icec_migrations_result.rc not in [0] )

@@ -25,7 +25,7 @@ For this example, we will use only four machines described above for all the wor
 [web.internal.example.com]$ hostname
 web.internal.example.com
 [web.internal.example.com]$ hostname -f
-web
+web.internal.example.com
 [web.internal.example.com]$ hostname -s
 web
 ```
@@ -34,7 +34,7 @@ web
 [connections.internal.example.com]$ hostname
 connections.internal.example.com
 [connections.internal.example.com]$ hostname -f
-connections
+connections.internal.example.com
 [connections.internal.example.com]$ hostname -s
 connections
 ```
@@ -43,7 +43,7 @@ connections
 [cp.internal.example.com]$ hostname
 cp.internal.example.com
 [cp.internal.example.com]$ hostname -f
-cp
+cp.internal.example.com
 [cp.internal.example.com]$ hostname -s
 cp
 ```

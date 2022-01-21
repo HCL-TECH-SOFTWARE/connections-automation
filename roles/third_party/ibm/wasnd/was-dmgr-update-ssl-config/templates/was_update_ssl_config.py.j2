@@ -1,0 +1,10 @@
+# Updates SSL configurations to only allow TLS 1.2 for secure protocol
+
+sslConfigList=AdminTask.listSSLConfigs('[-all true]').splitlines()
+for sslConfig in sslConfigList:
+  sslElems=sslConfig.split(" ")
+  AdminTask.modifySSLConfig(['-alias',sslElems[1],'-scopeName',sslElems[3],'-sslProtocol', 'TLSv1.2', '-securityLevel', 'HIGH' ])
+
+#Save and Synchronise
+AdminConfig.save()
+AdminNodeManagement.syncActiveNodes()

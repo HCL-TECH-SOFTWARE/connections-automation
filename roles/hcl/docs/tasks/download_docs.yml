@@ -64,3 +64,28 @@
     __app_name:          ViewerCnxExtension
     __zip_prefix:        ViewerLCCustomizeApp
   when:                  inventory_hostname in groups["cnx_was_servers"]
+
+# Docs install scripts require python2
+- name:                  Check whether python2 is installed on RHEL 8
+  command:               python2 --version
+  register:              python_installed
+  ignore_errors:         true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:                  Install python2 on RHEL 8
+  yum:
+    name:                ['python2']
+    state:               present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+    - python_installed.failed
+
+- name:                  Set python2 as default for RHEL 8
+  command:               alternatives --set python /usr/bin/python2
+  become:                true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"

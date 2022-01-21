@@ -69,7 +69,7 @@ db_username:                                     LCUSER
 db_concord_username:                             docsuser
 db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
 db_port:                                         50000
-db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
+#db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
 db_docs_jdbc_file:                               "{{ db_jdbc_file }}"
 db_type:                                         DB2
 setup_db2_jdbc:                                  True

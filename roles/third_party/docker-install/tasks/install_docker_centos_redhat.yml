@@ -12,13 +12,23 @@
     url:                    https://download.docker.com/linux/centos/docker-ce.repo
     dest:                   /etc/yum.repos.d/docker-ce.repo
 
-- name:                     Replace baseurl on RedHat
+- name:                     Replace baseurl on RedHat 7
   replace:
     path:                   /etc/yum.repos.d/docker-ce.repo
     regexp:                 '^baseurl.*$'
     replace:                'baseurl=https://download.docker.com/linux/centos/7/x86_64/stable'
   when:
     - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "7"
+
+- name:                     Replace baseurl on RedHat 8
+  replace:
+    path:                   /etc/yum.repos.d/docker-ce.repo
+    regexp:                 '^baseurl.*$'
+    replace:                'baseurl=https://download.docker.com/linux/centos/8/x86_64/stable'
+  when:
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version == "8"
 
 - name:                     Enable Docker stable repo
   ini_file:

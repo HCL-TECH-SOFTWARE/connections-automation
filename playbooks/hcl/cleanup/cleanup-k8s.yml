@@ -1,11 +1,34 @@
 # Cleanup
 ---
-- name:                    Gather facts
-  hosts:                   nfs_servers
-  tasks:                   []
+- name:                        Gather facts
+  hosts:                       nfs_servers
+  tasks:                       []
 
-- name:                    Cleanup Kubernetes
-  hosts:                   k8s_masters, k8s_workers
-  become:                  true
+- name:                        Cleanup Kubernetes
+  hosts:                       k8s_masters, k8s_workers
+  become:                      true
+  vars:
+    force_destroy_websphere:   false
+    force_destroy_db2:         false
+    force_destroy_ihs:         false
+    force_destroy_oracle:      false
   roles:
     - roles/hcl/cleanup
+
+- name:                        Unmount NFS mounts on component pack master
+  hosts:                       component_pack_master
+  become:                      true
+  roles:
+    - roles/hcl/cleanup/cleanup-nfs-data/unmount-cp-folders
+
+- name:                        Cleanup NFS data on NFS master servers from component pack master
+  hosts:                       nfs_servers
+  become:                      true
+  vars:
+    force_destroy_websphere:   false
+    force_destroy_db2:         false
+    force_destroy_ihs:         false
+    force_destroy_oracle:      false
+    force_destroy_docs:        false
+  roles:
+    - roles/hcl/cleanup/cleanup-nfs-data

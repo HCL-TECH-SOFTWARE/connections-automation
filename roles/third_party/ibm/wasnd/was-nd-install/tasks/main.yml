@@ -1,4 +1,7 @@
 ---
+- name:          Setup Operating System
+  include_tasks: setup_os.yml
+
 - name:          Check Vars
   include_tasks: check_vars.yml
 

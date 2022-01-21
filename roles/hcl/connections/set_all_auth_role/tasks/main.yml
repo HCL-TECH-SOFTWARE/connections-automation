@@ -11,7 +11,7 @@
 
 - debug: var=__allauth_trusted_value
 
-- name:                      Update applications J2EE reader role to All Authenticated (Activities, Blogs, Dogear, Homepage, Search)
+- name:                      Update applications J2EE reader role to All Authenticated (Blogs, Dogear, Homepage, Search)
   include_role:
     name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
@@ -22,11 +22,25 @@
       - { __role: "everyone", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "metrics-reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
   with_items:
-    - Activities
     - Blogs
     - Dogear
     - Homepage
     - Search
+  when:
+    restrict_reader_access is defined and restrict_reader_access|bool or
+    restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
+
+- name:                      Update applications J2EE reader role to All Authenticated (Activities)
+  include_role:
+    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:                   "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+      - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+      - { __role: "metrics-reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+  with_items:
+    - Activities
   when:
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool

@@ -1,16 +1,23 @@
 ---
 __setup_db2_jdbc:              "{{ setup_db2_jdbc | default(false) }}"
 
+__install_latest_db2:          "{{ install_latest_db2 | default(false) }}"
+__default_package_name:        "{{ 'v11.5.6_linuxx64_universal_fixpack.tar.gz' if __install_latest_db2 else 'v11.1.4fp5_linuxx64_universal_fixpack.tar.gz' }}"
+__default_license_file:        "{{ 'DB2_ESE_AUSI_Activation_11.5.zip' if __install_latest_db2 else 'CNB23ML.zip' }}"
+__db2_default_install_path:    "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
+__default_jdbc_install_folder: "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+__default_jdbc_package_name:   "{{ 'v11.5.6_jdbc_sqlj.tar.gz' if __install_latest_db2 else 'v11.1.4fp5_jdbc_sqlj.tar.gz' }}"
+
 __download_location:           "{{ db2_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/DB2') }}"
-__package_name:                "{{ db2_package_name | default('v11.1.4fp5_linuxx64_universal_fixpack.tar.gz') }}"
-__license_file:                "{{ db2_license_file | default('CNB23ML.zip') }}"
+__package_name:                "{{ db2_package_name | default(__default_package_name) }}"
+__license_file:                "{{ db2_license_file | default(__default_license_file) }}"
 
 __extraction_folder:           "/opt/IBM/InstallBinaries"
 __installation_folder:         "{{ __extraction_folder }}/universal"
 
 __license_location:            "{{ __extraction_folder }}/ese_u/db2/license/db2ese_u.lic"
 
-__db2_installation_folder:     "{{ db2_installation_folder | default('/opt/IBM/db2/V11.1') }}"
+__db2_installation_folder:     "{{ db2_installation_folder | default(__db2_default_install_path) }}"
 __db2_instance:                "{{ db2_instance | default('inst1') }}"
 __db2_instance_type:           "{{ db2_instance_type | default('ese') }}"
 __db2_user:                    "{{ db2_user | default('db2inst1') }}"
@@ -29,8 +36,8 @@ __db2_instance_fenced_homedir: "{{ db2_instance_fenced_homedir | default('/home/
 __db2_instance_default_lang:   "{{ db2_instance_default_lang | default('EN') }}"
 __db2_instance_heap_size:      "{{ db2_instance_heap_size | default('4096') }}"
 
-__jdbc_installation_folder:    "{{ db_jdbc_file | default('/opt/IBM/db2/V11.1/java') }}"
-__jdbc_package_name:           "{{ db2_jdbc_package_name | default('v11.1.4fp5_jdbc_sqlj.tar.gz') }}"
+__jdbc_installation_folder:    "{{ db_jdbc_file | default(__default_jdbc_install_folder) }}"
+__jdbc_package_name:           "{{ db2_jdbc_package_name | default(__default_jdbc_package_name) }}"
 __jdbc_bin_package_name:       "{{ db2_jdbc_bin_package_name | default('db2_db2driver_for_jdbc_sqlj.zip') }}"
 
 __db2_server_rsp_template:     "db2server.rsp.j2"

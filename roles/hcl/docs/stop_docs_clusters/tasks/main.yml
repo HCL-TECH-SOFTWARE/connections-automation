@@ -18,11 +18,13 @@
     name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
   vars:
     __cluster_name:        "{{ __editor_cluster_name }}"
+  when:
+    - __editor_cluster_name != __viewer_cluster_name
 
 - name:                     Stop Conversion Server Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
   vars:
     __cluster_name:        "{{ __conversion_cluster_name }}"
-
-
+  when:
+    - __conversion_cluster_name != __viewer_cluster_name

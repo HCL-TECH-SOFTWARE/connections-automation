@@ -1,7 +1,12 @@
 # Cleanup
 ---
-- name:                    Cleanup DB2
-  hosts:                   db2_servers
-  become:                  true
+- name:                        Cleanup DB2
+  hosts:                       db2_servers
+  become:                      true
+  vars:
+    force_destroy_websphere:   false
+    force_destroy_kubernetes:  false
+    force_destroy_ihs:         false
+    force_destroy_oracle:      false
   roles:
     - roles/hcl/cleanup

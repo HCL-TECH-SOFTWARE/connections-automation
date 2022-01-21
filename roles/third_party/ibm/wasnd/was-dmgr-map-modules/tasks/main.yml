@@ -18,6 +18,7 @@
   command:
     chdir={{ __bin_dir }}
     {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_file }}
-  register:             cout
-  changed_when:         cout.rc == 0
-
+  retries: 3
+  delay: 3
+  register: cout
+  until: cout.rc == 0

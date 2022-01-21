@@ -1,5 +1,12 @@
-# Start of File
+import time
+import copy
+
+# Define False, True
+(False,True)=(0,1)
+
 cellName=AdminControl.getCell()
+startingClusters = []
+
 for clusterName in sys.argv :
 
 	##############################################################################
@@ -21,9 +28,61 @@ for clusterName in sys.argv :
 		continue
 
 	##############################################################################
-	# Stop cluster.
+	# Start cluster.
 	#############################################################################
-	print "Starting cluster " + cluster
-	AdminControl.invoke(cluster, 'start')
-	print "finish."
+	state = AdminControl.getAttribute( cluster, 'state' )
+	if state != 'websphere.cluster.partial.start' and state != 'websphere.cluster.running':
+		print "Starting cluster " + cluster
+		AdminControl.invoke(cluster, 'start')
+		startingClusters.append(clusterName)
+
+
+
+##############################################################################
+# Check Status
+#############################################################################
+# Wait 3 mins (default) for it to start
+
+allStarted = False
+timeStarted = time.time()
+timeout=60*{{ __was_cluster_wait_status_timeout | int }}
+accept_partial_start={{ __accept_was_cluster_partial_start|bool }}
+print "Mins to wait: %s" % ({{ __was_cluster_wait_status_timeout}})
+
+while time.time() < (timeStarted + timeout) and not allStarted:
+	time.sleep(2)
+	allStarted = True;
+	allChecked = False;
+	checkClusters = copy.deepcopy(startingClusters)
+
+	print ""
+	print "Wait for %s to start" % (checkClusters)
+	for clusterName in checkClusters:
+		cluster = AdminControl.completeObjectName('cell='+cellName+',type=Cluster,name='+clusterName+',*')
+		state = AdminControl.getAttribute( cluster, 'state' )
+		print "State of %s: %s" % ( clusterName, state )
+
+		if accept_partial_start:
+			if state != 'websphere.cluster.partial.start' and state != 'websphere.cluster.running':
+				allStarted = False
+			else:
+				startingClusters.remove(clusterName)
+		elif state != 'websphere.cluster.running':
+			allStarted = False
+		else:
+			startingClusters.remove(clusterName)
+
+		# timeout anyway if taking too long to finish a round of checking status
+		if time.time() > (timeStarted + timeout):
+			break
+
+	# successfully finished a full round of checking
+	allChecked = True
+
+print ""
+if allStarted and allChecked:
+	print "Clusters started"
+else:
+	print "Timeout waiting for cluster(s) to start"
+
 # End of File

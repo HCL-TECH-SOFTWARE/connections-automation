@@ -16,7 +16,7 @@
 
 - debug: var=helm_ver.stdout
 
-- set_fact: 
+- set_fact:
     helm_vers={{ helm_ver.stdout }}
 
 - name:              Check if tiller is already initialized
@@ -50,9 +50,16 @@
   when:
     - (helm_version.stdout == "v2" ) and (helm_ver.stdout != "2.17.0")
   become:            false
+  register:          set_tiller_image
+  retries:           10
+  delay:             2
+  until:             set_tiller_image.stdout|lower is search("tiller-deploy image updated")
+  ignore_errors:     true
 
 - name:              Wait for tiller pod to be ready
-  shell:             kubectl wait --for=condition=ready pod -l name=tiller -n kube-system --timeout=600s
+  shell:             kubectl wait --for=condition=ready pod -l name=tiller -n kube-system --timeout=60s
+  register:          wait
+  failed_when:       wait.stdout|lower is not search("condition met")
   when:
     - (helm_version.stdout == "v2")
   become:            false
