@@ -1,0 +1,16 @@
+---
+- name:                 "Change SSL protocol to TLSv1.2 in Dmgr {{ __was_install_location }}/profiles/{{ __profile_name }}/properties/ssl.client.props"
+  replace:
+    path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}/properties/ssl.client.props"
+    regexp:             "^(?!#)com.ibm.ssl.protocol=(.*)$"
+    replace:            "com.ibm.ssl.protocol=TLSv1.2"
+    backup:             yes
+
+- name:                 "Change SSL protocol to TLSv1.2 in node {{ __was_install_location }}/profiles/{{ __app_profile_name }}/properties/ssl.client.props"
+  replace:
+    path:               "{{ __was_install_location }}/profiles/{{ __app_profile_name }}/properties/ssl.client.props"
+    regexp:             "^(?!#)com.ibm.ssl.protocol=(.*)$"
+    replace:            "com.ibm.ssl.protocol=TLSv1.2"
+    backup:             yes
+  delegate_to:          "{{ item }}"
+  with_items:           "{{ groups['was_servers'] }}"

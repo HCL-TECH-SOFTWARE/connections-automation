@@ -5,10 +5,18 @@
     state:                   unmounted
     path:                    "{{ __docs_data_local_path }}"
   ignore_errors:             true
+  tags:                      always
   register: result
   retries: 3
   delay: 15
   until: result is not failed
+
+- name:                      "Run command 'umount -lf {{ __docs_data_local_path }}' if previous unmount step fails"
+  command:                   "umount -lf {{ __docs_data_local_path }}"
+  ignore_errors:             true
+  tags:                      always
+  when:
+   result is failed
 
 - name:                      Remove fstab entry for "{{ __docs_data_local_path }}"
   mount:
@@ -17,6 +25,8 @@
     state:                   absent
     path:                    "{{ __docs_data_local_path }}"
   ignore_errors:             true
+  tags:                      always
+
 
 - name:                      Unmount "{{ __viewer_data_local_path }}"
   mount:
@@ -25,11 +35,20 @@
     state:                   unmounted
     path:                    "{{ __viewer_data_local_path }}"
   ignore_errors:             true
+  tags:                      always
   when:                      inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"]
   register: result
   retries: 3
   delay: 15
   until: result is not failed
+
+- name:                      "Run command 'umount -lf {{ __viewer_data_local_path }}' if previous unmount step fails"
+  command:                   "umount -lf {{ __viewer_data_local_path }}"
+  ignore_errors:             true
+  tags:                      always
+  when:
+   - result is failed
+   - inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"]
 
 - name:                      Remove fstab entry for "{{ __viewer_data_local_path }}"
   mount:
@@ -38,4 +57,5 @@
     state:                   absent
     path:                    "{{ __viewer_data_local_path }}"
   ignore_errors:             true
+  tags:                      always
   when:                      inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"]

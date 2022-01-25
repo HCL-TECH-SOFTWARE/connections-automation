@@ -3,8 +3,9 @@ __profile_name:              "{{ profile_name | default('Dmgr01') }}"
 __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
 __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
 __was_install_location:      "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
-__bin_dir:                  "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
+__bin_dir:                   "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
 
+__cnx_major_version:         "{{ cnx_major_version | default('7') }}"
 
 # LDAP defaults
 
@@ -41,7 +42,9 @@ __lcc_dynamic_host_ssl_href:    "https://{{ cnx_application_ingress }}"
 
 # forceConfidentialCommunications
 __lcc_force_comm_xpath:        "/tns:config/tns:forceConfidentialCommunications"
+
 # LanguageSelector
+__cnx_enable_lang_selector:        "{{ cnx_enable_lang_selector | default('false') }}"
 __lcc_languageselector_xpath:  "/tns:config/tns:languageSelector"
 
 # full icec

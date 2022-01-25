@@ -48,3 +48,6 @@
     {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }} -f {{ __cnx_prom_jmx_destination }}
   register:                 jmx_prom_registered
   changed_when:             jmx_prom_registered.rc == 0
+  until:                    jmx_prom_registered is changed
+  retries:                  5
+  

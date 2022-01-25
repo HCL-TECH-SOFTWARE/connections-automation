@@ -88,13 +88,11 @@
   roles:
     - roles/hcl/docs
 
-- name:                    Restart WAS Nodes
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
-  serial:                  1
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-nodeagent-stop
-    - roles/third_party/ibm/wasnd/was-nodeagent-start
+    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
 
 - name:                    Restart CNX Cluster
   hosts:                   dmgr

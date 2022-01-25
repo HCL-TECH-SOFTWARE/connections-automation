@@ -32,12 +32,17 @@ image:
   repository: {{ docker_registry_url }}/connections
 ingress:
   hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
     - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
       paths: []
 {% if  load_balancer_dns != frontend_fqdn %}
     - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
       paths: []
-{% endif %} 
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
 
 namespace: {{ __default_namespace }}
 

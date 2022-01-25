@@ -1,4 +1,20 @@
 ---
+- set_fact:
+    __ic360_node_list:         []
+  when:                        __cnx_major_version != '6'
+
+- name:                        Generate node list
+  set_fact:
+    __ic360_node_list:         "{{ __ic360_node_list + [ item.split('.')[0] ] }}"
+  with_items:                  "{{ groups['cnx_was_servers'] }}"
+  when:                        __cnx_major_version != '6'
+
+- debug:                       var=__ic360_node_list
+  when:                        __cnx_major_version != '6'
+
+- debug:                       var=__ic360_cluster_name
+  when:                        __cnx_major_version != '6'
+
 - name:                        Add wkhtmltopdf to ic360 WAS resource environment entry set
   include_role:
     name:                      roles/third_party/ibm/wasnd/was-dmgr-create-res-env-prop
@@ -6,12 +22,12 @@
       delegate_to:             "{{ dmgr_hostname }}"
       become:                  true
   vars:
-    __cluster_name:            "{{ __ic360_app.cluster_name }}"
+    __cluster_name:            "{{ __ic360_cluster_name }}"
     __resource_env_provider:   "ic360"
     __resource_env_entry:      "ic360"
     __env_entry_name:          "wkhtmltopdf.command.exec"
     __env_entry_value:         "{{ __os_bin }}/wkhtmltopdf"
-  when:                        __ic360_app.cluster_name is defined
+  when:                        __cnx_major_version != '6'
 
 - name:                        Add JVM properties to ic360 cluster (workaround)
   include_role:
@@ -20,8 +36,8 @@
       delegate_to:             "{{ dmgr_hostname }}"
       become:                  true
   vars:
-    __cluster_name:            "{{ __ic360_app.cluster_name }}"
-    __nodes_name:              "{{ __ic360_app.nodes }}"
+    __cluster_name:            "{{ __ic360_cluster_name }}"
+    __nodes_name:              "{{ __ic360_node_list }}"
     __prop_name:               "{{ item.prop_name }}"
     __prop_value:              "{{ item.prop_value }}"
   with_items:
@@ -29,7 +45,7 @@
      - { prop_name: "file.encoding", prop_value: "UTF-8" }
      - { prop_name: "client.encoding.override", prop_value: "UTF-8" }
      - { prop_name: "ws.ext.dirs", prop_value: "${USER_INSTALL_ROOT}/config/cells/{{ __was_cellname }}/autodeploy/classpath/DU-ic360-security/security/" }
-  when:                        __ic360_app.cluster_name is defined
+  when:                        __cnx_major_version != '6'
 
 - name:                        Add root signing certificate of {{ groups['ihs_servers'][0] }} to the Default Trust Store for ic360 http.hostname
   include_role:
@@ -37,4 +53,4 @@
   vars:
     __trust_cert_host:         "{{ groups['ihs_servers'][0] }}"
     __trust_cert_alias:        "{{ groups['ihs_servers'][0] }}"
-  when:                        __ic360_app.cluster_name is defined
+  when:                        __cnx_major_version != '6'

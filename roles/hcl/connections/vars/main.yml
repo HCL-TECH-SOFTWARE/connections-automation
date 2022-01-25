@@ -36,13 +36,13 @@ __firstNfsNode:              "{{ hostvars[groups['nfs_servers'][0]]['ansible_def
 __nfsMasterAddress:          "{{ nfsMasterAddress | default( __firstNfsNode ) }}"
 
 __cnx_shared_area:           "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
-__cnx_shared_area_nfs:       "/nfs/data/shared"
+__cnx_shared_area_nfs:       "{{ cnx_shared_area_nfs | default('/nfs/data/shared') }}"
 __cnx_shared_area_files_dest: "{{ __nfsMasterAddress }}:{{ __cnx_shared_area_nfs }}"
 
 __cnx_webserver:             "{{ cnx_webserver | default( hostvars[groups['ihs_servers'][0]]['inventory_hostname_short'] ) }}"
 
 __cnx_message_store:         "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"
-__cnx_message_store_nfs:     "/nfs/data/messageStores"
+__cnx_message_store_nfs:     "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"
 __cnx_messagestore_files_dest: "{{ __nfsMasterAddress }}:{{ __cnx_message_store_nfs }}"
 
 __this_version:              "{{ cnx_version | default('6.5.0.0_20191121_2323') }}"
@@ -63,6 +63,8 @@ __cnx_prom_jmx_destination:       "{{ __was_install_location }}/profiles/{{ __pr
 __cnx_prom_cfg_template:          "prometheus_config.j2"
 __cnx_prom_cfg_destination:       "{{ __jmx_install_location }}/config.yml"
 
+__cnx_enable_moderation:          "{{ cnx_enable_moderation | default('false') }}"
+
 # Connections Files
 __cnx_package:               "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
 __cnx_files:
@@ -81,7 +83,10 @@ __db_username:               "{{ db_username  | default('LCUSER') }}"
 __db_password:               "{{ db_password }}"
 __db_hostname:               "{{ db_hostname }}"
 __db_port:                   "{{ db_port  | default('50000') }}"
-__db_jdbc_file:              "{{ db_jdbc_file  | default('/opt/IBM/db2/V11.1/java') }}"
+
+__install_latest_db2:        "{{ install_latest_db2 | default(false) }}"
+__db2_default_jdbc_file:     "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+__db_jdbc_file:              "{{ db_jdbc_file  | default(__db2_default_jdbc_file) }}"
 __db_type:                   "{{ db_type  | default('DB2') }}"
 
 __was_encoded_password:      "WAS_ENCODED_PASSWORD"
@@ -192,6 +197,9 @@ __cnx_deploy_small:
   - { name: 'widgetContainer', cluster_name: "{{ __widgets_app.cluster_name  | default('Apps') }}",  nodes: "{{ __widgets_app.nodes  | default( __cnx_node_list ) }}"}
   - { name: 'pushNotification', cluster_name: "{{ __push_app.cluster_name  | default('Apps') }}",  nodes: "{{ __push_app.nodes  | default( __cnx_node_list ) }}"}
   - { name: 'ic360', cluster_name: "{{ __ic360_app.cluster_name  | default('Apps') }}",  nodes: "{{ __ic360_app.nodes  | default( __cnx_node_list ) }}"}
+
+# for update_was_resource.yml
+__ic360_cluster_name:               "{{ __ic360_app.cluster_name if ( __ic360_app.cluster_name is defined) else 'Apps' if (__cnx_deploy_type == 'small') else 'Apps' if (__cnx_deploy_type == 'medium') else 'IC360' }}"
 
 __cnx_db_info:
   - { app: 'activities', name: "{{ activities_db.name | default('OPNACT') }}", server: '{{ activities_db.server  | default( __db_hostname ) }}', port: '{{ activities_db.port  | default(  __db_port ) }}', jdbc_file: '{{ activities_db.jdbc_file  | default(  __db_jdbc_file ) }}', type: '{{ activities_db.type  | default(  __db_type ) }}', user: '{{ activities_db.user  | default(  __db_username ) }}', pw: '{{ activities_db.pw  | default(  __db_password ) }}' }

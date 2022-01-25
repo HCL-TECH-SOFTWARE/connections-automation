@@ -5,7 +5,8 @@ __download_location:           "{{ oracle_download_location | default('http://c7
 __package_name:                "{{ oracle_package_name | default('LINUX.X64_193000_db_home.zip') }}"
 
 __ora_rsp_oracle_base:         "{{ ora_rsp_oracle_base | default('/opt/oracle') }}"
-__extraction_folder:           "{{ __ora_rsp_oracle_base }}/product/19.0.0/db_1"
+__ora_product_folder:           "{{ __ora_rsp_oracle_base }}/product/19.0.0/db_1"
+__extraction_folder:           "{{ ora_rsp_oracle_home | default( __ora_product_folder ) }}"
 
 __ora_server_rsp_template:     "db_install.rsp.j2"
 __ora_server_rsp_location:     "{{ __extraction_folder }}/install/response/db_install_cnx.rsp"
@@ -17,7 +18,7 @@ __ora_rsp_default_data:        "{{ __ora_rsp_oracle_base }}/data"
 __ora_rsp_data_location:       "{{ ora_rsp_data_location | default( __ora_rsp_default_data ) }}"
 __ora_rsp_default_recovery:    "{{ __ora_rsp_oracle_base }}/recovery"
 __ora_rsp_data_rcvry_location: "{{ ora_rsp_data_rcvry_location | default( __ora_rsp_default_recovery ) }}"
-__ora_rsp_oracle_home:         "{{ ora_rsp_oracle_home | default( __extraction_folder ) }}"
+__ora_rsp_oracle_home:         "{{ __extraction_folder }}"
 __ora_runinstaller_loc:        "{{ __ora_rsp_oracle_home }}/runInstaller"
 __ora_rsp_install_edition:     "{{ ora_rsp_install_edition | default('EE') }}"
 __ora_rsp_exec_root_script:    "{{ ora_rsp_exec_root_script | default('false') }}"

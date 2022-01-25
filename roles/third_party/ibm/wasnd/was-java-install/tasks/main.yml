@@ -7,4 +7,4 @@
 
 - name:          Install Java
   include_tasks: install_java.yml
-  when:          version_already_installed.rc != 0
+  when:          __was_upgrade_java is defined and version_already_installed.rc != 0

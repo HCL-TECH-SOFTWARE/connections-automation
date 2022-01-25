@@ -49,7 +49,15 @@
   ignore_errors:             true
 
 - name:                      Delete cnx-ingress if already exists helm-3
-  shell:                      helm uninstall cnx-ingress --namespace default
+  shell:                     helm uninstall cnx-ingress --namespace {{ __default_namespace }}
+  when:
+   - helm_version.stdout != "v2"
+   - cnx_ingress_already_provisioned_helm3.rc == 0
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Delete configmaps
+  shell:                     kubectl delete configmaps ingress-controller-leader ingress-controller-leader-nginx -n {{ __default_namespace }}
   when:
    - helm_version.stdout != "v2"
    - cnx_ingress_already_provisioned_helm3.rc == 0
@@ -189,6 +197,6 @@
     dest:                    "{{ __cnxingressonly_env }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Setup cnx-ingress Ingress Rule Only
+- name:                      Setup cnx-ingress Ingress Rule Only helm upgrade cnx-ingress-rule {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingressonly_env }} --namespace {{ __default_namespace }} --wait
   command:                   "helm upgrade cnx-ingress-rule {{ cnxingress_tgz.files[0].path }} -i -f {{ __cnxingressonly_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"

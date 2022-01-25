@@ -6,6 +6,23 @@
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "7"
 
+- name:          Install epel-release on RHEL 8
+  yum:
+    name:        https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    state:       present
+    disable_gpg_check:  true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:          Install pre-requisites Yum on RHEL 8
+  yum:
+    name:        ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'unzip', 'vim', 'python3-pip', 'python3-passlib.noarch']
+    state:       present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
 - name:          Install pre-requisites Yum for Conversion service
   yum:
     name:        ['ImageMagick', 'libSM.i686']
@@ -13,22 +30,6 @@
   when:
     - ansible_os_family == "RedHat"
     - inventory_hostname in groups["conversion_servers"]
-
-- name:          Install epel-release on RHEL 8
-  yum:
-    name:        https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-    state:       present
-  when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
-
-- name:          Install pre-requisites Yum
-  yum:
-    name:        ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'unzip', 'vim', 'python3-pip', 'python3-passlib.noarch']
-    state:       present
-  when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
 
 - name:          Set file descriptors limits
   pam_limits:

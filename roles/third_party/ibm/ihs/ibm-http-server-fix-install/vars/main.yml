@@ -15,6 +15,12 @@ __tpl_file:               "ihs_plg_wct_fixes.rsp.j2"
 __ihs_fp_version_latest:  "{{ ihs_fp_version_latest | default( __ihs_fp_version_fp19 ) }}"
 __ihs_fp_files_latest:    "{{ ihs_fp_files_latest | default( __ihs_fp_files_fp19 ) }}"
 
+__ihs_fp_version_fp20:    "8.5.5020.20210708_1826"
+__ihs_fp_files_fp20:
+  - { file_name: 8.5.5-WS-WASSupplements-FP020-part1.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP020-part2.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP020-part3.zip }
+
 __ihs_fp_version_fp19:    "8.5.5019.20210118_0346"
 __ihs_fp_files_fp19:
   - { file_name: 8.5.5-WS-WASSupplements-FP019-part1.zip }

@@ -13,6 +13,12 @@
     state:                    present
   register:                   create_docs_user
 
+- name:                       Convert ssh key for RHEL8
+  command:                    ssh-keygen -p -m PEM -f /home/{{ docs_username }}/.ssh/id_rsa -P "{{ docs_password }}" -N "{{ docs_password }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
 - name:                       Get default group name for {{ docs_username }}
   command:                    id -gn "{{ docs_username }}"
   register:                   user_group

@@ -1,8 +1,9 @@
 - name:                      Create cache folder
   file:
-  path:                      "{{ __ansible_cache }}"
-  state:                     directory
-  mode:                      '0755'
+    path:                      "{{ __ansible_cache }}"
+    state:                     directory
+    mode:                      '0755'
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Create namespace {{ __monitoring_namespace }}
   command:                   kubectl create namespace {{ __monitoring_namespace }}

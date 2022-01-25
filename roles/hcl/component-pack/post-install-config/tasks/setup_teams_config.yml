@@ -47,19 +47,3 @@
     __sec_custom_prop_value:   "{{ __sec_custom_prop_disableGetTokenFromMBean|lower }}"
     __sec_custom_prop_append:  false
     __sec_custom_prop_always_write: true
-
-- name:                        Stop CNX cluster
-  include_role:
-    name:                      roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
-    apply:
-      delegate_to:             "{{ dmgr_hostname }}"
-      become:                  true
-      ignore_errors:           yes
-
-- name:                        Start CNX cluster
-  include_role:
-    name:                      roles/third_party/ibm/wasnd/was-dmgr-start-cluster
-    apply:
-      delegate_to:             "{{ dmgr_hostname }}"
-      become:                  true
-      ignore_errors:           yes

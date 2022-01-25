@@ -5,10 +5,18 @@
     state:                   unmounted
     path:                    "{{ __cnx_data_local_path }}"
   ignore_errors:             true
+  tags:                      always
   register: result
   retries: 3
   delay: 15
   until: result is not failed
+
+- name:                      "Run command 'umount -lf {{ __cnx_data_local_path }}' if previous unmount step fails"
+  command:                   "umount -lf {{ __cnx_data_local_path }}"
+  ignore_errors:             true
+  tags:                      always
+  when:
+   result is failed
 
 - name:                      Remove fstab entry for "{{ __cnx_data_local_path }}"
   mount:
@@ -17,3 +25,4 @@
     state:                   absent
     path:                    "{{ __cnx_data_local_path }}"
   ignore_errors:             true
+  tags:                      always

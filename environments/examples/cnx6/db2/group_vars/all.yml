@@ -42,6 +42,8 @@ ihs_repository_url:                              http://{{ groups['installer'][0
 ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP16
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections6.5
+cnx_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
+cnx_db_updates_url:                              http://{{ groups['installer'][0] }}:8001/cnx65_dbupdates
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 
 # Falling back to the defaults for Connections 6.5.0.1
@@ -70,8 +72,16 @@ ihs_fp_files:
 cnx_package:                                     "HCL_Connections_6.5_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_6.5_wizards_lin_aix.tar"
 cnx_major_version:                               "6"
+cnx_fixes_version:                               "6.5.0.0_CR1"
+cnx_fixes_files:
+  - { file_name: "HC6.5_CR1.zip" }
 db_version:                                      "6.5"
+cnx_db_update_file:                              "65cr1-database-updates.zip"
 elasticsearch_default_version:                   "5"
+
+# Use SDI JRE8
+upgrade_tdi_jre:                                 true
+tdi_sol_location:                                http://{{ groups['installer'][0] }}:8001/Connections6.5/tdisol_65CR1_java8.tar
 
 # Globals
 
@@ -87,7 +97,7 @@ db_username:                                     LCUSER
 db_concord_username:                             docsuser
 db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
 db_port:                                         50000
-db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
+#db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
 db_type:                                         DB2
 setup_db2_jdbc:                                  True
 

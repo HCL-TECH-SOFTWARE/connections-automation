@@ -3,20 +3,20 @@
     name:                   ['openldap', 'compat-openldap', 'openldap-clients', 'openldap-servers', 'openldap-servers-sql', 'openldap-devel']
     state:                   present
   when:
-    - ansible_os_family == "CentOS"
+    - ansible_distribution == "CentOS"
 
 - name:                     Install OpenLDAP and dependencies on RHEL version 7 and below
   yum:
     name:                   ['openldap', 'openldap-clients', 'openldap-servers', 'openldap-devel']
     state:                   present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_distribution == "RedHat"
     - ansible_distribution_major_version != "8"
 
 - name:                     Install OpenLDAP and dependencies on RHEL8
   include_tasks:            install_symas_openldap.yml
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_distribution == "RedHat"
     - ansible_distribution_major_version == "8"
 
 - name:                     Start slapd service
@@ -50,13 +50,13 @@
   when:
     - not ldap_database_already_created.stat.exists
 
-- name:                     "Render {{ __db_ldif_location }} for RHEL8"
+- name:                     "Render {{ __db_ldif_location }} for RHEL8/CentOS8"
   template:
     src:                    "{{ __db_mdb_ldif_template }}"
     dest:                   "{{ __db_ldif_location }}"
   when:
     - not ldap_database_already_created.stat.exists
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "8"
 
 - name:                     Create LDAP database
