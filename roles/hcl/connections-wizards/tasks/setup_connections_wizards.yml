@@ -27,10 +27,10 @@
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
   retries:               3
 
-- name:                  Disable fingerprinting
-  command:               authconfig --disablefingerprint --update
-  when:
-    - not migrations_already_done.stat.exists
+    # - name:                  Disable fingerprinting
+    #   command:               authconfig --disablefingerprint --update
+    #   when:
+    #     - not migrations_already_done.stat.exists
 
 - name:                  Stop CNX cluster for database cleanup
   include_role:
