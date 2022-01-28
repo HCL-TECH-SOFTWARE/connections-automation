@@ -273,7 +273,7 @@ docker_registry_url | {{ hostvars[groups['docker_registry'][0]]['inventory_hostn
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.19.11 | Kubernetes version to be installed
+kubernetes_version | 1.21.7 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
