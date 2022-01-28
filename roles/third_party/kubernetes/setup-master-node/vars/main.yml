@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:           "{{ kubernetes_version | default('1.19.11') }}"
+__kubernetes_version:           "{{ kubernetes_version | default('1.21.7') }}"
 
 __ansible_cache:                "/tmp/k8s_ansible"
 
@@ -17,4 +17,3 @@ __load_balancer_dns:            "{{ load_balancer_dns | default('localhost') }}"
 __kubeadm_init_success_file:    "{{ __ansible_cache }}/kubeadm.init.success"
 
 __pod_subnet:                   "{{ pod_subnet | default('192.168.0.0/16') }}"
-
