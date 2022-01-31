@@ -1,5 +1,5 @@
 ---
-__haproxy_version:                       "{{ haproxy_version | default('2.4.0') }}"
+__haproxy_version:                       "{{ haproxy_version | default('2.4.12') }}"
 __haproxy_major_version:                 "{{ haproxy_major_version | default('2.4') }}"
 __haproxy_url:                           "http://www.haproxy.org/download/{{ __haproxy_major_version }}/src/haproxy-{{ __haproxy_version }}.tar.gz"
 __haproxy_download_dir:                  "/tmp/haproxy-{{ __haproxy_version }}"
