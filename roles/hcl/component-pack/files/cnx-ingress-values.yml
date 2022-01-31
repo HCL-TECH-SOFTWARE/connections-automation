@@ -14,6 +14,74 @@ controller:
       prometheus.io/port: "10254"
       prometheus.io/scrape: "true"
 
+<<<<<<< HEAD
+=======
+  # Will add custom headers before sending traffic to backends according to https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/customization/custom-headers
+  proxySetHeaders: {}
+
+  # Will add custom headers before sending response traffic to the client according to: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#add-headers
+  addHeaders: {}
+
+  # Optionally customize the pod dnsConfig.
+  dnsConfig: {}
+
+  # Optionally change this to ClusterFirstWithHostNet in case you have hostNetwork: true.
+  # By default, while using host network, name resolution uses the hosts DNS. If you wish nginx-controller
+  # to keep resolving names inside the k8s network, use ClusterFirstWithHostNet.
+  dnsPolicy: ClusterFirst
+
+  # Bare-metal considerations via the host network https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network
+  # Ingress status was blank because there is no Service exposing the NGINX Ingress controller in a configuration using the host network, the default --publish-service flag used in standard cloud setups does not apply
+  reportNodeInternalIp: false
+
+  # Required for use with CNI based kubernetes installations (such as ones set up by kubeadm),
+  # since CNI and hostport don't mix yet. Can be deprecated once https://github.com/kubernetes/kubernetes/issues/23920
+  # is merged
+  hostNetwork: false
+
+  ## Use host ports 80 and 443
+  ## Disabled by default
+  ##
+  hostPort:
+    enabled: false
+    ports:
+      http: 80
+      https: 443
+
+  ## Election ID to use for status update
+  ##
+  electionID: ingress-controller-leader
+
+  ## Name of the ingress class to route through this controller
+  ##
+  ingressClass: nginx
+
+  # labels to add to the pod container metadata
+  podLabels: {}
+  #  key: value
+
+  ## Security Context policies for controller pods
+  ##
+  podSecurityContext: {}
+
+  ## See https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/ for
+  ## notes on enabling and using sysctls
+  ###
+  sysctls: {}
+  # sysctls:
+  #   "net.core.somaxconn": "8192"
+
+  ## Allows customization of the source of the IP address or FQDN to report
+  ## in the ingress status field. By default, it reads the information provided
+  ## by the service. If disable, the status field reports the IP address of the
+  ## node or nodes where an ingress controller pod is running.
+  publishService:
+    enabled: true
+    ## Allows overriding of the publish service to bind to
+    ## Must be <namespace>/<service_name>
+    ##
+    pathOverride: ""
+>>>>>>> 32cf575b0482b3b95bec8cb5aea0e35a66c296a7
 
   ## Limit the scope of the controller
   ##
@@ -134,8 +202,8 @@ controller:
     # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
     # sessionAffinity: ""
 
-    # specifies the health check node port (numeric port number) for the service. If healthCheckNodePort isn’t specified,
-    # the service controller allocates a port from your cluster’s NodePort range.
+    # specifies the health check node port (numeric port number) for the service. If healthCheckNodePort isn't specified,
+    # the service controller allocates a port from your cluster's NodePort range.
     # Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
     # healthCheckNodePort: 0
 

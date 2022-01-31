@@ -169,9 +169,7 @@
   register:                 es_certs_enabled
   changed_when:             es_certs_enabled.rc == 0
   delegate_to:              "{{ dmgr_hostname }}"
-  ignore_errors:            yes
-  retries:                  3
-  delay:                    10
+  ignore_errors:             yes
 
 - name:                     Remove {{ __es_certs_dir }}/es_certs/ca-chain.pem on {{ dmgr_hostname }}
   file:
@@ -187,7 +185,7 @@
 
 - name:                     Create the archive
   archive:
-    path:                   "{{ __es_certs_dir }}"
+    path:                   "{{ __es_certs_dir }}" 
     dest:                   "{{ __es_certs_dir }}/es_certificates_signed.zip"
     format:                 zip
   delegate_to:              "{{ dmgr_hostname }}"
@@ -205,7 +203,7 @@
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
   ignore_errors:             yes
-  when:
+  when:                      
    - inventory_hostname != dmgr_hostname
 
 - name:                      Cleanup /tmp/certs if it already exists
@@ -230,7 +228,7 @@
     dest:                    "/tmp"
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
-  when:
+  when:                      
    - inventory_hostname != dmgr_hostname
 
 - name:                      Extract ES certificates on WAS hosts
