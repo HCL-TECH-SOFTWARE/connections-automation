@@ -7,7 +7,7 @@ To set this up, you will need at least four machines (for this example, let us s
 - ansible.internal.example.com is going to run Ansible commands (i.e. Ansible controller).  Typical laptop grade environment should be suffice.
 - web.internal.example.com is going to host, in this example, only Nginx and Haproxy. This is needed here only for the Customizer. At least 1CPU and 2G of RAM are preferable.
 - connections.internal.example.com is going to host IBM WebSphere, IHS and HCL Connections. We will put here also OpenLDAP with 10 users, and IBM DB2. NFS will be set for shared data and message stores. HCL Connections will be deployed as a small topology (single JVM). Here you need at least two CPUs and at least 16G of RAM for having everything self contained.
-- cp.internal.example.com is going to host Kubernetes 1.18.18, be NFS server for persistent volumes, Docker Registry, and Component Pack on top of it. You need at least 32G of RAM to install full offering and at least 8 CPUs.
+- cp.internal.example.com is going to host Kubernetes, be NFS server for persistent volumes, Docker Registry, and Component Pack on top of it. You need at least 32G of RAM to install full offering and at least 8 CPUs.
 
 Once the installation is done, we will access our HCL Connections login page through https://connections.example.com/
 
