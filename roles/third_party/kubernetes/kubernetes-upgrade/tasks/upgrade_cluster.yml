@@ -1,3 +1,9 @@
+- name:               Create cache folder
+  file:
+    path:             "{{ __ansible_cache }}"
+    state:            directory
+    mode:             '0755'
+
 - name:               Generate master config initialization file
   template:
     src:              "{{ __kubeadm_config_template }}"
