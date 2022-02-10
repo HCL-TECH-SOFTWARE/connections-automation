@@ -8,5 +8,6 @@
     force_destroy_kubernetes:  false
     force_destroy_ihs:         false
     force_destroy_oracle:      false
+    force_destroy_tdi:         false
   roles:
     - roles/hcl/cleanup

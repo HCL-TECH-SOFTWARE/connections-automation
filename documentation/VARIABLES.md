@@ -25,6 +25,8 @@ See [Sample Inventories](https://github.com/HCL-TECH-SOFTWARE/connections-automa
 
 [Docs Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#docs-variables)
 
+[Tiny Editors Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#tinyeditors-variables)
+
 [Component Pack Infra Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#component-pack-infra-variables)
 
 [Component Pack Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#component-pack-variables)
@@ -80,7 +82,8 @@ db2_instance_fenced_user | db2fenc1 | Fenced user to run user defined functions 
 db2_instance_fenced_group | db2group | Fenced user group
 db2_instance_fenced_homedir | /home/db2fenc1 | Fenced user home directory
 db2_instance_default_lang | EN | DB2 instance default language
-install_latest_db2 | false | true will install IBM DB2 v11.5.6 and false will install IBM DB2 v11.1
+install_latest_db2 | true | true will install IBM DB2 v11.5.6. false will install IBM DB2 v11.1
+force_check_db2_version_mismatch | false | true terminates the script if already installed version (if any) on the system is different than the version that user expects
 
 ### Oracle Variables
 Name | Default | Description
@@ -132,7 +135,7 @@ Name | Default | Description
 was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5019.20210118_0346 | WebSphere Fix Pack version
+was_fp_version | 8.5.5020.20210708_1826 | WebSphere Fix Pack version
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -146,10 +149,11 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5019.20210118_0346 | IHS Fix Pack version
+ihs_version | 8.5.5020.20210708_1826 | IHS Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
-
+plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
+wct_install_location | /opt/IBM/WebSphere/Toolbox | IBM WebSphere Toolbox installation folder path
 
 ### IIM Variables
 Name | Default | Description
@@ -210,7 +214,9 @@ cnx_enable_invite | false | true will configure selfregistration-config.xml for 
 cnx_enable_moderation | false | true will install and configure Moderation
 global_moderator | *none* - optional | Global moderator user
 cnx_enable_full_icec | false | true will configure full CEC
-cnx_enable_lang_selector | false | true will enable and add additional lanaguages to the language selector
+cnx_enable_lang_selector | false | true will enable and add additional languages to the language selector
+mail_outgoing_server | *none* - optional | Mail notification outgoing server.  When set, it will also set the SMTP port according to `{{ mail_smtp_port }}`
+mail_smtp_port | 25 | Mail SMTP port, set when `{{ mail_outgoing_server }}` is defined
 cnx_updates_enabled | false | true will upgrade Connections if a new version is available in cnx_repository_url
 db_version | "7.0" | Determines the set of databases to create/drop (eg. 7.0, 6.5)
 cnx_db_updates_url | *none* - required for 6.5CR1 with DB2 | database schema upgrade zip download location (6.5 CR1 only)
@@ -262,11 +268,27 @@ cnx_data_remote_path | /nfs/data/shared | NFS share of Connections data dir, `{{
 cnx_data_local_path | /mnt/cnx_data | path of local location to Connections data dir, if `{{ cnx_shared_storage_type }}` is `nfs`, `{{ cnx_data_remote_path }}` will mount to this directory
 cnx_data_path_on_cnx_server | /opt/IBM/SharedArea | local path of Connections data on the Connections server (i.e. where Docs extensions will be installed)
 
+
+### Tiny Editors Variables
+Name | Default | Description
+---- | --------| -------------
+tinyeditors_username | tinyeditorsuser | Tiny Editors user
+tinyeditors_password | *none* - required | Password for the user to be created for job target creation
+tinyeditors_customization_path | /opt/IBM/SharedArea/customization | Connections customization path
+tinyeditors_provision_path | /opt/IBM/SharedArea/provision/webresources | Connections provision path
+tinyeditors_download_location | *none* - required | Tiny Editors kit download location
+tinyeditors_package_name | TinyEditorsForConnections.zip | Tiny Editors install kit file
+hcl_program_folder | /opt/HCL | Location to store Tiny Editors program folders
+tinyeditors_config_file_path | /opt/ephox | Tiny Editors post install configuration folder location
+tinyeditors_config_file_name | application.conf | Tiny Editors post install configuration file name
+install_tinyeditors | true | true will install Tiny Editors
+uninstall_tinyeditors | true | true will uninstall Tiny Editors
+
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.4.4-3.1.el7 | Containerd version to be installed
-docker_version | 19.03.15-3.el7 | Docker version to be installed
+containerd_version | 1.4.12-3.1.el7 | Containerd version to be installed
+docker_version | 20.10.12 | Docker version to be installed
 registry_port | 5000 | The registry defaults to listening on port 5000
 setup_docker_registry | true | true sets up docker registry
 docker_registry_url | {{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000 | Docker Registry url
@@ -282,8 +304,8 @@ pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
 calico_version | 3.11 | Calico version to be installed
 calico_install_latest | true | true installs/Upgrades Calico to the latest version
-helm_version | 3.6.1 | Helm version to be installed
-haproxy_version | 2.4.0 | HAProxy version to be installed
+helm_version | 3.7.2 | Helm version to be installed
+haproxy_version | 2.5.1 | HAProxy version to be installed
 
 
 ### Component Pack Variables
@@ -357,6 +379,7 @@ force_destroy_websphere | false | True will remove WebSphere (including Connecti
 force_destroy_docs | false | True will delete Docs NFS data when running the corresponding cleanup playbook
 force_destroy_db2 | false | True will kill all DB2 process and delete DB2 folder when running the corresponding cleanup playbook
 force_destroy_oracle | false | True will kill all Oracle process and delete Oracle folder when running the corresponding cleanup playbook
+force_destroy_tdi | false | True will delete TDI tdisol folder and /var/.com.zerog.registry.xml when running the corresponding cleanup playbook
 persistentVolumePath | pv-connections | Persistent volume location to be created
 helm_install_dir | /opt/helm | Helm install directory
 ansible_cache | /tmp/k8s_ansible | Ansible cache location
@@ -391,3 +414,7 @@ cnx_data_remote_path | /nfs/data/shared | NFS share of Connections data dir, {{ 
 cnx_data_local_path | /mnt/cnx_data | path of local location to Connections data dir, if {{ cnx_shared_storage_type }} is nfs, {{ cnx_data_remote_path }} will mount to this directory
 nfs_master_files_mount | /mnt/pv-connections | Persistent volume mount point folder in Component Pack
 cnx_install_base_dir | /opt/HCL/ | Base directory of connections installation
+plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
+wct_install_location | /opt/IBM/WebSphere/Toolbox | IBM WebSphere Toolbox installation folder path
+tdi_sol_dest | /opt/IBM/TDI/tdisol | TDI tdisol directory
+tdi_user_install_dir | /opt/IBM/TDI/V7.20 | TDI user install directory

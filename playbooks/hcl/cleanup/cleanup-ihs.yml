@@ -8,6 +8,7 @@
     force_destroy_db2:         false
     force_destroy_websphere:   false
     force_destroy_oracle:      false
+    force_destroy_tdi:         false
   roles:
     - roles/hcl/cleanup
 
@@ -26,5 +27,6 @@
     force_destroy_websphere:   false
     force_destroy_oracle:      false
     force_destroy_docs:        false
+    force_destroy_tdi:         false
   roles:
     - roles/hcl/cleanup/cleanup-nfs-data

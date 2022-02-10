@@ -1,0 +1,28 @@
+---
+- name:                    Install Tiny Editors
+  hosts:                   dmgr
+  become:                  true
+  vars:
+    uninstall_tinyeditors: false
+  roles:
+    - roles/third_party/tiny-editors-install
+
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+
+- name:                    Restart CNX Cluster
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Wait for Connections is up
+  hosts:                   dmgr
+  tasks:
+    - include:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
+      vars:
+        __cnx_url:         "{{ cnx_application_ingress }}"

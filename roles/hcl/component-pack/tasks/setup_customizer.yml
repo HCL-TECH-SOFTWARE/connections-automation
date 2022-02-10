@@ -1,5 +1,5 @@
 - name:                      Check if customizer is already provisioned
-  shell:                     helm ls | grep mw-proxy | grep DEPLOYED
+  shell:                     helm ls --all-namespaces | grep mw-proxy | grep -i DEPLOYED
   changed_when:              true
   register:                  customizer_completed
   become_user:               "{{ __sudo_user }}"
@@ -17,7 +17,7 @@
     msg:                     "{{ customizer_tgz.files[0].path }}"
 
 - name:                      Create local mount point "{{ __customizer_js_files_mount }}"
-  file: 
+  file:
     path:                    "{{ __customizer_js_files_mount }}"
     state:                   directory
     mode:                    '0755'

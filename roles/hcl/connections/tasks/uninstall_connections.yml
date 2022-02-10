@@ -1,9 +1,23 @@
 ---
+- name:              Get version to uninstall if specified in inventory
+  set_fact:
+    __cnx_uninstall_version: "{{ cnx_uninstall_version }}"
+  when:
+    cnx_uninstall_version is defined
+
 - name:              "Get the installation ID"
   shell:             cat "{{ __cnx_install_location }}/bin/uninstall-launcher.sh" | grep "Build:" |  awk {'print $3'}
-  register:          cnx_uninstall_version
+  register:          cnx_uninstall_version_from_launcher
+  when:
+    cnx_uninstall_version is not defined
 
-- debug: var=cnx_uninstall_version.stdout
+- name:              Get version to uninstall from uninstall-launcher.sh
+  set_fact:
+    __cnx_uninstall_version: "{{ cnx_uninstall_version_from_launcher.stdout }}"
+  when:
+    cnx_uninstall_version is not defined
+
+- debug: var=__cnx_uninstall_version
   run_once: true
 
 - name:              Encode Password XOR

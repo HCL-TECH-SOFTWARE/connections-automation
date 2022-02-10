@@ -18,9 +18,10 @@ __docs_package_name:            "{{ cnx_docs_package_name | default('IBMConnecti
 __docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
 __docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"
 
-__install_latest_db2:           "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:           "{{ install_latest_db2 | default(true) }}"
 __db2_default_install_path:     "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
 __db2_installation_folder:      "{{ db2_installation_folder | default(__db2_default_install_path) }}"
+__install_version_db2:          "{{ 'V11.5' if __install_latest_db2 else 'V11.1' }}"
 __db2_user:                     "{{ db2_user | default('db2inst1') }}"
 __db2_migration_cmd:            "{{ __db2_installation_folder }}/bin/db2 -td@ -vf"
 __db2_icec_migration_cmd:       "{{ __db2_installation_folder }}/bin/db2 -tvf"

@@ -26,3 +26,15 @@ then run this playbook:
 ```
 ansible-playbook -i environments/examples/cnx7/connections playbooks/hcl/connections-set-global-moderator.yml
 ```
+
+## Install Tiny Editors
+This playbook is useful to install Tiny Editors. The Tiny editors are alternative rich-text editors which can be installed for HCL Connections. They provide additional features and extensive customization options not available with the default editor. Add the following var to the inventory
+```
+tinyeditors_download_location: << Tiny Editors kit download location. This field is required >>
+tinyeditors_username: << Tiny Editors user. Default is tinyeditorsuser >>
+tinyeditors_password: << Tiny Editors password. This field is required >>
+```
+then run this playbook:
+```
+ansible-playbook -i environments/examples/cnx7/connections playbooks/third_party/setup-tiny-editors.yml
+```

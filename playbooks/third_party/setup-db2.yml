@@ -6,5 +6,6 @@
 
 - hosts:                    db2_servers, was_servers
   become:                   true
+  any_errors_fatal:         true
   roles:
     - roles/third_party/ibm/db2-install

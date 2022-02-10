@@ -22,6 +22,9 @@
 - name:                      Update Touchpoint config
   include_tasks:             update_touchpoint_config.yml
 
+- name:                      Update Mail Notification config
+  include_tasks:             update_mail_config.yml
+
 
 # not needed the relative url seems to be working
 #- name:                 "Update widget-config.xml"

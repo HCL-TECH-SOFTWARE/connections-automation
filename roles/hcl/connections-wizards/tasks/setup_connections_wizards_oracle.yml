@@ -27,11 +27,6 @@
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
   retries:               3
 
-- name:                  Disable fingerprinting
-  command:               authconfig --disablefingerprint --update
-  when:
-    - not migrations_already_done.stat.exists
-
 - name:                  Stop CNX cluster for database cleanup
   include_role:
     name:                roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
@@ -79,7 +74,7 @@
    - "connections.sql/ic360/oracle/dropDb.sql"
   when:
     - __cnx_force_repopulation |bool
-    - __db_version == '7.0'
+    - __db_version is version('7.0', '>=')
   ignore_errors:         yes
 
 - name:                  Clenaup ICEC database only
@@ -179,7 +174,7 @@
     path:                "{{ __ora_ic360_success_file }}"
   register:              ic360_migrations_already_done
 
-- name:                  Run migrations for IC360
+- name:                  Creating Connections database for IC360
   shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   register:              ic360_migration_result
   failed_when:           ( ic360_migration_result.rc not in [0, 1, 2, 3] )
@@ -192,7 +187,7 @@
    - "connections.sql/ic360/oracle/createDb.sql"
    - "connections.sql/ic360/oracle/appGrants.sql"
   when:
-    - __db_version == '7.0'
+    - __db_version is version('7.0', '>=')
     - not ic360_migrations_already_done.stat.exists
 
 - name:                  Run migrations for ICEC only

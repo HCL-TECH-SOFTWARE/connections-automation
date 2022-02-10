@@ -1,0 +1,7 @@
+batchMode=1
+execfile('searchAdmin.py')
+{% if not __enable_major_es7|bool or __cnx_major_version is version('7', '<') %}
+SearchService.createESQuickResultsIndex()
+{% else %}
+SearchService.createES7QuickResultsIndex()
+{% endif %}

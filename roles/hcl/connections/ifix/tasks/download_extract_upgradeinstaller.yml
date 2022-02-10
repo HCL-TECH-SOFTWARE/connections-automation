@@ -26,9 +26,20 @@
   until:                   download_and_unpack_connections_upgradeinstaller is succeeded
   retries: 3
 
+- name:                    Copy updateInstaller content to {{ __cnx_install_location }}/updateInstaller
+  copy:
+    src:                   "{{ __cnx_install_location }}/updateInstaller/HCL_Connections_Install/tools/updateInstaller/"
+    dest:                  "{{ __cnx_install_location }}/updateInstaller/"
+    remote_src:            yes
+
+- name:                    Delete "{{ __cnx_install_location }}/updateInstaller/HCL_Connections_Install/tools/updateInstaller/"
+  file:
+    state:                 absent
+    path:                  "{{ __cnx_install_location }}/updateInstaller/HCL_Connections_Install/tools/updateInstaller/"
+
 - name:                    Add +x to updateInstaller
   file:
-    dest:                  "{{ __cnx_install_location }}/updateInstaller/HCL_Connections_Install/tools/updateInstaller/updateSilent.sh"
+    dest:                  "{{ __cnx_install_location }}/updateInstaller/updateSilent.sh"
     mode:                  "740"
 
 - name:                    Download the iFixes {{ ifix_file }}

@@ -8,5 +8,6 @@
     force_destroy_db2:         false
     force_destroy_ihs:         false
     force_destroy_websphere:   false
+    force_destroy_tdi:         false
   roles:
     - roles/hcl/cleanup

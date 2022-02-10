@@ -1,0 +1,18 @@
+- name:                  Clean up Tiny Editors installation folder
+  file:
+    path:                "{{ __extraction_folder }}"
+    state:               absent
+
+- name:                  Create installation folder
+  file:
+    path:                "{{ __extraction_folder }}"
+    state:               directory
+
+- name:                  Download and unzip Tiny Editors installation {{ __download_location }}/{{ __package_name }} to the {{ __extraction_folder }}
+  unarchive:
+    src:                 "{{ __download_location }}/{{ __package_name }}"
+    dest:                "{{ __extraction_folder }}"
+    remote_src:          yes
+  register: download_and_unpack_tinyeditors
+  until: download_and_unpack_tinyeditors is succeeded
+  retries: 3

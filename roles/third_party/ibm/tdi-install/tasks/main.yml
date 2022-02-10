@@ -2,6 +2,9 @@
 - name:                       Setup OS
   include_tasks:              setup_os.yml
 
+- name:                       Pre-check DB2 version
+  include_tasks:              precheck_DB2_version.yml
+
 - name:                       Download and install TDI
   include_tasks:              tdi_install.yml
 

@@ -39,7 +39,7 @@
 
 </profile>
 <uninstall modify='false'>
-<offering profile='HCL Connections' version='{{ cnx_uninstall_version.stdout }}' id='com.ibm.connections'/>
+<offering profile='HCL Connections' version='{{ __cnx_uninstall_version }}' id='com.ibm.connections'/>
 </uninstall>
 <preference value='{{ __imshared_location }}' name='com.ibm.cic.common.core.preferences.eclipseCache'/>
 <preference value='30' name='com.ibm.cic.common.core.preferences.connectTimeout'/>

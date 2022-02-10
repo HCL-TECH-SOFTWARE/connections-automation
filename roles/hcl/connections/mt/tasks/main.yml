@@ -7,6 +7,9 @@
 - name:                    Setup Operating System
   include_tasks:           setup_os.yml
 
+- name:                    Pre-check DB2 version
+  include_tasks:           precheck_DB2_version.yml
+
 - name:                    Define Vars
   include_tasks:           define_vars.yml
   when:

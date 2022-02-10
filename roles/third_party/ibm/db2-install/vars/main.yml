@@ -1,12 +1,14 @@
 ---
 __setup_db2_jdbc:              "{{ setup_db2_jdbc | default(false) }}"
 
-__install_latest_db2:          "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:          "{{ install_latest_db2 | default(true) }}"
 __default_package_name:        "{{ 'v11.5.6_linuxx64_universal_fixpack.tar.gz' if __install_latest_db2 else 'v11.1.4fp5_linuxx64_universal_fixpack.tar.gz' }}"
 __default_license_file:        "{{ 'DB2_ESE_AUSI_Activation_11.5.zip' if __install_latest_db2 else 'CNB23ML.zip' }}"
 __db2_default_install_path:    "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
+__install_version_db2:         "{{ 'V11.5' if __install_latest_db2 else 'V11.1' }}"
 __default_jdbc_install_folder: "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
 __default_jdbc_package_name:   "{{ 'v11.5.6_jdbc_sqlj.tar.gz' if __install_latest_db2 else 'v11.1.4fp5_jdbc_sqlj.tar.gz' }}"
+__force_check_db2_version_mismatch: "{{ force_check_db2_version_mismatch | default(false) }}"
 
 __download_location:           "{{ db2_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/DB2') }}"
 __package_name:                "{{ db2_package_name | default(__default_package_name) }}"

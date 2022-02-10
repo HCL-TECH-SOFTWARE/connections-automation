@@ -26,6 +26,9 @@ docs_username:                                   docsuser
 docs_password:                                   password
 sudo_group:                                      wheel
 
+tinyeditors_username:                            tinyeditorsuser
+tinyeditors_password:                            password
+
 # Non-mandatory changes
 
 # Type of HCL Connections deployment: small (default), medium and large.
@@ -37,12 +40,13 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP19
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP20
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP19
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP20
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
+tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 
 iim_bin_file:                                    "agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
 iim_version:                                     "1.9.1003.20200730_2125"
@@ -52,7 +56,7 @@ was_files:
   - { "file_name": "CIK2JML.zip", "check_sum": "b73ae070656bed6399a113c2db9fb0abaf5505b0d41c564bf2a58ce0b1e0dcd2" }
   - { "file_name": "CIK2IML.zip", "check_sum": "440b7ed82089d43b1d45c1e908bf0a1951fed98f2542b6d37c8b5e7274c6b1c9" }
 
-ihs_files: 
+ihs_files:
   - { "file_name": "CIK1VML.zip", "check_sum": "d63c59de4a5548e3d26e71fefb76193d41ac7585bc450c1e504287e0a6f746c9" }
   - { "file_name": "CIK1WML.zip", "check_sum": "ac00e7ab43cc528fe7f3ccd69aeb6564a2e738e7bc6e30e71fd2e0d4bd64f39e" }
   - { "file_name": "CIK1XML.zip", "check_sum": "94e3d9b70b139ad5fa0578da6857b295c5d2370c1b6ecb544c1e5757406fec90" }
@@ -69,8 +73,6 @@ db_username:                                     LCUSER
 db_concord_username:                             docsuser
 db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
 db_port:                                         50000
-#db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
-db_docs_jdbc_file:                               "{{ db_jdbc_file }}"
 db_type:                                         DB2
 setup_db2_jdbc:                                  True
 

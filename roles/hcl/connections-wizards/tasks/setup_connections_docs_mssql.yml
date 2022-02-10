@@ -32,11 +32,6 @@
   when:
     - not docs_migrations_already_done.stat.exists
 
-- name:                  Disable fingerprinting
-  command:               authconfig --disablefingerprint --update
-  when:
-    - not docs_migrations_already_done.stat.exists
-
 - name:                  Cleanup Docs database
   shell:                 "{{ __sql_migration_cmd }} {{ item }}"
   environment:

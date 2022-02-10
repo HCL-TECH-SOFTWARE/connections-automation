@@ -48,8 +48,10 @@ __mssql_jdbc_jre8_location:     "{{ mssql_jdbc_location | default('/opt/mssql/jd
 
 __oracle_jdbc_location:         "{{ oracle_jdbc_location | default('/opt/oracle') }}"
 
-__install_latest_db2:           "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:           "{{ install_latest_db2 | default(true) }}"
 __db2_default_jdbc_location:    "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+__db2_user:                    "{{ db2_user | default('db2inst1') }}"
+__install_version_db2:         "{{ 'V11.5' if __install_latest_db2 else 'V11.1' }}"
 
 __db2_jdbc_location:            "{{ db_jdbc_file | default(__db2_default_jdbc_location) }}"
 __jdbc_destination:             "{{ __tdi_user_install_dir }}/jvm/jre/lib/ext"

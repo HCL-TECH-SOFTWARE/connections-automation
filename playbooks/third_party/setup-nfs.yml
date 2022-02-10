@@ -3,5 +3,6 @@
 - name:                    Setup NFS
   hosts:                   nfs_servers
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/nfs-install

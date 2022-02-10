@@ -86,20 +86,6 @@
    - "tdienv.sh"
    - "populate_from_dn_file.sh"
 
-- name:                  "stat db2jcc4"
-  stat:                  path="{{ __db2_jdbc_location }}/db2jcc4.jar"
-  register:              db2jcc4_exists
-
-- name:                  "Rename db2jcc4.jar to db2jcc.jar"
-  copy:
-    src:                 "{{ __db2_jdbc_location }}/db2jcc4.jar"
-    dest:                "{{ __db2_jdbc_location }}/db2jcc.jar"
-    remote_src:          yes
-  when:
-    - "'db2_servers' in groups"
-    - db2jcc4_exists.stat.exists
-  ignore_errors:     true
-
 - name:                   Checking existing version for jre
   shell:                  "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
   register:               jre_version_stat
@@ -113,7 +99,7 @@
     dest:                "{{ __jdbc_destination }}"
     remote_src:          yes
   with_items:
-   - "db2jcc.jar"
+   - "db2jcc4.jar"
    - "db2jcc_license_cu.jar"
   when:
     - "'db2_servers' in groups"

@@ -433,7 +433,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/s
 
 ### Running post installation tasks
 
-Once your Connections installation is done, run this playbook to set up some post installation bits and pieces needed for Connections 7 on WebSphere:
+If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post installation bits and pieces to make the Connections deployment accessible.  Otherwise, continue to the Component Pack deployment before testing the deployment.
 
 ```
 ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/connections-post-install.yml
@@ -551,6 +551,14 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup
 ```
 
 It will do exactly the same as playbooks/setup-component-pack-complete.yml but it will not setup Haproxy.
+
+### Running post installation tasks
+
+Once your Component Pack installation is done, run this playbook to set up some post installation:
+
+```
+ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/connections-post-install.yml
+```
 
 ## Troubleshooting
 
