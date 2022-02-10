@@ -37,9 +37,9 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections6.5
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP16
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP20
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP16
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP20
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections6.5
 cnx_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
@@ -48,26 +48,26 @@ component_pack_download_location:                http://{{ groups['installer'][0
 
 # Falling back to the defaults for Connections 6.5.0.1
 
-iim_bin_file:                                    "agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
-iim_version:                                     "1.9.1003.20200730_2125"
+#iim_bin_file:                                    "agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
+#iim_version:                                     "1.9.1003.20200730_2125"
 
 # The next two variables are fixing IBM Java version to one distributed with FP 16
-java_version:                                    "8.0.5017.20180726_2118"
-java_files:                                      { 'file_name': '8.0.5.17-WS-IBMWASJAVA-Linux.zip' }
+#java_version:                                    "8.0.5017.20180726_2118"
+#java_files:                                      { 'file_name': '8.0.5.17-WS-IBMWASJAVA-Linux.zip' }
 
 # The variables below are specifying the specific version of FP16 and files needed
 # to install it. Those files live in the repositories mentioned above.
-was_fp_version:                                  "8.5.5016.20190801_0951"
-was_fp_files:
-  - { file_name: 8.5.5-WS-WASSupplements-FP016-part1.zip }
-  - { file_name: 8.5.5-WS-WASSupplements-FP016-part2.zip }
-  - { file_name: 8.5.5-WS-WASSupplements-FP016-part3.zip }
+#was_fp_version:                                  "8.5.5016.20190801_0951"
+#was_fp_files:
+#  - { file_name: 8.5.5-WS-WASSupplements-FP016-part1.zip }
+#  - { file_name: 8.5.5-WS-WASSupplements-FP016-part2.zip }
+#  - { file_name: 8.5.5-WS-WASSupplements-FP016-part3.zip }
 
-ihs_version:                                     "8.5.5016.20190801_0951"
-ihs_fp_files:
-  - { file_name: 8.5.5-WS-WASSupplements-FP016-part1.zip }
-  - { file_name: 8.5.5-WS-WASSupplements-FP016-part2.zip }
-  - { file_name: 8.5.5-WS-WASSupplements-FP016-part3.zip }
+#ihs_version:                                     "8.5.5016.20190801_0951"
+#ihs_fp_files:
+#  - { file_name: 8.5.5-WS-WASSupplements-FP016-part1.zip }
+#  - { file_name: 8.5.5-WS-WASSupplements-FP016-part2.zip }
+#  - { file_name: 8.5.5-WS-WASSupplements-FP016-part3.zip }
 
 cnx_package:                                     "HCL_Connections_6.5_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_6.5_wizards_lin_aix.tar"
@@ -97,7 +97,6 @@ db_username:                                     LCUSER
 db_concord_username:                             docsuser
 db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
 db_port:                                         50000
-#db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
 db_type:                                         DB2
 setup_db2_jdbc:                                  True
 
@@ -107,9 +106,6 @@ cnx_enable_moderation:                           true
 cnx_enable_invite:                               true
 
 enable_prometheus_jmx_exporter:                  True
-
-kubernetes_version:                              1.17.2
-helm_version:                                    2.16.3
 
 setup_docker_registry:                           true
 component_pack_package_name:                     hybridcloud_6501.zip

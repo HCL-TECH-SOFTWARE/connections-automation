@@ -6,6 +6,7 @@
     force_destroy_db2:               false
     force_destroy_ihs:               false
     force_destroy_oracle:            false
+    force_destroy_tdi:               false
   import_playbook:                   cleanup-was.yml
 
 - name:                              Cleanup IHS
@@ -14,6 +15,7 @@
     force_destroy_db2:               false
     force_destroy_websphere:         false
     force_destroy_oracle:            false
+    force_destroy_tdi:               false
   import_playbook:                   cleanup-ihs.yml
 
 - name:                              Cleanup Kubernetes
@@ -22,6 +24,7 @@
     force_destroy_db2:               false
     force_destroy_websphere:         false
     force_destroy_oracle:            false
+    force_destroy_tdi:               false
   import_playbook:                   cleanup-k8s.yml
 
 - name:                              Cleanup DB2 database
@@ -30,7 +33,17 @@
     force_destroy_kubernetes:        false
     force_destroy_websphere:         false
     force_destroy_oracle:            false
+    force_destroy_tdi:               false
   import_playbook:                   cleanup-db2.yml
+
+- name:                              Cleanup TDI
+  vars:
+    force_destroy_ihs:               false
+    force_destroy_kubernetes:        false
+    force_destroy_websphere:         false
+    force_destroy_oracle:            false
+    force_destroy_db2:               false
+  import_playbook:                   cleanup-tdi.yml
 
 - name:                              Cleanup Oracle database
   vars:
@@ -38,6 +51,7 @@
     force_destroy_kubernetes:        false
     force_destroy_websphere:         false
     force_destroy_db2:               false
+    force_destroy_tdi:               false
   import_playbook:                   cleanup-oracle.yml
 
 - name:                              Cleanup NFS

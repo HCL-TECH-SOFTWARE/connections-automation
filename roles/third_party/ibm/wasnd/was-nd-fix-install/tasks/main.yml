@@ -8,3 +8,15 @@
 - name:          Install WebSphere Application Server - Fixes
   include_tasks: install_was_fixes.yml
   when:          version_already_installed.rc != 0
+
+- name:              Install WebSphere Application Server - Log4j Fix
+  include_tasks:     install_was_fixes.yml
+  vars:
+    __was_fixes_version:       "{{ __was_fp_version_log4j }}"
+    __was_fp_id:               "{{ __was_log4j_fix_id }}"
+    __was_fixes_files:         "{{ __was_fp_files_log4j }}"
+    __was_fp_id_prefix:        "{{ __was_log4j_fix_prefix }}"
+    version_already_installed: "{{ log4j_fix_already_installed }}"
+  when:
+    - __was_version_needs_log4j_fix is defined
+    - log4j_fix_already_installed.rc != 0

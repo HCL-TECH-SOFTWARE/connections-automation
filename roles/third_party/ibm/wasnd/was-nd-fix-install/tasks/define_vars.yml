@@ -39,3 +39,23 @@
   command:           "egrep {{ __was_fp_id }} /var/ibm/InstallationManager/installed.xml"
   register:          version_already_installed
   ignore_errors:     true
+
+- name:              WebSphere Application Server version needs Log4j fix?
+  set_fact:
+    __was_version_needs_log4j_fix:    True
+  when:              "__was_fixes_version is version_compare(__was_fp_version_fp20, '<=')"
+
+- debug:             var=__was_version_needs_log4j_fix
+
+- name:              Is Log4j fix already Installed?
+  command:           "egrep {{ __was_log4j_fix_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          log4j_fix_already_installed
+  ignore_errors:     true
+
+- debug:
+    msg:             "Log4j fix not installed"
+  when:              log4j_fix_already_installed.rc != 0
+
+- debug:
+    msg:             "Log4j fix is already installed"
+  when:              log4j_fix_already_installed.rc == 0

@@ -35,7 +35,7 @@
   when:                      (helm_version.stdout == "v2")
 
 - name:                      Setup orientme
-  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait --timeout 10m"
   become_user:               "{{ __sudo_user }}"
   when:                      (helm_version.stdout != "v2")
 

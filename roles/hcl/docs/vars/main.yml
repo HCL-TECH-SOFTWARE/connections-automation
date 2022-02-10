@@ -25,10 +25,12 @@ __was_cellname:                      "{{ was_cellname | default('ConnectionsCell
 #
 __cnx_deploy_type:                   "{{ cnx_deploy_type | default('small') }}"
 
-__install_latest_db2:                "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:                "{{ install_latest_db2 | default(true) }}"
 __db2_default_install_path:          "{{ '/opt/IBM/db2/V11.5' if __install_latest_db2 else '/opt/IBM/db2/V11.1' }}"
 __db2_installation_folder:           "{{ db2_installation_folder | default(__db2_default_install_path) }}"
 __db_concord_username:               "{{ db_concord_username | default('DOCSUSER') }}"
+__db2_user:                          "{{ db2_user | default('db2inst1') }}"
+__install_version_db2:               "{{ 'V11.5' if __install_latest_db2 else 'V11.1' }}"
 #
 __firstNfsNode:                      "{{ '' if (groups['nfs_servers'] is not defined) else (hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address']) }}"
 __nfsMasterAddress:                  "{{ nfsMasterAddress | default( __firstNfsNode ) }}"

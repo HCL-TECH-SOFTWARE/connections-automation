@@ -1,4 +1,7 @@
 ---
+- name:                       Pre-check DB2 version 
+  include_tasks:              precheck_DB2_version.yml
+
 - name:                       Setup Connections Wizards on DB2
   include_tasks:              setup_connections_wizards.yml
   when:

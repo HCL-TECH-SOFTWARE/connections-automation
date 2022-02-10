@@ -72,6 +72,18 @@
    - "{{ __db2_instance_homedir }}"
    - "{{ __db_installation_folder_dir }}"
 
+- name:                    Cleanup TDI
+  file:
+    path:                  "{{ item }}"
+    state:                 absent
+  tags:                    tdi_cleanup
+  when:
+   - __force_destroy_tdi == true
+  with_items:
+   - "{{ __tdi_sol_dest }}"
+   - "{{ __tdi_user_install_dir }}"
+   - "/var/.com.zerog.registry.xml"
+
 - name:                    Kill all IHSs processes
   shell:                   ps -ef | grep http | awk {'print $2'} | xargs kill -9
   ignore_errors:           true
@@ -91,6 +103,8 @@
    - "{{ __ihs_install_location }}"
    - "{{ __iim_install_location }}"
    - "{{ __var_ibm_base_location }}"
+   - "{{ __plg_install_location }}"
+   - "{{ __wct_install_location }}"   
 
 - name:                    Kill all WebSphere/Connections processes
   shell:                   ps -ef | grep java | awk {'print $2'} | xargs kill -9

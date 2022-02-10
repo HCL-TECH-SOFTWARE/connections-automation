@@ -84,10 +84,12 @@ __db_password:               "{{ db_password }}"
 __db_hostname:               "{{ db_hostname }}"
 __db_port:                   "{{ db_port  | default('50000') }}"
 
-__install_latest_db2:        "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:        "{{ install_latest_db2 | default(true) }}"
 __db2_default_jdbc_file:     "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
 __db_jdbc_file:              "{{ db_jdbc_file  | default(__db2_default_jdbc_file) }}"
 __db_type:                   "{{ db_type  | default('DB2') }}"
+__db2_user:                  "{{ db2_user | default('db2inst1') }}"
+__install_version_db2:       "{{ 'V11.5' if __install_latest_db2 else 'V11.1' }}"
 
 __was_encoded_password:      "WAS_ENCODED_PASSWORD"
 __xor_encoded_password:      "XOR_ENCODED_PASSWORD"

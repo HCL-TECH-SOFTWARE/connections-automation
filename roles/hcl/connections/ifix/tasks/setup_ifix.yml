@@ -6,7 +6,7 @@
 
 - name:               Run the iFix install for {{ ifix_apar }}
   shell:
-    chdir:            "{{ __cnx_install_location }}/updateInstaller/HCL_Connections_Install/tools/updateInstaller"
+    chdir:            "{{ __cnx_install_location }}/updateInstaller"
     cmd:              "./updateSilent.sh -installDir {{ __cnx_install_location }} -fix -fixDir {{ __cnx_install_location }}/updateInstaller/fixes -install -fixes {{ ifix_apar }} -wasUserId {{ was_username }} -wasPassword {{ was_password }} -featureCustomizationBackedUp {{ __cnx_ifix_backup }}"
   environment:
     WAS_HOME:         "{{ __was_install_location }}"

@@ -1,0 +1,32 @@
+#jinja2: trim_blocks:False
+
+# Define False, True
+(False,True)=(0,1)
+
+mail_session = AdminConfig.list('MailSession', '{{ __mail_session_name }}')
+
+config_updated=False
+
+{% if __mail_outgoing_server is defined %}
+# Modify Mail Session outgoing server
+params = []
+params.append(["mailTransportHost", '{{ __mail_outgoing_server }}'])
+AdminConfig.modify(mail_session, params)
+config_updated=True
+{% endif %}
+
+{% if __mail_session_props is defined %}
+# Modify Mail Session custom properties
+propertySet=AdminConfig.showAttribute(mail_session, 'propertySet')
+propertyList=AdminConfig.list('J2EEResourceProperty', propertySet).splitlines()
+
+for prop in propertyList:
+    {% for targetprop in __mail_session_props %}
+         if AdminConfig.showAttribute(prop, "name") == '{{ targetprop.name }}':
+            AdminConfig.modify(prop, [['value', '{{ targetprop.value }}']])
+            config_updated=True
+    {% endfor %}
+{% endif %}
+
+if config_updated:
+   AdminConfig.save()

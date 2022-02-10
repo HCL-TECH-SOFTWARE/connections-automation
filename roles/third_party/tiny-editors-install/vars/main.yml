@@ -1,0 +1,19 @@
+---
+__setup_environment:              "{{ setup_environment | default(true) }}"
+__tinyeditors_username:           "{{ tinyeditors_username | default('tinyeditorsuser') }}"
+__tinyeditors_customization_path: "{{ tinyeditors_customization_path | default('/opt/IBM/SharedArea/customization') }}"
+__tinyeditors_provision_path:     "{{ tinyeditors_provision_path | default('/opt/IBM/SharedArea/provision/webresources') }}"
+
+__install_tinyeditors:            "{{ install_tinyeditors | default('true') }}"
+__uninstall_tinyeditors:          "{{ uninstall_tinyeditors | default('true') }}"
+
+__download_location:              "{{ tinyeditors_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/TinyEditors') }}"
+__package_name:                   "{{ tinyeditors_package_name | default('TinyEditorsForConnections.zip') }}"
+__hcl_program_folder:             "{{ hcl_program_folder | default('/opt/HCL') }}"
+__extraction_folder:              "{{ __hcl_program_folder }}/InstallBinaries/TinyEditors"
+__installation_folder:            "{{ __extraction_folder }}/TinyEditorsForConnections"
+
+__tinyeditors_config_file_path:   "{{ tinyeditors_config_file_path | default('/opt/ephox') }}"
+__tinyeditors_config_file_name:   "{{ tinyeditors_config_file_name | default('application.conf') }}"
+__tinyeditors_conf_template:      "configure-tiny-editors.j2"
+__tinyeditors_conf_destination:   "{{ __tinyeditors_config_file_path }}/{{ __tinyeditors_config_file_name }}"

@@ -1,0 +1,16 @@
+ephox {
+allowed-origins {
+origins = [
+
+"http://{{ dmgr_hostname }}",
+"https://{{ dmgr_hostname }}",
+"http://{{ dmgr_hostname }}:9081",
+"https://{{ dmgr_hostname }}:9444"
+
+]
+}
+http {
+websphere.use-ssl-config = false
+trust-all-cert = true
+}
+}

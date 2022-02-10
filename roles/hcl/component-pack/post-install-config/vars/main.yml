@@ -60,6 +60,8 @@ __searchcfg_queries_solr_xpath: "/tns:config/tns:propertySettings/tns:property[@
 # QuickResults
 __enable_qr:                 "{{ enable_qr | default(true) }}"
 __lcc_qr_xpath:              "/tns:config/tns:properties/tns:genericProperty[@name=\"quickResultsEnabled\"]"
+__es_qr_index_template:      "enable_es_qr_index.j2"
+__es_qr_index_destination:   "{{ __dmgr_bin_dir }}/enable_es_qr_index"
 
 # ElasticSearch
 __enable_major_es7:          "{{ enable_major_es7 | default(true) }}"

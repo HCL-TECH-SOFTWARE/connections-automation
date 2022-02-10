@@ -12,8 +12,8 @@ __rsp_file:               "{{ __logs_dir }}/ihs_plg_wct_fixes.rsp"
 __log_file:               "{{ __logs_dir }}/ihs_fixes_install.{{ __now }}.log"
 __tpl_file:               "ihs_plg_wct_fixes.rsp.j2"
 
-__ihs_fp_version_latest:  "{{ ihs_fp_version_latest | default( __ihs_fp_version_fp19 ) }}"
-__ihs_fp_files_latest:    "{{ ihs_fp_files_latest | default( __ihs_fp_files_fp19 ) }}"
+__ihs_fp_version_latest:  "{{ ihs_fp_version_latest | default( __ihs_fp_version_fp20 ) }}"
+__ihs_fp_files_latest:    "{{ ihs_fp_files_latest | default( __ihs_fp_files_fp20 ) }}"
 
 __ihs_fp_version_fp20:    "8.5.5020.20210708_1826"
 __ihs_fp_files_fp20:

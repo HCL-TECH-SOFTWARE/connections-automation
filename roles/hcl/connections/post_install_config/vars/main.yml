@@ -8,7 +8,6 @@ __bin_dir:                   "{{ __was_install_location }}/profiles/{{ __profile
 __cnx_major_version:         "{{ cnx_major_version | default('7') }}"
 
 # LDAP defaults
-
 __ldap_realm:                "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com') }}"
 __ldap_server_default:       "{{ hostvars[groups['ldap_servers'][0]]['inventory_hostname'] }}"
 __ldap_server:               "{{ ldap_server | default( __ldap_server_default ) }}"
@@ -96,3 +95,6 @@ __touchpoint_config_file:                         "{{ __was_install_location }}/
 __touchpoint_acceptinvalidsslcerts_search_str:    "<!-- acceptInvalidSSLCerts>true</acceptInvalidSSLCerts -->"
 __touchpoint_acceptinvalidsslcerts_replace_str:   "<acceptInvalidSSLCerts>true</acceptInvalidSSLCerts>"
 __touchpoint_acceptinvalidsslcerts:               "{{ touchpoint_acceptinvalidsslcerts | default('false') }}"
+
+# mail session config
+__mail_smtp_port:                   "{{ mail_smtp_port | default('25') }}"

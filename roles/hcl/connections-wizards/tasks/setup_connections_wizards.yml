@@ -27,11 +27,6 @@
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
   retries:               3
 
-- name:                  Disable fingerprinting
-  command:               authconfig --disablefingerprint --update
-  when:
-    - not migrations_already_done.stat.exists
-
 - name:                  Stop CNX cluster for database cleanup
   include_role:
     name:                roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
@@ -104,7 +99,7 @@
    - "connections.sql/ic360/db2/dropDb.sql"
   when:
     - __cnx_force_repopulation |bool
-    - __db_version == '7.0'
+    - __db_version is version('7.0', '>=')
   ignore_errors:         yes
 
 - name:                  Drop ICEC database only
@@ -240,7 +235,7 @@
    - "connections.sql/ic360/db2/appGrants.sql"
   when:
     - not ic360_migrations_already_done.stat.exists
-    - __db_version == '7.0'
+    - __db_version is version('7.0', '>=')
 
 - name:                  Creating Connections database for ICEC
   shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"

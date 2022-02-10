@@ -32,7 +32,6 @@
   when:
     - __cnx_major_version is version('7', '>=')
 
-
 - name:                                     Set Invite LDAP server href and ssl_href
   xml:
     path:                                   "{{ __selfreg_full_path }}"
