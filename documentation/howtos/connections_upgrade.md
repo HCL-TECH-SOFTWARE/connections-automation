@@ -29,7 +29,7 @@ Before you proceed, let's analyse very quickly what is important for which step.
 
 ### Setting up your inventory file
 
-To set up 6.5CR1, let's assume that we want to also install IBM WebSphere ND 8.5.5 with FixPack 16 (for HCL Connections 7 recommended version is FixPack 18).
+To set up 6.5CR1, let's assume that we want to also install IBM WebSphere ND 8.5.5 with FixPack 20 (for HCL Connections 7 recommended version is FixPack 20).
 
 Please note that [this example file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/inventory.ini) is already set to overwrite defaults, which means it will install non default packages and we will explain here what it is doing differently:
 
@@ -72,9 +72,9 @@ So again we will make it two parts work - tweak your inventory file, and do the 
 
 Again, we will reference [this inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/inventory.ini)
 
-* Comment out [those lines](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L40, https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L42) since we do not want FP18 anymore
+* Comment out [those lines](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L40, https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L42) since we do not want FP20 anymore
 * Uncomment [those lines](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/84fad83cb7cc95918330720f32362c527419dfb4/environments/examples/cnx6/connections#L58-L59) to switch to the proper folder. If you have all the packages living in the same folder, then there is obviously nothing to be done in this and previous step, since package names are always different.
-* FP18 package names are different, so simply remove [those lines](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L55-L70) (yes, just remove them) to fail over to default names. In case you are using files with a different name(s), then you need to [use this section](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L55-L70) as a reference on how to overwrite the defaults. Note that current defaults are FixPack 18 names.
+* FP20 package names are different, so in case of FP16 simply uncomment [those lines](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L54-L70) to fail over to default names. In case you are using files with a different name(s), then you need to [use this section](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L55-L70) as a reference on how to overwrite the defaults. Note that current defaults are FixPack 20 names.
 
 And that's it. You are ready to roll.
 
@@ -106,7 +106,7 @@ And that's it. You can access your HCL Connections application now.
 
 You already got the idea that all there is with the installation/upgrade is handled by manipulating variables in your inventory files.
 
-For a sake of this HowTo, let's assume that we did all the steps mentioned until now: we installed HCL Connections end to end on WAS ND 8.5.5.16, and then upgraded WAS ND only from FP16 to FP18, and we have currently HCL Connections 6.5CR1 running as a result on WAS ND 8.5.5.18.
+For a sake of this HowTo, let's assume that we did all the steps mentioned until now: we installed HCL Connections end to end on WAS ND 8.5.5.16, and then upgraded WAS ND only from FP16 to FP20, and we have currently HCL Connections 6.5CR1 running as a result on WAS ND 8.5.5.18.
 
 To upgrade HCL Connections itself from 6.5CR1 to 7.0, we need to do again three things:
 
