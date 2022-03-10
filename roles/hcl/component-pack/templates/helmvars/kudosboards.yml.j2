@@ -29,12 +29,14 @@ webfront:
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
+      kubernetes.io/ingress.class: nginx
     path: /boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
+    - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
 {% if  load_balancer_dns != frontend_fqdn %}
     - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
 {% endif %}
@@ -45,13 +47,6 @@ webfront:
 core:
   image:
     name: kudosboards-core
-  env:
-    NOTIFIER_EMAIL_HOST: smtp.example.com
-    NOTIFIER_EMAIL_USERNAME: user123
-    NOTIFIER_EMAIL_PASSWORD: passw0rd
-    # APP_NAME: Kudos Boards # Used for all notifications, e.g. Orient Me
-    # NOTIFIER_EMAIL_FROM_NAME: Kudos Boards
-    # NOTIFIER_EMAIL_FROM_EMAIL: boards@connections.example.com
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
@@ -90,12 +85,22 @@ user:
     # CONNECTIONS_NAME: HCL Connections
     CONNECTIONS_CLIENT_ID: kudosboards
     CONNECTIONS_URL: https://{{ frontend_fqdn }}
-    CONNECTIONS_CLIENT_SECRET: {{ kudosboards_secret.stdout_lines | last }} 
+    CONNECTIONS_CLIENT_SECRET: {{ kudosboards_secret.stdout_lines | last }}
     CONNECTIONS_ADMINS: "[\"admin1@company.example.com\", \"boss2@company.example.com\", \"PROF_GUID_3\"]"
 
 provider:
   image:
     name: kudosboards-provider
+
+events:
+  image:
+    name: kudosboards-boards-event
+  env:
+    NOTIFIER_EMAIL_HOST: smtp.example.com
+    NOTIFIER_EMAIL_USERNAME: user123
+    NOTIFIER_EMAIL_PASSWORD: passw0rd
+    # NOTIFIER_EMAIL_FROM_NAME: Kudos Boards
+    # NOTIFIER_EMAIL_FROM_EMAIL: boards@connections.example.com
 
 migration:
   image:

@@ -1,8 +1,11 @@
 - name:                  Setup DB2
   import_playbook:       setup-db2.yml
+  when:                  "'db2_servers' in groups"
 
 - name:                  Setup Oracle
   import_playbook:       setup-oracle.yml
+  when:                  "'oracle_servers' in groups"
 
 - name:                  Setup MSSQL
   import_playbook:       setup-mssql.yml
+  when:                  "'mssql_servers' in groups"  

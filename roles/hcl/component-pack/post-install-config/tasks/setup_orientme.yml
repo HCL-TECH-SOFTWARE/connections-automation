@@ -8,12 +8,12 @@
   when:                                     cnx_setup_mt is not defined or not cnx_setup_mt|bool
   # internal use only, do not set cnx_setup_mt to true.  This is set via auto-deploy when MT.
 
-- name:                                     Enable action center in LCC.xml
+- name:                                     "Update actioncenter in LCC.xml to {{ __enable_action_center | lower }}" 
   xml:
     path:                                   "{{ __lcc_full_path }}"
     namespaces:                             "{{ __lcc_namespaces }}"
     xpath:                                  "{{ __lcc_action_center_xpath }}"
-    value:                                  "enabled"
+    value:                                  "{{ __enable_action_center | lower }}"
 
 # Query element text using XPath
 - name:                                     Get current value of isHomepageSwitcherEnabled

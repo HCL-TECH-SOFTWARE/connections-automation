@@ -51,13 +51,6 @@ server {
                     proxy_pass http://{{ __mw_proxy_address }}:31111;
                 }
 
-                location /api-boards/ {
-                    proxy_pass https://{{ ic_internal }};
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection "upgrade";
-                }
-
                 proxy_pass https://{{ ic_internal }};
         }
 }

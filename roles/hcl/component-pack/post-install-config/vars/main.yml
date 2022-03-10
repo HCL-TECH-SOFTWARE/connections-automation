@@ -41,6 +41,7 @@ __lcc_genprop_default_hpswitch_xpath:  "/tns:config/tns:properties/tns:genericPr
 
 __enable_homepage_switcher:            "{{ enable_homepage_switcher | default('true') }}"
 __enable_orientme_default_hp:          "{{ enable_orientme_default_hp | default('true') }}"
+__enable_action_center:                "{{ enable_action_center | default('enabled') }}"
 
 # appreg
 __lcc_version_xpath: "/tns:config/tns:properties"
