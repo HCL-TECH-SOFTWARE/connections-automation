@@ -28,7 +28,7 @@
   xml:
     path:                                   "{{ __selfreg_full_path }}"
     xpath:                                  "{{ __selfreg_invite_usertype_xpath }}"
-    value:                                  "{{ invite_user_type | default('internal') }}"
+    value:                                  "{{ invite_user_type | default('external') }}"
   when:
     - __cnx_major_version is version('7', '>=')
 

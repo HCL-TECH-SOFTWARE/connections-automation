@@ -3,24 +3,28 @@
 - name:                    Install Kubernetes
   hosts:                   k8s_masters, k8s_workers
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/kubernetes-install
 
 - name:                    Setup and initialize Kubernetes master node
   hosts:                   k8s_masters
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/setup-master-node
 
 - name:                    Setup kubectl on masters and workers
   hosts:                   k8s_masters, k8s_workers
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/setup-kubectl
 
 - name:                    Enable PodSecurity Policy
   hosts:                   k8s_masters
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/enable-pod-security-policy
 
@@ -28,6 +32,7 @@
   hosts:                   k8s_masters
   serial:                  1
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/install-network-addons
 
@@ -35,23 +40,27 @@
   hosts:                   k8s_masters
   serial:                  1
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/join-master-nodes
 
 - name:                    Setup Kubernetes worker nodes
   hosts:                   k8s_workers
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/setup-worker-node
 
 - name:                    Allow pods to run on master in case of single node installation
   hosts:                   k8s_masters, k8s_workers
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/kubernetes/taint-all-nodes
 
 - name:                    Setup Helm
   hosts:                   k8s_admin
   become:                  true
+  any_errors_fatal:        true
   roles:
     - roles/third_party/helm-install

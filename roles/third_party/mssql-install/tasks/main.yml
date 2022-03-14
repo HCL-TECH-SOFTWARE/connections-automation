@@ -23,6 +23,6 @@
 - name:                            Setup JDBC for MSSQL
   include_tasks:                   setup_jdbc.yml
   when:
-    - "'mssql_servers' in group_names and ('was_servers' in group_names or 'ldap_servers' in group_names)"
+    - "'mssql_servers' in groups and ('was_servers' in group_names or 'ldap_servers' in group_names)"
     - inventory_hostname in groups["was_servers"] or inventory_hostname in groups["mssql_servers"] or inventory_hostname in groups["ldap_servers"]
     - __setup_mssql_jdbc |bool

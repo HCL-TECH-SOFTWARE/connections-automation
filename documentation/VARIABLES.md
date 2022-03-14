@@ -215,6 +215,9 @@ cnx_enable_moderation | false | true will install and configure Moderation
 global_moderator | *none* - optional | Global moderator user
 cnx_enable_full_icec | false | true will configure full CEC
 cnx_enable_lang_selector | false | true will enable and add additional languages to the language selector
+enable_homepage_switcher | true | set `com.ibm.orient.isHomepageSwitcherEnabled` in LotusConnections-config.xml
+enable_orientme_default_hp | true | true will set `com.ibm.orient.isOrientHomepage` in LotusConnections-config.xml
+enable_action_center | enabled | set `actioncenter` in LotusConnections-config.xml
 mail_outgoing_server | *none* - optional | Mail notification outgoing server.  When set, it will also set the SMTP port according to `{{ mail_smtp_port }}`
 mail_smtp_port | 25 | Mail SMTP port, set when `{{ mail_outgoing_server }}` is defined
 cnx_updates_enabled | false | true will upgrade Connections if a new version is available in cnx_repository_url

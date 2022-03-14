@@ -6,10 +6,39 @@
    - chown {{ __kubectl_user }} /home/{{ __kubectl_user }}/.kube/config
   when:               inventory_hostname == groups['k8s_masters'][0]
 
-- name:               Copy .kube to all hosts
+- name:               Copy .kube to controller
   synchronize:
-    src:              /home/{{ __kubectl_user }}/.kube
-    dest:             /home/{{ __kubectl_user }}/
-  delegate_to:        "{{ groups['k8s_masters'][0] }}"
+    src:              "/home/{{ __kubectl_user }}/.kube"
+    dest:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
+    mode:             pull
+  when:               inventory_hostname == groups['k8s_masters'][0]
+
+- name:               Copy .kube to all hosts
+  copy:
+    src:              "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
+    dest:             /tmp/
   when:               inventory_hostname != groups['k8s_masters'][0]
   become:             false
+
+- name:               "Copy .kube to {{ __kubectl_user }}"
+  copy:
+    src:              "/tmp/.kube_{{ groups['k8s_masters'][0] }}/"
+    dest:             "/home/{{ __kubectl_user }}/"
+    remote_src:       yes
+  when:               inventory_hostname != groups['docker_registry'][0]
+  become_user:        "{{ __kubectl_user }}"
+
+- name:               Cleanup .kube on controller
+  local_action:
+    module:           file
+    state:            absent
+    path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
+  become:             false
+  ignore_errors:      yes
+
+- name:               Cleanup .kube on /tmp
+  file:
+    state:            absent
+    path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
+  become:             false
+  ignore_errors:      yes

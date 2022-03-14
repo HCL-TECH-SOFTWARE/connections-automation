@@ -7,15 +7,19 @@
   delegate_to:               "{{ item }}"
   with_items:
    - "{{ groups['db2_servers'] }}"
+  when:
+    - "'db2_servers' in group_names"
 
 - debug:
     msg:                      DB2 is already up and running
   when:
+    - "'db2_servers' in group_names"
     - db2_running.results[0].rc == 0
 
 - name:                       Pre-check DB2 version
   include_tasks:              precheck_DB2_version.yml
   when:
+    - "'db2_servers' in group_names"
     - db2_running.results[0].rc == 0
 
 - name:                       Prepare Environment for DB2
@@ -62,6 +66,7 @@
 
 - name:                       Install jdbc drivers only
   include_tasks:              install_jdbc.yml
-  when:  
+  when:
+    - "'db2_servers' in groups"
     - inventory_hostname in groups["was_servers"]
     - __setup_db2_jdbc |bool

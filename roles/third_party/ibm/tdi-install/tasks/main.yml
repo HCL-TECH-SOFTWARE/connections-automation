@@ -4,6 +4,8 @@
 
 - name:                       Pre-check DB2 version
   include_tasks:              precheck_DB2_version.yml
+  when:
+    - "'db2_servers' in groups"
 
 - name:                       Download and install TDI
   include_tasks:              tdi_install.yml
@@ -14,7 +16,7 @@
 
 - name:                       TDI Upgrade from java 7 to 8
   include_tasks:              upgrade-tdi-jre.yml
-  when:                       __upgrade_tdi_jre | bool
+  when:                       __upgrade_tdi_jre | bool or __cnx_major_version is version('7', '>')
 
 - name:                       Download and install tdisol
   include_tasks:              tdisol_install.yml

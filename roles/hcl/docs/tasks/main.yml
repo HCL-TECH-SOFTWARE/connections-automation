@@ -7,6 +7,8 @@
 
 - name:                    Pre-check DB2 version
   include_tasks:           precheck_DB2_version.yml
+  when:
+    - "'db2_servers' in groups"  
 
 - name:                    Download Docs installer to Docs env
   include_tasks:           download_docs.yml

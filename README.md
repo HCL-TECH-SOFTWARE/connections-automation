@@ -6,7 +6,7 @@ Before you start, please be sure to check out [Frequently Asked Questions](https
 
 For HCL Connections 7 dependencies this means that:
 
-* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from FlexNet, will be applied only to IBM DB2 v11.1. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
+* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from FlexNet, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
 * HCL Connections Wizard will populate the database with needed schemas and grants.
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
@@ -85,9 +85,9 @@ DB2:
 total 2067052
 drwxr-xr-x.  2 dmenges orion           96 Nov 19 11:01 .
 drwxr-xr-x. 13 root    orion          192 Nov 18 08:33 ..
--rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 CNB23ML.zip
--rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 v11.1.4fp5_jdbc_sqlj.tar.gz
--rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.1.4fp5_linuxx64_universal_fixpack.tar.gz
+-rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
+-rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 v11.5.6_jdbc_sqlj.tar.gz
+-rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.5.6_linuxx64_universal_fixpack.tar.gz
 
 Docs:
 total 1397484
@@ -433,7 +433,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/s
 
 ### Running post installation tasks
 
-If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post installation bits and pieces to make the Connections deployment accessible.  Otherwise, continue to the Component Pack deployment before testing the deployment.
+If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post installation bits and pieces to make the Connections deployment accessible.  Otherwise, continue to the Component Pack deployment before testing the deployment. 
 
 ```
 ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/connections-post-install.yml
