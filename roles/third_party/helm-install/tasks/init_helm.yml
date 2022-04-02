@@ -1,12 +1,12 @@
 - name:              Check Helm Version
-  shell:             helm version -c|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
+  shell:             helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"
   changed_when:      true
   register:          helm_version
   become:            false
   ignore_errors:     true
 
 - name:              Check Helm Version
-  shell:             helm version -c|awk -F "," '{print $1}'|cut -d ":" -f 3|sed "s/\"//g"|sed "s/v//g"
+  shell:             helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"|sed "s/v//g"
   changed_when:      true
   register:          helm_ver
   become:            false
