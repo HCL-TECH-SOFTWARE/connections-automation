@@ -14,9 +14,7 @@
   run_once: true
 
 - name:                      Check Helm Verion
-  shell:                     helm version -s|awk -F "," '{print $1}'|awk -F ":" '{print $3}'|awk -F "." '{print $1}'|sed "s/\"//g"
-  when:
-   - ("api." not in cluster_flavor_check.stdout)
+  shell:                     helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"
   changed_when:              true
   register:                  helm_version
   become_user:               "{{ __sudo_user }}"

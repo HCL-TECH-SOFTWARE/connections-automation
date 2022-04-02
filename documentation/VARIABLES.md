@@ -135,7 +135,7 @@ Name | Default | Description
 was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5020.20210708_1826 | WebSphere Fix Pack version
+was_fp_version | 8.5.5021.20220202_1245 | WebSphere Fix Pack version
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -149,7 +149,7 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5020.20210708_1826 | IHS Fix Pack version
+ihs_version | 8.5.5021.20220202_1245 | IHS Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path

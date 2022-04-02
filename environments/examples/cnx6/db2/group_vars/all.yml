@@ -37,9 +37,9 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections6.5
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP20
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP20
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections6.5
 cnx_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
