@@ -21,3 +21,4 @@
 
 - name:                  Update HCL Connections
   import_playbook:       hcl/setup-connections-ifix.yml
+  when:                  ifix_apar is defined
