@@ -83,9 +83,10 @@ cnx_enable_invite:                               true
 
 enable_prometheus_jmx_exporter:                  True
 
-ifix_apar:                                       LO100079
-cnx_ifix_installer:                              "updateInstaller_2102.zip"
-ifix_file:                                       HCL_Connections_70_Update.jar
+# uncomment these lines, set to the latest cFix to include it as part of the initial install 
+# ifix_apar:                                       LO100079
+# cnx_ifix_installer:                              "updateInstaller_2102.zip"
+# ifix_file:                                       HCL_Connections_70_Update.jar
 
 setup_docker_registry:                           true
 component_pack_package_name:                     hybridcloud_latest.zip
