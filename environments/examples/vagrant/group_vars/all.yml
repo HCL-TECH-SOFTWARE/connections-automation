@@ -71,9 +71,10 @@ cnx_enable_full_icec:                            true
 
 enable_prometheus_jmx_exporter:                  True
 
-ifix_apar:                                       CFix.70.2110
-cnx_ifix_installer:                              "updateInstaller_2104.zip"
-ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
+# uncomment these lines, set to the latest cFix to include it as part of the initial install
+# ifix_apar:                                       CFix.70.2110
+# cnx_ifix_installer:                              "updateInstaller_2104.zip"
+# ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
 
 setup_docker_registry:                           true
 component_pack_package_name:                     component_pack_latest.zip
