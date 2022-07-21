@@ -4,7 +4,8 @@
     <variable name='sharedLocation' value='{{ __imshared_location }}'/>
   </variables>
   <server>
-    <repository location='{{ __tmp_dir }}'/>
+    <repository location='{{ __tmp_dir }}/wassup_fixes'/>
+    <repository location='{{ __tmp_dir }}/wctfixes'/>
   </server>
 <profile id='IBM HTTP Server V8.5' installLocation='{{ __ihs_install_location }}'>
   <data key='cic.selector.arch' value='x86'/>
@@ -15,7 +16,7 @@
   <data key='user.internal.use.only.prev.wasjava' value='java6'/>
 </profile>
 <install>
-  <!-- IBM HTTP Server for WebSphere Application Server 8.5.5.11 -->
+  <!-- IBM HTTP Server for WebSphere Application Server 8.5.5.x -->
   <offering profile='IBM HTTP Server V8.5' id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}' features='arch.64bit,core.feature'/>
 </install>
 <profile id='Web Server Plug-ins for IBM WebSphere Application Server V8.5' installLocation='{{ __plg_install_location }}'>
@@ -24,9 +25,14 @@
   <data key='user.internal.use.only.prev.wasjava' value='java6'/>
 </profile>
 <install>
-  <!-- Web Server Plug-ins for IBM WebSphere Application Server 8.5.5.11 -->
+  <!-- Web Server Plug-ins for IBM WebSphere Application Server 8.5.5.x -->
   <offering profile='Web Server Plug-ins for IBM WebSphere Application Server V8.5' id='com.ibm.websphere.PLG.v85' version='{{ __ihs_version }}' features='com.ibm.jre.6_64bit,core.feature'/>
 </install>
+<install>
+  <!-- WebSphere Customization Toolbox 8.5.5.x -->
+  <offering profile='WebSphere Customization Toolbox V8.5' id='com.ibm.websphere.WCT.v85' version='{{ __wct_version }}' features='core.feature,pct'/>
+</install>
+
 <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${sharedLocation}'/>
 <preference name='offering.service.repositories.areUsed' value='false'/>
 </agent-input>
