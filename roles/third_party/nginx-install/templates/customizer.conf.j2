@@ -51,6 +51,16 @@ server {
                     proxy_pass http://{{ __mw_proxy_address }}:31111;
                 }
 
+                location /kibana7/ {
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_cache_bypass $http_upgrade;
+                    proxy_pass https://{{ groups['k8s_workers'][0] }}:30108/;
+                    rewrite ^/kibana7/(.*)$ /$1 break;
+                }                
+
                 proxy_pass https://{{ ic_internal }};
         }
 }
