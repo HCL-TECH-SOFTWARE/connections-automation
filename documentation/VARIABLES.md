@@ -150,6 +150,7 @@ Name | Default | Description
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
 ihs_version | 8.5.5021.20220202_1245 | IHS Fix Pack version
+wct_version | 8.5.5021.20220202_1245 | WebSphere Toolbox Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
