@@ -1,6 +1,6 @@
 ---
 __repository_url:         "{{ ihs_fixes_repository_url | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/was855FP19') }}"
-__tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}/wassup_fixes"
+__tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}"
 __logs_dir:               "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
 __iim_install_location:   "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
 __ihs_install_location:   "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
@@ -49,6 +49,20 @@ __ihs_version:            "{{ ihs_version | default( __ihs_fp_version_latest ) }
 __ihs_fp_files:           "{{ ihs_fp_files | default( __ihs_fp_files_latest ) }}"
 __ihs_version_check:      "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
 __ihs_version_id:         "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
+
+### WCT
+__wct_version:            "{{ wct_version | default( __wct_fp_version_latest ) }}"
+__wct_fp_files:           "{{ wct_fp_files | default( __wct_fp_files_latest ) }}"
+__wct_fp_version_latest:  "{{ wct_fp_version_latest | default( __wct_fp_version_fp21 ) }}"
+__wct_fp_files_latest:    "{{ wct_fp_files_latest | default( __wct_fp_files_fp21 ) }}"
+
+__wct_fp_version_fp21:    "8.5.5021.20220202_1245"
+__wct_fp_files_fp21:
+  - { file_name: 8.5.5-WS-WCT-FP021-part1.zip }
+  - { file_name: 8.5.5-WS-WCT-FP021-part2.zip }
+
+__wct_fp_files_fp12:
+  - { file_name: 9.0.5-WS-WCT-FP011.zip }
 
 __iim_product_id:         "\"id='com.ibm.cic.agent\""
 __ihs_product_id:         "\"id='com.ibm.websphere.IHS.v85'\""
