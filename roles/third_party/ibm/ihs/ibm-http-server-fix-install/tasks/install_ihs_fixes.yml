@@ -4,7 +4,11 @@
   ignore_errors: true
 
 - name:          Create Binaries directory
-  file:          path={{ __tmp_dir }} state=directory mode=0755
+  file:              path={{ item }} state=directory mode=0755
+  with_items:
+    - "{{ __tmp_dir }}"
+    - "{{ __tmp_dir }}/wassup_fixes"
+    - "{{ __tmp_dir }}/wctfixes"
 
 - name:          Create Logs directory
   file:          path={{ __logs_dir }} state=directory mode=0755
@@ -12,9 +16,16 @@
 - name:          Extract WAS Supplements Fixes
   unarchive:
     src:         "{{ __repository_url }}/{{ item.file_name }}"
-    dest:        "{{ __tmp_dir }}/"
+    dest:        "{{ __tmp_dir }}/wassup_fixes"
     remote_src:  yes
   with_items:    "{{ __ihs_fp_files }}"
+
+- name:          Extract WAS WCT FP Files
+  unarchive:
+    src:         "{{ __repository_url }}/{{ item.file_name }}"
+    dest:        "{{ __tmp_dir }}/wctfixes"
+    remote_src:  yes
+  with_items:    "{{ __wct_fp_files }}"
 
 - name:          Generate Response file
   template:
