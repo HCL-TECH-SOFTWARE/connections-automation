@@ -14,9 +14,9 @@ __registry_user:                "{{ registry_user | default('admin') }}"
 __registry_password:            "{{ registry_password | default('password') }}"
 
 __certs_folder:                 "/etc/docker/certs"
-__registry_cert:                "/etc/docker/certs.d/{{ inventory_hostname }}:5000"
+__registry_cert:                "/etc/docker/certs.d/{{ groups['docker_registry'][0] }}:5000"
 
 __overlay2_enabled:             "{{ overlay2_enabled | default(true) }}"
 
 __docker_cnf_template:          "cert.cnf.j2"
-__docker_cnf_location:          "{{ __certs_folder }}/{{ groups['docker_registry'][0] }}.cnf"
+__docker_cnf_location:          "{{ __certs_folder }}/{{ inventory_hostname }}.cnf"
