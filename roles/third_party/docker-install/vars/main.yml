@@ -19,4 +19,4 @@ __registry_cert:                "/etc/docker/certs.d/{{ inventory_hostname }}:50
 __overlay2_enabled:             "{{ overlay2_enabled | default(true) }}"
 
 __docker_cnf_template:          "cert.cnf.j2"
-__docker_cnf_location:          "{{ __certs_folder }}/{{ inventory_hostname }}.cnf"
+__docker_cnf_location:          "{{ __certs_folder }}/{{ groups['docker_registry'][0] }}.cnf"
