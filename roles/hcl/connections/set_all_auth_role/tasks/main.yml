@@ -1,21 +1,21 @@
 ---
 - name: Is restrict_reader_access
   set_fact:
-    __allauth_value:                   "{{ 'yes' if (restrict_reader_access is defined and restrict_reader_access |bool) else '' }}"
+    __allauth_value: "{{ 'yes' if (restrict_reader_access is defined and restrict_reader_access |bool) else '' }}"
 
 - debug: var=__allauth_value
 
 - name: Is restrict_reader_access__trusted_realms
   set_fact:
-    __allauth_trusted_value:         "{{ 'yes' if (restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms |bool) else '' }}"
+    __allauth_trusted_value: "{{ 'yes' if (restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms |bool) else '' }}"
 
 - debug: var=__allauth_trusted_value
 
-- name:                      Update applications J2EE reader role to All Authenticated (Blogs, Dogear, Homepage, Search)
+- name: Update applications J2EE reader role to All Authenticated (Blogs, Dogear, Homepage, Search)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -30,11 +30,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Activities)
+- name: Update applications J2EE reader role to All Authenticated (Activities)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -45,11 +45,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Common)
+- name: Update applications J2EE reader role to All Authenticated (Common)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "allAuthenticated", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -62,11 +62,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Communities)
+- name: Update applications J2EE reader role to All Authenticated (Communities)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -80,11 +80,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (ConnectionsProxy, WidgetContainer)
+- name: Update applications J2EE reader role to All Authenticated (ConnectionsProxy, WidgetContainer)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "allAuthenticated", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -97,11 +97,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Files)
+- name: Update applications J2EE reader role to All Authenticated (Files)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -116,11 +116,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Forums)
+- name: Update applications J2EE reader role to All Authenticated (Forums)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -134,11 +134,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (ICEC)
+- name: Update applications J2EE reader role to All Authenticated (ICEC)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "READER", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
   with_items:
@@ -147,11 +147,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Invite, Mobile)
+- name: Update applications J2EE reader role to All Authenticated (Invite, Mobile)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -162,11 +162,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Metrics, MetricsUI)
+- name: Update applications J2EE reader role to All Authenticated (Metrics, MetricsUI)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -181,11 +181,11 @@
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
 
-- name:                      Update applications J2EE reader role to All Authenticated (MetricsEventCapture, PushNotification, StorageProxy)
+- name: Update applications J2EE reader role to All Authenticated (MetricsEventCapture, PushNotification, StorageProxy)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -199,11 +199,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Mobile Administration)
+- name: Update applications J2EE reader role to All Authenticated (Mobile Administration)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "everyone", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -213,11 +213,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Moderation)
+- name: Update applications J2EE reader role to All Authenticated (Moderation)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -228,11 +228,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (News)
+- name: Update applications J2EE reader role to All Authenticated (News)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -246,11 +246,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Profiles)
+- name: Update applications J2EE reader role to All Authenticated (Profiles)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "allAuthenticated", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -263,11 +263,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (RichTextEditors)
+- name: Update applications J2EE reader role to All Authenticated (RichTextEditors)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "yes", __allauth: "no", __users: '""', __groups: '""', __allauth_trusted: '""', __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -277,11 +277,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (URLPreview)
+- name: Update applications J2EE reader role to All Authenticated (URLPreview)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -292,11 +292,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (Wikis)
+- name: Update applications J2EE reader role to All Authenticated (Wikis)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "person", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
@@ -310,11 +310,11 @@
     restrict_reader_access is defined and restrict_reader_access|bool or
     restrict_reader_access__trusted_realms is defined and restrict_reader_access__trusted_realms|bool
 
-- name:                      Update applications J2EE reader role to All Authenticated (IC360_core)
+- name: Update applications J2EE reader role to All Authenticated (IC360_core)
   include_role:
-    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
   vars:
-    __app:                   "{{ item }}"
+    __app: "{{ item }}"
     __role_mapping_prop:
       - { __role: "ic360", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
   with_items:
