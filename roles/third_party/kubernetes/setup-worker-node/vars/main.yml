@@ -1,5 +1,5 @@
 ---
-__ansible_cache:                "/tmp/k8s_ansible"
+__ansible_cache: /tmp/k8s_ansible
 
-__join_command_template:        "join.command.j2"
-__join_command_location:        "{{ __ansible_cache }}/.join-command"
+__join_command_template: join.command.j2
+__join_command_location: '{{ __ansible_cache }}/.join-command'

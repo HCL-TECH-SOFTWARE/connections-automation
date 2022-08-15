@@ -1,19 +1,19 @@
 ---
-- name:                  Clean WAS temp folders
-  hosts:                 dmgr, was_servers
-  become:                true
+- name: Clean WAS temp folders
+  hosts: dmgr, was_servers
+  become: true
   roles:
     - roles/hcl/connections/clean_was_temp
 
-- name:                  Synchronize WAS nodes
-  hosts:                 dmgr
-  become:                true
+- name: Synchronize WAS nodes
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
 
-- name:                  Restart CNX Clusters
-  hosts:                 dmgr
-  become:                true
+- name: Restart CNX Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

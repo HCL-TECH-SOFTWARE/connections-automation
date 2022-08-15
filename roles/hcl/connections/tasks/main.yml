@@ -1,52 +1,52 @@
 ---
-- name:          Check Vars
+- name: Check Vars
   include_tasks: check_vars.yml
   when:
-   - not __cnx_uninstall
+    - not __cnx_uninstall
 
-- name:          Setup Operating System
+- name: Setup Operating System
   include_tasks: setup_os.yml
   when:
-   - not __cnx_uninstall
+    - not __cnx_uninstall
 
-- name:          Pre-check DB2 version
+- name: Pre-check DB2 version
   include_tasks: precheck_DB2_version.yml
   when:
-    - "'db2_servers' in groups"    
+    - "'db2_servers' in groups"
 
-- name:          Define Vars
+- name: Define Vars
   include_tasks: define_vars.yml
 
-- name:          Create NFS shares
+- name: Create NFS shares
   include_tasks: create_nfs_shares.yml
   when:
-   - not __cnx_uninstall
+    - not __cnx_uninstall
 
-- name:          Download and Extract Connections Files
+- name: Download and Extract Connections Files
   include_tasks: download_extract_connections.yml
   when:
-   - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
-   - not __cnx_uninstall
+    - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
+    - not __cnx_uninstall
 
-- name:          Install HCL Connections
+- name: Install HCL Connections
   include_tasks: install_connections.yml
   when:
-   - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
-   - not __cnx_uninstall
+    - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
+    - not __cnx_uninstall
 
-- name:          Uninstall HCL Connections
+- name: Uninstall HCL Connections
   include_tasks: uninstall_connections.yml
   when:
-   - (version_already_installed.rc == 0) or (cnx_updates_enabled |bool)
-   - __cnx_uninstall |bool
+    - (version_already_installed.rc == 0) or (cnx_updates_enabled |bool)
+    - __cnx_uninstall |bool
 
-- name:          Update WAS resources
+- name: Update WAS resources
   include_tasks: update_was_resource.yml
   when:
-   - not __cnx_uninstall
+    - not __cnx_uninstall
 
-- name:          Enable Prometheus JMX exporter
+- name: Enable Prometheus JMX exporter
   include_tasks: enable_prometheus_jmx_exporter.yml
   when:
-   - __enable_prometheus_jmx_exporter
-   - not __cnx_uninstall
+    - __enable_prometheus_jmx_exporter
+    - not __cnx_uninstall

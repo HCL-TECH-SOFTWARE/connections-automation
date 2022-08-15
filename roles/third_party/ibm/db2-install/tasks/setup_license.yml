@@ -1,18 +1,19 @@
-- name:                  Download and unzip {{ __license_file }} to the {{ __extraction_folder }}
+---
+- name: Download and unzip {{ __license_file }} to the {{ __extraction_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __license_file }}"
-    dest:                "{{ __extraction_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ __license_file }}'
+    dest: '{{ __extraction_folder }}'
+    remote_src: 'yes'
   register: download_and_unpack_license_for_db2
   until: download_and_unpack_license_for_db2 is succeeded
   retries: 3
 
-- name:                  Change permissions of {{ __license_location }}
+- name: Change permissions of {{ __license_location }}
   file:
-    path:                "{{ __license_location }}"
-    owner:               "{{ __db2_instance_name }}"
-    mode:                '0644'
+    path: '{{ __license_location }}'
+    owner: '{{ __db2_instance_name }}'
+    mode: '0644'
 
-- name:                  Apply the license
-  command:               "{{ __db2_instance_homedir }}/sqllib/adm/db2licm -a {{ __license_location }}"
-  #become:                {{ __db2_instance_name }}
+- name: Apply the license
+  command: '{{ __db2_instance_homedir }}/sqllib/adm/db2licm -a {{ __license_location }}'
+# become:                {{ __db2_instance_name }}

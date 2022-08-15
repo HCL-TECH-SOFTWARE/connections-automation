@@ -1,66 +1,76 @@
-- name:                      Find infrastructure helm file
+---
+- name: Find infrastructure helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "infrastructure*.tgz"
-    file_type:               file
-  register:                  infrastructure_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: infrastructure*.tgz
+    file_type: file
+  register: infrastructure_tgz
 
-- name:                      Found infrastructure file
+- name: Found infrastructure file
   debug:
-    msg:                     "{{ infrastructure_tgz.files[0].path }}"
+    msg: '{{ infrastructure_tgz.files[0].path }}'
 
-- name:                      "Render {{ __infrastructure_env }}"
+- name: Render {{ __infrastructure_env }}
   template:
-    src:                     "helmvars/infrastructure.yml.j2"
-    dest:                    "{{ __infrastructure_env }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/infrastructure.yml.j2
+    dest: '{{ __infrastructure_env }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup infrastructure
-  command:                   "helm upgrade infrastructure {{ infrastructure_tgz.files[0].path }} -i -f {{ __infrastructure_env }} --namespace {{ __default_namespace }} --wait"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup infrastructure
+  command: helm upgrade infrastructure {{ infrastructure_tgz.files[0].path }} -i
+    -f {{ __infrastructure_env }} --namespace {{ __default_namespace }} --wait
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Wait for infrastructure to come up
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=mongo --timeout=300s
-  become_user:               "{{ __sudo_user }}"
+- name: Wait for infrastructure to come up
+  shell: kubectl wait --namespace {{ __default_namespace }} --for=condition=ready
+    pod --selector=app=mongo --timeout=300s
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if appregistry-client is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-client | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if appregistry-client is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-client
+    | grep -i Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if appregistry-service is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-service | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if appregistry-service is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-service
+    | grep -i Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if haproxy is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i haproxy | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if haproxy is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i haproxy | grep
+    -i Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if middleware-jsonapi is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i middleware-jsonapi | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if middleware-jsonapi is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i middleware-jsonapi
+    | grep -i Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if mongo is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mongo | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if mongo is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i mongo | grep -i
+    Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if redis-sentinel is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i redis-sentinel | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if redis-sentinel is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i redis-sentinel
+    | grep -i Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if redis-server is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i redis-server | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if redis-server is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i redis-server |
+    grep -i Running
+  changed_when: true
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'

@@ -1,13 +1,13 @@
 ---
-- name:          Setup Operating System
+- name: Setup Operating System
   include_tasks: setup_os.yml
 
-- name:          Check Vars
+- name: Check Vars
   include_tasks: check_vars.yml
 
-- name:          Define Vars
+- name: Define Vars
   include_tasks: define_vars.yml
 
-- name:          Install WebSphere Application Server
+- name: Install WebSphere Application Server
   include_tasks: install_was.yml
-  when:          version_already_installed.rc != 0
+  when: version_already_installed.rc != 0

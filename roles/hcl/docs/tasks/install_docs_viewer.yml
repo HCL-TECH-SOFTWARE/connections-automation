@@ -1,65 +1,70 @@
-- name:               Verify if Docs Viewer is already installed
+---
+- name: Verify if Docs Viewer is already installed
   stat:
-    path:             "{{ __viewer_install_success_file }}"
-  register:           viewer_already_installed
+    path: '{{ __viewer_install_success_file }}'
+  register: viewer_already_installed
 
-- name:               Get CNX shared data mount target for {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }}
-  shell:              "findmnt --source {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }} -o target -n | head -n 1"
-  register:           cnx_data_mount_target
-  failed_when:        cnx_data_mount_target.stdout|length == 0
+- name: Get CNX shared data mount target for {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path
+    }}
+  shell: findmnt --source {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }}
+    -o target -n | head -n 1
+  register: cnx_data_mount_target
+  failed_when: cnx_data_mount_target.stdout|length == 0
   when:
     - not viewer_already_installed.stat.exists
     - __cnx_shared_storage_type == 'nfs'
 
-- debug:                    var=cnx_data_mount_target
+- debug: var=cnx_data_mount_target
   when:
     - not viewer_already_installed.stat.exists
     - cnx_data_mount_target is defined
 
 
-- name:               Edit cfg.properties
+- name: Edit cfg.properties
   replace:
-    path:            "{{ __viewer_cfg_prop_location }}/cfg.properties"
-    regexp:           "^(#?){{ item.prop_name }} ?=(.*)$"
-    replace:         "{{ item.prop_name }}={{ item.prop_value }}"
+    path: '{{ __viewer_cfg_prop_location }}/cfg.properties'
+    regexp: ^(#?){{ item.prop_name }} ?=(.*)$
+    replace: '{{ item.prop_name }}={{ item.prop_value }}'
   with_items:
-    - { prop_name: "viewer_install_root", prop_value: "{{ __viewer_install_root_r }}" }
-    - { prop_name: "shared_data_dir", prop_value: "{{ __viewer_shared_data_dir_r }}" }
-    - { prop_name: "docs_shared_data_dir", prop_value: "{{ __docs_shared_data_dir_r }}" }
-    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "conversion_url", prop_value: "{{ __conversion_url_r }}" }
-    - { prop_name: "files_path", prop_value: "{{ __files_path_r }}" }
-    - { prop_name: "editor_installed", prop_value: "{{ __editor_installed_r }}" }
-    - { prop_name: "scope_name", prop_value: "{{ __viewer_scope_name_r }}" }
-    - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
-    - { prop_name: "files_url", prop_value: "{{ __files_url_r }}" }
-    - { prop_name: "docs_url", prop_value: "{{ __docs_url_r }}" }
-    - { prop_name: "ecm_fncmis_server_url", prop_value: "{{ __ecm_fncmis_server_url }}" }
-    - { prop_name: "ecm_fncs_server_url", prop_value: "{{ __ecm_fncs_server_url }}" }
-    - { prop_name: "ecm_community_server_url", prop_value: "{{ __ecm_community_server_url }}" }
+    - {prop_name: viewer_install_root, prop_value: '{{ __viewer_install_root_r }}'}
+    - {prop_name: shared_data_dir, prop_value: '{{ __viewer_shared_data_dir_r }}'}
+    - {prop_name: docs_shared_data_dir, prop_value: '{{ __docs_shared_data_dir_r }}'}
+    - {prop_name: was_install_root, prop_value: '{{ __was_install_root_r }}'}
+    - {prop_name: conversion_url, prop_value: '{{ __conversion_url_r }}'}
+    - {prop_name: files_path, prop_value: '{{ __files_path_r }}'}
+    - {prop_name: editor_installed, prop_value: '{{ __editor_installed_r }}'}
+    - {prop_name: scope_name, prop_value: '{{ __viewer_scope_name_r }}'}
+    - {prop_name: scope, prop_value: '{{ __scope_r  }}'}
+    - {prop_name: files_url, prop_value: '{{ __files_url_r }}'}
+    - {prop_name: docs_url, prop_value: '{{ __docs_url_r }}'}
+    - {prop_name: ecm_fncmis_server_url, prop_value: '{{ __ecm_fncmis_server_url }}'}
+    - {prop_name: ecm_fncs_server_url, prop_value: '{{ __ecm_fncs_server_url }}'}
+    - {prop_name: ecm_community_server_url, prop_value: '{{ __ecm_community_server_url }}'}
   when:
     - not viewer_already_installed.stat.exists
 
 # Note: documentation says only need to install File Viewer on one of the nodes in the cluster as this makes all the config and other install files available to any additional File Viewer node in the cluster.
 
-- name:              Run the Docs Viewer installer
+- name: Run the Docs Viewer installer
   shell:
-    chdir:           "{{ __extraction_folder }}/{{ __viewer_install_folder }}/installer"
-    cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -mapWebserver true -acceptLicense"
-  become:            true
+    chdir: '{{ __extraction_folder }}/{{ __viewer_install_folder }}/installer'
+    cmd: ./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }}
+      -configFile cfg.properties -mapWebserver true -acceptLicense
+  become: true
   when:
     - not viewer_already_installed.stat.exists
-  register:          sec_install_performed
+  register: sec_install_performed
 
-- name:              Search for success message in install log
-  become:            yes
-  shell:             "grep -i '{{ __install_success_message }}' {{ __docs_viewer_install_location }}/logs/viewerInstall.log"
-  register:          viewer_success_message_found
-  failed_when:       viewer_success_message_found.stdout|length == 0
-  when:              sec_install_performed is not skipped
+- name: Search for success message in install log
+  become: 'yes'
+  shell: grep -i '{{ __install_success_message }}' {{ __docs_viewer_install_location }}/logs/viewerInstall.log
+  register: viewer_success_message_found
+  failed_when: viewer_success_message_found.stdout|length == 0
+  when: sec_install_performed is not skipped
 
-- name:              "Create {{ __viewer_install_success_file }} file"
+- name: Create {{ __viewer_install_success_file }} file
   file:
-    path:            "{{ __viewer_install_success_file }}"
-    state:           touch
-  when:              sec_install_performed is not skipped and viewer_success_message_found.stdout|length > 0
+    path: '{{ __viewer_install_success_file }}'
+    state: touch
+  when: sec_install_performed is not skipped and viewer_success_message_found.stdout|length
+    > 0

@@ -1,71 +1,71 @@
 ---
-- name:                     "Verify if users are already created"
+- name: Verify if users are already created
   stat:
-    path:                   "{{ __users_ldif_success_file }}"
-  register:                 ldap_users_already_created
+    path: '{{ __users_ldif_success_file }}'
+  register: ldap_users_already_created
   when:
     - __setup_fake_ldap_users |bool
 
-- name:                     "Render {{ __users_ldif_location }}"
+- name: Render {{ __users_ldif_location }}
   template:
-    src:                    "{{ __users_ldif_template }}"
-    dest:                   "{{ __users_ldif_location }}"
+    src: '{{ __users_ldif_template }}'
+    dest: '{{ __users_ldif_location }}'
   when:
     - __setup_fake_ldap_users |bool
     - not ldap_users_already_created.stat.exists
 
-- name:                     "Create users from {{ __users_ldif_location }}"
-  command:                  "{{ __ldap_add_users }} {{ __users_ldif_location }}"
-  register:                 users
-  failed_when:              ( users.rc not in [0] )
+- name: Create users from {{ __users_ldif_location }}
+  command: '{{ __ldap_add_users }} {{ __users_ldif_location }}'
+  register: users
+  failed_when: ( users.rc not in [0] )
   when:
     - __setup_fake_ldap_users |bool
     - not ldap_users_already_created.stat.exists
 
-- name:                     "Cleanup {{ __users_ldif_location }}"
+- name: Cleanup {{ __users_ldif_location }}
   file:
-    path:                   "{{ __users_ldif_location }}"
-    state:                  absent
+    path: '{{ __users_ldif_location }}'
+    state: absent
   when:
     - __setup_fake_ldap_users |bool
     - not ldap_users_already_created.stat.exists
 
-- name:                     "Create {{ __users_ldif_success_file }} file"
+- name: Create {{ __users_ldif_success_file }} file
   file:
-    path:                   "{{ __users_ldif_success_file }}"
-    state:                  touch
+    path: '{{ __users_ldif_success_file }}'
+    state: touch
   when:
     - __setup_fake_ldap_users |bool
 
-- name:                     "Verify if custom users are already created"
+- name: Verify if custom users are already created
   stat:
-    path:                   "{{ __custom_users_ldif_success_file }}"
-  register:                 custom_ldap_users_already_created
+    path: '{{ __custom_users_ldif_success_file }}'
+  register: custom_ldap_users_already_created
 
-- name:                     "Copy additional users ldif if provided"
+- name: Copy additional users ldif if provided
   copy:
-    src:                    "{{ custom_ldap_users_location }}"
-    dest:                   "/tmp/custom_ldap_user.ldif"
+    src: '{{ custom_ldap_users_location }}'
+    dest: /tmp/custom_ldap_user.ldif
   when:
     - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists
 
-- name:                     "Create additional users if provided"
-  command:                  "{{ __ldap_add_users }} /tmp/custom_ldap_user.ldif"
-  register:                 extra_users
-  failed_when:              ( extra_users.rc not in [0] )
+- name: Create additional users if provided
+  command: '{{ __ldap_add_users }} /tmp/custom_ldap_user.ldif'
+  register: extra_users
+  failed_when: ( extra_users.rc not in [0] )
   when:
     - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists
 
-- name:                     "Cleanup /tmp/custom_ldap_user.ldif"
+- name: Cleanup /tmp/custom_ldap_user.ldif
   file:
-    path:                   "/tmp/custom_ldap_user.ldif"
-    state:                  absent
+    path: /tmp/custom_ldap_user.ldif
+    state: absent
   when:
     - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists
 
-- name:                     "Create {{ __custom_users_ldif_success_file }} file"
+- name: Create {{ __custom_users_ldif_success_file }} file
   file:
-    path:                   "{{ __custom_users_ldif_success_file }}"
-    state:                  touch
+    path: '{{ __custom_users_ldif_success_file }}'
+    state: touch
   when:
     - custom_ldap_users_location is defined and not custom_ldap_users_already_created.stat.exists

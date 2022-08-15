@@ -1,6 +1,7 @@
-- name:                                             Enable and start nfs-server
+---
+- name: Enable and start nfs-server
   systemd:
-    name:                                           nfs-server
-    enabled:                                        yes
-    state:                                          restarted
-    daemon_reload:                                  yes
+    name: nfs-server
+    enabled: 'yes'
+    state: restarted
+    daemon_reload: 'yes'

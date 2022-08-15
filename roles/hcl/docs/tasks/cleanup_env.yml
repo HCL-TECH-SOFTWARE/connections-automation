@@ -1,28 +1,28 @@
 ---
-- name:                    Cleanup Install Binaries directory
+- name: Cleanup Install Binaries directory
   file:
-    state:                 absent
-    path:                  "{{ __extraction_folder }}"
+    state: absent
+    path: '{{ __extraction_folder }}'
 
-- name:                    Verify if python default was changed on RHEL 8
+- name: Verify if python default was changed on RHEL 8
   stat:
-    path:                  "{{ __hcl_program_folder }}/python2_alternatives_set.success"
-  register:                python2_default_was_set
+    path: '{{ __hcl_program_folder }}/python2_alternatives_set.success'
+  register: python2_default_was_set
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
-- name:                    Unset python2 as default on RHEL 8
-  command:                 alternatives --set python /usr/bin/python3
-  become:                  true
-  register:                python2_alternatives_unset
+- name: Unset python2 as default on RHEL 8
+  command: alternatives --set python /usr/bin/python3
+  become: true
+  register: python2_alternatives_unset
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
     - python2_default_was_set.stat.exists
 
-- name:                    Remove python2_alternatives_set.success file on RHEL 8
+- name: Remove python2_alternatives_set.success file on RHEL 8
   file:
-    path:                  "{{ __hcl_program_folder }}/python2_alternatives_set.success"
-    state:                 absent
-  when:                    python2_alternatives_unset is changed
+    path: '{{ __hcl_program_folder }}/python2_alternatives_set.success'
+    state: absent
+  when: python2_alternatives_unset is changed

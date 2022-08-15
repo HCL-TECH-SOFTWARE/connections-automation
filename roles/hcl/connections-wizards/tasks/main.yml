@@ -1,48 +1,47 @@
 ---
-- name:                       Pre-check DB2 version
-  include_tasks:              precheck_DB2_version.yml
+- name: Pre-check DB2 version
+  include_tasks: precheck_DB2_version.yml
   when:
     - __setup_connections_wizards |bool
     - "'db2_servers' in groups"
-    
-- name:                       Setup Connections Wizards on DB2
-  include_tasks:              setup_connections_wizards.yml
+- name: Setup Connections Wizards on DB2
+  include_tasks: setup_connections_wizards.yml
   when:
     - __setup_connections_wizards |bool
     - "'db2_servers' in groups"
 
-- name:                       Setup Connections Wizards on Oracle
-  include_tasks:              setup_connections_wizards_oracle.yml
+- name: Setup Connections Wizards on Oracle
+  include_tasks: setup_connections_wizards_oracle.yml
   when:
     - __setup_connections_wizards |bool
     - "'oracle_servers' in groups"
 
-- name:                       Setup Connections Wizards on MSSQL
-  include_tasks:              setup_connections_wizards_mssql.yml
+- name: Setup Connections Wizards on MSSQL
+  include_tasks: setup_connections_wizards_mssql.yml
   when:
     - __setup_connections_wizards |bool
     - "'mssql_servers' in groups"
 
-- name:                       Setup Connections Docs Database on DB2
-  include_tasks:              setup_connections_docs.yml
+- name: Setup Connections Docs Database on DB2
+  include_tasks: setup_connections_docs.yml
   when:
     - __setup_connections_docs |bool
     - "'db2_servers' in groups"
 
-- name:                       Setup Connections Docs Database on Oracle
-  include_tasks:              setup_connections_docs_oracle.yml
+- name: Setup Connections Docs Database on Oracle
+  include_tasks: setup_connections_docs_oracle.yml
   when:
     - __setup_connections_docs |bool
     - "'oracle_servers' in groups"
 
-- name:                       Setup Connections Docs Database on MSSQL
-  include_tasks:              setup_connections_docs_mssql.yml
+- name: Setup Connections Docs Database on MSSQL
+  include_tasks: setup_connections_docs_mssql.yml
   when:
     - __setup_connections_docs |bool
     - "'mssql_servers' in groups"
 
-- name:                       Update database to last version (6.5CR1)
-  include_tasks:              update_connections_db_db2.yml
+- name: Update database to last version (6.5CR1)
+  include_tasks: update_connections_db_db2.yml
   when:
     - "'db2_servers' in groups"
     - cnx_fixes_version is defined

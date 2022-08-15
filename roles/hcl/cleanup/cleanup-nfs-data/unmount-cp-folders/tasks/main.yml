@@ -1,57 +1,58 @@
-- name:                      Unmount "{{ __customizer_js_files_mount }}"
+---
+- name: Unmount "{{ __customizer_js_files_mount }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   unmounted
-    path:                    "{{ __customizer_js_files_mount }}"
-  ignore_errors:             true
-  tags:                      always
+    fstype: nfs
+    opts: defaults
+    state: unmounted
+    path: '{{ __customizer_js_files_mount }}'
+  ignore_errors: true
+  tags: always
   register: result
   retries: 3
   delay: 15
   until: result is not failed
 
-- name:                      "Run command 'umount -lf {{ __customizer_js_files_mount }}' if previous unmount step fails"
-  command:                   "umount -lf {{ __customizer_js_files_mount }}"
-  ignore_errors:             true
-  tags:                      always
-  when:
-   result is failed
+- name: Run command 'umount -lf {{ __customizer_js_files_mount }}' if previous unmount
+    step fails
+  command: umount -lf {{ __customizer_js_files_mount }}
+  ignore_errors: true
+  tags: always
+  when: result is failed
 
-- name:                      Remove fstab entry for "{{ __customizer_js_files_mount }}"
+- name: Remove fstab entry for "{{ __customizer_js_files_mount }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   absent
-    path:                    "{{ __customizer_js_files_mount }}"
-  ignore_errors:             true
-  tags:                      always
+    fstype: nfs
+    opts: defaults
+    state: absent
+    path: '{{ __customizer_js_files_mount }}'
+  ignore_errors: true
+  tags: always
 
-- name:                      Unmount "{{ __nfs_master_files_mount }}"
+- name: Unmount "{{ __nfs_master_files_mount }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   unmounted
-    path:                    "{{ __nfs_master_files_mount }}"
-  ignore_errors:             true
-  tags:                      always
+    fstype: nfs
+    opts: defaults
+    state: unmounted
+    path: '{{ __nfs_master_files_mount }}'
+  ignore_errors: true
+  tags: always
   register: result
   retries: 3
   delay: 15
   until: result is not failed
 
-- name:                      "Run command 'umount -lf {{ __nfs_master_files_mount }}' if previous unmount step fails"
-  command:                   "umount -lf {{ __nfs_master_files_mount }}"
-  ignore_errors:             true
-  tags:                      always
-  when:
-   result is failed
+- name: Run command 'umount -lf {{ __nfs_master_files_mount }}' if previous unmount
+    step fails
+  command: umount -lf {{ __nfs_master_files_mount }}
+  ignore_errors: true
+  tags: always
+  when: result is failed
 
-- name:                      Remove fstab entry for "{{ __nfs_master_files_mount }}"
+- name: Remove fstab entry for "{{ __nfs_master_files_mount }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   absent
-    path:                    "{{ __nfs_master_files_mount }}"
-  ignore_errors:             true
-  tags:                      always
+    fstype: nfs
+    opts: defaults
+    state: absent
+    path: '{{ __nfs_master_files_mount }}'
+  ignore_errors: true
+  tags: always

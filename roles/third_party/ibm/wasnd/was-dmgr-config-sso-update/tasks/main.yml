@@ -1,10 +1,10 @@
 ---
-- name:                 Generate SSO variable
-  include_tasks:        create_sso_domainnames.yml
+- name: Generate SSO variable
+  include_tasks: create_sso_domainnames.yml
   when:
     - __sso_config_enable |bool
 
-- name:                 Configure SSO if configuration is enabled
-  include_tasks:        config_sso.yml
+- name: Configure SSO if configuration is enabled
+  include_tasks: config_sso.yml
   when:
     - __sso_config_enable |bool

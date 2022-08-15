@@ -1,51 +1,53 @@
 ---
-- name:                 "<<<<<<<<<<<< Debuging variable >>>>>>>>>>>"
+- name: <<<<<<<<<<<< Debuging variable >>>>>>>>>>>
   debug:
-    msg:                "{{ __profile_name }}"
+    msg: '{{ __profile_name }}'
 
-- name:                 "Verifiy if Profile already exists"
+- name: Verifiy if Profile already exists
   stat:
-    path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/nodeagent"
-  register:             profile_already_exists
+    path: '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/nodeagent'
+  register: profile_already_exists
 
-- name:                 Is Standalone?
+- name: Is Standalone?
   set_fact:
-    __tpl_file:         "was_profile_node_unmanaged.rsp.j2"
-  when:                 ( __is_standalone )
+    __tpl_file: was_profile_node_unmanaged.rsp.j2
+  when: ( __is_standalone )
 
-- name:                 "Generate Response file {{ __rsp_file }}"
+- name: Generate Response file {{ __rsp_file }}
   template:
-    src:                "{{ __tpl_file }}"
-    dest:               "{{ __rsp_file }}"
-  when:                 
-  - not profile_already_exists.stat.exists
-  - not ( __was_fixes_version == __was_fp_version_fp21 )
+    src: '{{ __tpl_file }}'
+    dest: '{{ __rsp_file }}'
+  when:
+    - not profile_already_exists.stat.exists
+    - not ( __was_fixes_version == __was_fp_version_fp21 )
 
-- name:                 "Generate Response file {{ __rsp_file }} for FP21"
+- name: Generate Response file {{ __rsp_file }} for FP21
   template:
-    src:                "{{ __tpl_file_no_inline_federation }}"
-    dest:               "{{ __rsp_file }}"
+    src: '{{ __tpl_file_no_inline_federation }}'
+    dest: '{{ __rsp_file }}'
   when:
-  - not profile_already_exists.stat.exists
-  - ( __was_fixes_version == __was_fp_version_fp21 )
+    - not profile_already_exists.stat.exists
+    - ( __was_fixes_version == __was_fp_version_fp21 )
 
-- name:                 "Create Was Profile"
-  command:              "{{ __was_install_location }}/bin/manageprofiles.sh -response {{ __rsp_file }}"
-  register:             cout
-  changed_when:         ( cout.stdout.find('INSTCONFSUCCESS') != -1)
-  failed_when:          ( cout.stdout.find('INSTCONFFAILED') != -1)
-  when:                 not profile_already_exists.stat.exists
+- name: Create Was Profile
+  command: '{{ __was_install_location }}/bin/manageprofiles.sh -response {{ __rsp_file }}'
+  register: cout
+  changed_when: ( cout.stdout.find('INSTCONFSUCCESS') != -1)
+  failed_when: ( cout.stdout.find('INSTCONFFAILED') != -1)
+  when: not profile_already_exists.stat.exists
 
-- name:                 "Add node for the newly created profile"
-  command:              "{{ __was_install_location }}/bin/addNode.sh {{ dmgr_hostname }} {{ __dmgr_soap_port }} -profileName {{ __profile_name }} -username {{ __was_username }} -password {{ __was_password }}"
+- name: Add node for the newly created profile
+  command: '{{ __was_install_location }}/bin/addNode.sh {{ dmgr_hostname }} {{ __dmgr_soap_port }}
+    -profileName {{ __profile_name }} -username {{ __was_username }} -password {{ __was_password }}'
   when:
-  - not profile_already_exists.stat.exists
-  - ( __was_fixes_version == __was_fp_version_fp21 )
+    - not profile_already_exists.stat.exists
+    - ( __was_fixes_version == __was_fp_version_fp21 )
 
-- name:                 "Change SOAP request timeout in {{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props"
+- name: Change SOAP request timeout in {{ __was_install_location }}/profiles/{{
+    __profile_name }}/properties/soap.client.props
   replace:
-    path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props"
-    regexp:             "^(?!#)com.ibm.SOAP.requestTimeout=(.*)$"
-    replace:            "com.ibm.SOAP.requestTimeout={{ __was_soap_timeout }}"
-    backup:             yes
-  ignore_errors:        true
+    path: '{{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props'
+    regexp: ^(?!#)com.ibm.SOAP.requestTimeout=(.*)$
+    replace: com.ibm.SOAP.requestTimeout={{ __was_soap_timeout }}
+    backup: 'yes'
+  ignore_errors: true

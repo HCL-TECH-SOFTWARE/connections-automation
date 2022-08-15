@@ -1,149 +1,167 @@
 ---
-- name:                 Create temporary folder {{ __logs_dir }}
+- name: Create temporary folder {{ __logs_dir }}
   file:
-    path:               "{{ item }}"
-    state:              directory
+    path: '{{ item }}'
+    state: directory
   with_items:
-   - "{{ __logs_dir }}/"
+    - '{{ __logs_dir }}/'
 
-- name:                 "Generate Response file {{ __rsp_file }}"
+- name: Generate Response file {{ __rsp_file }}
   template:
-    src:                "{{ __tpl_file }}"
-    dest:               "{{ __rsp_file }}"
+    src: '{{ __tpl_file }}'
+    dest: '{{ __rsp_file }}'
 
-- name:                 "Configure WebSphere Plugin {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }}"
-  command:
-    chdir={{ __wct_install_location }}
-    {{ __wct_install_location }}/WCT/wctcmd.sh -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }} -response {{ __rsp_file }}
-  register:             cout
-  changed_when:         cout.rc == 0
+- name: Configure WebSphere Plugin {{ __wct_install_location }}/WCT/wctcmd.sh -tool
+    pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname {{ __plg_install_location }}
+    -response {{ __rsp_file }}
+  command: chdir={{ __wct_install_location }} {{ __wct_install_location }}/WCT/wctcmd.sh
+    -tool pct -createDefinition -defLocName {{ __ihs_hostname }} -defLocPathname
+    {{ __plg_install_location }} -response {{ __rsp_file }}
+  register: cout
+  changed_when: cout.rc == 0
 
-- name:                 "Change admin.passwd"
-  command:              "{{ __ihs_install_location }}/bin/htpasswd -bcm {{ __ihs_install_location }}/conf/admin.passwd {{ __ihs_username }} {{ ihs_password }}"
-  register:             cout
-  changed_when:         cout.rc == 0
+- name: Change admin.passwd
+  command: '{{ __ihs_install_location }}/bin/htpasswd -bcm {{ __ihs_install_location }}/conf/admin.passwd
+    {{ __ihs_username }} {{ ihs_password }}'
+  register: cout
+  changed_when: cout.rc == 0
 
-- name:                 Create temporary folder
+- name: Create temporary folder
   file:
-    path:               "{{ item }}"
-    state:              directory
+    path: '{{ item }}'
+    state: directory
   with_items:
-   - "/tmp/wct_plugins_{{ __ihs_hostname }}/"
+    - /tmp/wct_plugins_{{ __ihs_hostname }}/
 
-- name:                 "Copy {{ __plg_install_location }}/bin/configure{{ __ihs_hostname }}.sh to /tmp/wct_plugins_{{ __ihs_hostname }}"
-  command:              cp "{{ __plg_install_location }}/bin/configure{{ __ihs_hostname }}.sh" /tmp/wct_plugins_{{ __ihs_hostname }}
+- name: Copy {{ __plg_install_location }}/bin/configure{{ __ihs_hostname }}.sh to
+    /tmp/wct_plugins_{{ __ihs_hostname }}
+  command: cp "{{ __plg_install_location }}/bin/configure{{ __ihs_hostname }}.sh"
+    /tmp/wct_plugins_{{ __ihs_hostname }}
 
-- name:                 Create the archive
+- name: Create the archive
   archive:
-    path:               "/tmp/wct_plugins_{{ __ihs_hostname }}"
-    dest:               "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
-    format:             zip
+    path: /tmp/wct_plugins_{{ __ihs_hostname }}
+    dest: /tmp/wct_plugins_{{ __ihs_hostname }}.zip
+    format: zip
 
-- name:                 Synchronize /tmp/wct_plugins_{{ __ihs_hostname }}.zip with {{ dmgr_hostname }}
+- name: Synchronize /tmp/wct_plugins_{{ __ihs_hostname }}.zip with {{ dmgr_hostname }}
   synchronize:
-    src:                "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
-    dest:               /tmp/
-    mode:               pull
-  delegate_to:          "{{ dmgr_hostname }}"
-  become:               false
+    src: /tmp/wct_plugins_{{ __ihs_hostname }}.zip
+    dest: /tmp/
+    mode: pull
+  delegate_to: '{{ dmgr_hostname }}'
+  become: false
 
-- name:                 Remove /tmp/wct_plugins_{{ __ihs_hostname }} if it already exists
+- name: Remove /tmp/wct_plugins_{{ __ihs_hostname }} if it already exists
   file:
-    path:               "/tmp/wct_plugins_{{ __ihs_hostname }}"
-    state:              absent
-  delegate_to:          "{{ dmgr_hostname }}"
+    path: /tmp/wct_plugins_{{ __ihs_hostname }}
+    state: absent
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Extract plugin generation script on {{ dmgr_hostname }}
+- name: Extract plugin generation script on {{ dmgr_hostname }}
   unarchive:
-    src:                "/tmp/wct_plugins_{{ __ihs_hostname }}.zip"
-    dest:               /tmp/
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: /tmp/wct_plugins_{{ __ihs_hostname }}.zip
+    dest: /tmp/
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Remove {{ __was_install_location }}/bin/configure{{ __ihs_hostname }}.sh if it already exists on {{ dmgr_hostname }}
+- name: Remove {{ __was_install_location }}/bin/configure{{ __ihs_hostname }}.sh
+    if it already exists on {{ dmgr_hostname }}
   file:
-    path:               "{{ __was_install_location }}/bin/configure{{ __ihs_hostname }}.sh"
-    state:              absent
-  delegate_to:          "{{ dmgr_hostname }}"
+    path: '{{ __was_install_location }}/bin/configure{{ __ihs_hostname }}.sh'
+    state: absent
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Copy /tmp/wct_plugins_{{ __ihs_hostname }}/configure{{ __ihs_hostname }}.sh to {{ __was_install_location }}/bin
+- name: Copy /tmp/wct_plugins_{{ __ihs_hostname }}/configure{{ __ihs_hostname }}.sh
+    to {{ __was_install_location }}/bin
   copy:
-    src:                "/tmp/wct_plugins_{{ __ihs_hostname }}/configure{{ __ihs_hostname }}.sh"
-    dest:               "{{ __was_install_location }}/bin"
-    mode:               '0755'
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: /tmp/wct_plugins_{{ __ihs_hostname }}/configure{{ __ihs_hostname }}.sh
+    dest: '{{ __was_install_location }}/bin'
+    mode: '0755'
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Generate plugins on DMGR
-  shell:                "{{ __was_install_location }}/bin/configure{{ __ihs_hostname }}.sh -user {{ was_username }} -password {{ was_password }}"
-  delegate_to:          "{{ dmgr_hostname }}"
+- name: Generate plugins on DMGR
+  shell: '{{ __was_install_location }}/bin/configure{{ __ihs_hostname }}.sh -user
+    {{ was_username }} -password {{ was_password }}'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Delete /tmp/wct_generated_plugins_{{ __ihs_hostname }} and zip file if it already exists
+- name: Delete /tmp/wct_generated_plugins_{{ __ihs_hostname }} and zip file if it
+    already exists
   file:
-    path:               "{{ item }}"
-    state:              absent
+    path: '{{ item }}'
+    state: absent
   with_items:
-   - "/tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip"
-   - "/tmp/wct_generated_plugins_{{ __ihs_hostname }}"
-  delegate_to:          "{{ dmgr_hostname }}"
+    - /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip
+    - /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Create temporary folder
+- name: Create temporary folder
   file:
-    path:               "/tmp/wct_generated_plugins_{{ __ihs_hostname }}"
-    state:              directory
-  delegate_to:          "{{ dmgr_hostname }}"
+    path: /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+    state: directory
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Give it some space...
+- name: Give it some space...
   pause:
-    seconds:            10
+    seconds: 10
 
-- name:                 Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml to /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+- name: Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+    __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml to /tmp/wct_generated_plugins_{{ __ihs_hostname }}
   copy:
-    src:                "{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml"
-    dest:               "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/"
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: '{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+      __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml'
+    dest: /tmp/wct_generated_plugins_{{ __ihs_hostname }}/
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb to /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+- name: Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+    __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb to /tmp/wct_generated_plugins_{{ __ihs_hostname }}
   copy:
-    src:                "{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb"
-    dest:               "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/"
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: '{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+      __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb'
+    dest: /tmp/wct_generated_plugins_{{ __ihs_hostname }}/
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth to /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+- name: Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+    __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth to /tmp/wct_generated_plugins_{{ __ihs_hostname }}
   copy:
-    src:                "{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth"
-    dest:               "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/"
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: '{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+      __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth'
+    dest: /tmp/wct_generated_plugins_{{ __ihs_hostname }}/
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Create the archive /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip from /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+- name: Create the archive /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip from
+    /tmp/wct_generated_plugins_{{ __ihs_hostname }}
   archive:
-    path:               "/tmp/wct_generated_plugins_{{ __ihs_hostname }}"
-    dest:               "/tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip"
-    format:             zip
-  delegate_to:          "{{ dmgr_hostname }}"
+    path: /tmp/wct_generated_plugins_{{ __ihs_hostname }}
+    dest: /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip
+    format: zip
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Synchronize /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip from {{ dmgr_hostname }} to {{ inventory_hostname }}
+- name: Synchronize /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip from {{ dmgr_hostname }}
+    to {{ inventory_hostname }}
   synchronize:
-    src:                /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip
-    dest:               /tmp/
-  delegate_to:          "{{ dmgr_hostname }}"
-  become:               false
+    src: /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip
+    dest: /tmp/
+  delegate_to: '{{ dmgr_hostname }}'
+  become: false
 
-- name:                 Extract /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip on {{ inventory_hostname }}
+- name: Extract /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip on {{ inventory_hostname }}
   unarchive:
-    src:                /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip
-    dest:               /tmp/
-    remote_src:         yes
+    src: /tmp/wct_generated_plugins_{{ __ihs_hostname }}.zip
+    dest: /tmp/
+    remote_src: 'yes'
 
-- name:                 Copy the files to {{ __plg_install_location }}/config/{{ inventory_hostname_short }}/
+- name: Copy the files to {{ __plg_install_location }}/config/{{ inventory_hostname_short
+    }}/
   copy:
-    src:                "{{ item }}"
-    dest:               "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/"
-    remote_src:         yes
+    src: '{{ item }}'
+    dest: '{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/'
+    remote_src: 'yes'
   with_items:
-   - "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-cfg.xml"
-   - "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-key.kdb"
-   - "/tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-key.sth"
+    - /tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-cfg.xml
+    - /tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-key.kdb
+    - /tmp/wct_generated_plugins_{{ __ihs_hostname }}/plugin-key.sth

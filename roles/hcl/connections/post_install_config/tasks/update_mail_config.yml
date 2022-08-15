@@ -1,11 +1,11 @@
 ---
-  - name:                                     Update mail session outgoing server and SMTP port
-    include_role:
-      name:                                   roles/third_party/ibm/wasnd/was-dmgr-modify-mail-session
-    vars:
-      __mail_session_name:                    "lcnotification*"
-      __mail_outgoing_server:                 "{{ mail_outgoing_server }}"
-      __mail_session_props:
-         - { name: "mail.smtp.port", value: "{{ __mail_smtp_port }}" }
-    when:
-      - mail_outgoing_server is defined
+- name: Update mail session outgoing server and SMTP port
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-modify-mail-session
+  vars:
+    __mail_session_name: lcnotification*
+    __mail_outgoing_server: '{{ mail_outgoing_server }}'
+    __mail_session_props:
+      - {name: mail.smtp.port, value: '{{ __mail_smtp_port }}'}
+  when:
+    - mail_outgoing_server is defined

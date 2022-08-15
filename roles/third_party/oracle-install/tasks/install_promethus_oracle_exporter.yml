@@ -1,33 +1,40 @@
-- name:                      Give it some space...
+---
+- name: Give it some space...
   pause:
-    seconds:                 15
+    seconds: 15
 
-- name:                     Download and unzip installation promethus-oracle-exporter to the {{ __oracledbexp_extract_folder }}
-  become:                   true
-  become_user:              oracle
+- name: Download and unzip installation promethus-oracle-exporter to the {{ __oracledbexp_extract_folder }}
+  become: true
+  become_user: oracle
   unarchive:
-    src:                    "{{ __oracledbexp_download_url }}"
-    dest:                   "{{ __oracledbexp_extract_folder }}"
-    remote_src:             yes
-    mode:                   0755
-  delegate_to:              "{{ hostvars[groups['oracle_servers'][0]]['inventory_hostname'] }}"
+    src: '{{ __oracledbexp_download_url }}'
+    dest: '{{ __oracledbexp_extract_folder }}'
+    remote_src: 'yes'
+    mode: 0755
+  delegate_to: "{{ hostvars[groups['oracle_servers'][0]]['inventory_hostname'] }}"
 
-- name:                     "Add export vars to bashrc {{ __oracle_bashrc_file_path }}"
-  become:                   true
-  become_user:              oracle
+- name: Add export vars to bashrc {{ __oracle_bashrc_file_path }}
+  become: true
+  become_user: oracle
   blockinfile:
-    path:                   "{{ __oracle_bashrc_file_path }}"
-    insertafter:            "# User specific aliases and functions"
-    block:                  |
-         export DATA_SOURCE_NAME='{{ __oracledb_monitor_user }}/{{ db_password }}@//{{ hostvars[groups['oracle_servers'][0]]['inventory_hostname'] }}:{{ __oracledb_port}}/{{ __ora_rsp_starter_db_name }}'
-         export ORACLE_SID={{ __ora_rsp_starter_db_name }}
-         export ORACLE_HOME={{ __ora_rsp_oracle_home }}
-         export TNS_ADMIN={{ __ora_rsp_oracle_home }}/network/admin
-         export LD_LIBRARY_PATH={{ __ora_rsp_oracle_home }}/lib:{{ __ora_rsp_oracle_home }}/instantclient
-         export PKG_CONFIG_PATH=/usr/share/pkgconfig
-         export PATH=$PATH:$ORACLE_HOME/lib:$ORACLE_HOME/bin:$ORACLE_HOME/instantclient:$ORACLE_HOME/network/admin:$ORACLE_HOME
+    path: '{{ __oracle_bashrc_file_path }}'
+    insertafter: '# User specific aliases and functions'
+    block: |
+      export DATA_SOURCE_NAME='{{ __oracledb_monitor_user }}/{{ db_password }}@//{{ hostvars[groups['oracle_servers'][0]]['inventory_hostname'] }}:{{ __oracledb_port}}/{{ __ora_rsp_starter_db_name }}'
+      export ORACLE_SID={{ __ora_rsp_starter_db_name }}
+      export ORACLE_HOME={{ __ora_rsp_oracle_home }}
+      export TNS_ADMIN={{ __ora_rsp_oracle_home }}/network/admin
+      export LD_LIBRARY_PATH={{ __ora_rsp_oracle_home }}/lib:{{ __ora_rsp_oracle_home }}/instantclient
+      export PKG_CONFIG_PATH=/usr/share/pkgconfig
+      export PATH=$PATH:$ORACLE_HOME/lib:$ORACLE_HOME/bin:$ORACLE_HOME/instantclient:$ORACLE_HOME/network/admin:$ORACLE_HOME
 
-- name:                     "Add Prometheus oracle exporter by running {{ __oracledbexp_extract_folder }}/{{ __oracledb_exporter_version }}/oracledb_exporter --default.metrics {{ __oracledbexp_extract_folder }}/{{ __oracledb_exporter_version }}/default-metrics.toml --log.level error --web.listen-address 0.0.0.0:{{ __oracledb_metrics_port }}"
-  become:                   true
-  become_user:              oracle
-  shell:                    . ~/.bashrc;nohup {{ __oracledbexp_extract_folder }}/{{ __oracledb_exporter_version }}/oracledb_exporter --default.metrics {{ __oracledbexp_extract_folder }}/{{ __oracledb_exporter_version }}/default-metrics.toml --log.level error --web.listen-address 0.0.0.0:{{ __oracledb_metrics_port }}  > myoutput.log&
+- name: Add Prometheus oracle exporter by running {{ __oracledbexp_extract_folder }}/{{
+    __oracledb_exporter_version }}/oracledb_exporter --default.metrics {{ __oracledbexp_extract_folder }}/{{
+    __oracledb_exporter_version }}/default-metrics.toml --log.level error --web.listen-address
+    0.0.0.0:{{ __oracledb_metrics_port }}
+  become: true
+  become_user: oracle
+  shell: . ~/.bashrc;nohup {{ __oracledbexp_extract_folder }}/{{ __oracledb_exporter_version
+    }}/oracledb_exporter --default.metrics {{ __oracledbexp_extract_folder }}/{{
+    __oracledb_exporter_version }}/default-metrics.toml --log.level error --web.listen-address
+    0.0.0.0:{{ __oracledb_metrics_port }}  > myoutput.log&

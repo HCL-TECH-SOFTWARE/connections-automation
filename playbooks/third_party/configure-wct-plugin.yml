@@ -1,8 +1,8 @@
 ---
-- name:                    Configure HTTP Servers
-  hosts:                   ihs_servers
-  serial:                  1
-  become:                  true
+- name: Configure HTTP Servers
+  hosts: ihs_servers
+  serial: 1
+  become: true
   roles:
     - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
     - roles/third_party/ibm/ihs/ibm-http-httpdconf

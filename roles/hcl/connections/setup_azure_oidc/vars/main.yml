@@ -1,13 +1,19 @@
 ---
-  __azure_interceptor_identifier:               "{{ azure_interceptor_identifier | default( inventory_hostname_short ) }}"
-  __azure_interceptor_scope:                    "openid profile email api://{{ azure_client_id }}/{{ __azure_interceptor_scope_endpoint }}"
-  __azure_interceptor_authorizeEndpointUrl:     "https://{{ __azure_interceptor_login_host }}/{{ integrations_msteams_tenant_id }}/oauth2/{{ __msteams_login_version }}/authorize"
-  __azure_interceptor_tokenEndpointUrl:         "https://{{ __azure_interceptor_login_host }}/{{ integrations_msteams_tenant_id }}/oauth2/{{ __msteams_login_version }}/token"
-  __azure_interceptor_jwkEndpointUrl:           "https://{{ __azure_interceptor_login_host }}/{{ integrations_msteams_tenant_id }}/discovery/{{ __msteams_login_version }}/keys"
+__azure_interceptor_identifier: '{{ azure_interceptor_identifier | default( inventory_hostname_short ) }}'
+__azure_interceptor_scope: openid profile email api://{{ azure_client_id }}/{{ __azure_interceptor_scope_endpoint
+  }}
+__azure_interceptor_authorizeEndpointUrl: https://{{ __azure_interceptor_login_host }}/{{
+  integrations_msteams_tenant_id }}/oauth2/{{ __msteams_login_version }}/authorize
+__azure_interceptor_tokenEndpointUrl: https://{{ __azure_interceptor_login_host }}/{{
+  integrations_msteams_tenant_id }}/oauth2/{{ __msteams_login_version }}/token
+__azure_interceptor_jwkEndpointUrl: https://{{ __azure_interceptor_login_host }}/{{
+  integrations_msteams_tenant_id }}/discovery/{{ __msteams_login_version }}/keys
   # Note: set __azure_interceptor_sign_alias the same as Teams Integration if configured
-  __azure_interceptor_sign_alias:               "{{ azure_interceptor_sign_alias | default('Azure') }}"
-  __azure_interceptor_issuerIdentifier:         "https://{{ __azure_interceptor_login_host }}/{{ integrations_msteams_tenant_id }}/{{ __msteams_login_version }}"
-  __azure_interceptor_useRealm:                 "https://{{ __azure_interceptor_login_host }}/{{ integrations_msteams_tenant_id }}/{{ __msteams_login_version }}"
-  __azure_interceptor_login_host:               "{{ integrations_msteams_login_host | default('login.microsoftonline.com') }}"
-  __msteams_login_version:                      "{{ integrations_msteams_login_version | default('v2.0') }}"
-  __azure_interceptor_scope_endpoint:           "{{ azure_interceptor_scope_endpoint | default('default') }}"
+__azure_interceptor_sign_alias: "{{ azure_interceptor_sign_alias | default('Azure') }}"
+__azure_interceptor_issuerIdentifier: https://{{ __azure_interceptor_login_host }}/{{
+  integrations_msteams_tenant_id }}/{{ __msteams_login_version }}
+__azure_interceptor_useRealm: https://{{ __azure_interceptor_login_host }}/{{ integrations_msteams_tenant_id
+  }}/{{ __msteams_login_version }}
+__azure_interceptor_login_host: "{{ integrations_msteams_login_host | default('login.microsoftonline.com') }}"
+__msteams_login_version: "{{ integrations_msteams_login_version | default('v2.0') }}"
+__azure_interceptor_scope_endpoint: "{{ azure_interceptor_scope_endpoint | default('default') }}"

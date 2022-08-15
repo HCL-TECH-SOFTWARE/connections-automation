@@ -1,29 +1,32 @@
-- name:                      Find connections-volumes helm file
+---
+- name: Find connections-volumes helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "connections-persistent-storage-nfs-*.tgz"
-    file_type:               file
-  register:                  connections_volumes_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: connections-persistent-storage-nfs-*.tgz
+    file_type: file
+  register: connections_volumes_tgz
 
-- name:                      Found connections-volumes file
+- name: Found connections-volumes file
   debug:
-    msg:                     "{{ connections_volumes_tgz.files[0].path }}"
+    msg: '{{ connections_volumes_tgz.files[0].path }}'
 
-- name:                      "Render {{ __connections_volumes }}"
+- name: Render {{ __connections_volumes }}
   template:
-    src:                     "helmvars/connections-volumes.yml.j2"
-    dest:                    "{{ __connections_volumes }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/connections-volumes.yml.j2
+    dest: '{{ __connections_volumes }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup connections-volumes
-  command:                   "helm upgrade connections-volumes {{ connections_volumes_tgz.files[0].path }} -i -f {{ __connections_volumes }} --recreate-pods --namespace {{ __default_namespace }}"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup connections-volumes
+  command: helm upgrade connections-volumes {{ connections_volumes_tgz.files[0].path }}
+    -i -f {{ __connections_volumes }} --recreate-pods --namespace {{ __default_namespace }}
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Give it some space...
+- name: Give it some space...
   pause:
-    seconds:                 10
+    seconds: 10
 
-- name:                      Check if connections-volumes pv are bound
-  shell:                     kubectl get pv -n {{ __default_namespace }} | grep -i connections | grep -i Bound
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if connections-volumes pv are bound
+  shell: kubectl get pv -n {{ __default_namespace }} | grep -i connections | grep
+    -i Bound
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'

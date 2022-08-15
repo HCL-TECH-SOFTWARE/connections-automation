@@ -1,86 +1,92 @@
 ---
-- include_vars:            ../setup-environment/vars/main.yml
-- include_vars:            ../create_docs_clusters/vars/main.yml
+- include_vars: ../setup-environment/vars/main.yml
+- include_vars: ../create_docs_clusters/vars/main.yml
 
-- name:                    Check Vars
-  include_tasks:           check_vars.yml
+- name: Check Vars
+  include_tasks: check_vars.yml
 
-- name:                    Pre-check DB2 version
-  include_tasks:           precheck_DB2_version.yml
+- name: Pre-check DB2 version
+  include_tasks: precheck_DB2_version.yml
   when:
-    - "'db2_servers' in groups"  
+    - "'db2_servers' in groups"
 
-- name:                    Download Docs installer to Docs env
-  include_tasks:           download_docs.yml
+- name: Download Docs installer to Docs env
+  include_tasks: download_docs.yml
   when:
-   - __setup_environment |bool
-   - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname in groups["proxy_servers"][0])
+    - __setup_environment |bool
+    - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"]
+      or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname
+      in groups["proxy_servers"][0])
 
-- name:                    Install Docs Conversion (first node)
-  include_tasks:           install_docs_conversion.yml
-  when:                    inventory_hostname in groups["conversion_servers"][0]
+- name: Install Docs Conversion (first node)
+  include_tasks: install_docs_conversion.yml
+  when: inventory_hostname in groups["conversion_servers"][0]
 
-- name:                    Install Docs Conversion (secondary nodes)
-  include_tasks:           install_docs_conversion_sec_node.yml
-  when:                    inventory_hostname in groups["conversion_servers"] and inventory_hostname not in groups["conversion_servers"][0]
+- name: Install Docs Conversion (secondary nodes)
+  include_tasks: install_docs_conversion_sec_node.yml
+  when: inventory_hostname in groups["conversion_servers"] and inventory_hostname
+    not in groups["conversion_servers"][0]
 
-- name:                    Install Docs Editor (first node)
-  include_tasks:           install_docs_editor.yml
-  when:                    inventory_hostname in groups["docs_servers"][0]
+- name: Install Docs Editor (first node)
+  include_tasks: install_docs_editor.yml
+  when: inventory_hostname in groups["docs_servers"][0]
 
-- name:                    Install Docs Editor (secondary nodes)
-  include_tasks:           install_docs_editor_sec_node.yml
-  when:                    inventory_hostname in groups["docs_servers"] and inventory_hostname not in groups["docs_servers"][0]
+- name: Install Docs Editor (secondary nodes)
+  include_tasks: install_docs_editor_sec_node.yml
+  when: inventory_hostname in groups["docs_servers"] and inventory_hostname not
+    in groups["docs_servers"][0]
 
-- name:                    Install Docs Viewer
-  include_tasks:           install_docs_viewer.yml
-  when:                    inventory_hostname in groups["viewer_servers"][0]
+- name: Install Docs Viewer
+  include_tasks: install_docs_viewer.yml
+  when: inventory_hostname in groups["viewer_servers"][0]
 
-- name:                    Install Docs Editor Proxy
-  include_tasks:           install_docs_editor_proxy.yml
-  when:                    inventory_hostname in groups["proxy_servers"][0]
+- name: Install Docs Editor Proxy
+  include_tasks: install_docs_editor_proxy.yml
+  when: inventory_hostname in groups["proxy_servers"][0]
 
-- name:                    Download Docs installer to Connections env
-  include_tasks:           download_docs.yml
+- name: Download Docs installer to Connections env
+  include_tasks: download_docs.yml
   when:
     - __setup_environment |bool
     - inventory_hostname in groups["cnx_was_servers"][0]
 
-- name:                    Start CNX Clusters
+- name: Start CNX Clusters
   include_role:
-    name:                  roles/third_party/ibm/wasnd/was-dmgr-start-cluster
-  when:                    inventory_hostname in groups["dmgr"]
+    name: roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+  when: inventory_hostname in groups["dmgr"]
 
-- name:                    Install Docs Editor Extension
-  include_tasks:           install_docs_editor_ext.yml
-  when:                    inventory_hostname in groups["cnx_was_servers"][0]
+- name: Install Docs Editor Extension
+  include_tasks: install_docs_editor_ext.yml
+  when: inventory_hostname in groups["cnx_was_servers"][0]
 
-- name:                    Install Docs Viewer Extension
-  include_tasks:           install_docs_viewer_ext.yml
-  when:                    inventory_hostname in groups["cnx_was_servers"][0]
+- name: Install Docs Viewer Extension
+  include_tasks: install_docs_viewer_ext.yml
+  when: inventory_hostname in groups["cnx_was_servers"][0]
 
-- name:                    Add domain to WAS SSO setting
+- name: Add domain to WAS SSO setting
   include_role:
-    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
+    name: roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
     apply:
-      delegate_to:         "{{ dmgr_hostname }}"
-      become:              true
-  when:                    inventory_hostname in groups["dmgr"]
+      delegate_to: '{{ dmgr_hostname }}'
+      become: true
+  when: inventory_hostname in groups["dmgr"]
 
-- name:                    Map Docs applications to web modules (workaround)
+- name: Map Docs applications to web modules (workaround)
   include_role:
-    name:                  roles/hcl/docs/map_docs_web_modules
-  when:                    inventory_hostname in groups["dmgr"]
+    name: roles/hcl/docs/map_docs_web_modules
+  when: inventory_hostname in groups["dmgr"]
 
-- name:                    Update IHS plugin
-  include_tasks:           update_webserver.yml
-  when:                    inventory_hostname in groups["proxy_servers"][0]
+- name: Update IHS plugin
+  include_tasks: update_webserver.yml
+  when: inventory_hostname in groups["proxy_servers"][0]
 
-- name:                    Propagate plugin to IHS servers
-  include_tasks:           propagate_plugin.yml
-  when:                    inventory_hostname in groups["ihs_servers"]
+- name: Propagate plugin to IHS servers
+  include_tasks: propagate_plugin.yml
+  when: inventory_hostname in groups["ihs_servers"]
 
-- name:                    Cleanup environments
-  include_tasks:           cleanup_env.yml
+- name: Cleanup environments
+  include_tasks: cleanup_env.yml
   when:
-   - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname in groups["proxy_servers"][0]) or inventory_hostname in groups["cnx_was_servers"][0]
+    - (inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"]
+      or inventory_hostname in groups["viewer_servers"][0] or inventory_hostname
+      in groups["proxy_servers"][0]) or inventory_hostname in groups["cnx_was_servers"][0]

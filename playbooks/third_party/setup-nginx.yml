@@ -1,8 +1,7 @@
-# Setup Nginx
 ---
-- name:                    Setup Nginx
-  hosts:                   k8s_load_balancers
-  #  serial:                  2
-  become:                  true
+- name: Setup Nginx
+  hosts: k8s_load_balancers
+#  serial:                  2
+  become: true
   roles:
     - roles/third_party/nginx-install

@@ -1,15 +1,16 @@
-- name:              Install compat-libstdc++-33 from RPM
+---
+- name: Install compat-libstdc++-33 from RPM
   package:
-    name:            http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm
-    state:           present
-    disable_gpg_check:   yes
+    name: http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm
+    state: present
+    disable_gpg_check: 'yes'
   when:
     - ansible_os_family == "RedHat"
 
-- name:              Install libnsl on CentOS8/RHEL8
+- name: Install libnsl on CentOS8/RHEL8
   yum:
-    name:            libnsl
-    state:           present
+    name: libnsl
+    state: present
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "8"

@@ -1,57 +1,57 @@
 ---
-- name:                    Setup WAS Application Session Management
-  hosts:                   dmgr
-  become:                  true
+- name: Setup WAS Application Session Management
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-app-session-mgmt
 
-- name:                    Update WAS SSO in Global Security
-  hosts:                   dmgr
-  become:                  true
+- name: Update WAS SSO in Global Security
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
 
-- name:                    Update WAS SSL configurations to TLSv1.2
-  hosts:                   dmgr
-  become:                  true
+- name: Update WAS SSL configurations to TLSv1.2
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-update-ssl-config
 
-- name:                    Change SSL protocol to TLSv1.2 in WAS ssl.client.props
-  hosts:                   dmgr
-  become:                  true
+- name: Change SSL protocol to TLSv1.2 in WAS ssl.client.props
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-set-ssl-client-tls
 
-- name:                    Set JVM arguments for application servers to override default to TLS v1.2
-  hosts:                   dmgr
-  become:                  true
+- name: Set JVM arguments for application servers to override default to TLS v1.2
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-set-jvm-args
 
-- name:                    Set Session management to secure session cookies
-  hosts:                   dmgr
-  become:                  true
+- name: Set Session management to secure session cookies
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-set-session-mgmt-cookies
   vars:
-    __restrict_cookies:   "true"
+    __restrict_cookies: 'true'
 
-- name:                    Restart DMGR
-  hosts:                   dmgr
-  become:                  true
+- name: Restart DMGR
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-restart
 
-- name:                    Synchronize WAS nodes
-  hosts:                   dmgr
-  become:                  true
+- name: Synchronize WAS nodes
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
 
-- name:                    Restart CNX Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Restart CNX Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

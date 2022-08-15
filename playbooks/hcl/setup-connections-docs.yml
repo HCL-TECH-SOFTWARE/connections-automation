@@ -1,68 +1,68 @@
-# Install Docs 2.0.1
 ---
-- name:                    Gather facts
-  hosts:                   nfs_servers
-  tasks:                   []
+- name: Gather facts
+  hosts: nfs_servers
+  tasks: []
 
-- name:                    Setup NFS
-  hosts:                   conversion_servers, viewer_servers, docs_servers
-  become:                  true
+- name: Setup NFS
+  hosts: conversion_servers, viewer_servers, docs_servers
+  become: true
   roles:
-    - { role: roles/third_party/nfs-install,
-        when: "docs_shared_storage_type == 'nfs' or viewer_shared_storage_type == 'nfs' or cnx_shared_storage_type == 'nfs'" }
+    - {role: roles/third_party/nfs-install, when: docs_shared_storage_type == 'nfs'
+        or viewer_shared_storage_type == 'nfs' or cnx_shared_storage_type == 'nfs'}
   vars:
-    is_docs_install:       true
+    is_docs_install: true
 
-- name:                    Setup environment
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, db2_servers, dmgr, ihs_servers
-  become:                  true
+- name: Setup environment
+  hosts: docs_servers, conversion_servers, viewer_servers, proxy_servers, db2_servers,
+    dmgr, ihs_servers
+  become: true
   roles:
     - roles/hcl/docs/setup-environment
 
-- name:                    Setup Docs database
-  hosts:                   db2_servers, oracle_servers, mssql_servers
-  become:                  true
+- name: Setup Docs database
+  hosts: db2_servers, oracle_servers, mssql_servers
+  become: true
   roles:
     - roles/hcl/connections-wizards
 
-- name:                    Start IHS
-  hosts:                   ihs_servers
-  become:                  true
+- name: Start IHS
+  hosts: ihs_servers
+  become: true
   roles:
     - roles/third_party/ibm/ihs/ibm-http-server-start
 
-- name:                   Start Dmgr
-  hosts:                  dmgr
-  become:                 true
+- name: Start Dmgr
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-start
 
-- name:                   Start CNX Nodes
-  hosts:                  cnx_was_servers
-  serial:                 1
-  become:                 true
+- name: Start CNX Nodes
+  hosts: cnx_was_servers
+  serial: 1
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-nodeagent-start
 
-- name:                   Start CNX Cluster
-  hosts:                  dmgr
-  become:                 true
+- name: Start CNX Cluster
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
 
-- name:                   Install WebSphere Application Server on Docs servers
-  hosts:                  docs_servers, conversion_servers, viewer_servers, proxy_servers
-  become:                 true
+- name: Install WebSphere Application Server on Docs servers
+  hosts: docs_servers, conversion_servers, viewer_servers, proxy_servers
+  become: true
   roles:
     - roles/third_party/ibm/installation-manager-install
     - roles/third_party/ibm/wasnd/was-nd-install
     - roles/third_party/ibm/wasnd/was-nd-fix-install
     - roles/third_party/ibm/wasnd/was-java-install
 
-- name:                    Setup WAS Nodes
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers
-  serial:                  1
-  become:                  true
+- name: Setup WAS Nodes
+  hosts: docs_servers, conversion_servers, viewer_servers, proxy_servers
+  serial: 1
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-profile-create
     - roles/third_party/ibm/wasnd/was-nodeagent-start
@@ -70,47 +70,48 @@
     - roles/third_party/oracle-install
     - roles/third_party/mssql-install
 
-- name:                    Create Docs Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Create Docs Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/hcl/docs/create_docs_clusters
 
-- name:                    Create Job Target
-  hosts:                   dmgr, docs_servers, conversion_servers, ihs_servers
-  become:                  true
+- name: Create Job Target
+  hosts: dmgr, docs_servers, conversion_servers, ihs_servers
+  become: true
   roles:
     - roles/hcl/docs/create_job_targets
 
-- name:                    Setup Docs
-  hosts:                   docs_servers, conversion_servers, viewer_servers, proxy_servers, dmgr, cnx_was_servers, ihs_servers
-  become:                  true
+- name: Setup Docs
+  hosts: docs_servers, conversion_servers, viewer_servers, proxy_servers, dmgr,
+    cnx_was_servers, ihs_servers
+  become: true
   roles:
     - roles/hcl/docs
 
-- name:                    Synchronize WAS nodes
-  hosts:                   dmgr
-  become:                  true
+- name: Synchronize WAS nodes
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
 
-- name:                    Restart CNX Cluster
-  hosts:                   dmgr
-  become:                  true
+- name: Restart CNX Cluster
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
 
-- name:                    Restart Docs Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Restart Docs Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/hcl/docs/stop_docs_clusters
     - roles/hcl/docs/start_docs_clusters
 
-- name:                    Wait for Connections is up
-  hosts:                   dmgr
+- name: Wait for Connections is up
+  hosts: dmgr
   tasks:
-    - include:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
+    - include: ../../roles/hcl/connections/tasks/wait_for_connections.yml
       vars:
-        __cnx_url:         "{{ cnx_application_ingress }}"
+        __cnx_url: '{{ cnx_application_ingress }}'

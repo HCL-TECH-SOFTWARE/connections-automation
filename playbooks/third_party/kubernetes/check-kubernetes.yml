@@ -1,9 +1,8 @@
-# Check Kubernetes
 ---
-- name:                    Check kubelet on all nodes
-  hosts:                   k8s_masters,k8s_workers
-  #  serial:                  2
-  become:                  true
+- name: Check kubelet on all nodes
+  hosts: k8s_masters,k8s_workers
+#  serial:                  2
+  become: true
   roles:
     - roles/third_party/kubernetes/kubelet-checks
     - roles/third_party/kubernetes/node-checks

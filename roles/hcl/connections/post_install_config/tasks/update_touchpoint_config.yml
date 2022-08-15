@@ -1,8 +1,8 @@
 ---
-  - name:                                     Enable acceptInvalidSSLCerts in touchpoint-config.xml
-    replace:
-      path:                                   '{{ __touchpoint_config_file }}'
-      regexp:                                 '{{ __touchpoint_acceptinvalidsslcerts_search_str }}'
-      replace:                                '{{ __touchpoint_acceptinvalidsslcerts_replace_str }}'
-    when:
-      - __touchpoint_acceptinvalidsslcerts|bool
+- name: Enable acceptInvalidSSLCerts in touchpoint-config.xml
+  replace:
+    path: '{{ __touchpoint_config_file }}'
+    regexp: '{{ __touchpoint_acceptinvalidsslcerts_search_str }}'
+    replace: '{{ __touchpoint_acceptinvalidsslcerts_replace_str }}'
+  when:
+    - __touchpoint_acceptinvalidsslcerts|bool

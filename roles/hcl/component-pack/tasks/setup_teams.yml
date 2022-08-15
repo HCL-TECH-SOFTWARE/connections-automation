@@ -1,44 +1,51 @@
-- name:                      Find teams helm file
+---
+- name: Find teams helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "teams-*.tgz"
-    file_type:               file
-  register:                  teams_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: teams-*.tgz
+    file_type: file
+  register: teams_tgz
 
-- name:                      Found teams file
+- name: Found teams file
   debug:
-    msg:                     "{{ teams_tgz.files[0].path }}"
+    msg: '{{ teams_tgz.files[0].path }}'
 
-- name:                      "Render {{ __teams_env }}"
+- name: Render {{ __teams_env }}
   template:
-    src:                     "helmvars/teams.yml.j2"
-    dest:                    "{{ __teams_env }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/teams.yml.j2
+    dest: '{{ __teams_env }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup teams
-  command:                   "helm upgrade teams {{ teams_tgz.files[0].path }} -i -f {{ __teams_env }} --namespace {{ __default_namespace }} --wait"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup teams
+  command: helm upgrade teams {{ teams_tgz.files[0].path }} -i -f {{ __teams_env }}
+    --namespace {{ __default_namespace }} --wait
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Wait for teams to come up
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=name=teams-share-service --timeout=300s
-  become_user:               "{{ __sudo_user }}"
+- name: Wait for teams to come up
+  shell: kubectl wait --namespace {{ __default_namespace }} --for=condition=ready
+    pod --selector=name=teams-share-service --timeout=300s
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if teams share service is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-share-service | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if teams share service is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i teams-share-service
+    | grep -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if teams share ui is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-share-ui | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if teams share ui is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i teams-share-ui
+    | grep -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if teams tab api is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-tab-api | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if teams tab api is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i teams-tab-api |
+    grep -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if teams tab ui is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i teams-tab-ui | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if teams tab ui is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i teams-tab-ui |
+    grep -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'

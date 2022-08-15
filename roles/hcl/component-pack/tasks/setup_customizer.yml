@@ -1,81 +1,86 @@
-- name:                      Check if customizer is already provisioned
-  shell:                     helm ls --all-namespaces | grep mw-proxy | grep -i DEPLOYED
-  changed_when:              true
-  register:                  customizer_completed
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+---
+- name: Check if customizer is already provisioned
+  shell: helm ls --all-namespaces | grep mw-proxy | grep -i DEPLOYED
+  changed_when: true
+  register: customizer_completed
+  become_user: '{{ __sudo_user }}'
+  ignore_errors: true
 
-- name:                      Find mw-proxy helm file
+- name: Find mw-proxy helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "mw-proxy-*.tgz"
-    file_type:               file
-  register:                  customizer_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: mw-proxy-*.tgz
+    file_type: file
+  register: customizer_tgz
 
-- name:                      Found customizer file
+- name: Found customizer file
   debug:
-    msg:                     "{{ customizer_tgz.files[0].path }}"
+    msg: '{{ customizer_tgz.files[0].path }}'
 
-- name:                      Create local mount point "{{ __customizer_js_files_mount }}"
+- name: Create local mount point "{{ __customizer_js_files_mount }}"
   file:
-    path:                    "{{ __customizer_js_files_mount }}"
-    state:                   directory
-    mode:                    '0755'
+    path: '{{ __customizer_js_files_mount }}'
+    state: directory
+    mode: '0755'
   when:
     - customizer_completed.rc != 0
 
-- name:                      Mount "{{ __customizer_js_files_dest }}" to "{{ __customizer_js_files_mount }}" first
+- name: Mount "{{ __customizer_js_files_dest }}" to "{{ __customizer_js_files_mount }}"
+    first
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    dump:                    0
-    passno:                  0
-    state:                   mounted
-    src:                     "{{ __customizer_js_files_dest }}"
-    path:                    "{{ __customizer_js_files_mount }}"
+    fstype: nfs
+    opts: defaults
+    dump: 0
+    passno: 0
+    state: mounted
+    src: '{{ __customizer_js_files_dest }}'
+    path: '{{ __customizer_js_files_mount }}'
   when:
     - customizer_completed.rc != 0
 
-- name:                      Copy *.js stuff for customizer to "{{ __customizer_js_files_mount }}"
+- name: Copy *.js stuff for customizer to "{{ __customizer_js_files_mount }}"
   copy:
-    src:                     "{{ item }}"
-    dest:                    "{{ __customizer_js_files_mount }}"
-    remote_src:              yes
+    src: '{{ item }}'
+    dest: '{{ __customizer_js_files_mount }}'
+    remote_src: 'yes'
   with_items:
-   - "{{ __customizer_js_files }}/container.css"
-   - "{{ __customizer_js_files }}/containerUtils.js"
-   - "{{ __customizer_js_files }}/utils.js"
+    - '{{ __customizer_js_files }}/container.css'
+    - '{{ __customizer_js_files }}/containerUtils.js'
+    - '{{ __customizer_js_files }}/utils.js'
 
-- name:                      Copy ms-teams stuff for customizer to "{{ __customizer_js_files_mount }}"
+- name: Copy ms-teams stuff for customizer to "{{ __customizer_js_files_mount }}"
   copy:
-    src:                     "{{ item }}"
-    dest:                    "{{ __customizer_js_files_mount }}"
-    remote_src:              yes
+    src: '{{ item }}'
+    dest: '{{ __customizer_js_files_mount }}'
+    remote_src: 'yes'
   with_items:
-   - "{{ __support_folder }}/ms-teams"
+    - '{{ __support_folder }}/ms-teams'
   when:
-   - __setup_teams |bool
+    - __setup_teams |bool
 
-- name:                      Copy HelloWorld js for customizer to "{{ __customizer_js_files_mount }}"
+- name: Copy HelloWorld js for customizer to "{{ __customizer_js_files_mount }}"
   copy:
-    src:                     "{{ __customizer_helloworld_js_files }}"
-    dest:                    "{{ __customizer_helloworld_js_dest }}"
+    src: '{{ __customizer_helloworld_js_files }}'
+    dest: '{{ __customizer_helloworld_js_dest }}'
 
-- name:                      "Render {{ __customizer_env }}"
+- name: Render {{ __customizer_env }}
   template:
-    src:                     "helmvars/customizer.yml.j2"
-    dest:                    "{{ __customizer_env }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/customizer.yml.j2
+    dest: '{{ __customizer_env }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup customizer
-  command:                   "helm upgrade mw-proxy {{ customizer_tgz.files[0].path }} -i -f {{ __customizer_env }} --namespace {{ __default_namespace }} --wait"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup customizer
+  command: helm upgrade mw-proxy {{ customizer_tgz.files[0].path }} -i -f {{ __customizer_env }}
+    --namespace {{ __default_namespace }} --wait
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Wait for mw-proxy to come up
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=name=mw-proxy --timeout=300s
-  become_user:               "{{ __sudo_user }}"
+- name: Wait for mw-proxy to come up
+  shell: kubectl wait --namespace {{ __default_namespace }} --for=condition=ready
+    pod --selector=name=mw-proxy --timeout=300s
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if customizer is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mw-proxy | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if customizer is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i mw-proxy | grep
+    -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'

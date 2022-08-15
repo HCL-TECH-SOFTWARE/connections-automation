@@ -1,7 +1,6 @@
-# Setup pip for Python2
 ---
-- name:                    Setup pip2
-  hosts:                   docker_registry
-  become:                  true
+- name: Setup pip2
+  hosts: docker_registry
+  become: true
   roles:
     - roles/third_party/pip-install

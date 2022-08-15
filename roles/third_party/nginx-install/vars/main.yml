@@ -1,35 +1,35 @@
 ---
-__conf_d_location:              "/etc/nginx/conf.d"
+__conf_d_location: /etc/nginx/conf.d
 
-__nginx_conf_template:          "nginx.conf.j2"
-__nginx_conf_location:          "/etc/nginx/nginx.conf"
+__nginx_conf_template: nginx.conf.j2
+__nginx_conf_location: /etc/nginx/nginx.conf
 
-__nginx_certbot_production:     "{{ nginx_certbot_production | default(false) }}"
+__nginx_certbot_production: '{{ nginx_certbot_production | default(false) }}'
 
-__worker_connections:           "{{ nginx_worker_connections | default('16384') }}"
+__worker_connections: "{{ nginx_worker_connections | default('16384') }}"
 
-__packages_conf_template:       "packages.conf.j2"
-__packages_conf_location:       "{{ __conf_d_location }}/packages.conf"
+__packages_conf_template: packages.conf.j2
+__packages_conf_location: '{{ __conf_d_location }}/packages.conf'
 
-__packages_conf_port:           "{{ packages_conf_port | default(8001) }}"
-__packages_location:            "{{ packages_location | default('/data/packages') }}"
+__packages_conf_port: '{{ packages_conf_port | default(8001) }}'
+__packages_location: "{{ packages_location | default('/data/packages') }}"
 
-__setup_file_server:            "{{ setup_file_server | default('false') }}"
-__setup_customizer:             "{{ setup_customizer | default('true') }}"
+__setup_file_server: "{{ setup_file_server | default('false') }}"
+__setup_customizer: "{{ setup_customizer | default('true') }}"
 
-__nginx_crt_file:               "/etc/nginx/ssl/{{ inventory_hostname }}.crt"
-__nginx_key_file:               "/etc/nginx/ssl/{{ inventory_hostname }}.key"
-__nginx_cnf_location:           "/etc/nginx/ssl/{{ inventory_hostname }}.cnf"
-__nginx_cnf_template:           "cert.cnf.j2"
+__nginx_crt_file: /etc/nginx/ssl/{{ inventory_hostname }}.crt
+__nginx_key_file: /etc/nginx/ssl/{{ inventory_hostname }}.key
+__nginx_cnf_location: /etc/nginx/ssl/{{ inventory_hostname }}.cnf
+__nginx_cnf_template: cert.cnf.j2
 
-__mw_proxy_address:             "{{ load_balancer_dns | default('localhost') }}"
-__mw_proxy_port:                "{{ mw_proxy_port | default('30301') }}"
+__mw_proxy_address: "{{ load_balancer_dns | default('localhost') }}"
+__mw_proxy_port: "{{ mw_proxy_port | default('30301') }}"
 
-__customizer_conf_template:     "customizer.conf.j2"
-__customizer_conf_location:     "{{ __conf_d_location }}/customizer.conf" 
+__customizer_conf_template: customizer.conf.j2
+__customizer_conf_location: '{{ __conf_d_location }}/customizer.conf'
 
-__param_nofile_soft:            "64000"
-__param_nofile_hard:            "64000"
+__param_nofile_soft: '64000'
+__param_nofile_hard: '64000'
 
-__nginx_repo_template:          "nginx.repo.j2"
-__nginx_repo_location:          "/etc/yum.repos.d/nginx.repo"
+__nginx_repo_template: nginx.repo.j2
+__nginx_repo_location: /etc/yum.repos.d/nginx.repo

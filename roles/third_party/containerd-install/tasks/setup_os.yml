@@ -1,51 +1,52 @@
-- name:                     Create {{ __modules_containerd_conf_location }}
+---
+- name: Create {{ __modules_containerd_conf_location }}
   template:
-    src:                    "{{ __modules_containerd_conf_template }}"
-    dest:                   "{{ __modules_containerd_conf_location }}"
+    src: '{{ __modules_containerd_conf_template }}'
+    dest: '{{ __modules_containerd_conf_location }}'
 
-- name:                     Load kernel modules
+- name: Load kernel modules
   modprobe:
-    name:                   "{{ item }}"
-    state:                  present
+    name: '{{ item }}'
+    state: present
   with_items:
-   - "overlay"
-   - "br_netfilter"
+    - overlay
+    - br_netfilter
 
-- name:                     Create {{ __kubernetes_cri_conf_location }}
+- name: Create {{ __kubernetes_cri_conf_location }}
   template:
-    src:                    "{{ __kubernetes_cri_conf_template }}"
-    dest:                   "{{ __kubernetes_cri_conf_location }}"
+    src: '{{ __kubernetes_cri_conf_template }}'
+    dest: '{{ __kubernetes_cri_conf_location }}'
 
-- name:                     Avoid issues with traffic routing as per documentation
+- name: Avoid issues with traffic routing as per documentation
   sysctl:
-    name:                   "{{ item }}"
-    value:                  '1'
-    sysctl_set:             yes
-    reload:                 yes
+    name: '{{ item }}'
+    value: '1'
+    sysctl_set: 'yes'
+    reload: 'yes'
   with_items:
-   - "net.bridge.bridge-nf-call-iptables"
-   - "net.ipv4.ip_forward"
-   - "net.bridge.bridge-nf-call-ip6tables"
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-ip6tables
 
-- name:                     Install pre-requisites Yum
+- name: Install pre-requisites Yum
   package:
-    name:                   ['yum-utils', 'device-mapper-persistent-data', 'lvm2', 'python3-pip', 'unzip', 'httpd-tools']
-    state:                  present
+    name: [yum-utils, device-mapper-persistent-data, lvm2, python3-pip, unzip, httpd-tools]
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                     Install pre-requisites Yum for CentOS 7 - epel-release
+- name: Install pre-requisites Yum for CentOS 7 - epel-release
   package:
-    name:                   ['epel-release']
-    enablerepo:             "extras"
-    state:                  present
+    name: [epel-release]
+    enablerepo: extras
+    state: present
   when:
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
 
-- name:                     Install pre-requisites Yum for CentOS 7
+- name: Install pre-requisites Yum for CentOS 7
   package:
-    name:                   ['python-setuptools', 'python2', 'python-pip', 'httpd-tools']
+    name: [python-setuptools, python2, python-pip, httpd-tools]
     state: present
   when:
     - ansible_distribution == "CentOS"

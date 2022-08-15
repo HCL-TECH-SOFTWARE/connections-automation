@@ -1,10 +1,10 @@
 ---
-- name:          Check Vars
+- name: Check Vars
   include_tasks: check_vars.yml
 
-- name:          Define Vars
+- name: Define Vars
   include_tasks: define_vars.yml
 
-- name:          Install Java
+- name: Install Java
   include_tasks: install_java.yml
-  when:          __was_upgrade_java is defined and version_already_installed.rc != 0
+  when: __was_upgrade_java is defined and version_already_installed.rc != 0

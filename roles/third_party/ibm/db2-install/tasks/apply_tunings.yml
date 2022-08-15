@@ -1,30 +1,35 @@
-- name:                  "Verify if codepage is already configured"
+---
+- name: Verify if codepage is already configured
   stat:
-    path:                "{{ __db2_tunings_applied }}"
-  register:              db2_tunings_already_applied
+    path: '{{ __db2_tunings_applied }}'
+  register: db2_tunings_already_applied
 
-- name:                  Setup codepage
-  shell:                 "{{ item }}"
-  become_user:           "{{ __db2_instance_name }}"
+- name: Setup codepage
+  shell: '{{ item }}'
+  become_user: '{{ __db2_instance_name }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_instance_name }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_instance_name }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "db2set DB2_MINIMIZE_LISTPREFETCH=YES"
-   - "db2set DB2_SELECTIVITY=YES"
-   - "db2 update dbm cfg using MON_HEAP_SZ {{ __db2_instance_heap_size }}"
-   - "db2stop force"
-   - "db2start"
+    - db2set DB2_MINIMIZE_LISTPREFETCH=YES
+    - db2set DB2_SELECTIVITY=YES
+    - db2 update dbm cfg using MON_HEAP_SZ {{ __db2_instance_heap_size }}
+    - db2stop force
+    - db2start
   when:
     - db2_tunings_already_applied.stat.exists == false
 
-- name:                  "Create {{ __db2_tunings_applied }} file"
+- name: Create {{ __db2_tunings_applied }} file
   file:
-    path:                "{{ __db2_tunings_applied }}"
-    state:               touch
+    path: '{{ __db2_tunings_applied }}'
+    state: touch

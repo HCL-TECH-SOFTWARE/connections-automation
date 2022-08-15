@@ -2,65 +2,66 @@
 - name: dmgr_hostname should be defined
   assert:
     that:
-    - dmgr_hostname|length > 0
-    msg: "Set the value of 'dmgr_hostname' in the inventory file."
+      - dmgr_hostname|length > 0
+    msg: Set the value of 'dmgr_hostname' in the inventory file.
 
 - name: cnx_was_servers should be defined
   assert:
     that:
-    - "groups['cnx_was_servers'] |length > 0"
-    msg: "Set the value of 'cnx_was_servers' in the inventory file."
+      - groups['cnx_was_servers'] |length > 0
+    msg: Set the value of 'cnx_was_servers' in the inventory file.
 
 - name: docs_servers should be defined
   assert:
     that:
-    - "groups['docs_servers'] |length > 0"
-    msg: "Set the value of 'docs_servers' in the inventory file."
+      - groups['docs_servers'] |length > 0
+    msg: Set the value of 'docs_servers' in the inventory file.
 
 - name: conversion_servers should be defined
   assert:
     that:
-    - "groups['conversion_servers'] |length > 0"
-    msg: "Set the value of 'conversion_servers' in the inventory file."
+      - groups['conversion_servers'] |length > 0
+    msg: Set the value of 'conversion_servers' in the inventory file.
 
 - name: viewer_servers should be defined
   assert:
     that:
-    - "groups['viewer_servers'] |length > 0"
-    msg: "Set the value of 'viewer_servers' in the inventory file."
+      - groups['viewer_servers'] |length > 0
+    msg: Set the value of 'viewer_servers' in the inventory file.
 
 - name: proxy_servers should be defined
   assert:
     that:
-    - "groups['proxy_servers'] |length > 0"
-    msg: "Set the value of 'proxy_servers' in the inventory file."
+      - groups['proxy_servers'] |length > 0
+    msg: Set the value of 'proxy_servers' in the inventory file.
 
 - name: docs_username should be defined
   assert:
     that:
-    - docs_username|length > 0
-    msg: "Set the value of 'docs_username' in the inventory file."
+      - docs_username|length > 0
+    msg: Set the value of 'docs_username' in the inventory file.
 
 - name: docs_password should be defined
   assert:
     that:
-    - docs_password|length > 0
-    msg: "Set the value of 'docs_password' in the inventory file."
+      - docs_password|length > 0
+    msg: Set the value of 'docs_password' in the inventory file.
 
 - name: db_concord_password should be defined
   assert:
     that:
-    - db_concord_password|length > 0
-    msg: "Set the value of 'db_concord_password' in the inventory file."
+      - db_concord_password|length > 0
+    msg: Set the value of 'db_concord_password' in the inventory file.
 
 - name: cnx_application_ingress should be defined
   assert:
     that:
-    - cnx_application_ingress|length > 0
-    msg: "Set the value of 'cnx_application_ingress' in the inventory file. This is dynamicHost value."
+      - cnx_application_ingress|length > 0
+    msg: Set the value of 'cnx_application_ingress' in the inventory file. This
+      is dynamicHost value.
 
 - name: docs_url should be defined
   assert:
     that:
-    - docs_url|length > 0
-    msg: "Set the value of 'docs_url' in the inventory file."
+      - docs_url|length > 0
+    msg: Set the value of 'docs_url' in the inventory file.

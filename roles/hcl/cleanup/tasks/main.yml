@@ -1,149 +1,150 @@
-- name:                    Reset Kubernetes
-  command:                 kubeadm reset -f
-  ignore_errors:           true
-  tags:                    k8s_cleanup
+---
+- name: Reset Kubernetes
+  command: kubeadm reset -f
+  ignore_errors: true
+  tags: k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+    - __force_destroy_kubernetes == true
 
-- name:                    Cleanup K8S
-  command:                 yum remove kubeadm kubectl kubelet kubernetes-cni kube* -y
-  ignore_errors:           true
-  tags:                    k8s_cleanup
+- name: Cleanup K8S
+  command: yum remove kubeadm kubectl kubelet kubernetes-cni kube* -y
+  ignore_errors: true
+  tags: k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+    - __force_destroy_kubernetes == true
 
-- name:                    Find kubectl
-  shell:                   "whereis kubectl | awk '{ print $2 }'"
-  register:                kubectl_loc
-  ignore_errors:           true
-  tags:                    k8s_cleanup
+- name: Find kubectl
+  shell: whereis kubectl | awk '{ print $2 }'
+  register: kubectl_loc
+  ignore_errors: true
+  tags: k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+    - __force_destroy_kubernetes == true
 
-- name:                    Delete kubectl if exists {{ kubectl_loc.stdout }}
+- name: Delete kubectl if exists {{ kubectl_loc.stdout }}
   file:
-    path:                  "{{ kubectl_loc.stdout }}"
-    state:                 absent
-  ignore_errors:           true
-  tags:                    k8s_cleanup
+    path: '{{ kubectl_loc.stdout }}'
+    state: absent
+  ignore_errors: true
+  tags: k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true and kubectl_loc.rc == 0
+    - __force_destroy_kubernetes == true and kubectl_loc.rc == 0
 
-- name:                    Cleanup folders
+- name: Cleanup folders
   file:
-    path:                  "{{ item }}"
-    state:                 absent
-  tags:                    k8s_cleanup
+    path: '{{ item }}'
+    state: absent
+  tags: k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+    - __force_destroy_kubernetes == true
   with_items:
-   - "{{ __ansible_cache }}"
-   - "{{ __helm_install_dir }}"
-   - "{{ __kube_dir }}"
-   - "{{ __docker_registry_dir }}"
-   - "{{ __kubernetes_etc_dir }}"
-   - "{{ __etcd_dir }}"
+    - '{{ __ansible_cache }}'
+    - '{{ __helm_install_dir }}'
+    - '{{ __kube_dir }}'
+    - '{{ __docker_registry_dir }}'
+    - '{{ __kubernetes_etc_dir }}'
+    - '{{ __etcd_dir }}'
 
-- name:                    Stop db2fmcd process
+- name: Stop db2fmcd process
   systemd:
-    name:                  db2fmcd
-    state:                 stopped
-  ignore_errors:           true
-  tags:                    db2_cleanup
+    name: db2fmcd
+    state: stopped
+  ignore_errors: true
+  tags: db2_cleanup
   when:
-   - __force_destroy_db2 == true
+    - __force_destroy_db2 == true
 
-- name:                    Kill all db2 processes
-  shell:                   ps -ef | grep db2 | awk {'print $2'} | xargs kill -9
-  ignore_errors:           true
-  tags:                    db2_cleanup
+- name: Kill all db2 processes
+  shell: ps -ef | grep db2 | awk {'print $2'} | xargs kill -9
+  ignore_errors: true
+  tags: db2_cleanup
   when:
-   - __force_destroy_db2 == true
+    - __force_destroy_db2 == true
 
-- name:                    Cleanup DB2 folders
+- name: Cleanup DB2 folders
   file:
-    path:                  "{{ item }}"
-    state:                 absent
-  tags:                    db2_cleanup
+    path: '{{ item }}'
+    state: absent
+  tags: db2_cleanup
   when:
-   - __force_destroy_db2 == true
+    - __force_destroy_db2 == true
   with_items:
-   - "{{ __db2_instance_fenced_homedir }}"
-   - "{{ __db2_instance_homedir }}"
-   - "{{ __db_installation_folder_dir }}"
+    - '{{ __db2_instance_fenced_homedir }}'
+    - '{{ __db2_instance_homedir }}'
+    - '{{ __db_installation_folder_dir }}'
 
-- name:                    Cleanup TDI
+- name: Cleanup TDI
   file:
-    path:                  "{{ item }}"
-    state:                 absent
-  tags:                    tdi_cleanup
+    path: '{{ item }}'
+    state: absent
+  tags: tdi_cleanup
   when:
-   - __force_destroy_tdi == true
+    - __force_destroy_tdi == true
   with_items:
-   - "{{ __tdi_sol_dest }}"
-   - "{{ __tdi_user_install_dir }}"
-   - "/var/.com.zerog.registry.xml"
+    - '{{ __tdi_sol_dest }}'
+    - '{{ __tdi_user_install_dir }}'
+    - /var/.com.zerog.registry.xml
 
-- name:                    Kill all IHSs processes
-  shell:                   ps -ef | grep http | awk {'print $2'} | xargs kill -9
-  ignore_errors:           true
-  tags:                    ihs_cleanup
+- name: Kill all IHSs processes
+  shell: ps -ef | grep http | awk {'print $2'} | xargs kill -9
+  ignore_errors: true
+  tags: ihs_cleanup
   when:
-   - __force_destroy_ihs == true
+    - __force_destroy_ihs == true
 
-- name:                    Cleanup IHSs folders
+- name: Cleanup IHSs folders
   file:
-    path:                  "{{ item }}"
-    state:                 absent
-  tags:                    ihs_cleanup
-  ignore_errors:           true
+    path: '{{ item }}'
+    state: absent
+  tags: ihs_cleanup
+  ignore_errors: true
   when:
-   - __force_destroy_ihs == true
+    - __force_destroy_ihs == true
   with_items:
-   - "{{ __ihs_install_location }}"
-   - "{{ __iim_install_location }}"
-   - "{{ __var_ibm_base_location }}"
-   - "{{ __plg_install_location }}"
-   - "{{ __wct_install_location }}"   
+    - '{{ __ihs_install_location }}'
+    - '{{ __iim_install_location }}'
+    - '{{ __var_ibm_base_location }}'
+    - '{{ __plg_install_location }}'
+    - '{{ __wct_install_location }}'
 
-- name:                    Kill all WebSphere/Connections processes
-  shell:                   ps -ef | grep java | awk {'print $2'} | xargs kill -9
-  ignore_errors:           true
-  tags:                    was_cleanup
+- name: Kill all WebSphere/Connections processes
+  shell: ps -ef | grep java | awk {'print $2'} | xargs kill -9
+  ignore_errors: true
+  tags: was_cleanup
   when:
-   - __force_destroy_websphere == true
+    - __force_destroy_websphere == true
 
-- name:                    Cleanup WebSphere/Connections folders
+- name: Cleanup WebSphere/Connections folders
   file:
-    path:                  "{{ item }}"
-    state:                 absent
-  tags:                    was_cleanup
-  ignore_errors:           true
+    path: '{{ item }}'
+    state: absent
+  tags: was_cleanup
+  ignore_errors: true
   when:
-   - __force_destroy_websphere == true
+    - __force_destroy_websphere == true
   with_items:
-   - "{{ __iim_install_location_dir }}"
-   - "{{ __websphere_base_location }}"
-   - "{{ __imshared_location }}"
-   - "{{ __var_ibm_base_location_dir }}"
+    - '{{ __iim_install_location_dir }}'
+    - '{{ __websphere_base_location }}'
+    - '{{ __imshared_location }}'
+    - '{{ __var_ibm_base_location_dir }}'
 
-- name:                    Kill all Oracle processes
-  shell:                   ps -ef | grep ora | awk {'print $2'} | xargs kill -9
-  ignore_errors:           true
-  tags:                    oracle_cleanup
+- name: Kill all Oracle processes
+  shell: ps -ef | grep ora | awk {'print $2'} | xargs kill -9
+  ignore_errors: true
+  tags: oracle_cleanup
   when:
-   - __force_destroy_oracle == true
+    - __force_destroy_oracle == true
 
-- name:                    Cleanup oracle folders
+- name: Cleanup oracle folders
   file:
-    path:                  "{{ item }}"
-    state:                 absent
-  tags:                    oracle_cleanup
+    path: '{{ item }}'
+    state: absent
+  tags: oracle_cleanup
   when:
-   - __force_destroy_oracle == true
+    - __force_destroy_oracle == true
   with_items:
-   - "{{ __ora_rsp_oracle_base }}"
-   - "{{ __oraclfmap_oracle_base }}"
-   - "{{ __oracltab_oracle_base }}"
-   - "{{ __orainst_oracle_base }}"
-   - "{{ __oracle_temp }}"
+    - '{{ __ora_rsp_oracle_base }}'
+    - '{{ __oraclfmap_oracle_base }}'
+    - '{{ __oracltab_oracle_base }}'
+    - '{{ __orainst_oracle_base }}'
+    - '{{ __oracle_temp }}'

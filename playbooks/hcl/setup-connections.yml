@@ -1,9 +1,9 @@
 ---
-- name:                  Setup NFS
-  import_playbook:       ../third_party/setup-nfs.yml
+- name: Setup NFS
+  import_playbook: ../third_party/setup-nfs.yml
 
-- name:                  Setup WebSphere ND
-  import_playbook:       ../third_party/setup-webspherend.yml
+- name: Setup WebSphere ND
+  import_playbook: ../third_party/setup-webspherend.yml
 
-- name:                  Setup HCL Connections
-  import_playbook:       setup-connections-only.yml
+- name: Setup HCL Connections
+  import_playbook: setup-connections-only.yml

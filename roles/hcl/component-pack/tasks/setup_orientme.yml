@@ -1,50 +1,57 @@
-- name:                      Find orientme helm file
+---
+- name: Find orientme helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "orientme-*.tgz"
-    file_type:               file
-  register:                  orientme_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: orientme-*.tgz
+    file_type: file
+  register: orientme_tgz
 
-- name:                      Found orientme file
+- name: Found orientme file
   debug:
-    msg:                     "{{ orientme_tgz.files[0].path }}"
+    msg: '{{ orientme_tgz.files[0].path }}'
 
-- name:                      "Render {{ __orientme_env }}"
+- name: Render {{ __orientme_env }}
   template:
-    src:                     "helmvars/orientme.yml.j2"
-    dest:                    "{{ __orientme_env }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/orientme.yml.j2
+    dest: '{{ __orientme_env }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check Helm Version
-  shell:                     helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"
-  changed_when:              true
-  register:                  helm_version
-  become:                    false
-  ignore_errors:             true
+- name: Check Helm Version
+  shell: helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk
+    -F "." '{print $1}'|sed "s/\"//g"
+  changed_when: true
+  register: helm_version
+  become: false
+  ignore_errors: true
 
-- debug:                     var=helm_version.stdout
+- debug: var=helm_version.stdout
 
-- name:                      Setup orientme (Helm2)
-  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }}"
-  become_user:               "{{ __sudo_user }}"
-  when:                      (helm_version.stdout == "v2")
+- name: Setup orientme (Helm2)
+  command: helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }}
+    --namespace {{ __default_namespace }}
+  become_user: '{{ __sudo_user }}'
+  when: (helm_version.stdout == "v2")
 
-- name:                      Wait for people-migrate pod to become ready (Helm2)
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=600s
-  become_user:               "{{ __sudo_user }}"
-  when:                      (helm_version.stdout == "v2")
+- name: Wait for people-migrate pod to become ready (Helm2)
+  shell: kubectl wait --namespace {{ __default_namespace }} --for=condition=ready
+    pod --selector=app=people-migrate --timeout=600s
+  become_user: '{{ __sudo_user }}'
+  when: (helm_version.stdout == "v2")
 
-- name:                      Setup orientme
-  command:                   "helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait --timeout 10m"
-  become_user:               "{{ __sudo_user }}"
-  when:                      (helm_version.stdout != "v2")
+- name: Setup orientme
+  command: helm upgrade orientme {{ orientme_tgz.files[0].path }} -i -f {{ __orientme_env }}
+    --namespace {{ __default_namespace }} --wait --timeout 10m
+  become_user: '{{ __sudo_user }}'
+  when: (helm_version.stdout != "v2")
 
-- name:                      Wait for people-migrate pod to become ready
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=300s
-  become_user:               "{{ __sudo_user }}"
-  when:                      (helm_version.stdout != "v2")
+- name: Wait for people-migrate pod to become ready
+  shell: kubectl wait --namespace {{ __default_namespace }} --for=condition=ready
+    pod --selector=app=people-migrate --timeout=300s
+  become_user: '{{ __sudo_user }}'
+  when: (helm_version.stdout != "v2")
 
-- name:                      Check if orientme is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i orient | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if orientme is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i orient | grep -i
+    Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'

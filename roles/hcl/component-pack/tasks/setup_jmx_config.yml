@@ -1,26 +1,27 @@
 ---
 - name: Creates JMX directory
   file:
-    path:       "{{ __jmx_install_location }}"
-    state:      directory
-    mode:       0775
+    path: '{{ __jmx_install_location }}'
+    state: directory
+    mode: 0775
 
 - name: copy config.yml from local host to remote host (relative path, ./files/)
   copy:
-    src:        config.yml
-    dest:       "{{ __jmx_install_location }}"
-    mode:       '0777'
-  become_user:  "{{ __sudo_user }}"
+    src: config.yml
+    dest: '{{ __jmx_install_location }}'
+    mode: '0777'
+  become_user: '{{ __sudo_user }}'
 
 - name: Download jmx-exporter jar using get_url
   get_url:
-    url:        "{{ __jmx_download_url }}"
-    dest:       "{{ __jmx_install_location }}"
-    mode:       0755
+    url: '{{ __jmx_download_url }}'
+    dest: '{{ __jmx_install_location }}'
+    mode: 0755
 
 - name: Set '/process:Server/processDefinitions/jvmEntries' for Dmgr
   replace:
-    path:       "{{ __jvm_config_file }}"
-    regexp:     'genericJvmArguments=""'
-    replace:    'genericJvmArguments="-javaagent:{{ __jmx_install_location }}/{{ __jmx_jar_name }}=8080:{{ __jmx_install_location }}/config.yml"'
-  delegate_to:  "{{ dmgr_hostname }}"
+    path: '{{ __jvm_config_file }}'
+    regexp: genericJvmArguments=""
+    replace: genericJvmArguments="-javaagent:{{ __jmx_install_location }}/{{ __jmx_jar_name
+      }}=8080:{{ __jmx_install_location }}/config.yml"
+  delegate_to: '{{ dmgr_hostname }}'

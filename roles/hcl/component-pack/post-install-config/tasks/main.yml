@@ -1,20 +1,20 @@
 ---
-- name:                      Setup OrientMe and Action Center config
-  include_tasks:             setup_orientme.yml
+- name: Setup OrientMe and Action Center config
+  include_tasks: setup_orientme.yml
 
-- name:                      Setup appregistry config
-  include_tasks:             setup_appreg.yml
+- name: Setup appregistry config
+  include_tasks: setup_appreg.yml
 
-- name:                      Setup ElasticSearch config
-  include_tasks:             setup_elasticsearch_config.yml
+- name: Setup ElasticSearch config
+  include_tasks: setup_elasticsearch_config.yml
 
-- name:                      Setup Teams config
-  include_tasks:             setup_teams_config.yml
-  when:                      __setup_teams|bool
+- name: Setup Teams config
+  include_tasks: setup_teams_config.yml
+  when: __setup_teams|bool
 
-- name:                      Setup Connection Provider KudosBoards
-  include_tasks:             setup_conn_provider_kudosboards.yml
-  when:                      __setup_kudosboards|bool
+- name: Setup Connection Provider KudosBoards
+  include_tasks: setup_conn_provider_kudosboards.yml
+  when: __setup_kudosboards|bool
 
-- name:                      Synchronize configmap jwt-expires-in-minutes with WAS LTPA timeout
-  include_tasks:             synch_ltpa_timeout.yml
+- name: Synchronize configmap jwt-expires-in-minutes with WAS LTPA timeout
+  include_tasks: synch_ltpa_timeout.yml

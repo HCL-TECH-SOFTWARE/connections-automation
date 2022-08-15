@@ -1,64 +1,67 @@
-- name:                  "Verify if TDI is already installed"
+---
+- name: Verify if TDI is already installed
   stat:
-    path:                "{{ __tdi_installed_success_file }}"
-  register:              tdi_already_installed
+    path: '{{ __tdi_installed_success_file }}'
+  register: tdi_already_installed
 
-- name:                  "Verify if TDI is already upgraded"
+- name: Verify if TDI is already upgraded
   stat:
-    path:                "{{ __tdi_upgrade_success_file }}"
-  register:              tdi_already_upgraded
+    path: '{{ __tdi_upgrade_success_file }}'
+  register: tdi_already_upgraded
 
-- name:                  Clean up upgrade folder(s)
+- name: Clean up upgrade folder(s)
   file:
-    path:                "{{ __tdi_upgrade_folder }}"
-    state:               absent
+    path: '{{ __tdi_upgrade_folder }}'
+    state: absent
   when:
     - tdi_already_installed.stat.exists |bool
     - not tdi_already_upgraded.stat.exists
 
-- name:                  Create upgrade folder
+- name: Create upgrade folder
   file:
-    path:                "{{ __tdi_upgrade_folder }}"
-    state:               directory
+    path: '{{ __tdi_upgrade_folder }}'
+    state: directory
   when:
     - tdi_already_installed.stat.exists |bool
     - not tdi_already_upgraded.stat.exists
 
-- name:                  Download and unzip upgrade {{ __upgrade_package_name }} to the {{ __extraction_folder }}
+- name: Download and unzip upgrade {{ __upgrade_package_name }} to the {{ __extraction_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __upgrade_package_name }}"
-    dest:                "{{ __tdi_upgrade_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ __upgrade_package_name }}'
+    dest: '{{ __tdi_upgrade_folder }}'
+    remote_src: 'yes'
   when:
     - tdi_already_installed.stat.exists |bool
     - not tdi_already_upgraded.stat.exists
 
-- name:                  Ensure {{ __tdi_user_install_dir }}/maintenance/UpdateInstaller.jar is absent
+- name: Ensure {{ __tdi_user_install_dir }}/maintenance/UpdateInstaller.jar is absent
   file:
-    path:                "{{ __tdi_user_install_dir }}/maintenance/UpdateInstaller.jar"
-    state:               absent
+    path: '{{ __tdi_user_install_dir }}/maintenance/UpdateInstaller.jar'
+    state: absent
   when:
     - tdi_already_installed.stat.exists |bool
     - not tdi_already_upgraded.stat.exists
 
-- name:                  Copy {{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/UpdateInstaller.jar to {{ __tdi_user_install_dir }}/maintenance/
+- name: Copy {{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/UpdateInstaller.jar
+    to {{ __tdi_user_install_dir }}/maintenance/
   copy:
-    src:                 "{{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/UpdateInstaller.jar"
-    dest:                "{{ __tdi_user_install_dir }}/maintenance/"
-    remote_src:          yes
+    src: '{{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/UpdateInstaller.jar'
+    dest: '{{ __tdi_user_install_dir }}/maintenance/'
+    remote_src: 'yes'
   when:
     - tdi_already_installed.stat.exists |bool
     - not tdi_already_upgraded.stat.exists
 
-- name:                  Upgrade TDI
-  shell:                 "{{ __tdi_upgrade_bin }} -update {{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/{{ __upgrade_package_bin }}"
-  register:              tdi_upgrade
-  failed_when:           ( tdi_upgrade.rc not in [0] )
+- name: Upgrade TDI
+  shell: '{{ __tdi_upgrade_bin }} -update {{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name
+    }}/{{ __upgrade_package_bin }}'
+  register: tdi_upgrade
+  failed_when: ( tdi_upgrade.rc not in [0] )
   when:
     - tdi_already_installed.stat.exists |bool
     - not tdi_already_upgraded.stat.exists
 
-- name:                  "Create {{ __tdi_upgrade_success_file }} file"
+- name: Create {{ __tdi_upgrade_success_file }} file
   file:
-    path:                "{{ __tdi_upgrade_success_file }}"
-    state:               touch
+    path: '{{ __tdi_upgrade_success_file }}'
+    state: touch

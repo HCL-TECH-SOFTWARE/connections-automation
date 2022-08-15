@@ -1,30 +1,31 @@
-- name:                  Install pre-requisites Yum
+---
+- name: Install pre-requisites Yum
   yum:
-    name:                ['unzip', 'dos2unix']
-    state:               present
+    name: [unzip, dos2unix]
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                  Install Development Tools group
+- name: Install Development Tools group
   yum:
-    name:                "@Development tools"
-    state:               present
+    name: '@Development tools'
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                  Install oracle-database-preinstall-19c from RPM on RedHat OL7
+- name: Install oracle-database-preinstall-19c from RPM on RedHat OL7
   package:
-    name:                https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm
-    state:               present
+    name: https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm
+    state: present
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version != "8"
 
-- name:                  Install oracle-database-preinstall-19c from RPM on RedHat OL8
+- name: Install oracle-database-preinstall-19c from RPM on RedHat OL8
   yum:
-    name:                https://yum.oracle.com/repo/OracleLinux/OL8/appstream/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el8.x86_64.rpm
-    state:               present
-    disable_gpg_check:   yes
+    name: https://yum.oracle.com/repo/OracleLinux/OL8/appstream/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el8.x86_64.rpm
+    state: present
+    disable_gpg_check: 'yes'
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"

@@ -1,47 +1,46 @@
-# Install Connections iFix
 ---
-- name:                    Gather facts
-  hosts:                   dmgr
-  tasks:                   []
+- name: Gather facts
+  hosts: dmgr
+  tasks: []
 
-- name:                    Start DMGR
-  hosts:                   dmgr
-  become:                  true
+- name: Start DMGR
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-start
 
-- name:                    Start WAS Nodes
-  hosts:                   was_servers
-  become:                  true
+- name: Start WAS Nodes
+  hosts: was_servers
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-nodeagent-start
 
-- name:                    Stop CNX Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Stop CNX Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
 
-- name:                    Install Connections iFix
-  hosts:                   dmgr, was_servers
-  become:                  true
+- name: Install Connections iFix
+  hosts: dmgr, was_servers
+  become: true
   roles:
     - roles/hcl/connections/ifix
 
-- name:                    Clean WAS temp folders
-  hosts:                   dmgr, was_servers
-  become:                  true
+- name: Clean WAS temp folders
+  hosts: dmgr, was_servers
+  become: true
   roles:
     - roles/hcl/connections/clean_was_temp
 
-- name:                    Start WAS Nodes
-  hosts:                   was_servers
-  become:                  true
+- name: Start WAS Nodes
+  hosts: was_servers
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-nodeagent-start
 
-- name:                    Start CNX Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Start CNX Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

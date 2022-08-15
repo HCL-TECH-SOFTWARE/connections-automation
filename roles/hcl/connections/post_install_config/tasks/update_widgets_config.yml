@@ -1,12 +1,12 @@
 ---
-  - name:               Replace with fully qualified paths to the Highlights widgets
-    replace:
-      path:             '{{ __widgets_config_file }}'
-      regexp:           '{{ __cec_search_str }}'
-      replace:          '{{ __cec_replace_str }}'
+- name: Replace with fully qualified paths to the Highlights widgets
+  replace:
+    path: '{{ __widgets_config_file }}'
+    regexp: '{{ __cec_search_str }}'
+    replace: '{{ __cec_replace_str }}'
 
-  - name:               Replace with fully qualified paths to the SharePoint Library widgets
-    replace:
-      path:             '{{ __widgets_config_file }}'
-      regexp:           '{{ __sp_lib_search_str }}'
-      replace:          '{{ __sp_lib_replace_str }}'         
+- name: Replace with fully qualified paths to the SharePoint Library widgets
+  replace:
+    path: '{{ __widgets_config_file }}'
+    regexp: '{{ __sp_lib_search_str }}'
+    replace: '{{ __sp_lib_replace_str }}'

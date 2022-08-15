@@ -1,11 +1,12 @@
-- name:                 Install pre requisites
+---
+- name: Install pre requisites
   yum:
-    name:               ['gcc', 'pcre-devel', 'openssl-devel']
-    state:              present
+    name: [gcc, pcre-devel, openssl-devel]
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                 Install Development Tools group
+- name: Install Development Tools group
   yum:
-    name:               "@Development tools"
-    state:              present
+    name: '@Development tools'
+    state: present

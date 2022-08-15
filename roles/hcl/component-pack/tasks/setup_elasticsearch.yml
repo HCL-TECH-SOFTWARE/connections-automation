@@ -1,35 +1,40 @@
-- name:                      Find elasticsearch helm file
+---
+- name: Find elasticsearch helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "elasticsearch-*.tgz"
-    file_type:               file
-  register:                  elasticsearch_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: elasticsearch-*.tgz
+    file_type: file
+  register: elasticsearch_tgz
 
-- name:                      Found elasticsearch file
+- name: Found elasticsearch file
   debug:
-    msg:                     "{{ elasticsearch_tgz.files[0].path }}"
+    msg: '{{ elasticsearch_tgz.files[0].path }}'
 
-- name:                      "Render {{ __elasticsearch_env }}"
+- name: Render {{ __elasticsearch_env }}
   template:
-    src:                     "helmvars/elasticsearch.yml.j2"
-    dest:                    "{{ __elasticsearch_env }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/elasticsearch.yml.j2
+    dest: '{{ __elasticsearch_env }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup elasticsearch
-  command:                   "helm upgrade elasticsearch {{ elasticsearch_tgz.files[0].path }} -i -f {{ __elasticsearch_env }} --namespace {{ __default_namespace }} --wait"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup elasticsearch
+  command: helm upgrade elasticsearch {{ elasticsearch_tgz.files[0].path }} -i -f
+    {{ __elasticsearch_env }} --namespace {{ __default_namespace }} --wait
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if es-master is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-master | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if es-master is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i es-master | grep
+    -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if es-client is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-client | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if es-client is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i es-client | grep
+    -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Check if es-data is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i es-data | grep -i Running
-  when:                      not __skip_pod_checks
-  become_user:               "{{ __sudo_user }}"
+- name: Check if es-data is up and running
+  shell: kubectl get pods -n {{ __default_namespace }} | grep -i es-data | grep
+    -i Running
+  when: not __skip_pod_checks
+  become_user: '{{ __sudo_user }}'

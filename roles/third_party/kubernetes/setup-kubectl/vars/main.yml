@@ -1,2 +1,2 @@
 ---
-__kubectl_user:                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
+__kubectl_user: "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"

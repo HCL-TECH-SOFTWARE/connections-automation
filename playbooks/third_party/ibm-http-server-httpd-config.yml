@@ -1,10 +1,7 @@
-# Configure SSL for IBM HTTP Server
-#
-# Variables used in this playbook that can be setup at hosts file.
 ---
-- name:                     Configure SSL for IBM HTTP Server
-  hosts:                    ihs_servers
-  become:                   true
+- name: Configure SSL for IBM HTTP Server
+  hosts: ihs_servers
+  become: true
   roles:
     - roles/third_party/ibm/ihs/ibm-http-httpdconf
     - roles/third_party/ibm/ihs/ibm-http-server-restart

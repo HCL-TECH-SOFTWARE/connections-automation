@@ -1,22 +1,23 @@
-
-- name:                  "Create {{ __jdbc_installation_folder }}"
+---
+- name: Create {{ __jdbc_installation_folder }}
   file:
-    path:                "{{ __jdbc_installation_folder }}"
-    state:               directory
+    path: '{{ __jdbc_installation_folder }}'
+    state: directory
 
-- name:                  Download and unzip installation {{ __package_name }} to the {{ __jdbc_installation_folder }}
+- name: Download and unzip installation {{ __package_name }} to the {{ __jdbc_installation_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __package_name }}"
-    dest:                "{{ __jdbc_installation_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ __package_name }}'
+    dest: '{{ __jdbc_installation_folder }}'
+    remote_src: 'yes'
 
-- name:                  Download and unzip legacy drivers to the {{ __jdbc_installation_folder }} for TDI JRE 7
+- name: Download and unzip legacy drivers to the {{ __jdbc_installation_folder }}
+    for TDI JRE 7
   unarchive:
-    src:                 "{{ __download_location }}/{{ item }}"
-    dest:                "{{ __jdbc_installation_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ item }}'
+    dest: '{{ __jdbc_installation_folder }}'
+    remote_src: 'yes'
   with_items:
-    - "{{ __package_name_legacy }}"
+    - '{{ __package_name_legacy }}'
 #    - "{{ __package_name_legacy_40 }}"
   when:
     - __mssql_setup_tdi_drivers |bool and not __upgrade_tdi_jre|bool

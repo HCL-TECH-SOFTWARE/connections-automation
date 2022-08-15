@@ -1,56 +1,57 @@
 ---
-- name:                                     Enable OrientMe serviceReference in LCC.xml
+- name: Enable OrientMe serviceReference in LCC.xml
   blockinfile:
-    path:                                   "{{ __lcc_full_path }}"
-    marker:                                 "<!-- {mark} Enabling OrientMe -->"
-    insertafter:                            "<!--Uncomment the following serviceReference definition if OrientMe feature is enabled-->"
-    block:                                  "{{ __lcc_orientme_serviceRef }}"
-  when:                                     cnx_setup_mt is not defined or not cnx_setup_mt|bool
-  # internal use only, do not set cnx_setup_mt to true.  This is set via auto-deploy when MT.
+    path: '{{ __lcc_full_path }}'
+    marker: <!-- {mark} Enabling OrientMe -->
+    insertafter: <!--Uncomment the following serviceReference definition if OrientMe
+      feature is enabled-->
+    block: '{{ __lcc_orientme_serviceRef }}'
+  when: cnx_setup_mt is not defined or not cnx_setup_mt|bool
+# internal use only, do not set cnx_setup_mt to true.  This is set via auto-deploy when MT.
 
-- name:                                     "Update actioncenter in LCC.xml to {{ __enable_action_center | lower }}" 
+- name: Update actioncenter in LCC.xml to {{ __enable_action_center | lower }}
   xml:
-    path:                                   "{{ __lcc_full_path }}"
-    namespaces:                             "{{ __lcc_namespaces }}"
-    xpath:                                  "{{ __lcc_action_center_xpath }}"
-    value:                                  "{{ __enable_action_center | lower }}"
+    path: '{{ __lcc_full_path }}'
+    namespaces: '{{ __lcc_namespaces }}'
+    xpath: '{{ __lcc_action_center_xpath }}'
+    value: '{{ __enable_action_center | lower }}'
 
 # Query element text using XPath
-- name:                                     Get current value of isHomepageSwitcherEnabled
+- name: Get current value of isHomepageSwitcherEnabled
   xml:
-    path:                                   "{{ __lcc_full_path }}"
-    xpath:                                  "{{ __lcc_genprop_default_hpswitch_xpath }}"
-    content:                                text
-    namespaces:                             "{{ __lcc_namespaces }}"
-  register:                                 get_homepage_switcher
+    path: '{{ __lcc_full_path }}'
+    xpath: '{{ __lcc_genprop_default_hpswitch_xpath }}'
+    content: text
+    namespaces: '{{ __lcc_namespaces }}'
+  register: get_homepage_switcher
 
 # Update the property only if the result has 1 match
-- name:                                    "Update isHomepageSwitcherEnabled to {{ __enable_homepage_switcher | lower }}"
+- name: Update isHomepageSwitcherEnabled to {{ __enable_homepage_switcher | lower }}
   xml:
-    path:                                  "{{ __lcc_full_path }}"
-    xpath:                                 "{{ __lcc_genprop_default_hpswitch_xpath }}"
-    value:                                 "{{ __enable_homepage_switcher | lower }}"
-    namespaces:                            "{{ __lcc_namespaces }}"
-  register:                                isHomepageSwitcherEnabled
+    path: '{{ __lcc_full_path }}'
+    xpath: '{{ __lcc_genprop_default_hpswitch_xpath }}'
+    value: '{{ __enable_homepage_switcher | lower }}'
+    namespaces: '{{ __lcc_namespaces }}'
+  register: isHomepageSwitcherEnabled
   when:
     - get_homepage_switcher.count == 1
 
 # Query element text using XPath
-- name:                                     Get current value of isOrientHomepage
+- name: Get current value of isOrientHomepage
   xml:
-    path:                                   "{{ __lcc_full_path }}"
-    xpath:                                  "{{ __lcc_genprop_default_ome_xpath }}"
-    content:                                text
-    namespaces:                             "{{ __lcc_namespaces }}"
-  register:                                 get_orientme_homepage
+    path: '{{ __lcc_full_path }}'
+    xpath: '{{ __lcc_genprop_default_ome_xpath }}'
+    content: text
+    namespaces: '{{ __lcc_namespaces }}'
+  register: get_orientme_homepage
 
 # Update the property only if the result has 1 match
-- name:                                     "Update isOrientHomepage to {{ __enable_orientme_default_hp | lower }}"
+- name: Update isOrientHomepage to {{ __enable_orientme_default_hp | lower }}
   xml:
-    path:                                   "{{ __lcc_full_path }}"
-    xpath:                                  "{{ __lcc_genprop_default_ome_xpath }}"
-    value:                                  "{{ __enable_orientme_default_hp | lower }}"
-    namespaces:                             "{{ __lcc_namespaces }}"
-  register:                                 isOrientHomepage
+    path: '{{ __lcc_full_path }}'
+    xpath: '{{ __lcc_genprop_default_ome_xpath }}'
+    value: '{{ __enable_orientme_default_hp | lower }}'
+    namespaces: '{{ __lcc_namespaces }}'
+  register: isOrientHomepage
   when:
     - get_orientme_homepage.count == 1

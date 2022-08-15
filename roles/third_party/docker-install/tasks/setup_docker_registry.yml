@@ -1,152 +1,159 @@
-- name:                             Generate hashed password for docker registry auth
-  shell:                            htpasswd -Bbn {{ __registry_user }} {{ __registry_password }}  > /etc/docker/auth/htpasswd
-  when:                             inventory_hostname == groups['docker_registry'][0]
+---
+- name: Generate hashed password for docker registry auth
+  shell: htpasswd -Bbn {{ __registry_user }} {{ __registry_password }}  > /etc/docker/auth/htpasswd
+  when: inventory_hostname == groups['docker_registry'][0]
 
-- name:                             Apply cnf file
+- name: Apply cnf file
   template:
-    src:                           "{{ __docker_cnf_template }}"
-    dest:                          "{{ __docker_cnf_location }}"
+    src: '{{ __docker_cnf_template }}'
+    dest: '{{ __docker_cnf_location }}'
 
-- name:                             Generate certificates for distributed environment
-  command:                          openssl req -newkey rsa:4096 -nodes -sha256 -config {{ __docker_cnf_location }} -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN=*.{{ groups['k8s_masters'][0].split('.', 1)[1] }}"
+- name: Generate certificates for distributed environment
+  command: openssl req -newkey rsa:4096 -nodes -sha256 -config {{ __docker_cnf_location }}
+    -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem
+    -subj "/CN=*.{{ groups['k8s_masters'][0].split('.', 1)[1] }}"
   when:
     - inventory_hostname == groups['docker_registry'][0]
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length)
+      == 1 and (groups.k8s_workers|length) == 1 ) != true
 
-- name:                             Generate certificate for self contained environment
-  command:                          openssl req -newkey rsa:4096 -config {{ __docker_cnf_location }} -nodes -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN={{ inventory_hostname }}"
+- name: Generate certificate for self contained environment
+  command: openssl req -newkey rsa:4096 -config {{ __docker_cnf_location }} -nodes
+    -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem
+    -subj "/CN={{ inventory_hostname }}"
   when:
     - inventory_hostname == groups['docker_registry'][0]
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length)
+      == 1 and (groups.k8s_workers|length) == 1 ) == true
 
-- name:                             Cleanup temp certificate
+- name: Cleanup temp certificate
   file:
-    path:                           "{{ item }}"
-    state:                          absent
+    path: '{{ item }}'
+    state: absent
   with_items:
-   - /tmp/cert.pem
-   - /tmp/certs/
+    - /tmp/cert.pem
+    - /tmp/certs/
 
-- name:                             Copy certificate
+- name: Copy certificate
   copy:
-    src:                            "{{ __certs_folder }}/cert.pem"
-    dest:                           "{{ __registry_cert }}/ca.crt"
-    remote_src:                     yes
-  when:                             inventory_hostname == groups['docker_registry'][0]
+    src: '{{ __certs_folder }}/cert.pem'
+    dest: '{{ __registry_cert }}/ca.crt'
+    remote_src: 'yes'
+  when: inventory_hostname == groups['docker_registry'][0]
 
-- name:                             Copy certificate to controller
+- name: Copy certificate to controller
   fetch:
-    src:                            "{{ __certs_folder }}/cert.pem"
-    dest:                           /tmp/certs/
-  delegate_to:                      "{{ groups['docker_registry'][0] }}"
-  when:                             inventory_hostname == groups['docker_registry'][0]
-  become:                           false
+    src: '{{ __certs_folder }}/cert.pem'
+    dest: /tmp/certs/
+  delegate_to: "{{ groups['docker_registry'][0] }}"
+  when: inventory_hostname == groups['docker_registry'][0]
+  become: false
 
-- name:                             Copy certificate to all the nodes
+- name: Copy certificate to all the nodes
   copy:
-    src:                            "/tmp/certs/{{ groups['docker_registry'][0] }}/{{ __certs_folder }}/cert.pem"
-    dest:                           /tmp
-  when:                             inventory_hostname != groups['docker_registry'][0]
-  become:                           false
+    src: /tmp/certs/{{ groups['docker_registry'][0] }}/{{ __certs_folder }}/cert.pem
+    dest: /tmp
+  when: inventory_hostname != groups['docker_registry'][0]
+  become: false
 
-- name:                             Cleanup stuff on controller
+- name: Cleanup stuff on controller
   local_action:
-    module:                         file
-    state:                          absent
-    path:                           /tmp/certs
-  become:                           false
-  ignore_errors:                    yes
+    module: file
+    state: absent
+    path: /tmp/certs
+  become: false
+  ignore_errors: 'yes'
 
-- name:                             Copy certificates to the trusted store
+- name: Copy certificates to the trusted store
   copy:
-    src:                            /tmp/cert.pem
-    dest:                           /etc/pki/ca-trust/source/anchors/
-    remote_src:                     yes
-  when:                             inventory_hostname != groups['docker_registry'][0]
+    src: /tmp/cert.pem
+    dest: /etc/pki/ca-trust/source/anchors/
+    remote_src: 'yes'
+  when: inventory_hostname != groups['docker_registry'][0]
 
-- name:                             Copy certificates to the trusted store on SUSE linux
+- name: Copy certificates to the trusted store on SUSE linux
   ansible.builtin.copy:
-    src:                            /tmp/cert.pem
-    dest:                           /etc/pki/trust/anchors/
-    remote_src:                     yes
+    src: /tmp/cert.pem
+    dest: /etc/pki/trust/anchors/
+    remote_src: 'yes'
   when:
     - inventory_hostname != groups['docker_registry'][0]
     - ansible_distribution == "SLES"
 
-- name:                             Restart CA Trust Store on CentOS/RedHat
-  command:                          update-ca-trust
+- name: Restart CA Trust Store on CentOS/RedHat
+  command: update-ca-trust
   when:
     - inventory_hostname != groups['docker_registry'][0]
     - ansible_distribution != "SLES"
 
-- name:                             Restart CA Trust Store on SUSE linux
-  command:                          update-ca-certificates
+- name: Restart CA Trust Store on SUSE linux
+  command: update-ca-certificates
   when:
     - inventory_hostname != groups['docker_registry'][0]
     - ansible_distribution == "SLES"
 
-- name:                             Restart Docker service
+- name: Restart Docker service
   service:
-    name:                           docker
-    state:                          restarted
-    daemon_reload:                  yes
+    name: docker
+    state: restarted
+    daemon_reload: 'yes'
 
-- name:                             Create Docker Registry on RHEL/SUSE
+- name: Create Docker Registry on RHEL/SUSE
   vars:
-    ansible_python_interpreter:     /usr/bin/python3
+    ansible_python_interpreter: /usr/bin/python3
   docker_container:
-    name:                           registry
-    image:                          registry:2
-    state:                          started
-    restart_policy:                 unless-stopped
-    recreate:                       yes
+    name: registry
+    image: registry:2
+    state: started
+    restart_policy: unless-stopped
+    recreate: 'yes'
     volumes:
       - /etc/docker/certs:/certs
       - /etc/docker/registry:/var/lib/registry
       - /etc/docker/auth:/auth
     published_ports:
-      - "{{ __registry_port }}:5000"
+      - '{{ __registry_port }}:5000'
     env:
-        REGISTRY_AUTH: "htpasswd"
-        REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
-        REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
-        REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/cert.pem"
-        REGISTRY_HTTP_TLS_KEY: "/certs/key.pem"
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/cert.pem
+      REGISTRY_HTTP_TLS_KEY: /certs/key.pem
   when:
-   - inventory_hostname == groups['docker_registry'][0]
-   - ansible_os_family == "RedHat" or ansible_distribution == "SLES"
+    - inventory_hostname == groups['docker_registry'][0]
+    - ansible_os_family == "RedHat" or ansible_distribution == "SLES"
   register: docker_registry_status
 
-- name:                             "Save Docker Registry status when ansible_version < 2.10"
+- name: Save Docker Registry status when ansible_version < 2.10
   set_fact:
-    docker_registry_is_running:     "{{ docker_registry_status.ansible_facts.docker_container.State.Running }}"
+    docker_registry_is_running: '{{ docker_registry_status.ansible_facts.docker_container.State.Running }}'
   when:
-   - inventory_hostname == groups['docker_registry'][0]
-   - ansible_os_family == "RedHat"
-   - "ansible_version.full is version_compare('2.9.999', '<=')"
+    - inventory_hostname == groups['docker_registry'][0]
+    - ansible_os_family == "RedHat"
+    - ansible_version.full is version_compare('2.9.999', '<=')
 
-- name:                             "Save Docker Registry status when ansible_version >= 2.10"
+- name: Save Docker Registry status when ansible_version >= 2.10
   set_fact:
-    docker_registry_is_running:     "{{ docker_registry_status.container.State.Running }}"
+    docker_registry_is_running: '{{ docker_registry_status.container.State.Running }}'
   when:
-   - inventory_hostname == groups['docker_registry'][0]
-   - ansible_os_family == "RedHat"
-   - "ansible_version.full is version_compare('2.10', '>=')"
+    - inventory_hostname == groups['docker_registry'][0]
+    - ansible_os_family == "RedHat"
+    - ansible_version.full is version_compare('2.10', '>=')
 
-- name:                             Fail if Docker Registry is not running
+- name: Fail if Docker Registry is not running
   fail:
-    msg: "Docker Registry could not be started"
-  when: 
-   - inventory_hostname == groups['docker_registry'][0]
-   - not docker_registry_is_running
-
-- name:                             Test Docker Registry Login on RHEL/SUSE
-  vars:
-    ansible_python_interpreter:     /usr/bin/python3
-  docker_login:
-    registry:                       "{{ docker_registry_url }}"
-    username:                       "{{ __registry_user }}"
-    password:                       "{{ __registry_password }}"
-    reauthorize:                    yes
+    msg: Docker Registry could not be started
   when:
-   - ansible_os_family == "RedHat" or ansible_distribution == "SLES"
+    - inventory_hostname == groups['docker_registry'][0]
+    - not docker_registry_is_running
+
+- name: Test Docker Registry Login on RHEL/SUSE
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  docker_login:
+    registry: '{{ docker_registry_url }}'
+    username: '{{ __registry_user }}'
+    password: '{{ __registry_password }}'
+    reauthorize: 'yes'
+  when:
+    - ansible_os_family == "RedHat" or ansible_distribution == "SLES"

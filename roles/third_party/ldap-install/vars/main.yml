@@ -1,100 +1,101 @@
 ---
-__setup_fake_ldap_users:        "{{ setup_fake_ldap_users | default(true) }}"
-__ldap_slappasswd:              "{{ ldap_bind_pass | default('password') }}"
+__setup_fake_ldap_users: '{{ setup_fake_ldap_users | default(true) }}'
+__ldap_slappasswd: "{{ ldap_bind_pass | default('password') }}"
 
-__ldap_tld:                     "{{ __ldap_olc_suffix.split(',')[0].split('=')[1] }}"
-__ldap_olc_suffix:              "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com') }}"
-__ldap_admin_user:              "{{ ldap_admin_user | default('Admin') }}"
+__ldap_tld: "{{ __ldap_olc_suffix.split(',')[0].split('=')[1] }}"
+__ldap_olc_suffix: "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com') }}"
+__ldap_admin_user: "{{ ldap_admin_user | default('Admin') }}"
 
-__db_ldif_template:             "db.ldif.j2"
-__db_mdb_ldif_template:         "db.mdb_ldif.j2"
-__db_ldif_location:             "/tmp/db.ldif"
+__db_ldif_template: db.ldif.j2
+__db_mdb_ldif_template: db.mdb_ldif.j2
+__db_ldif_location: /tmp/db.ldif
 
-__users_ldif_template:          "users.ldif.j2"
-__users_ldif_location:          "/tmp/users.ldif"
+__users_ldif_template: users.ldif.j2
+__users_ldif_location: /tmp/users.ldif
 
-__certs_ldif_template:          "certs.ldif.j2"
-__certs_ldif_location:          "/tmp/certs.ldif"
+__certs_ldif_template: certs.ldif.j2
+__certs_ldif_location: /tmp/certs.ldif
 
-__certs_ldif_rev_template:      "certsrev.ldif.j2"
+__certs_ldif_rev_template: certsrev.ldif.j2
 
-__db_ldif_success_file:         "/etc/openldap/db.ldif.success"
-__schema_ldif_success_file:     "/etc/openldap/schema.ldif.success"
-__users_ldif_success_file:      "/etc/openldap/users.ldif.success"
-__custom_users_ldif_success_file:  "/etc/openldap/custom.users.ldif.success"
+__db_ldif_success_file: /etc/openldap/db.ldif.success
+__schema_ldif_success_file: /etc/openldap/schema.ldif.success
+__users_ldif_success_file: /etc/openldap/users.ldif.success
+__custom_users_ldif_success_file: /etc/openldap/custom.users.ldif.success
 
-__ldap_cmd_opts:                "-Y EXTERNAL  -H ldapi:/// -f"
-__ldap_modify_cmd:              "ldapmodify {{ __ldap_cmd_opts }}"
-__ldap_add_cmd:                 "ldapadd {{ __ldap_cmd_opts }}"
+__ldap_cmd_opts: -Y EXTERNAL  -H ldapi:/// -f
+__ldap_modify_cmd: ldapmodify {{ __ldap_cmd_opts }}
+__ldap_add_cmd: ldapadd {{ __ldap_cmd_opts }}
 
-__ldap_add_users_dn:            "cn={{ __ldap_admin_user  }},{{ __ldap_olc_suffix }}"
-__ldap_add_users:               "ldapadd -x -w {{ __ldap_slappasswd  }} -D {{ __ldap_add_users_dn }} -v -f "
+__ldap_add_users_dn: cn={{ __ldap_admin_user  }},{{ __ldap_olc_suffix }}
+__ldap_add_users: 'ldapadd -x -w {{ __ldap_slappasswd  }} -D {{ __ldap_add_users_dn }}
+  -v -f '
 
-__ldap_nr_of_users:             "{{ ldap_nr_of_users | default(2500) }}"
-__ldap_userid:                  "{{ ldap_userid | default('jjones') }}"
-__ldap_user_password:           "{{ ldap_user_password | default('password') }}"
-__ldap_user_admin_password:     "{{ ldap_user_admin_password | default('password') }}"
-__ldap_user_mail_domain:        "{{ ldap_user_mail_domain | default('connections.example.com') }}"
+__ldap_nr_of_users: '{{ ldap_nr_of_users | default(2500) }}'
+__ldap_userid: "{{ ldap_userid | default('jjones') }}"
+__ldap_user_password: "{{ ldap_user_password | default('password') }}"
+__ldap_user_admin_password: "{{ ldap_user_admin_password | default('password') }}"
+__ldap_user_mail_domain: "{{ ldap_user_mail_domain | default('connections.example.com') }}"
 
-__ldap_ssl_success_file:        "/etc/openldap/certs.ldif.success"
+__ldap_ssl_success_file: /etc/openldap/certs.ldif.success
 
-__ldap_cert_path:               "/etc/openldap/certs/selfsigned.crt"
-__ldap_cert_key_path:           "/etc/openldap/certs/selfsigned.key"
+__ldap_cert_path: /etc/openldap/certs/selfsigned.crt
+__ldap_cert_key_path: /etc/openldap/certs/selfsigned.key
 
-__slapd_template:               "slapd.j2"
-__slapd_location:               "/etc/sysconfig/slapd"
+__slapd_template: slapd.j2
+__slapd_location: /etc/sysconfig/slapd
 
-__ldap_setup_internal:          "{{ ldap_setup_internal | default(false) }}"
+__ldap_setup_internal: '{{ ldap_setup_internal | default(false) }}'
 
 # MT variables
-__ldap_slaptest_cmd:                   "slaptest -f "
-__ldap_setup_mt:                       "{{ ldap_setup_mt | default(false) }}"
-__mt_tmp_files_location:               "/tmp/ldap"
-__mt_oidc_clientid_r:                  "{{ mt_oidc_clientid  | default('mtdemo') }}"
-__mt_ldap_orga_name_default:           "{{ __mt_oidc_clientid_r }}OrgA"
-__mt_ldap_orga_name:                   "{{ mt_ldap_orga_name | default( __mt_ldap_orga_name_default ) }}"
-__mt_ldap_orgb_name_default:           "{{ __mt_oidc_clientid_r }}OrgB"
-__mt_ldap_orgb_name:                   "{{ mt_ldap_orgb_name | default( __mt_ldap_orgb_name_default ) }}"
-__mt_ldap_orga_nr_of_users:            "{{ mt_ldap_orga_nr_of_users | default(100) }}"
-__mt_ldap_orgb_nr_of_users:            "{{ mt_ldap_orgb_nr_of_users | default(100) }}"
-__mt_ldap_orga_nr_of_ext_users:        "{{ mt_ldap_orga_nr_of_ext_users | default(100) }}"
-__mt_ldap_orgb_nr_of_ext_users:        "{{ mt_ldap_orgb_nr_of_ext_users | default(100) }}"
-__mt_ldap_orga_userid:                 "{{ mt_ldap_orga_userid | default('buser') }}"
-__mt_ldap_orga_userid_ext:             "{{ mt_ldap_orga_userid_ext | default('bexternal') }}"
-__mt_ldap_orga_user_password:          "{{ mt_ldap_orga_user_password | default('password') }}"
-__mt_ldap_orga_givenname:              "{{ mt_ldap_orga_givenname | default('Bill') }}"
-__mt_ldap_orga_sn:                     "{{ mt_ldap_orga_sn | default('User') }}"
-__mt_ldap_orga_sn_ext:                 "{{ mt_ldap_orga_sn_ext | default('External') }}"
-__mt_orga_host_url_default:            "{{ __mt_oidc_clientid_r }}-orga"
-__mt_orga_host_url:                    "{{ mt_orga_host_url | default( __mt_orga_host_url_default ) }}"
-__mt_ldap_orgb_userid:                 "{{ mt_ldap_orgb_userid | default('ajones') }}"
-__mt_ldap_orgb_userid_ext:             "{{ mt_ldap_orgb_userid_ext | default('aexternal') }}"
-__mt_ldap_orgb_user_password:          "{{ mt_ldap_orgb_user_password | default('password') }}"
-__mt_ldap_orgb_givenname:              "{{ mt_ldap_orgb_givenname | default('Amy') }}"
-__mt_ldap_orgb_sn:                     "{{ mt_ldap_orgb_sn | default('Jones') }}"
-__mt_ldap_orgb_sn_ext:                 "{{ mt_ldap_orgb_sn_ext | default('External') }}"
-__mt_orgb_host_url_default:            "{{ __mt_oidc_clientid_r }}-orgb"
-__mt_orgb_host_url:                    "{{ mt_orgb_host_url | default( __mt_orgb_host_url_default ) }}"
-__mt_orgadmin_group:                   "{{ mt_orgadmin_group | default('OrgAdmins') }}"
+__ldap_slaptest_cmd: 'slaptest -f '
+__ldap_setup_mt: '{{ ldap_setup_mt | default(false) }}'
+__mt_tmp_files_location: /tmp/ldap
+__mt_oidc_clientid_r: "{{ mt_oidc_clientid  | default('mtdemo') }}"
+__mt_ldap_orga_name_default: '{{ __mt_oidc_clientid_r }}OrgA'
+__mt_ldap_orga_name: '{{ mt_ldap_orga_name | default( __mt_ldap_orga_name_default ) }}'
+__mt_ldap_orgb_name_default: '{{ __mt_oidc_clientid_r }}OrgB'
+__mt_ldap_orgb_name: '{{ mt_ldap_orgb_name | default( __mt_ldap_orgb_name_default ) }}'
+__mt_ldap_orga_nr_of_users: '{{ mt_ldap_orga_nr_of_users | default(100) }}'
+__mt_ldap_orgb_nr_of_users: '{{ mt_ldap_orgb_nr_of_users | default(100) }}'
+__mt_ldap_orga_nr_of_ext_users: '{{ mt_ldap_orga_nr_of_ext_users | default(100) }}'
+__mt_ldap_orgb_nr_of_ext_users: '{{ mt_ldap_orgb_nr_of_ext_users | default(100) }}'
+__mt_ldap_orga_userid: "{{ mt_ldap_orga_userid | default('buser') }}"
+__mt_ldap_orga_userid_ext: "{{ mt_ldap_orga_userid_ext | default('bexternal') }}"
+__mt_ldap_orga_user_password: "{{ mt_ldap_orga_user_password | default('password') }}"
+__mt_ldap_orga_givenname: "{{ mt_ldap_orga_givenname | default('Bill') }}"
+__mt_ldap_orga_sn: "{{ mt_ldap_orga_sn | default('User') }}"
+__mt_ldap_orga_sn_ext: "{{ mt_ldap_orga_sn_ext | default('External') }}"
+__mt_orga_host_url_default: '{{ __mt_oidc_clientid_r }}-orga'
+__mt_orga_host_url: '{{ mt_orga_host_url | default( __mt_orga_host_url_default ) }}'
+__mt_ldap_orgb_userid: "{{ mt_ldap_orgb_userid | default('ajones') }}"
+__mt_ldap_orgb_userid_ext: "{{ mt_ldap_orgb_userid_ext | default('aexternal') }}"
+__mt_ldap_orgb_user_password: "{{ mt_ldap_orgb_user_password | default('password') }}"
+__mt_ldap_orgb_givenname: "{{ mt_ldap_orgb_givenname | default('Amy') }}"
+__mt_ldap_orgb_sn: "{{ mt_ldap_orgb_sn | default('Jones') }}"
+__mt_ldap_orgb_sn_ext: "{{ mt_ldap_orgb_sn_ext | default('External') }}"
+__mt_orgb_host_url_default: '{{ __mt_oidc_clientid_r }}-orgb'
+__mt_orgb_host_url: '{{ mt_orgb_host_url | default( __mt_orgb_host_url_default ) }}'
+__mt_orgadmin_group: "{{ mt_orgadmin_group | default('OrgAdmins') }}"
 
-__mt_custom_schema_file:               "mt_custom.schema"
-__mt_slapd_config_file:                "mt.conf"
-__mt_base_ldif_template:               "mt_base.ldif.j2"
-__mt_base_ldif_location:               "{{ __mt_tmp_files_location }}/mt_base.ldif"
-__mt_org_ldif_template:                "mt_orgs.ldif.j2"
-__mt_org_ldif_location:                "{{ __mt_tmp_files_location }}/mt_orgs.ldif"
-__mt_users_ldif_template:              "mt_users.ldif.j2"
-__mt_users_ldif_location:              "{{ __mt_tmp_files_location }}/mt_users.ldif"
-__mt_users_generic_ldif_template:      "mt_users-generic.ldif.j2"
-__mt_users_generic_ldif_location:      "{{ __mt_tmp_files_location }}/mt_users-generic.ldif"
-__mt_groups_ldif_template:             "mt_groups.ldif.j2"
-__mt_groups_ldif_location:             "{{ __mt_tmp_files_location }}/mt_groups.ldif"
-__mt_org_unit_name:                    "{{ ldap_ou | default('collab') }}"
+__mt_custom_schema_file: mt_custom.schema
+__mt_slapd_config_file: mt.conf
+__mt_base_ldif_template: mt_base.ldif.j2
+__mt_base_ldif_location: '{{ __mt_tmp_files_location }}/mt_base.ldif'
+__mt_org_ldif_template: mt_orgs.ldif.j2
+__mt_org_ldif_location: '{{ __mt_tmp_files_location }}/mt_orgs.ldif'
+__mt_users_ldif_template: mt_users.ldif.j2
+__mt_users_ldif_location: '{{ __mt_tmp_files_location }}/mt_users.ldif'
+__mt_users_generic_ldif_template: mt_users-generic.ldif.j2
+__mt_users_generic_ldif_location: '{{ __mt_tmp_files_location }}/mt_users-generic.ldif'
+__mt_groups_ldif_template: mt_groups.ldif.j2
+__mt_groups_ldif_location: '{{ __mt_tmp_files_location }}/mt_groups.ldif'
+__mt_org_unit_name: "{{ ldap_ou | default('collab') }}"
 
-__mt_custom_schema_success_file:             "/etc/openldap/mt.custom.schema.success"
-__mt_config_added_success_file:              "/etc/openldap/mt.config.added.success"
-__mt_base_ldif_success_file:                 "/etc/openldap/mt.base.ldif.success"
-__mt_org_ldif_success_file:                  "/etc/openldap/mt.org.ldif.success"
-__mt_users_created_success_file:             "/etc/openldap/mt.users.created.success"
-__mt_users_generic_created_success_file:     "/etc/openldap/mt.users.generic.created.success"
-__mt_groups_created_success_file:            "/etc/openldap/mt.groups.created.success"
+__mt_custom_schema_success_file: /etc/openldap/mt.custom.schema.success
+__mt_config_added_success_file: /etc/openldap/mt.config.added.success
+__mt_base_ldif_success_file: /etc/openldap/mt.base.ldif.success
+__mt_org_ldif_success_file: /etc/openldap/mt.org.ldif.success
+__mt_users_created_success_file: /etc/openldap/mt.users.created.success
+__mt_users_generic_created_success_file: /etc/openldap/mt.users.generic.created.success
+__mt_groups_created_success_file: /etc/openldap/mt.groups.created.success

@@ -1,14 +1,14 @@
 ---
-- name:                    Setup OS
-  include_tasks:           setup_os.yml
+- name: Setup OS
+  include_tasks: setup_os.yml
 
-- name:                    Create Tiny Editors user for Tiny Editors installation
-  include_tasks:           create_tiny_editors_user.yml
+- name: Create Tiny Editors user for Tiny Editors installation
+  include_tasks: create_tiny_editors_user.yml
 
-- name:                    Download TinyEditors installer to Tiny Editors env
-  include_tasks:           download_tiny_editors.yml
+- name: Download TinyEditors installer to Tiny Editors env
+  include_tasks: download_tiny_editors.yml
   when:
-   - __setup_environment |bool
+    - __setup_environment |bool
 
-- name:                    Install Tiny Editors
-  include_tasks:           install_tiny_editors.yml
+- name: Install Tiny Editors
+  include_tasks: install_tiny_editors.yml

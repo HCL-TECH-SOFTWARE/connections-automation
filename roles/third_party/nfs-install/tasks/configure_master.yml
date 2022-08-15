@@ -1,96 +1,97 @@
-- name:                                             Setup PV folders for root, kudos-board and backups
+---
+- name: Setup PV folders for root, kudos-board and backups
   file:
-    path:                                           "{{ item }}"
-    mode:                                           '0700'
-    state:                                          directory
+    path: '{{ item }}'
+    mode: '0700'
+    state: directory
   with_items:
-   - "/pv-connections"
-   - "/pv-connections/esbackup"
-   - "/pv-connections/esbackup-7"
-   - "/pv-connections/kudos-boards-minio"
+    - /pv-connections
+    - /pv-connections/esbackup
+    - /pv-connections/esbackup-7
+    - /pv-connections/kudos-boards-minio
 
-- name:                                             Setup PV folders for mongo
+- name: Setup PV folders for mongo
   file:
-    path:                                           "/pv-connections/mongo-node-{{ item }}/data/db"
-    mode:                                           '0700'
-    state:                                          directory
-  with_sequence:                                    start=0 end={{ __mongo_replicaset | int - 1 }}
+    path: /pv-connections/mongo-node-{{ item }}/data/db
+    mode: '0700'
+    state: directory
+  with_sequence: start=0 end={{ __mongo_replicaset | int - 1 }}
 
-- name:                                             Setup PV folders for solr
+- name: Setup PV folders for solr
   file:
-    path:                                           "/pv-connections/solr-data-solr-{{ item }}"
-    mode:                                           '0700'
-    state:                                          directory
-  with_sequence:                                    start=0 end={{ __solr_replicaset | int - 1 }}
+    path: /pv-connections/solr-data-solr-{{ item }}
+    mode: '0700'
+    state: directory
+  with_sequence: start=0 end={{ __solr_replicaset | int - 1 }}
 
-- name:                                             Setup PV folders for zookeeper
+- name: Setup PV folders for zookeeper
   file:
-    path:                                           "/pv-connections/zookeeper-data-zookeeper-{{ item }}"
-    mode:                                           '0700'
-    state:                                          directory
-  with_sequence:                                    start=0 end={{ __zookeeper_replicaset | int - 1 }}
+    path: /pv-connections/zookeeper-data-zookeeper-{{ item }}
+    mode: '0700'
+    state: directory
+  with_sequence: start=0 end={{ __zookeeper_replicaset | int - 1 }}
 
-- name:                                             Setup PV folders for es5 data
+- name: Setup PV folders for es5 data
   file:
-    path:                                           "/pv-connections/esdata-{{ item }}"
-    mode:                                           '0700'
-    state:                                          directory
-  with_sequence:                                    start=0 end={{ __es_replicaset | int - 1 }}
+    path: /pv-connections/esdata-{{ item }}
+    mode: '0700'
+    state: directory
+  with_sequence: start=0 end={{ __es_replicaset | int - 1 }}
 
-- name:                                             Setup PV folders for es7 data
+- name: Setup PV folders for es7 data
   file:
-    path:                                           "/pv-connections/esdata-7-{{ item }}"
-    mode:                                           '0700'
-    state:                                          directory
-  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 }}
+    path: /pv-connections/esdata-7-{{ item }}
+    mode: '0700'
+    state: directory
+  with_sequence: start=0 end={{ __es7_replicaset | int - 1 }}
 
-- name:                                             Setup PV folders for es7 master
+- name: Setup PV folders for es7 master
   file:
-    path:                                           "/pv-connections/esmaster-7-{{ item }}"
-    mode:                                           '0700'
-    state:                                          directory
-  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 }}
+    path: /pv-connections/esmaster-7-{{ item }}
+    mode: '0700'
+    state: directory
+  with_sequence: start=0 end={{ __es7_replicaset | int - 1 }}
 
-- name:                                             Setup Connections & Docs folders
+- name: Setup Connections & Docs folders
   file:
-    path:                                           "{{ item }}"
-    mode:                                           '0775'
-    state:                                          directory
+    path: '{{ item }}'
+    mode: '0775'
+    state: directory
   with_items:
-   - "{{ __docs_data_shared }}"
-   - "{{ __viewer_data_shared }}"
-   - "{{ __cnx_data_shared }}"
-   - "{{ __cnx_message_stores }}"
+    - '{{ __docs_data_shared }}'
+    - '{{ __viewer_data_shared }}'
+    - '{{ __cnx_data_shared }}'
+    - '{{ __cnx_message_stores }}'
 
-- name:                                             Setup PV folders - customizations
+- name: Setup PV folders - customizations
   file:
-    path:                                           "{{ item }}"
-    mode:                                           '0005'
-    state:                                          directory
+    path: '{{ item }}'
+    mode: '0005'
+    state: directory
   with_items:
-   - "/pv-connections/customizations"
+    - /pv-connections/customizations
 
 
-- name:                                             Render /etc/exports
+- name: Render /etc/exports
   template:
-    src:                                            "{{ __nfs_exports_template }}"
-    dest:                                           "{{ __nfs_exports_destination }}"
+    src: '{{ __nfs_exports_template }}'
+    dest: '{{ __nfs_exports_destination }}'
 
-- name:                                             Enable and start nfs-server
+- name: Enable and start nfs-server
   systemd:
-    name:                                           nfs-server
-    enabled:                                        yes
-    daemon_reload:                                  yes
+    name: nfs-server
+    enabled: 'yes'
+    daemon_reload: 'yes'
 
-- name:                                             Export file systems
-  command:                                          exportfs -ra
+- name: Export file systems
+  command: exportfs -ra
 
-- name:                                             Fail if there is nothing exported
-  shell:                                            exportfs -v | grep pv-connections
+- name: Fail if there is nothing exported
+  shell: exportfs -v | grep pv-connections
 
-- name:                                             Enable and start nfs-server
+- name: Enable and start nfs-server
   systemd:
-    name:                                           nfs-server
-    enabled:                                        yes
-    state:                                          restarted
-    daemon_reload:                                  yes
+    name: nfs-server
+    enabled: 'yes'
+    state: restarted
+    daemon_reload: 'yes'

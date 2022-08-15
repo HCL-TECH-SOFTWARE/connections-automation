@@ -1,27 +1,28 @@
-- name:                    Install Kubernetes binaries - kubelet
+---
+- name: Install Kubernetes binaries - kubelet
   yum:
-    name:                  kubelet-{{ __kubernetes_version }}
-    state:                 present
-    disable_excludes:      all
+    name: kubelet-{{ __kubernetes_version }}
+    state: present
+    disable_excludes: all
 
-- name:                    Install Kubernetes binaries - kubeadm
+- name: Install Kubernetes binaries - kubeadm
   yum:
-    name:                  kubeadm-{{ __kubernetes_version }}
-    state:                 present
-    disable_excludes:      all
+    name: kubeadm-{{ __kubernetes_version }}
+    state: present
+    disable_excludes: all
 
-- name:                    Find kubectl
-  shell:                   "whereis kubectl | awk '{ print $2 }'"
-  register:                kubectl_loc
-  ignore_errors:           true
+- name: Find kubectl
+  shell: whereis kubectl | awk '{ print $2 }'
+  register: kubectl_loc
+  ignore_errors: true
 
-- name:                    Remove kubectl so the desire version will be installed {{ kubectl_loc.stdout }}
+- name: Remove kubectl so the desire version will be installed {{ kubectl_loc.stdout }}
   file:
-    path:                  "{{ kubectl_loc.stdout }}"
-    state:                 absent
-  ignore_errors:           true
+    path: '{{ kubectl_loc.stdout }}'
+    state: absent
+  ignore_errors: true
   when:
-   - kubectl_loc.rc == 0
+    - kubectl_loc.rc == 0
 
-- name:                    Upgrade Kubernetes binaries - kubectl
-  include_tasks:           upgrade_kubectl.yml
+- name: Upgrade Kubernetes binaries - kubectl
+  include_tasks: upgrade_kubectl.yml

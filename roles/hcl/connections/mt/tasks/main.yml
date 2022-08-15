@@ -1,59 +1,62 @@
 ---
-- name:                    Check Vars
-  include_tasks:           check_vars.yml
+- name: Check Vars
+  include_tasks: check_vars.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Setup Operating System
-  include_tasks:           setup_os.yml
+- name: Setup Operating System
+  include_tasks: setup_os.yml
 
-- name:                    Pre-check DB2 version
-  include_tasks:           precheck_DB2_version.yml
+- name: Pre-check DB2 version
+  include_tasks: precheck_DB2_version.yml
   when:
-    - "'db2_servers' in groups"  
+    - "'db2_servers' in groups"
 
-- name:                    Define Vars
-  include_tasks:           define_vars.yml
+- name: Define Vars
+  include_tasks: define_vars.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Download and Extract MT zip
-  include_tasks:           download_extract_mt_zip.yml
+- name: Download and Extract MT zip
+  include_tasks: download_extract_mt_zip.yml
   when:
     - inventory_hostname in groups["dmgr"]
     - version_already_installed.stdout|length != 0
 
-- name:                    Install AutoDeploy
-  include_tasks:           setup_autodeploy.yml
+- name: Install AutoDeploy
+  include_tasks: setup_autodeploy.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Update Connections MT (Dmgr)
-  include_tasks:           setup_mt_dmgr.yml
+- name: Update Connections MT (Dmgr)
+  include_tasks: setup_mt_dmgr.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Update Connections MT (IHS if not in Dmgr node)
-  include_tasks:           setup_mt_ihs.yml
+- name: Update Connections MT (IHS if not in Dmgr node)
+  include_tasks: setup_mt_ihs.yml
   when:
-    - inventory_hostname in groups["ihs_servers"] and inventory_hostname not in groups["dmgr"]
+    - inventory_hostname in groups["ihs_servers"] and inventory_hostname not in
+      groups["dmgr"]
 
-- name:                    Update Connections MT (DB if not in Dmgr node)
-  include_tasks:           setup_mt_db.yml
+- name: Update Connections MT (DB if not in Dmgr node)
+  include_tasks: setup_mt_db.yml
   when:
-    - inventory_hostname in groups["db2_servers"] and inventory_hostname not in groups["dmgr"]
+    - inventory_hostname in groups["db2_servers"] and inventory_hostname not in
+      groups["dmgr"]
 
-- name:                    Update Connections MT (WAS if not in Dmgr node)
-  include_tasks:           setup_mt_was.yml
+- name: Update Connections MT (WAS if not in Dmgr node)
+  include_tasks: setup_mt_was.yml
   when:
-    - inventory_hostname in groups["was_servers"] and inventory_hostname not in groups["dmgr"]
+    - inventory_hostname in groups["was_servers"] and inventory_hostname not in
+      groups["dmgr"]
 
-- name:                    Add OIDC host to WAS truststore
+- name: Add OIDC host to WAS truststore
   include_role:
-    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+    name: roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
   vars:
-    __trust_cert_host:     "{{ __mt_oidc_host_r }}"
-    __trust_cert_alias:    "oidc-provider"
+    __trust_cert_host: '{{ __mt_oidc_host_r }}'
+    __trust_cert_alias: oidc-provider
   when:
     - __mt_oidc_enabled_r | bool
     - inventory_hostname in groups["dmgr"]

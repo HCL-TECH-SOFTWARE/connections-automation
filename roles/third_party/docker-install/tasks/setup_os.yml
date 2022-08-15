@@ -1,14 +1,15 @@
+---
 - name: Install pre-requisites Yum
   package:
-    name: ['yum-utils', 'device-mapper-persistent-data', 'lvm2', 'python3-pip', 'unzip', 'httpd-tools']
+    name: [yum-utils, device-mapper-persistent-data, lvm2, python3-pip, unzip, httpd-tools]
     state: present
   when:
     - ansible_os_family == "RedHat"
 
 - name: Install pre-requisites Yum for CentOS 7 - epel-release
   package:
-    name: ['epel-release']
-    enablerepo: "extras"
+    name: [epel-release]
+    enablerepo: extras
     state: present
   when:
     - ansible_distribution == "CentOS"
@@ -16,7 +17,7 @@
 
 - name: Install pre-requisites Yum for CentOS 7
   package:
-    name: ['python-setuptools', 'python2', 'python-pip', 'httpd-tools']
+    name: [python-setuptools, python2, python-pip, httpd-tools]
     state: present
   when:
     - ansible_distribution == "CentOS"
@@ -24,14 +25,14 @@
 
 - name: Install pre-requisites Zypper
   zypper:
-    name: ['device-mapper', 'lvm2', 'python3-pip', 'unzip', 'apache2-utils']
+    name: [device-mapper, lvm2, python3-pip, unzip, apache2-utils]
     state: present
   when:
     - ansible_distribution == "SLES"
 
 - name: Install pre-requisites Zypper for SLES
   package:
-    name: ['python-setuptools', 'python-pip']
+    name: [python-setuptools, python-pip]
     state: present
   when:
     - ansible_distribution == "SLES"

@@ -1,96 +1,99 @@
 ---
-- name:              Disable Solr indexing and queries
+- name: Disable Solr indexing and queries
   xml:
-    path:            "{{ __searchcfg_full_path }}"
-    namespaces:      "{{ __searchcfg_namespaces }}"
-    xpath:           "{{ item.xpath }}"
-    attribute:       "{{ item.attribute }}"
-    value:           "{{ item.value }}"
+    path: '{{ __searchcfg_full_path }}'
+    namespaces: '{{ __searchcfg_namespaces }}'
+    xpath: '{{ item.xpath }}'
+    attribute: '{{ item.attribute }}'
+    value: '{{ item.value }}'
   with_items:
-    - { xpath: "{{ __searchcfg_qr_solr_xpath }}", attribute: "value", value: "false" }
-    - { xpath: "{{ __searchcfg_queries_solr_xpath }}", attribute: "value", value: "false" }
+    - {xpath: '{{ __searchcfg_qr_solr_xpath }}', attribute: value, value: 'false'}
+    - {xpath: '{{ __searchcfg_queries_solr_xpath }}', attribute: value, value: 'false'}
 
-- name:              Enable ElasticSearch Read, Write for ES7
+- name: Enable ElasticSearch Read, Write for ES7
   xml:
-    path:            "{{ __searchcfg_full_path }}"
-    namespaces:      "{{ __searchcfg_namespaces }}"
-    xpath:           "{{ item.xpath }}"
-    attribute:       "{{ item.attribute }}"
-    value:           "{{ item.value }}"
-    pretty_print:    yes
+    path: '{{ __searchcfg_full_path }}'
+    namespaces: '{{ __searchcfg_namespaces }}'
+    xpath: '{{ item.xpath }}'
+    attribute: '{{ item.attribute }}'
+    value: '{{ item.value }}'
+    pretty_print: 'yes'
   with_items:
-    - { xpath: "{{ __searchcfg_es_write_xpath }}", attribute: "value", value: "true" }
-    - { xpath: "{{ __searchcfg_es_read_xpath }}", attribute: "value", value: "true" }
+    - {xpath: '{{ __searchcfg_es_write_xpath }}', attribute: value, value: 'true'}
+    - {xpath: '{{ __searchcfg_es_read_xpath }}', attribute: value, value: 'true'}
   when:
     - __enable_es7_r_and_w |bool
     - __cnx_major_version is version('7', '>=')
 
-- name:              Enable ElasticSearch Indexing
+- name: Enable ElasticSearch Indexing
   xml:
-    path:            "{{ __searchcfg_full_path }}"
-    namespaces:      "{{ __searchcfg_namespaces }}"
-    xpath:           "{{ item.xpath }}"
-    attribute:       "{{ item.attribute }}"
-    value:           "{{ item.value }}"
-    pretty_print:    yes
+    path: '{{ __searchcfg_full_path }}'
+    namespaces: '{{ __searchcfg_namespaces }}'
+    xpath: '{{ item.xpath }}'
+    attribute: '{{ item.attribute }}'
+    value: '{{ item.value }}'
+    pretty_print: 'yes'
   with_items:
-    - { xpath: "{{ __searchcfg_es_index_xpath }}", attribute: "value", value: "true" }
+    - {xpath: '{{ __searchcfg_es_index_xpath }}', attribute: value, value: 'true'}
 
-- name:              Switch ES5 to ES7
+- name: Switch ES5 to ES7
   xml:
-    path:            "{{ __lcc_full_path }}"
-    namespaces:      "{{ __lcc_namespaces }}"
-    xpath:           "{{ __lcc_es_version_xpath }}"
-    value:           "{{ __lcc_es_version }}"
+    path: '{{ __lcc_full_path }}'
+    namespaces: '{{ __lcc_namespaces }}'
+    xpath: '{{ __lcc_es_version_xpath }}'
+    value: '{{ __lcc_es_version }}'
   when:
     - __enable_major_es7 |bool
-    - __cnx_major_version is version('7', '>=') 
+    - __cnx_major_version is version('7', '>=')
 
-- name:              "Render {{ __es_qr_index_template }} to {{ __es_qr_index_destination }}"
+- name: Render {{ __es_qr_index_template }} to {{ __es_qr_index_destination }}
   template:
-    src:             "{{ __es_qr_index_template }}"
-    dest:            "{{ __es_qr_index_destination }}"
+    src: '{{ __es_qr_index_template }}'
+    dest: '{{ __es_qr_index_destination }}'
   when:
     - __enable_qr |bool
 
-- name:              "Run create Quick Results Index with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_qr_index_destination }}"
-  command:
-    chdir={{ __dmgr_bin_dir }}
-    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_qr_index_destination }}
-  register:                 es_qr_index_created
-  changed_when:             es_qr_index_created.rc == 0
-  ignore_errors:            true
+- name: Run create Quick Results Index with {{ __dmgr_bin_dir }}/wsadmin.sh -lang
+    jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password
+    {{ __was_password }} -f {{ __es_qr_index_destination }}
+  command: chdir={{ __dmgr_bin_dir }} {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython
+    -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }}
+    -f {{ __es_qr_index_destination }}
+  register: es_qr_index_created
+  changed_when: es_qr_index_created.rc == 0
+  ignore_errors: true
   when:
     - __enable_qr |bool
 
-- name:              Enable Quick Results
+- name: Enable Quick Results
   xml:
-    path:            "{{ __lcc_full_path }}"
-    namespaces:      "{{ __lcc_namespaces }}"
-    xpath:           "{{ __lcc_qr_xpath }}"
-    value:           "true"
+    path: '{{ __lcc_full_path }}'
+    namespaces: '{{ __lcc_namespaces }}'
+    xpath: '{{ __lcc_qr_xpath }}'
+    value: 'true'
   when:
     - __enable_qr |bool
 
 # repeat this step from enable_es_metrics.yml because it gets 404 sometimes
-- name:                      Set config_blue_metrics.py command
+- name: Set config_blue_metrics.py command
   set_fact:
-    __config_blue_metrics_cmd_python:  "{{ __config_blue_metrics_cmd }}"
+    __config_blue_metrics_cmd_python: '{{ __config_blue_metrics_cmd }}'
   when:
-    - not (ansible_os_family == "RedHat" and ansible_distribution_major_version == "8")
+    - not (ansible_os_family == "RedHat" and ansible_distribution_major_version
+      == "8")
 
-- name:                      Set config_blue_metrics.py command for RHEL8
+- name: Set config_blue_metrics.py command for RHEL8
   set_fact:
-    __config_blue_metrics_cmd_python:  "/usr/bin/python2 {{ __config_blue_metrics_cmd }}"
+    __config_blue_metrics_cmd_python: /usr/bin/python2 {{ __config_blue_metrics_cmd }}
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
-- name:                      Run {{ __config_blue_metrics_cmd }}
-  shell:                     "{{ __config_blue_metrics_cmd_python }}"
-  become:                    false
-  register:                  configured_blue_metrics
-  ignore_errors:             true
-  delegate_to:               "{{ groups['component_pack_master'][0] }}"
+- name: Run {{ __config_blue_metrics_cmd }}
+  shell: '{{ __config_blue_metrics_cmd_python }}'
+  become: false
+  register: configured_blue_metrics
+  ignore_errors: true
+  delegate_to: "{{ groups['component_pack_master'][0] }}"
 
-- debug:                     var=configured_blue_metrics.stdout_lines
+- debug: var=configured_blue_metrics.stdout_lines

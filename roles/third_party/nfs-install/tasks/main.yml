@@ -1,18 +1,18 @@
 ---
-- name:                      Install NFS
-  include_tasks:             install_nfs.yml
+- name: Install NFS
+  include_tasks: install_nfs.yml
 
 # If Docs installation, skip NFS server setup
-- name:                      Configure NFS master server
-  include_tasks:             configure_master.yml
+- name: Configure NFS master server
+  include_tasks: configure_master.yml
   when:
     - inventory_hostname == groups['nfs_servers'][0]
-    - "is_docs_install is not defined"
+    - is_docs_install is not defined
 
 # If Docs installation, setup NFS client in conversion_servers, docs_servers and viewer_servers
-- name:                      Configure NFS clients
-  include_tasks:             configure_clients.yml
-  when: >
+- name: Configure NFS clients
+  include_tasks: configure_clients.yml
+  when: >-
     inventory_hostname != groups['nfs_servers'][0] or
     inventory_hostname in groups['conversion_servers'] | default([]) or
     inventory_hostname in groups['viewer_servers'] | default([]) or

@@ -1,12 +1,12 @@
 ---
-- name:                   Gather service facts
+- name: Gather service facts
   service_facts:
 
-- name:                   Check if kubelet is installed
+- name: Check if kubelet is installed
   fail:
-    msg:                  Looks like kubelet is not installed at all
-  when:                   ansible_facts.services["kubelet.service"] is not defined
+    msg: Looks like kubelet is not installed at all
+  when: ansible_facts.services["kubelet.service"] is not defined
 
-- name:                   Check if kubelet service is up and running
+- name: Check if kubelet service is up and running
   debug:
-    var:                  ansible_facts.services["kubelet.service"]
+    var: ansible_facts.services["kubelet.service"]

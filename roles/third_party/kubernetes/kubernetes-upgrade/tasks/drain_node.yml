@@ -1,27 +1,29 @@
-- name:                  Show me where I'm going to run
+---
+- name: Show me where I'm going to run
   debug:
-    msg:                 "{{ inventory_hostname }}"
+    msg: '{{ inventory_hostname }}'
 
-- name:                  Run kubectl version
-  command:               "kubectl version --client --short"
-  register:              kubectl_version_output
-  ignore_errors:         True
+- name: Run kubectl version
+  command: kubectl version --client --short
+  register: kubectl_version_output
+  ignore_errors: true
 
-- name:                  Get kubectl version
+- name: Get kubectl version
   set_fact:
-    kubectl_version:     "{{ kubectl_version_output.stdout | regex_search('Client Version:\\sv(.*)', '\\1') | first }}"
-  when:                  kubectl_version_output.rc == 0
+    kubectl_version: "{{★kubectl_version_output.stdout★|★regex_search('Client★Version:\\\
+      sv(.*)',★'\\1')★|★first★}}"
+  when: kubectl_version_output.rc == 0
 
-- name:                  Drain the node
-  command:               "{{ item }}"
+- name: Drain the node
+  command: '{{ item }}'
   with_items:
-   - "kubectl drain {{ inventory_hostname }} --delete-emptydir-data --ignore-daemonsets"
-  become:                false
-  when:                  kubectl_version is version('1.20', '>=')
+    - kubectl drain {{ inventory_hostname }} --delete-emptydir-data --ignore-daemonsets
+  become: false
+  when: kubectl_version is version('1.20', '>=')
 
-- name:                  Drain the node (< v1.20)
-  command:               "{{ item }}"
+- name: Drain the node (< v1.20)
+  command: '{{ item }}'
   with_items:
-   - "kubectl drain {{ inventory_hostname }} --delete-local-data --ignore-daemonsets"
-  become:                false
-  when:                  kubectl_version is version('1.20', '<')
+    - kubectl drain {{ inventory_hostname }} --delete-local-data --ignore-daemonsets
+  become: false
+  when: kubectl_version is version('1.20', '<')

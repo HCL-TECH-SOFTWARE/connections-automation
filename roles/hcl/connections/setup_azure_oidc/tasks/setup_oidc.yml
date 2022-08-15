@@ -1,4 +1,4 @@
 ---
-  - name:                                  Setup OIDC
-    include_role:
-      name:                                roles/third_party/ibm/wasnd/was-dmgr-oidc
+- name: Setup OIDC
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-oidc

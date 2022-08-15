@@ -1,2 +1,2 @@
 ---
-__was_install_location:             "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"

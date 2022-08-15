@@ -1,29 +1,29 @@
 ---
-- name:                       Install pre-requisites Yum for CentOS 7 - epel-release
+- name: Install pre-requisites Yum for CentOS 7 - epel-release
   package:
-    name:                     ['epel-release']
-    enablerepo:               "extras"
-    state:                    present
+    name: [epel-release]
+    enablerepo: extras
+    state: present
   when:
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
 
-- name:                       Install python pre-requisites for Pexpect for CentOS7
+- name: Install python pre-requisites for Pexpect for CentOS7
   package:
-    name:                     ['python-setuptools', 'python2', 'python-pip']
-    state:                    present
+    name: [python-setuptools, python2, python-pip]
+    state: present
   when:
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
 
-- name:                       Install pre-requisites Yum
+- name: Install pre-requisites Yum
   package:
-    name:                     ['python3-pip', 'httpd-tools']
-    state:                    present
+    name: [python3-pip, httpd-tools]
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                       Install Pexpect
+- name: Install Pexpect
   pip:
-    name:                     pexpect
-    state:                    latest
+    name: pexpect
+    state: latest

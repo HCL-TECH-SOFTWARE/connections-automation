@@ -1,37 +1,37 @@
 ---
-- name:                            Setup OS for Oracle
-  include_tasks:                   setup_os.yml
+- name: Setup OS for Oracle
+  include_tasks: setup_os.yml
   when:
     - "'oracle_servers' in group_names"
     - inventory_hostname in groups["oracle_servers"]
 
-- name:                            Prepare the installation
-  include_tasks:                   prepare_installation.yml
+- name: Prepare the installation
+  include_tasks: prepare_installation.yml
   when:
     - "'oracle_servers' in group_names"
     - inventory_hostname in groups["oracle_servers"]
 
-- name:                            Install Oracle
-  include_tasks:                   install_oracle.yml
+- name: Install Oracle
+  include_tasks: install_oracle.yml
   when:
     - "'oracle_servers' in group_names"
     - inventory_hostname in groups["oracle_servers"]
 
-- name:                            Configure Oracle
-  include_tasks:                   configure_oracle.yml
+- name: Configure Oracle
+  include_tasks: configure_oracle.yml
   when:
     - "'oracle_servers' in group_names"
     - inventory_hostname in groups["oracle_servers"]
 
-- name:                            Install JDBC drivers only
-  include_tasks:                   install_jdbc.yml
+- name: Install JDBC drivers only
+  include_tasks: install_jdbc.yml
   when:
     - "'oracle_servers' in groups"
     - __setup_oracle_jdbc |bool
     - inventory_hostname in groups["was_servers"]
 
-- name:                            Setup Oracle DB Exporter
-  include_tasks:                   install_promethus_oracle_exporter.yml
+- name: Setup Oracle DB Exporter
+  include_tasks: install_promethus_oracle_exporter.yml
   when:
     - "'oracle_servers' in group_names"
     - __setup_oracle_jdbc |bool

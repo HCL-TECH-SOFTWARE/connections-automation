@@ -1,68 +1,70 @@
-- name:                     "Verify if ssl is already configured"
+---
+- name: Verify if ssl is already configured
   stat:
-    path:                   "{{ __ldap_ssl_success_file }}"
-  register:                 ldap_ssl_already_created
+    path: '{{ __ldap_ssl_success_file }}'
+  register: ldap_ssl_already_created
 
-- name:                     "Generate {{ __ldap_cert_path }} and {{ __ldap_cert_key_path }}"
-  command:                  openssl req -new -x509 -nodes -newkey rsa:2048 -out {{ __ldap_cert_path }} -keyout {{ __ldap_cert_key_path }} -days 1460 -batch
+- name: Generate {{ __ldap_cert_path }} and {{ __ldap_cert_key_path }}
+  command: openssl req -new -x509 -nodes -newkey rsa:2048 -out {{ __ldap_cert_path }}
+    -keyout {{ __ldap_cert_key_path }} -days 1460 -batch
   when:
     - not ldap_ssl_already_created.stat.exists
 
-- name:                     Set up ownership
+- name: Set up ownership
   file:
-    dest:                   "/etc/openldap/certs"
-    owner:                  "ldap"
-    group:                  "ldap"
-    recurse:                yes
+    dest: /etc/openldap/certs
+    owner: ldap
+    group: ldap
+    recurse: 'yes'
   when:
     - not ldap_ssl_already_created.stat.exists
 
-- name:                     "Render {{ __certs_ldif_location }}"
+- name: Render {{ __certs_ldif_location }}
   template:
-    src:                    "{{ __certs_ldif_template }}"
-    dest:                   "{{ __certs_ldif_location }}"
+    src: '{{ __certs_ldif_template }}'
+    dest: '{{ __certs_ldif_location }}'
   when:
     - not ldap_ssl_already_created.stat.exists
 
-- name:                     Configure SSL
-  command:                  "{{ __ldap_modify_cmd }} {{ __certs_ldif_location }}"
-  register:                 ldapssl
-  failed_when:              ( ldapssl.rc not in [0] )
+- name: Configure SSL
+  command: '{{ __ldap_modify_cmd }} {{ __certs_ldif_location }}'
+  register: ldapssl
+  failed_when: ( ldapssl.rc not in [0] )
   when:
     - not ldap_ssl_already_created.stat.exists
-  ignore_errors:            true
+  ignore_errors: true
 
-- name:                     "Render {{ __certs_ldif_location }}"
+- name: Render {{ __certs_ldif_location }}
   template:
-    src:                    "{{ __certs_ldif_rev_template }}"
-    dest:                   "{{ __certs_ldif_location }}"
+    src: '{{ __certs_ldif_rev_template }}'
+    dest: '{{ __certs_ldif_location }}'
   when:
     - not ldap_ssl_already_created.stat.exists
 
-- name:                     Configure SSL
-  command:                  "{{ __ldap_modify_cmd }} {{ __certs_ldif_location }}"
-  register:                 ldapssl
-  failed_when:              ( ldapssl.rc not in [0] )
+- name: Configure SSL
+  command: '{{ __ldap_modify_cmd }} {{ __certs_ldif_location }}'
+  register: ldapssl
+  failed_when: ( ldapssl.rc not in [0] )
   when:
     - not ldap_ssl_already_created.stat.exists
 
-- name:                     "Create {{ __ldap_ssl_success_file }} file"
+- name: Create {{ __ldap_ssl_success_file }} file
   file:
-    path:                   "{{ __ldap_ssl_success_file }}"
-    state:                  touch
+    path: '{{ __ldap_ssl_success_file }}'
+    state: touch
 
-- name:                     "Cleanup {{ __certs_ldif_location }}"
+- name: Cleanup {{ __certs_ldif_location }}
   file:
-    path:                   "{{ __certs_ldif_location }}"
-    state:                  absent
+    path: '{{ __certs_ldif_location }}'
+    state: absent
 
-- name:                     "Render {{ __slapd_location }}"
+- name: Render {{ __slapd_location }}
   template:
-    src:                    "{{ __slapd_template }}"
-    dest:                   "{{ __slapd_location }}"
+    src: '{{ __slapd_template }}'
+    dest: '{{ __slapd_location }}'
 
-- name:                     Restart slapd service
+- name: Restart slapd service
   service:
-    name:                   slapd
-    state:                  restarted
-    daemon_reload:          yes
+    name: slapd
+    state: restarted
+    daemon_reload: 'yes'

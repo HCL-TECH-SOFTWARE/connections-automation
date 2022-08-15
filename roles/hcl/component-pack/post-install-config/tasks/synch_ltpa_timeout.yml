@@ -1,23 +1,24 @@
 ---
-  - debug:
-      msg: "jwt_expires_in_minutes provided = {{ jwt_expires_in_minutes }}"
-    when:
-      jwt_expires_in_minutes is defined
+- debug:
+    msg: jwt_expires_in_minutes provided = {{ jwt_expires_in_minutes }}
+  when: jwt_expires_in_minutes is defined
 
-  - name:                       Get/Set LTPA timeout setting from WAS
-    include_tasks:              get_set_was_ltpa_timeout.yml
+- name: Get/Set LTPA timeout setting from WAS
+  include_tasks: get_set_was_ltpa_timeout.yml
 
-  - name:                       Get the WAS timeout value from WAS (when override not provided)
-    slurp:
-      src:                      "{{ __dmgr_bin_dir }}/ltpatimeout.txt"
-    register:                   lptatimeout
-    when:                       jwt_expires_in_minutes is not defined
+- name: Get the WAS timeout value from WAS (when override not provided)
+  slurp:
+    src: '{{ __dmgr_bin_dir }}/ltpatimeout.txt'
+  register: lptatimeout
+  when: jwt_expires_in_minutes is not defined
 
-  - name:                       Set facts for jwt timeout
-    set_fact:
-      jwt_expires:              "{{ jwt_expires_in_minutes if jwt_expires_in_minutes is defined else lptatimeout['content'] | b64decode }}"
+- name: Set facts for jwt timeout
+  set_fact:
+    jwt_expires: "{{ jwt_expires_in_minutes if jwt_expires_in_minutes is defined else lptatimeout['content'] | b64decode }}"
 
-  - name:                       Update jwt-expires-in-minutes in configmap to {{ jwt_expires }}
-    shell:                      "kubectl get configmap connections-env -n {{ __default_namespace }} -o yaml | sed 's/[^f:]jwt-expires-in-minutes:.*/ jwt-expires-in-minutes: \"{{ jwt_expires }}\"/' | kubectl replace -f -"
-    delegate_to:                "{{ groups['component_pack_master'][0] }}"
-    become_user:                "{{ __sudo_user }}"
+- name: Update jwt-expires-in-minutes in configmap to {{ jwt_expires }}
+  shell: "kubectl get configmap connections-env -n {{ __default_namespace }} -o\
+    \ yaml | sed 's/[^f:]jwt-expires-in-minutes:.*/ jwt-expires-in-minutes: \"{{ jwt_expires }}\"\
+    /' | kubectl replace -f -"
+  delegate_to: "{{ groups['component_pack_master'][0] }}"
+  become_user: '{{ __sudo_user }}'

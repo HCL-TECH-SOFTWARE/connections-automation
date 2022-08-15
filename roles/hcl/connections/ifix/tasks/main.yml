@@ -1,29 +1,29 @@
 ---
-- name:                    Check Vars
-  include_tasks:           check_vars.yml
+- name: Check Vars
+  include_tasks: check_vars.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Define Vars
-  include_tasks:           define_vars.yml
+- name: Define Vars
+  include_tasks: define_vars.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Download and Extract updateInstaller and iFix
-  include_tasks:           download_extract_upgradeinstaller.yml
+- name: Download and Extract updateInstaller and iFix
+  include_tasks: download_extract_upgradeinstaller.yml
   when:
     - inventory_hostname in groups["dmgr"]
     - (version_already_installed.rc != 0) or (cnx_updates_enabled |bool)
 
-- name:                    Install Connections iFix
-  include_tasks:           setup_ifix.yml
+- name: Install Connections iFix
+  include_tasks: setup_ifix.yml
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                    Shutdown WAS Nodes
+- name: Shutdown WAS Nodes
   include_role:
-    name:                  roles/third_party/ibm/wasnd/was-nodeagent-stop
+    name: roles/third_party/ibm/wasnd/was-nodeagent-stop
     apply:
-      become:              true
+      become: true
   when:
     - inventory_hostname in groups["was_servers"]

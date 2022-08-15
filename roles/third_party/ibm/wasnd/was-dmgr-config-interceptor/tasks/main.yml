@@ -1,35 +1,34 @@
 ---
-    - name:                 "Verify if Profile already exists"
-      stat:
-        path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}"
-      register:             profile_already_exists
+- name: Verify if Profile already exists
+  stat:
+    path: '{{ __was_install_location }}/profiles/{{ __profile_name }}'
+  register: profile_already_exists
 
-    - name:                 Verify if pid file
-      shell:                ps -p `cat "{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid"`
-      register:             dmgr_is_running
-      ignore_errors:        true
+- name: Verify if pid file
+  shell: ps -p `cat "{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid"`
+  register: dmgr_is_running
+  ignore_errors: true
 
-    - name:                 "Verify if certificate {{ __trust_interceptor_name }} is already added"
-      stat:
-        path:               "{{ __bin_dir }}/add_interceptor_{{ __trust_interceptor_name }}.success"
-      register:             interceptor_already_added
-      when:                 profile_already_exists.stat.exists == true
+- name: Verify if certificate {{ __trust_interceptor_name }} is already added
+  stat:
+    path: '{{ __bin_dir }}/add_interceptor_{{ __trust_interceptor_name }}.success'
+  register: interceptor_already_added
+  when: profile_already_exists.stat.exists == true
 
-    - name:                 "Generate Response file"
-      template:
-        src:                "{{ __tpl_file }}"
-        dest:               "{{ __rsp_file }}"
-      when:                 interceptor_already_added.stat.exists == false
+- name: Generate Response file
+  template:
+    src: '{{ __tpl_file }}'
+    dest: '{{ __rsp_file }}'
+  when: interceptor_already_added.stat.exists == false
 
-    - name:                 "Add trust association interceptor {{ __trust_interceptor_name }}"
-      command:
-        chdir={{ __bin_dir }}
-        {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_file }}
-      register:             cout
-      changed_when:         cout.rc == 0
-      when:                 interceptor_already_added.stat.exists == false
+- name: Add trust association interceptor {{ __trust_interceptor_name }}
+  command: chdir={{ __bin_dir }} {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }}
+    -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_file }}
+  register: cout
+  changed_when: cout.rc == 0
+  when: interceptor_already_added.stat.exists == false
 
-    - name:                 Create add_interceptor_{{ __trust_interceptor_name }}.success file
-      file:
-        path:               "{{ __bin_dir }}/add_interceptor_{{ __trust_interceptor_name }}.success"
-        state:              touch
+- name: Create add_interceptor_{{ __trust_interceptor_name }}.success file
+  file:
+    path: '{{ __bin_dir }}/add_interceptor_{{ __trust_interceptor_name }}.success'
+    state: touch

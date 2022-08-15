@@ -1,18 +1,18 @@
 ---
-- name:                            Setup OS for MSSQL
-  include_tasks:                   setup_os.yml
+- name: Setup OS for MSSQL
+  include_tasks: setup_os.yml
   when:
     - "'mssql_servers' in group_names"
     - inventory_hostname in groups["mssql_servers"]
 
-- name:                            Setup MSSQL
-  include_tasks:                   setup_mssql.yml
+- name: Setup MSSQL
+  include_tasks: setup_mssql.yml
   when:
     - "'mssql_servers' in group_names"
     - inventory_hostname in groups["mssql_servers"]
 
-- name:                            Create extra admin user for MSSQL
-  include_tasks:                   setup_admin_user.yml
+- name: Create extra admin user for MSSQL
+  include_tasks: setup_admin_user.yml
   when:
     - "'mssql_servers' in group_names"
     - inventory_hostname in groups["mssql_servers"]
@@ -20,9 +20,11 @@
 
 #- debug: var=hostvars[groups['mssql_servers'][0]]['inventory_hostname']
 
-- name:                            Setup JDBC for MSSQL
-  include_tasks:                   setup_jdbc.yml
+- name: Setup JDBC for MSSQL
+  include_tasks: setup_jdbc.yml
   when:
-    - "'mssql_servers' in groups and ('was_servers' in group_names or 'ldap_servers' in group_names)"
-    - inventory_hostname in groups["was_servers"] or inventory_hostname in groups["mssql_servers"] or inventory_hostname in groups["ldap_servers"]
+    - "'mssql_servers' in groups and ('was_servers' in group_names or 'ldap_servers'\
+      \ in group_names)"
+    - inventory_hostname in groups["was_servers"] or inventory_hostname in groups["mssql_servers"]
+      or inventory_hostname in groups["ldap_servers"]
     - __setup_mssql_jdbc |bool

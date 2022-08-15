@@ -1,30 +1,33 @@
 ---
-- name:          Create Binaries directory
-  file:          path={{ __tmp_dir }} state=directory mode=0755
+- name: Create Binaries directory
+  file: path={{ __tmp_dir }} state=directory mode=0755
 
-- name:          Create Logs directory
-  file:          path={{ __logs_dir }} state=directory mode=0755
+- name: Create Logs directory
+  file: path={{ __logs_dir }} state=directory mode=0755
 
-- name:          Download IBM Installation Manager
+- name: Download IBM Installation Manager
   get_url:
-    url:         "{{ iim_repository_url }}/{{ __bin_file }}"
-    dest:        "{{ __tmp_dir }}/{{ __bin_file }}"
-    mode:        0755
+    url: '{{ iim_repository_url }}/{{ __bin_file }}'
+    dest: '{{ __tmp_dir }}/{{ __bin_file }}'
+    mode: 0755
 
-- name:          Extract IBM Installation Manager
+- name: Extract IBM Installation Manager
   unarchive:
-    src:         "{{ __tmp_dir }}/{{ __bin_file }}"
-    dest:        "{{ __tmp_dir }}/"
-    copy:        no
+    src: '{{ __tmp_dir }}/{{ __bin_file }}'
+    dest: '{{ __tmp_dir }}/'
+    copy: 'no'
 
-- name:          Install/Update IBM Installation Manager
-  command:
-    chdir={{ __tmp_dir }}
-    {{ __tmp_dir }}/tools/imcl install com.ibm.cic.agent -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }} -installationDirectory {{ __iim_install_location }} -repositories {{ __tmp_dir }} -log {{ __logs_dir }}/iim_install.{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}.log
-  register:      cout
-  changed_when:  (cout.stdout.find('Installed com.ibm.cic.agent') != -1) or (cout.stdout.find('Updated to com.ibm.cic.agent') != -1)
+- name: Install/Update IBM Installation Manager
+  command: chdir={{ __tmp_dir }} {{ __tmp_dir }}/tools/imcl install com.ibm.cic.agent
+    -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{
+    __iim_preserve_artifacts }} -installationDirectory {{ __iim_install_location }}
+    -repositories {{ __tmp_dir }} -log {{ __logs_dir }}/iim_install.{{ lookup('pipe',
+    'date +%Y%m%d%H%M%S') }}.log
+  register: cout
+  changed_when: (cout.stdout.find('Installed com.ibm.cic.agent') != -1) or (cout.stdout.find('Updated
+    to com.ibm.cic.agent') != -1)
 
 #- debug:        msg={{ cout }}
 
-- name:          Cleanup Binaries directory
-  file:          path={{ __tmp_dir }} state=absent
+- name: Cleanup Binaries directory
+  file: path={{ __tmp_dir }} state=absent

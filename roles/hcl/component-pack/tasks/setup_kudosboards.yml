@@ -1,38 +1,42 @@
-- name:                     "Render {{ __kudos_reg_destination }}"
+---
+- name: Render {{ __kudos_reg_destination }}
   template:
-    src:                    "{{ __kudos_reg_template }}"
-    dest:                   "{{ __kudos_reg_destination }}"
-  delegate_to:              "{{ dmgr_hostname }}"
+    src: '{{ __kudos_reg_template }}'
+    dest: '{{ __kudos_reg_destination }}'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                     "Register Kudosboards {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __kudos_reg_destination }}"
-  command:
-    chdir={{ __dmgr_bin_dir }}
-    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __kudos_reg_destination }}
-  register:                 kudosboards_secret
-  changed_when:             kudosboards_secret.rc == 0
-  delegate_to:              "{{ dmgr_hostname }}"
+- name: Register Kudosboards {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port
+    {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }}
+    -f {{ __kudos_reg_destination }}
+  command: chdir={{ __dmgr_bin_dir }} {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython
+    -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }}
+    -f {{ __kudos_reg_destination }}
+  register: kudosboards_secret
+  changed_when: kudosboards_secret.rc == 0
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                     "Show me the secret"
+- name: Show me the secret
   debug:
-    msg:                    "{{ kudosboards_secret.stdout_lines | last }}"
+    msg: '{{ kudosboards_secret.stdout_lines | last }}'
 
-- name:                      Find kudosboards helm file
+- name: Find kudosboards helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "kudos-boards-cp-2.*.tgz"
-    file_type:               file
-  register:                  kudosboards_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: kudos-boards-cp-2.*.tgz
+    file_type: file
+  register: kudosboards_tgz
 
-- name:                      Found kudosboards file
+- name: Found kudosboards file
   debug:
-    msg:                     "{{ kudosboards_tgz.files[0].path }}"
+    msg: '{{ kudosboards_tgz.files[0].path }}'
 
-- name:                      "Render {{ __kudos_boards_destination }}"
+- name: Render {{ __kudos_boards_destination }}
   template:
-    src:                     "{{ __kudos_boards_template }}"
-    dest:                    "{{ __kudos_boards_destination }}"
-  become_user:               "{{ __sudo_user }}"
+    src: '{{ __kudos_boards_template }}'
+    dest: '{{ __kudos_boards_destination }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup kudosboards
-  command:                   "helm upgrade kudos-boards-cp {{ kudosboards_tgz.files[0].path }} -i -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }}"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup kudosboards
+  command: helm upgrade kudos-boards-cp {{ kudosboards_tgz.files[0].path }} -i -f
+    {{ __kudos_boards_destination }} --namespace {{ __default_namespace }}
+  become_user: '{{ __sudo_user }}'

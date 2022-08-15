@@ -1,57 +1,57 @@
 ---
-- name:                       Install pre-requisites
+- name: Install pre-requisites
   yum:
-    name:                     ['perl', 'vim-common']
-    state:                    present
+    name: [perl, vim-common]
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                       Verify if public key is generated
+- name: Verify if public key is generated
   stat:
-    path:                     "~/.ssh/{{ dmgr_hostname }}_key.pub"
-  register:                   public_key_already_created
-  when:                       inventory_hostname in groups["dmgr"]
+    path: ~/.ssh/{{ dmgr_hostname }}_key.pub
+  register: public_key_already_created
+  when: inventory_hostname in groups["dmgr"]
 
-- name:                       Generate ssh keys
+- name: Generate ssh keys
   openssh_keypair:
-    path:                     "~/.ssh/{{ dmgr_hostname }}_key"
-    mode:                     0600
-  register:                   new_ssh_pub_key
+    path: ~/.ssh/{{ dmgr_hostname }}_key
+    mode: 0600
+  register: new_ssh_pub_key
   when:
     - inventory_hostname in groups["dmgr"]
     - not public_key_already_created.stat.exists
 
-- name:                       "Copy public key to /tmp"
-  command:                    "{{ item }}"
+- name: Copy public key to /tmp
+  command: '{{ item }}'
   with_items:
     - cp "/root/.ssh/{{ dmgr_hostname }}_key.pub" /tmp/
     - chmod 644 /tmp/{{ dmgr_hostname }}_key.pub
   when:
     - inventory_hostname in groups["dmgr"]
 
-- name:                       Synchronize key to other hosts
+- name: Synchronize key to other hosts
   synchronize:
-    src:                      "/tmp/{{ dmgr_hostname }}_key.pub"
-    dest:                     "/tmp/"
-    mode:                     push
-    rsync_opts:               "--chmod=F600"
-  delegate_to:                "{{ dmgr_hostname }}"
-  become:                     false
+    src: /tmp/{{ dmgr_hostname }}_key.pub
+    dest: /tmp/
+    mode: push
+    rsync_opts: --chmod=F600
+  delegate_to: '{{ dmgr_hostname }}'
+  become: false
   when:
     - inventory_hostname not in groups["dmgr"]
 
-- name:                       "Get the key content"
-  command:                    "cat /tmp/{{ dmgr_hostname }}_key.pub"
-  register:                   public_key
+- name: Get the key content
+  command: cat /tmp/{{ dmgr_hostname }}_key.pub
+  register: public_key
 
-- name:                       Add public key to authorized_keys
+- name: Add public key to authorized_keys
   authorized_key:
-    user:                     "root"
-    state:                    present
-    #key:                      "{{ new_ssh_pub_key.public_key }}"
-    key:                      "{{ public_key.stdout }}"
+    user: root
+    state: present
+  # key:                      "{{ new_ssh_pub_key.public_key }}"
+    key: '{{ public_key.stdout }}'
 
-- name:                       Remove key from other hosts /tmp
+- name: Remove key from other hosts /tmp
   file:
-    path:                     "/tmp/{{ dmgr_hostname }}_key.pub"
-    state:                    absent
+    path: /tmp/{{ dmgr_hostname }}_key.pub
+    state: absent

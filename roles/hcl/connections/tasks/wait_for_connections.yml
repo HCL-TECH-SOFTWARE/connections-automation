@@ -1,7 +1,7 @@
 ---
 - name: Pause until Connections is up - "https://{{ __cnx_url }}/homepage/login"
   uri:
-    url: "https://{{ __cnx_url }}/homepage/login"
+    url: https://{{ __cnx_url }}/homepage/login
     method: GET
     validate_certs: false
   register: _result

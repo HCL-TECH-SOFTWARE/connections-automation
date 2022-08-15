@@ -1,14 +1,15 @@
-- name:                  Setup Nginx
-  import_playbook:       third_party/setup-nginx.yml
+---
+- name: Setup Nginx
+  import_playbook: third_party/setup-nginx.yml
 
-- name:                  Setup NFS
-  import_playbook:       third_party/setup-nfs.yml
+- name: Setup NFS
+  import_playbook: third_party/setup-nfs.yml
 
-- name:                  Setup Docker with Docker Registry
-  import_playbook:       third_party/setup-docker-registry.yml
+- name: Setup Docker with Docker Registry
+  import_playbook: third_party/setup-docker-registry.yml
 
-- name:                  Setup Kubernetes
-  import_playbook:       third_party/kubernetes/setup-kubernetes.yml
+- name: Setup Kubernetes
+  import_playbook: third_party/kubernetes/setup-kubernetes.yml
 
-- name:                  Setup Component Pack
-  import_playbook:       hcl/setup-component-pack.yml
+- name: Setup Component Pack
+  import_playbook: hcl/setup-component-pack.yml

@@ -1,38 +1,38 @@
 ---
-- name:              Cleanup Binaries directory
-  file:              path={{ __tmp_dir }}/mt state=absent
-  ignore_errors:     true
+- name: Cleanup Binaries directory
+  file: path={{ __tmp_dir }}/mt state=absent
+  ignore_errors: true
 
-- name:              Create Binaries directory
-  file:              path={{ __tmp_dir }}/mt state=directory mode=0755
+- name: Create Binaries directory
+  file: path={{ __tmp_dir }}/mt state=directory mode=0755
 
-- name:              Download Installer Zip from {{ cnx_repository_url }}/{{ __mt_zip }}
+- name: Download Installer Zip from {{ cnx_repository_url }}/{{ __mt_zip }}
   get_url:
-    url:             "{{ cnx_repository_url }}/{{ __mt_zip }}"
-    dest:            "{{ __tmp_dir }}/mt/{{ __mt_zip }}"
-    mode:            0755
+    url: '{{ cnx_repository_url }}/{{ __mt_zip }}'
+    dest: '{{ __tmp_dir }}/mt/{{ __mt_zip }}'
+    mode: 0755
 
-- name:              Extract Installer Zip to {{ __tmp_dir }}/mt/{{ __mt_zip }}
+- name: Extract Installer Zip to {{ __tmp_dir }}/mt/{{ __mt_zip }}
   unarchive:
-    src:             "{{ __tmp_dir }}/mt/{{ __mt_zip }}"
-    dest:            "{{ __tmp_dir }}/mt/"
-    copy:            no
+    src: '{{ __tmp_dir }}/mt/{{ __mt_zip }}'
+    dest: '{{ __tmp_dir }}/mt/'
+    copy: 'no'
   register: download_and_unpack_mt_zip
   until: download_and_unpack_mt_zip is succeeded
   retries: 3
 
-- name:               Find all sh scripts
+- name: Find all sh scripts
   find:
-    paths:            "{{ __tmp_dir }}/mt/install"
-    file_type:        file
-    patterns:         "*.sh"
-  register:           shfiles
+    paths: '{{ __tmp_dir }}/mt/install'
+    file_type: file
+    patterns: '*.sh'
+  register: shfiles
 
-- name:              Add +x to install scripts
+- name: Add +x to install scripts
   file:
-    path:            "{{ item.path }}"
-    state:           file
-    mode:            "755"
-  with_items:        "{{ shfiles.files }}"
+    path: '{{ item.path }}'
+    state: file
+    mode: '755'
+  with_items: '{{ shfiles.files }}'
 
 # TODO: print connections version?

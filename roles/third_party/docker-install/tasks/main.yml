@@ -1,19 +1,19 @@
 ---
-- name:                       Prepare Docker Registry
-  include_tasks:              setup_os.yml
+- name: Prepare Docker Registry
+  include_tasks: setup_os.yml
 
-- name:                       Install Docker
-  include_tasks:              install_docker_centos_redhat.yml
+- name: Install Docker
+  include_tasks: install_docker_centos_redhat.yml
   when:
     - ansible_os_family == "RedHat"
 
-- name:                       Install Docker
-  include_tasks:              install_docker_sles.yml
+- name: Install Docker
+  include_tasks: install_docker_sles.yml
   when:
     - ansible_distribution == "SLES"
 
-- name:                       Run Docker Registry
-  include_tasks:              setup_docker_registry.yml
-  when:                       
-   - setup_docker_registry is defined
-   - setup_docker_registry |bool
+- name: Run Docker Registry
+  include_tasks: setup_docker_registry.yml
+  when:
+    - setup_docker_registry is defined
+    - setup_docker_registry |bool

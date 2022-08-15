@@ -1,53 +1,55 @@
-- name:                     Create JMX directory
+---
+- name: Create JMX directory
   file:
-    path:                   "{{ __jmx_install_location }}"
-    state:                  directory
-  delegate_to:              "{{ item }}"
-  with_items:               "{{ groups['was_servers'] }}"
+    path: '{{ __jmx_install_location }}'
+    state: directory
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['was_servers'] }}"
 
-- name:                     Set JMX clusters for small topology
+- name: Set JMX clusters for small topology
   set_fact:
-   __jmx_clusters:          "{{ __jmx_small_deployment }}"
+    __jmx_clusters: '{{ __jmx_small_deployment }}'
   when:
     - __cnx_deploy_type == "small"
 
-- name:                     Set JMX clusters for medium topology
+- name: Set JMX clusters for medium topology
   set_fact:
-   __jmx_clusters:          "{{ __jmx_medium_deployment }}"
+    __jmx_clusters: '{{ __jmx_medium_deployment }}'
   when:
     - __cnx_deploy_type == "medium"
 
-- name:                     Set JMX clusters for large topology
+- name: Set JMX clusters for large topology
   set_fact:
-   __jmx_clusters:          "{{ __jmx_large_deployment }}"
+    __jmx_clusters: '{{ __jmx_large_deployment }}'
   when:
     - __cnx_deploy_type == "large"
 
-- name:                     "Render {{ __cnx_prom_jmx_destination }}"
+- name: Render {{ __cnx_prom_jmx_destination }}
   template:
-    src:                    "{{ __cnx_prom_jmx_template }}"
-    dest:                   "{{ __cnx_prom_jmx_destination }}"
+    src: '{{ __cnx_prom_jmx_template }}'
+    dest: '{{ __cnx_prom_jmx_destination }}'
 
-- name:                     "Render {{ __cnx_prom_cfg_destination }}"
+- name: Render {{ __cnx_prom_cfg_destination }}
   template:
-    src:                    "{{ __cnx_prom_cfg_template }}"
-    dest:                   "{{ __cnx_prom_cfg_destination }}"
-  delegate_to:              "{{ item }}"
-  with_items:               "{{ groups['was_servers'] }}"
+    src: '{{ __cnx_prom_cfg_template }}'
+    dest: '{{ __cnx_prom_cfg_destination }}'
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['was_servers'] }}"
 
-- name:                     Download JMX exporter
+- name: Download JMX exporter
   get_url:
-    url:                    "{{ __jmx_download_url }}"
-    dest:                   "{{ __jmx_install_location }}"
-  delegate_to:              "{{ item }}"
-  with_items:               "{{ groups['was_servers'] }}"
+    url: '{{ __jmx_download_url }}'
+    dest: '{{ __jmx_install_location }}'
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['was_servers'] }}"
 
-- name:                     "Add Prometheus JMX by running {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }} -f {{ __cnx_prom_jmx_destination }}"
-  command:
-    chdir={{ __dmgr_bin_dir }}
-    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }} -f {{ __cnx_prom_jmx_destination }}
-  register:                 jmx_prom_registered
-  changed_when:             jmx_prom_registered.rc == 0
-  until:                    jmx_prom_registered is changed
-  retries:                  5
-  
+- name: Add Prometheus JMX by running {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython
+    -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }}
+    -f {{ __cnx_prom_jmx_destination }}
+  command: chdir={{ __dmgr_bin_dir }} {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython
+    -port {{ __dmgr_soap_port }} -username {{ was_username }} -password {{ was_password }}
+    -f {{ __cnx_prom_jmx_destination }}
+  register: jmx_prom_registered
+  changed_when: jmx_prom_registered.rc == 0
+  until: jmx_prom_registered is changed
+  retries: 5

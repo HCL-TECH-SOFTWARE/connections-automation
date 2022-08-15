@@ -1,4 +1,5 @@
-- name:          Enable Prometheus Node exporter
+---
+- name: Enable Prometheus Node exporter
   include_tasks: prometheus_node_exporter.yml
   when:
-   - __setup_prometheus_node_exporter |bool
+    - __setup_prometheus_node_exporter |bool

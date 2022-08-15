@@ -1,38 +1,38 @@
 ---
-- name:                     Create Conversion Server Cluster
+- name: Create Conversion Server Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-create-cluster
   vars:
-    __cluster_type:        "APPLICATION_SERVER"
-    __cluster_name:        "{{ __conversion_cluster_name }}"
-    __member_name:         "{{ __conversion_cluster_member_name }}"
-    __server_list:         "{{ groups['conversion_servers'] }}"
+    __cluster_type: APPLICATION_SERVER
+    __cluster_name: '{{ __conversion_cluster_name }}'
+    __member_name: '{{ __conversion_cluster_member_name }}'
+    __server_list: "{{ groups['conversion_servers'] }}"
 
-- name:                     Create Editor Server Cluster
+- name: Create Editor Server Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-create-cluster
   vars:
-    __cluster_type:        "APPLICATION_SERVER"
-    __cluster_name:        "{{ __editor_cluster_name }}"
-    __member_name:         "{{ __editor_cluster_member_name }}"
-    __server_list:         "{{ groups['docs_servers'] }}"
+    __cluster_type: APPLICATION_SERVER
+    __cluster_name: '{{ __editor_cluster_name }}'
+    __member_name: '{{ __editor_cluster_member_name }}'
+    __server_list: "{{ groups['docs_servers'] }}"
 
-- name:                     Create Viewer Server Cluster
+- name: Create Viewer Server Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-create-cluster
   vars:
-    __cluster_type:        "APPLICATION_SERVER"
-    __cluster_name:        "{{ __viewer_cluster_name }}"
-    __member_name:         "{{ __viewer_cluster_member_name }}"
-    __server_list:         "{{ groups['viewer_servers'] }}"
+    __cluster_type: APPLICATION_SERVER
+    __cluster_name: '{{ __viewer_cluster_name }}'
+    __member_name: '{{ __viewer_cluster_member_name }}'
+    __server_list: "{{ groups['viewer_servers'] }}"
 
-- name:                     Create Editor Proxy Cluster
+- name: Create Editor Proxy Cluster
   include_role:
     name: roles/third_party/ibm/wasnd/was-dmgr-create-cluster
   vars:
-    __cluster_type:        "PROXY_SERVER"
-    __cluster_name:        "{{ __docs_proxy_cluster_name }}"
-    __member_name:         "{{ __docs_proxy_cluster_member_name }}"
-    __generate_port:       True
-    __template_name:       "proxy_server_foundation"
-    __server_list:         "{{ groups['proxy_servers'] }}"
+    __cluster_type: PROXY_SERVER
+    __cluster_name: '{{ __docs_proxy_cluster_name }}'
+    __member_name: '{{ __docs_proxy_cluster_member_name }}'
+    __generate_port: true
+    __template_name: proxy_server_foundation
+    __server_list: "{{ groups['proxy_servers'] }}"

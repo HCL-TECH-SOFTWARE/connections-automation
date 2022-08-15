@@ -1,20 +1,23 @@
-- name:               Check if master was already initialized...
+---
+- name: Check if master was already initialized...
   stat:
-    path:             "{{ __kubeadm_init_success_file }}"
-  when:               inventory_hostname == groups['k8s_masters'][0]
-  register:           master_already_initialized
+    path: '{{ __kubeadm_init_success_file }}'
+  when: inventory_hostname == groups['k8s_masters'][0]
+  register: master_already_initialized
 
-- name:               Initialize master
-  command:            kubeadm init --config={{ __kubeadm_config_location }}
-  when:               inventory_hostname == groups['k8s_masters'][0] and  not master_already_initialized.stat.exists
+- name: Initialize master
+  command: kubeadm init --config={{ __kubeadm_config_location }}
+  when: inventory_hostname == groups['k8s_masters'][0] and  not master_already_initialized.stat.exists
 
-- name:               Generate join command
-  command:            kubeadm token create --print-join-command
-  register:           join_command
-  when:               inventory_hostname == groups['k8s_masters'][0] and not master_already_initialized.stat.exists and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+  when: inventory_hostname == groups['k8s_masters'][0] and not master_already_initialized.stat.exists
+    and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and
+    (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
-- name:               Create {{ __kubeadm_init_success_file }} file
+- name: Create {{ __kubeadm_init_success_file }} file
   file:
-    path:             "{{ __kubeadm_init_success_file }}"
-    state:            touch
-  when:               inventory_hostname == groups['k8s_masters'][0]
+    path: '{{ __kubeadm_init_success_file }}'
+    state: touch
+  when: inventory_hostname == groups['k8s_masters'][0]

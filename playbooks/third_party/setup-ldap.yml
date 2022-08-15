@@ -1,12 +1,8 @@
 ---
-- hosts:                    ldap_servers
-  become:                   true
+- hosts: ldap_servers
+  become: true
   roles:
-    # Note: cnx_setup_mt and ldap_setup_mt is for internal use only, don't set to true
-    - { role: roles/third_party/ldap-install,
-        vars: ,
-          __cnx_setup_mt:      "{{ cnx_setup_mt | default(false) }}",
-          __ldap_setup_mt:     "{{ ldap_setup_mt | default(false) }}",
-        when: (not __cnx_setup_mt | bool and not __ldap_setup_mt | bool) or (__cnx_setup_mt | bool and __ldap_setup_mt | bool)
-      }
-    
+  # Note: cnx_setup_mt and ldap_setup_mt is for internal use only, don't set to true
+    - {role: roles/third_party/ldap-install, vars: null, __cnx_setup_mt: '{{ cnx_setup_mt | default(false) }}', __ldap_setup_mt: '{{ ldap_setup_mt | default(false) }}',
+      when: (not __cnx_setup_mt | bool and not __ldap_setup_mt | bool) or (__cnx_setup_mt
+        | bool and __ldap_setup_mt | bool)}

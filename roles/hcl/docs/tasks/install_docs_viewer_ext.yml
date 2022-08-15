@@ -1,59 +1,62 @@
-- name:               Verify if Docs Viewer Extension is already installed
+---
+- name: Verify if Docs Viewer Extension is already installed
   stat:
-    path:             "{{ __docs_viewer_ext_install_success_file }}"
-  register:           viewer_ext_already_installed
+    path: '{{ __docs_viewer_ext_install_success_file }}'
+  register: viewer_ext_already_installed
 
-- name:               Get the names of the clusters
-  include_tasks:      get_cluster_names.yml
+- name: Get the names of the clusters
+  include_tasks: get_cluster_names.yml
 
-- name:               Edit cfg.properties
+- name: Edit cfg.properties
   replace:
-    path:             "{{ __viewer_ext_cfg_prop_location }}/cfg.properties"
-    regexp:            "^(#?){{ item.prop_name }} ?=(.*)$"
-    replace:          "{{ item.prop_name }}={{ item.prop_value }}"
+    path: '{{ __viewer_ext_cfg_prop_location }}/cfg.properties'
+    regexp: ^(#?){{ item.prop_name }} ?=(.*)$
+    replace: '{{ item.prop_name }}={{ item.prop_value }}'
   with_items:
-    - { prop_name: "ext_install_root", prop_value: "{{ __viewer_ext_install_root_r }}" }
-    - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
-    - { prop_name: "ic_extension_path", prop_value: "{{ __ic_extension_path_r }}" }
-    - { prop_name: "deamon_shared_path", prop_value: "{{ __deamon_shared_path_r }}" }
-    - { prop_name: "files_scope_name", prop_value: "{{ __files_scope_name_r }}" }
-    - { prop_name: "news_scope_name", prop_value: "{{ __news_scope_name_r }}" }
-    - { prop_name: "common_scope_name", prop_value: "{{ __common_scope_name_r }}" }
-    - { prop_name: "viewer_server_url", prop_value: "{{ __viewer_server_url_r }}" }
-    - { prop_name: "enable_upload_conversion", prop_value: "{{ __enable_upload_conversion_r }}" }
-    - { prop_name: "viewer_admin_j2c_alias", prop_value: "{{ __viewer_admin_j2c_alias_r }}" }
+    - {prop_name: ext_install_root, prop_value: '{{ __viewer_ext_install_root_r }}'}
+    - {prop_name: was_install_root, prop_value: '{{ __was_install_root_r }}'}
+    - {prop_name: ic_extension_path, prop_value: '{{ __ic_extension_path_r }}'}
+    - {prop_name: deamon_shared_path, prop_value: '{{ __deamon_shared_path_r }}'}
+    - {prop_name: files_scope_name, prop_value: '{{ __files_scope_name_r }}'}
+    - {prop_name: news_scope_name, prop_value: '{{ __news_scope_name_r }}'}
+    - {prop_name: common_scope_name, prop_value: '{{ __common_scope_name_r }}'}
+    - {prop_name: viewer_server_url, prop_value: '{{ __viewer_server_url_r }}'}
+    - {prop_name: enable_upload_conversion, prop_value: '{{ __enable_upload_conversion_r }}'}
+    - {prop_name: viewer_admin_j2c_alias, prop_value: '{{ __viewer_admin_j2c_alias_r }}'}
   when:
     - not viewer_ext_already_installed.stat.exists
 
-- name:               Add more properties to cfg.properties
+- name: Add more properties to cfg.properties
   lineinfile:
-    path:             "{{ __viewer_ext_cfg_prop_location }}/cfg.properties"
-    regex:            "{{ item.prop_name }}"
-    line:             "{{ item.prop_value }}"
+    path: '{{ __viewer_ext_cfg_prop_location }}/cfg.properties'
+    regex: '{{ item.prop_name }}'
+    line: '{{ item.prop_value }}'
   with_items:
-    - { prop_name: "auth_type=", prop_value: "auth_type={{ __auth_type_r }}" }
+    - {prop_name: auth_type=, prop_value: 'auth_type={{ __auth_type_r }}'}
   when:
     - not viewer_ext_already_installed.stat.exists
 
 # Note: Documentation says it can be installed on one of the HCL Connections server
-- name:              Run the Docs Viewer Extension installer
+- name: Run the Docs Viewer Extension installer
   shell:
-    chdir:           "{{ __extraction_folder }}/ViewerCnxExtension/installer"
-    cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -acceptLicense"
-  become:            true
+    chdir: '{{ __extraction_folder }}/ViewerCnxExtension/installer'
+    cmd: ./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }}
+      -configFile cfg.properties -acceptLicense
+  become: true
   when:
     - not viewer_ext_already_installed.stat.exists
-  register:          sec_install_performed
+  register: sec_install_performed
 
-- name:              Search for success message in install log
-  become:            yes
-  shell:             "grep -i '{{ __install_success_message }}' {{ __docs_viewer_ext_install_location }}/logs/extensionInstall.log"
-  register:          viewer_ext_success_message_found
-  failed_when:       viewer_ext_success_message_found.stdout|length == 0
-  when:              sec_install_performed is not skipped
+- name: Search for success message in install log
+  become: 'yes'
+  shell: grep -i '{{ __install_success_message }}' {{ __docs_viewer_ext_install_location }}/logs/extensionInstall.log
+  register: viewer_ext_success_message_found
+  failed_when: viewer_ext_success_message_found.stdout|length == 0
+  when: sec_install_performed is not skipped
 
-- name:              "Create {{ __docs_viewer_ext_install_success_file }} file"
+- name: Create {{ __docs_viewer_ext_install_success_file }} file
   file:
-    path:            "{{ __docs_viewer_ext_install_success_file }}"
-    state:           touch
-  when:              sec_install_performed is not skipped and viewer_ext_success_message_found.stdout|length > 0
+    path: '{{ __docs_viewer_ext_install_success_file }}'
+    state: touch
+  when: sec_install_performed is not skipped and viewer_ext_success_message_found.stdout|length
+    > 0

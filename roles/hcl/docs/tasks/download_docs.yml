@@ -1,110 +1,113 @@
-- name:                  Clean up installation folder(s)
+---
+- name: Clean up installation folder(s)
   file:
-    path:                "{{ __extraction_folder }}"
-    state:               absent
+    path: '{{ __extraction_folder }}'
+    state: absent
 
-- name:                  Create installation folder
+- name: Create installation folder
   file:
-    path:                "{{ __extraction_folder }}"
-    state:               directory
+    path: '{{ __extraction_folder }}'
+    state: directory
 
-- name:                  Download and unzip installation {{ __download_location }}/{{ __package_name }} to the {{ __extraction_folder }}
+- name: Download and unzip installation {{ __download_location }}/{{ __package_name
+    }} to the {{ __extraction_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __package_name }}"
-    dest:                "{{ __extraction_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ __package_name }}'
+    dest: '{{ __extraction_folder }}'
+    remote_src: 'yes'
   register: download_and_unpack_docs
   until: download_and_unpack_docs is succeeded
   retries: 3
 
-- name:                  Unpack Docs Conversion installer
+- name: Unpack Docs Conversion installer
   include_role:
-    name:                roles/hcl/docs/unpack_docs_installer
+    name: roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          "{{ __conversion_install_folder }}"
-    __zip_prefix:        "DocsConversion"
-  when:                  inventory_hostname in groups["conversion_servers"]
+    __app_name: '{{ __conversion_install_folder }}'
+    __zip_prefix: DocsConversion
+  when: inventory_hostname in groups["conversion_servers"]
 
-- name:                  Unpack Docs Editor installer
+- name: Unpack Docs Editor installer
   include_role:
-    name:                roles/hcl/docs/unpack_docs_installer
+    name: roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          "{{ __editor_install_folder }}"
-    __zip_prefix:        DocsApp
-  when:                  inventory_hostname in groups["docs_servers"]
+    __app_name: '{{ __editor_install_folder }}'
+    __zip_prefix: DocsApp
+  when: inventory_hostname in groups["docs_servers"]
 
-- name:                  Unpack Docs Viewer installer
+- name: Unpack Docs Viewer installer
   include_role:
-    name:                roles/hcl/docs/unpack_docs_installer
+    name: roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          "{{ __viewer_install_folder }}"
-    __zip_prefix:        Viewer
-  when:                  inventory_hostname in groups["viewer_servers"]
+    __app_name: '{{ __viewer_install_folder }}'
+    __zip_prefix: Viewer
+  when: inventory_hostname in groups["viewer_servers"]
 
-- name:                  Unpack Editor Proxy installer
+- name: Unpack Editor Proxy installer
   include_role:
-    name:                roles/hcl/docs/unpack_docs_installer
+    name: roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          "{{ __proxy_install_folder }}"
-    __zip_prefix:        DocsProxyFilter
-  when:                  inventory_hostname in groups["proxy_servers"]
+    __app_name: '{{ __proxy_install_folder }}'
+    __zip_prefix: DocsProxyFilter
+  when: inventory_hostname in groups["proxy_servers"]
 
-- name:                  Unpack Docs Editor Extension installer
+- name: Unpack Docs Editor Extension installer
   include_role:
-    name:                roles/hcl/docs/unpack_docs_installer
+    name: roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          DocsCnxExtension
-    __zip_prefix:        DocsLCExtension
-  when:                  inventory_hostname in groups["cnx_was_servers"]
+    __app_name: DocsCnxExtension
+    __zip_prefix: DocsLCExtension
+  when: inventory_hostname in groups["cnx_was_servers"]
 
-- name:                  Unpack Docs Viewer Extensions installer
+- name: Unpack Docs Viewer Extensions installer
   include_role:
-    name:                roles/hcl/docs/unpack_docs_installer
+    name: roles/hcl/docs/unpack_docs_installer
   vars:
-    __app_name:          ViewerCnxExtension
-    __zip_prefix:        ViewerLCCustomizeApp
-  when:                  inventory_hostname in groups["cnx_was_servers"]
+    __app_name: ViewerCnxExtension
+    __zip_prefix: ViewerLCCustomizeApp
+  when: inventory_hostname in groups["cnx_was_servers"]
 
 # Docs install scripts require python2
-- name:                  Check whether python2 is installed on RHEL 8
-  command:               python2 --version
-  register:              python_installed
-  ignore_errors:         true
+- name: Check whether python2 is installed on RHEL 8
+  command: python2 --version
+  register: python_installed
+  ignore_errors: true
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
-- name:                  Install python2 on RHEL 8
+- name: Install python2 on RHEL 8
   yum:
-    name:                ['python2']
-    state:               present
+    name: [python2]
+    state: present
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
     - python_installed.failed
 
-- name:                  Get default python version on RHEL 8
-  command:               python --version
-  register:              python_default_version
-  ignore_errors:         true
+- name: Get default python version on RHEL 8
+  command: python --version
+  register: python_default_version
+  ignore_errors: true
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
-- name:                  Print current default python version on RHEL 8
-  debug:                 var=python_default_version
+- name: Print current default python version on RHEL 8
+  debug: var=python_default_version
 
-- name:                  Set python2 as default for RHEL 8
-  command:               alternatives --set python /usr/bin/python2
-  become:                true
-  register:              python2_alternatives_set
+- name: Set python2 as default for RHEL 8
+  command: alternatives --set python /usr/bin/python2
+  become: true
+  register: python2_alternatives_set
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
-    - (python_default_version is defined) and (python_default_version is not search("Python 2"))
+    - (python_default_version is defined) and (python_default_version is not search("Python
+      2"))
 
-- name:                  Create python2_alternatives_set.success file
+- name: Create python2_alternatives_set.success file
   file:
-    path:                "{{ __hcl_program_folder }}/python2_alternatives_set.success"
-    state:               touch
-  when:                  python2_alternatives_set is changed
+    path: '{{ __hcl_program_folder }}/python2_alternatives_set.success'
+    state: touch
+  when: python2_alternatives_set is changed

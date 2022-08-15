@@ -1,31 +1,30 @@
-# Install and set up Kubernetes
 ---
-- name:                    Install Kubernetes
-  hosts:                   k8s_masters, k8s_workers
-  become:                  true
+- name: Install Kubernetes
+  hosts: k8s_masters, k8s_workers
+  become: true
   roles:
     - roles/third_party/kubernetes/kubernetes-install
 
-- name:                    Setup and initialize Kubernetes master node
-  hosts:                   k8s_masters
-  become:                  true
+- name: Setup and initialize Kubernetes master node
+  hosts: k8s_masters
+  become: true
   roles:
     - roles/third_party/kubernetes/setup-master-node
 
-- name:                    Setup kubectl on masters and workers
-  hosts:                   k8s_masters, k8s_workers
-  become:                  true
+- name: Setup kubectl on masters and workers
+  hosts: k8s_masters, k8s_workers
+  become: true
   roles:
     - roles/third_party/kubernetes/setup-kubectl
 
-- name:                    Setup Kubernetes worker nodes
-  hosts:                   k8s_workers
-  become:                  true
+- name: Setup Kubernetes worker nodes
+  hosts: k8s_workers
+  become: true
   roles:
     - roles/third_party/kubernetes/setup-worker-node
 
-- name:                    Taint nodes
-  hosts:                   k8s_masters, k8s_workers
-  become:                  true
+- name: Taint nodes
+  hosts: k8s_masters, k8s_workers
+  become: true
   roles:
     - roles/third_party/kubernetes/taint-all-nodes

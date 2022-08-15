@@ -1,30 +1,33 @@
-- name:               Check if "{{ inventory_hostname }}" is already part of the cluster as master and in Ready status
-  shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep master | grep Ready
-  changed_when:       true
-  register:           master_already_joined
+---
+- name: Check if "{{ inventory_hostname }}" is already part of the cluster as master
+    and in Ready status
+  shell: kubectl get nodes | grep "{{ inventory_hostname }}" | grep master | grep
+    Ready
+  changed_when: true
+  register: master_already_joined
   when:
     - inventory_hostname != groups['k8s_masters'][0]
-  become:             false
-  ignore_errors:      true
+  become: false
+  ignore_errors: true
 
-- name:               Save join command to the file
+- name: Save join command to the file
   template:
-    src:              "{{ __join_command_template }}"
-    dest:             "{{ __join_command_location }}"
+    src: '{{ __join_command_template }}'
+    dest: '{{ __join_command_location }}'
   when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0
 
-- name:               Make the script executable
+- name: Make the script executable
   file:
-    dest:             "{{ __join_command_location }}"
-    mode:             a+x
+    dest: '{{ __join_command_location }}'
+    mode: a+x
   when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0
 
-- name:               Joining {{ inventory_hostname }} as control plane node
-  command:            "sh {{ __join_command_location }}"
+- name: Joining {{ inventory_hostname }} as control plane node
+  command: sh {{ __join_command_location }}
   when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0

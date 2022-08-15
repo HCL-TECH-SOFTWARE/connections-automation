@@ -1,68 +1,68 @@
 ---
-- name:              Use Fix Pack 8.5.5.21?
+- name: Use Fix Pack 8.5.5.21?
   set_fact:
-    __was_fixes_files:    "{{ __was_fp_files_fp21 }}"
-    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
-    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
-  when:              ( __was_fixes_version == __was_fp_version_fp21 )
+    __was_fixes_files: '{{ __was_fp_files_fp21 }}'
+    __was_fp_version_check: Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}
+    __was_fp_id: "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when: ( __was_fixes_version == __was_fp_version_fp21 )
 
-- name:              Use Fix Pack 8.5.5.20?
+- name: Use Fix Pack 8.5.5.20?
   set_fact:
-    __was_fixes_files:    "{{ __was_fp_files_fp20 }}"
-    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
-    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
-  when:              ( __was_fixes_version == __was_fp_version_fp20 )
+    __was_fixes_files: '{{ __was_fp_files_fp20 }}'
+    __was_fp_version_check: Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}
+    __was_fp_id: "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when: ( __was_fixes_version == __was_fp_version_fp20 )
 
-- name:              Use Fix Pack 8.5.5.19?
+- name: Use Fix Pack 8.5.5.19?
   set_fact:
-    __was_fixes_files:    "{{ __was_fp_files_fp19 }}"
-    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
-    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
-  when:              ( __was_fixes_version == __was_fp_version_fp19 )
+    __was_fixes_files: '{{ __was_fp_files_fp19 }}'
+    __was_fp_version_check: Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}
+    __was_fp_id: "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when: ( __was_fixes_version == __was_fp_version_fp19 )
 
-- name:              Use Fix Pack 8.5.5.18?
+- name: Use Fix Pack 8.5.5.18?
   set_fact:
-    __was_fixes_files:    "{{ __was_fp_files_fp18 }}"
-    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
-    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
-  when:              ( __was_fixes_version == __was_fp_version_fp18 )
+    __was_fixes_files: '{{ __was_fp_files_fp18 }}'
+    __was_fp_version_check: Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}
+    __was_fp_id: "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when: ( __was_fixes_version == __was_fp_version_fp18 )
 
-- name:              Use Fix Pack 8.5.5.16?
+- name: Use Fix Pack 8.5.5.16?
   set_fact:
-    __was_fixes_files:    "{{ __was_fp_files_fp16 }}"
-    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
-    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
-  when:              ( __was_fixes_version == __was_fp_version_fp16 )
+    __was_fixes_files: '{{ __was_fp_files_fp16 }}'
+    __was_fp_version_check: Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}
+    __was_fp_id: "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when: ( __was_fixes_version == __was_fp_version_fp16 )
 
-- name:              Is IIM Installed?
-  command:           "egrep {{ __iim_product_id }} /var/ibm/InstallationManager/installed.xml"
-  register:          iim_already_installed
+- name: Is IIM Installed?
+  command: egrep {{ __iim_product_id }} /var/ibm/InstallationManager/installed.xml
+  register: iim_already_installed
 
-- name:              Is WAS ND Installed?
-  command:           "egrep {{ __was_product_id }} /var/ibm/InstallationManager/installed.xml"
-  register:          was_already_installed
+- name: Is WAS ND Installed?
+  command: egrep {{ __was_product_id }} /var/ibm/InstallationManager/installed.xml
+  register: was_already_installed
 
-- name:              Is Product already Installed?
-  command:           "egrep {{ __was_fp_id }} /var/ibm/InstallationManager/installed.xml"
-  register:          version_already_installed
-  ignore_errors:     true
+- name: Is Product already Installed?
+  command: egrep {{ __was_fp_id }} /var/ibm/InstallationManager/installed.xml
+  register: version_already_installed
+  ignore_errors: true
 
-- name:              WebSphere Application Server version needs Log4j fix?
+- name: WebSphere Application Server version needs Log4j fix?
   set_fact:
-    __was_version_needs_log4j_fix:    True
-  when:              "__was_fixes_version is version_compare(__was_fp_version_fp20, '<=')"
+    __was_version_needs_log4j_fix: true
+  when: __was_fixes_version is version_compare(__was_fp_version_fp20, '<=')
 
-- debug:             var=__was_version_needs_log4j_fix
+- debug: var=__was_version_needs_log4j_fix
 
-- name:              Is Log4j fix already Installed?
-  command:           "egrep {{ __was_log4j_fix_id }} /var/ibm/InstallationManager/installed.xml"
-  register:          log4j_fix_already_installed
-  ignore_errors:     true
+- name: Is Log4j fix already Installed?
+  command: egrep {{ __was_log4j_fix_id }} /var/ibm/InstallationManager/installed.xml
+  register: log4j_fix_already_installed
+  ignore_errors: true
 
 - debug:
-    msg:             "Log4j fix not installed"
-  when:              log4j_fix_already_installed.rc != 0
+    msg: Log4j fix not installed
+  when: log4j_fix_already_installed.rc != 0
 
 - debug:
-    msg:             "Log4j fix is already installed"
-  when:              log4j_fix_already_installed.rc == 0
+    msg: Log4j fix is already installed
+  when: log4j_fix_already_installed.rc == 0

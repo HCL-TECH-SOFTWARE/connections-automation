@@ -1,7 +1,6 @@
-# Cleanup
 ---
-- name:                    Cleanup Containerd Images
-  hosts:                   k8s_masters, k8s_workers
-  become:                  true
+- name: Cleanup Containerd Images
+  hosts: k8s_masters, k8s_workers
+  become: true
   roles:
     - roles/hcl/cleanup/cleanup-containerd-images

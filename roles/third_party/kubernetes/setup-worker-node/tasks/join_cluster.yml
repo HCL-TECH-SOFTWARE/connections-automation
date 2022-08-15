@@ -1,26 +1,29 @@
-- name:               Check if "{{ inventory_hostname }}" is already part of the cluster and in Ready status
-  shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep -v master | grep Ready
-  changed_when:       true
-  register:           node_already_joined
-  become:             false
-  ignore_errors:      true
+---
+- name: Check if "{{ inventory_hostname }}" is already part of the cluster and in
+    Ready status
+  shell: kubectl get nodes | grep "{{ inventory_hostname }}" | grep -v master |
+    grep Ready
+  changed_when: true
+  register: node_already_joined
+  become: false
+  ignore_errors: true
 
 
-- name:               Save join command to the file
+- name: Save join command to the file
   template:
-    src:              "{{ __join_command_template }}"
-    dest:             "{{ __join_command_location }}"
+    src: '{{ __join_command_template }}'
+    dest: '{{ __join_command_location }}'
   when:
     - node_already_joined.rc != 0
 
-- name:               Make the script executable
+- name: Make the script executable
   file:
-    dest:             "{{ __join_command_location }}"
-    mode:             a+x
+    dest: '{{ __join_command_location }}'
+    mode: a+x
   when:
     - node_already_joined.rc != 0
 
-- name:               Join Kubernetes cluster as node
-  command:            "sh {{ __join_command_location }}"
+- name: Join Kubernetes cluster as node
+  command: sh {{ __join_command_location }}
   when:
     - node_already_joined.rc != 0

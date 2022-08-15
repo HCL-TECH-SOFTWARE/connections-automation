@@ -2,35 +2,36 @@
 - name: azure_client_id should be defined
   assert:
     that:
-    - azure_client_id|length > 0
-    msg: "Set the value of 'azure_client_id' in the inventory file."
+      - azure_client_id|length > 0
+    msg: Set the value of 'azure_client_id' in the inventory file.
 
 - name: azure_client_secret should be defined
   assert:
     that:
-    - azure_client_secret|length > 0
-    msg: "Set the value of 'azure_client_secret' in the inventory file."
+      - azure_client_secret|length > 0
+    msg: Set the value of 'azure_client_secret' in the inventory file.
 
 - name: integrations_msteams_tenant_id should be defined
   assert:
     that:
-    - integrations_msteams_tenant_id|length > 0
-    msg: "Set the value of 'integrations_msteams_tenant_id' in the inventory file."
+      - integrations_msteams_tenant_id|length > 0
+    msg: Set the value of 'integrations_msteams_tenant_id' in the inventory file.
 
 - name: restrict_reader_access__trusted_realms should be set to true
   assert:
     that:
-    - restrict_reader_access__trusted_realms|bool == true
-    msg: "Set the value of 'restrict_reader_access__trusted_realms' to true in the inventory file."
+      - restrict_reader_access__trusted_realms|bool == true
+    msg: Set the value of 'restrict_reader_access__trusted_realms' to true in the
+      inventory file.
 
 - name: was_username should be defined
   assert:
     that:
-    - was_username|length > 0
-    msg: "Set the value of 'was_username' in the inventory file."
+      - was_username|length > 0
+    msg: Set the value of 'was_username' in the inventory file.
 
 - name: was_password should be defined
   assert:
     that:
-    - was_password|length > 0
-    msg: "Set the value of 'was_password' in the inventory file."
+      - was_password|length > 0
+    msg: Set the value of 'was_password' in the inventory file.

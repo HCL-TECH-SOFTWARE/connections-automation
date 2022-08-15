@@ -1,81 +1,82 @@
-- name:                      Unmount "{{ __cnx_shared_area }}"
+---
+- name: Unmount "{{ __cnx_shared_area }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   unmounted
-    path:                    "{{ __cnx_shared_area }}"
-  ignore_errors:             true
-  tags:                      always
-  delegate_to:               "{{ item }}"
+    fstype: nfs
+    opts: defaults
+    state: unmounted
+    path: '{{ __cnx_shared_area }}'
+  ignore_errors: true
+  tags: always
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['dmgr'] }}"
-   - "{{ groups['was_servers'] }}"
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['was_servers'] }}"
   register: result
   retries: 3
   delay: 15
   until: result is not failed
 
-- name:                      "Run command 'umount -lf {{ __cnx_shared_area }}' if previous unmount step fails"
-  command:                   "umount -lf {{ __cnx_shared_area }}"
-  ignore_errors:             true
-  tags:                      always
-  delegate_to:               "{{ item }}"
+- name: Run command 'umount -lf {{ __cnx_shared_area }}' if previous unmount step
+    fails
+  command: umount -lf {{ __cnx_shared_area }}
+  ignore_errors: true
+  tags: always
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['dmgr'] }}"
-   - "{{ groups['was_servers'] }}"
-  when:
-   result is failed
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['was_servers'] }}"
+  when: result is failed
 
-- name:                      Remove fstab entry for "{{ __cnx_shared_area }}"
+- name: Remove fstab entry for "{{ __cnx_shared_area }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   absent
-    path:                    "{{ __cnx_shared_area }}"
-  ignore_errors:             true
-  tags:                      always
-  delegate_to:               "{{ item }}"
+    fstype: nfs
+    opts: defaults
+    state: absent
+    path: '{{ __cnx_shared_area }}'
+  ignore_errors: true
+  tags: always
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['dmgr'] }}"
-   - "{{ groups['was_servers'] }}"
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['was_servers'] }}"
 
-- name:                      Unmount "{{ __cnx_message_store }}"
+- name: Unmount "{{ __cnx_message_store }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   unmounted
-    path:                    "{{ __cnx_message_store }}"
-  ignore_errors:             true
-  tags:                      always
-  delegate_to:               "{{ item }}"
+    fstype: nfs
+    opts: defaults
+    state: unmounted
+    path: '{{ __cnx_message_store }}'
+  ignore_errors: true
+  tags: always
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['dmgr'] }}"
-   - "{{ groups['was_servers'] }}"
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['was_servers'] }}"
   register: result
   retries: 3
   delay: 15
   until: result is not failed
 
-- name:                      "Run command 'umount -lf {{ __cnx_message_store }}' if previous unmount step fails"
-  command:                   "umount -lf {{ __cnx_message_store }}"
-  ignore_errors:             true
-  tags:                      always
-  delegate_to:               "{{ item }}"
+- name: Run command 'umount -lf {{ __cnx_message_store }}' if previous unmount step
+    fails
+  command: umount -lf {{ __cnx_message_store }}
+  ignore_errors: true
+  tags: always
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['dmgr'] }}"
-   - "{{ groups['was_servers'] }}"
-  when:
-   result is failed
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['was_servers'] }}"
+  when: result is failed
 
-- name:                      Remove fstab entry for "{{ __cnx_message_store }}"
+- name: Remove fstab entry for "{{ __cnx_message_store }}"
   mount:
-    fstype:                  nfs
-    opts:                    defaults
-    state:                   absent
-    path:                    "{{ __cnx_message_store }}"
-  ignore_errors:             true
-  tags:                      always
-  delegate_to:               "{{ item }}"
+    fstype: nfs
+    opts: defaults
+    state: absent
+    path: '{{ __cnx_message_store }}'
+  ignore_errors: true
+  tags: always
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['dmgr'] }}"
-   - "{{ groups['was_servers'] }}"
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['was_servers'] }}"

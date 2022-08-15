@@ -1,96 +1,100 @@
 ---
-- name:                      "Get default group name for {{ __tinyeditors_username }}"
-  command:                   id -gn "{{ __tinyeditors_username }}"
-  register:                  user_group
+- name: Get default group name for {{ __tinyeditors_username }}
+  command: id -gn "{{ __tinyeditors_username }}"
+  register: user_group
 
-- name:                      "Change the ownership of CONNECTIONS_CUSTOMIZATION_PATH and CONNECTIONS_PROVISION_PATH from root to {{ __tinyeditors_username }}"
-  become:                    True
+- name: Change the ownership of CONNECTIONS_CUSTOMIZATION_PATH and CONNECTIONS_PROVISION_PATH
+    from root to {{ __tinyeditors_username }}
+  become: true
   file:
-    path:                    "{{ item }}"
-    recurse:                 yes
-    owner:                   "{{ __tinyeditors_username }}"
+    path: '{{ item }}'
+    recurse: 'yes'
+    owner: '{{ __tinyeditors_username }}'
   with_items:
-    - "{{ __tinyeditors_customization_path }}"
-    - "{{ __tinyeditors_provision_path }}"
+    - '{{ __tinyeditors_customization_path }}'
+    - '{{ __tinyeditors_provision_path }}'
 
-- name:                      "Install Tiny Editors with user: {{ __tinyeditors_username }} on node: {{ inventory_hostname_short }}"
+- name: 'Install Tiny Editors with user: {{ __tinyeditors_username }} on node: {{ inventory_hostname_short }}'
   expect:
-    command:                 "{{ __installation_folder }}/install.sh -y {{ __tinyeditors_username }}@{{ inventory_hostname_short }} {{ __tinyeditors_customization_path }} {{ __tinyeditors_provision_path }}"
+    command: '{{ __installation_folder }}/install.sh -y {{ __tinyeditors_username }}@{{
+      inventory_hostname_short }} {{ __tinyeditors_customization_path }} {{ __tinyeditors_provision_path }}'
     responses:
-      (.*)Are you sure you want to continue connecting(.*): "yes"
-      (.*)Enter passphrase for(.*): "{{ tinyeditors_password }}"
-  become_user:               "{{ __tinyeditors_username }}"
-  register:                  tinyeditors_install_performed
-  async:                     300
-  poll:                      5
-  no_log:                    true
+      (.*)Are you sure you want to continue connecting(.*): 'yes'
+      (.*)Enter passphrase for(.*): '{{ tinyeditors_password }}'
+  become_user: '{{ __tinyeditors_username }}'
+  register: tinyeditors_install_performed
+  async: 300
+  poll: 5
+  no_log: true
   when:
-   - __install_tinyeditors |bool == true
+    - __install_tinyeditors |bool == true
 
-- name:                      "Uninstall Tiny Editors"
+- name: Uninstall Tiny Editors
   expect:
-    command:                 "{{ __installation_folder }}/uninstall.sh --no-backup {{ __tinyeditors_username }}@{{ inventory_hostname_short }} {{ __tinyeditors_customization_path }} {{ __tinyeditors_provision_path }}"
+    command: '{{ __installation_folder }}/uninstall.sh --no-backup {{ __tinyeditors_username }}@{{
+      inventory_hostname_short }} {{ __tinyeditors_customization_path }} {{ __tinyeditors_provision_path }}'
     responses:
-      (.*)Are you sure you want to continue connecting(.*): "yes"
-      (.*)Enter passphrase for(.*): "{{ tinyeditors_password }}"
-  become_user:               "{{ __tinyeditors_username }}"
-  register:                  tinyeditors_uninstall_performed
-  async:                     300
-  poll:                      5
-  no_log:                    true
+      (.*)Are you sure you want to continue connecting(.*): 'yes'
+      (.*)Enter passphrase for(.*): '{{ tinyeditors_password }}'
+  become_user: '{{ __tinyeditors_username }}'
+  register: tinyeditors_uninstall_performed
+  async: 300
+  poll: 5
+  no_log: true
   when:
-   - __uninstall_tinyeditors |bool == true
+    - __uninstall_tinyeditors |bool == true
 
-- name:                      Check tinyeditors_install_performed stdout for success message
+- name: Check tinyeditors_install_performed stdout for success message
   debug:
-    var:                     tinyeditors_install_performed.stdout_lines
+    var: tinyeditors_install_performed.stdout_lines
   when:
     - tinyeditors_install_performed is defined
     - __install_tinyeditors |bool == true
-  failed_when:               "'Install complete' not in tinyeditors_install_performed.stdout"
+  failed_when: "'Install complete' not in tinyeditors_install_performed.stdout"
 
-- name:                      Check tinyeditors_uninstall_performed stdout for success message
+- name: Check tinyeditors_uninstall_performed stdout for success message
   debug:
-    var:                     tinyeditors_uninstall_performed.stdout_lines
+    var: tinyeditors_uninstall_performed.stdout_lines
   when:
     - tinyeditors_uninstall_performed is defined
     - __uninstall_tinyeditors |bool == true
     - "'No integration code detected in web resources' not in tinyeditors_uninstall_performed.stdout"
-  failed_when:               "'Uninstall complete' not in tinyeditors_uninstall_performed.stdout"
+  failed_when: "'Uninstall complete' not in tinyeditors_uninstall_performed.stdout"
 
-- name:                      Change back Tiny Editors directories ownership to the root user
-  become:                    True
+- name: Change back Tiny Editors directories ownership to the root user
+  become: true
   file:
-    path:                    "{{ item }}"
-    state:                   directory
-    recurse:                 yes
-    owner:                   root
-    group:                   root
+    path: '{{ item }}'
+    state: directory
+    recurse: 'yes'
+    owner: root
+    group: root
   with_items:
-    - "{{ __tinyeditors_customization_path }}"
-    - "{{ __tinyeditors_provision_path }}"
+    - '{{ __tinyeditors_customization_path }}'
+    - '{{ __tinyeditors_provision_path }}'
 
-- name:                      Performing the required post-customization steps. Create Tiny Editors configuration directory if it does not exist
-  become:                    True
+- name: Performing the required post-customization steps. Create Tiny Editors configuration
+    directory if it does not exist
+  become: true
   file:
-    path:                    "{{ __tinyeditors_config_file_path }}"
-    state:                   directory
-    owner:                   "{{ __tinyeditors_username }}"
-    group:                   "{{ user_group.stdout }}"
+    path: '{{ __tinyeditors_config_file_path }}'
+    state: directory
+    owner: '{{ __tinyeditors_username }}'
+    group: '{{ user_group.stdout }}'
   when:
-   - __install_tinyeditors |bool == true
+    - __install_tinyeditors |bool == true
 
-- name:                     "Render {{ __tinyeditors_conf_destination }}"
+- name: Render {{ __tinyeditors_conf_destination }}
   template:
-    src:                    "{{ __tinyeditors_conf_template }}"
-    dest:                   "{{ __tinyeditors_conf_destination }}"
+    src: '{{ __tinyeditors_conf_template }}'
+    dest: '{{ __tinyeditors_conf_destination }}'
   when:
-   - __install_tinyeditors |bool == true
+    - __install_tinyeditors |bool == true
 
-- name:                      Remove Tiny Editors configuration directory if it exists
-  become:                    True
+- name: Remove Tiny Editors configuration directory if it exists
+  become: true
   file:
-    path:                    "{{ __tinyeditors_config_file_path }}"
-    state:                   absent
+    path: '{{ __tinyeditors_config_file_path }}'
+    state: absent
   when:
-   - __uninstall_tinyeditors |bool == true
+    - __uninstall_tinyeditors |bool == true

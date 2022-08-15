@@ -1,6 +1,6 @@
 ---
-- name:          Prepare for Kubernetes
+- name: Prepare for Kubernetes
   include_tasks: prepare_for_k8s.yml
 
-- name:          Install Kubernetes
+- name: Install Kubernetes
   include_tasks: install_kubernetes.yml

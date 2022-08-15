@@ -1,29 +1,29 @@
 ---
-- name:                      Update LotusConnections-config.xml
-  include_tasks:             update_lcc.yml
+- name: Update LotusConnections-config.xml
+  include_tasks: update_lcc.yml
 
-- name:                      Enable Moderation
-  include_tasks:             setup_moderation.yml
-  when:                      cnx_enable_moderation is defined and cnx_enable_moderation|bool
+- name: Enable Moderation
+  include_tasks: setup_moderation.yml
+  when: cnx_enable_moderation is defined and cnx_enable_moderation|bool
 
-- name:                      Setup Invite config
-  include_tasks:             setup_invite_config.yml
-  when:                      __cnx_enable_invite|bool
+- name: Setup Invite config
+  include_tasks: setup_invite_config.yml
+  when: __cnx_enable_invite|bool
 
-- name:                      Setup Sharepoint Widget
-  include_tasks:             setup_sharepoint_widget.yml
+- name: Setup Sharepoint Widget
+  include_tasks: setup_sharepoint_widget.yml
 
-- name:                      Update files-config.xml to enable fileSync
-  include_tasks:             update_files_config.yml
+- name: Update files-config.xml to enable fileSync
+  include_tasks: update_files_config.yml
 
-- name:                      Update mobile-config.xml to enable Push and MobileAdmin
-  include_tasks:             update_mobile_config.yml
+- name: Update mobile-config.xml to enable Push and MobileAdmin
+  include_tasks: update_mobile_config.yml
 
-- name:                      Update Touchpoint config
-  include_tasks:             update_touchpoint_config.yml
+- name: Update Touchpoint config
+  include_tasks: update_touchpoint_config.yml
 
-- name:                      Update Mail Notification config
-  include_tasks:             update_mail_config.yml
+- name: Update Mail Notification config
+  include_tasks: update_mail_config.yml
 
 
 # not needed the relative url seems to be working

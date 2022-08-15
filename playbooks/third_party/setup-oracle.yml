@@ -1,10 +1,10 @@
 ---
-- hosts:                    oracle_servers
-  become:                   true
+- hosts: oracle_servers
+  become: true
   roles:
     - roles/third_party/linux/swap-setup
 
-- hosts:                    oracle_servers, was_servers
-  become:                   true
+- hosts: oracle_servers, was_servers
+  become: true
   roles:
     - roles/third_party/oracle-install

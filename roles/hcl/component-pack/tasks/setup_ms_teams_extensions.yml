@@ -1,228 +1,137 @@
-# MS-Teams extensions
 ---
-  - name: Authentication to the CNX environment and store the LtpaToken2 (and other cookies)
-    uri:
-      url: https://{{ __frontend_fqdn }}/news/j_security_check
-      method: GET
-      body_format: form-urlencoded
-      #follow_redirects: all
-      user: "{{ __connections_admin }}"
-      password: "{{ __connections_admin_password }}"
-      validate_certs: false
-      force_basic_auth: yes
-      #return_content: yes
-      headers:
-        Content-Type: application/x-www-form-urlencoded
-        Accept-Charset: utf-8
-    register: login
+- name: Authentication to the CNX environment and store the LtpaToken2 (and other
+    cookies)
+  uri:
+    url: https://{{ __frontend_fqdn }}/news/j_security_check
+    method: GET
+    body_format: form-urlencoded
+    # follow_redirects: all
+    user: '{{ __connections_admin }}'
+    password: '{{ __connections_admin_password }}'
+    validate_certs: false
+    force_basic_auth: true
+    # return_content: true
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+      Accept-Charset: utf-8
+  register: login
 
-  - name: Connect to website using a previously stored cookie
-    uri:
-      url: https://{{ __frontend_fqdn }}/appreg/apps
-      method: GET
-      validate_certs: false
-      #return_content: yes
-      headers:
-        Cookie: "{{ login.cookies_string }}"  
-    register: get_tokens
+- name: Connect to website using a previously stored cookie
+  uri:
+    url: https://{{ __frontend_fqdn }}/appreg/apps
+    method: GET
+    validate_certs: false
+    # return_content: true
+    headers:
+      Cookie: '{{ login.cookies_string }}'
+  register: get_tokens
 
-  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Share
-    uri:
-      url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
-      validate_certs: false
-      method: POST
-      return_content: yes
-      status_code: 201, 400
-      headers:
-        Content-Type: "application/json"
-        ldap_orgid: "a"
-        appreg-ui-request: "true"
-        iv-groups: "\"CustomerAdministrator\""
-        appreglogging: "DeployAutomation"
-        authorization: "{{ get_tokens.authorization }}"
-        Cookie: "{{ login.cookies_string }}"
-      body: "{
-            \"name\": \"MS Teams Share\",
-            \"title\": \"Share to MS Teams\",
-            \"description\": \"Share link to current content into Teams channel\",
-            \"services\": [
-                \"Customizer\"
-            ],
-            \"state\": \"enabled\",
-            \"extensions\": [
-                {
-                    \"name\": \"MS Teams Share Extension\",
-                    \"type\": \"com.ibm.customizer.ui\",
-                    \"payload\": {
-                        \"include-files\": [
-                            \"ms-teams/teamsshare/connections-teams-share-integration.js\"
-                        ],
-                        \"cache-headers\": {
-                            \"cache-control\": \"max-age=43200\"
-                        }
-                    },
-                    \"path\": \"global\",
-                    \"state\": \"enabled\"
-                }
-            ]
-        }"
-      force_basic_auth: yes
-      body_format: json
-    register: request_msteams_share_status    
+- name: Use the Bearer token value to create the Authorization header on the post
+    request - MS Teams Share
+  uri:
+    url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
+    validate_certs: false
+    method: POST
+    return_content: true
+    status_code: 201, 400
+    headers:
+      Content-Type: application/json
+      ldap_orgid: a
+      appreg-ui-request: 'true'
+      iv-groups: '"CustomerAdministrator"'
+      appreglogging: DeployAutomation
+      authorization: '{{ get_tokens.authorization }}'
+      Cookie: '{{ login.cookies_string }}'
+    body: '{ "name": "MS Teams Share", "title": "Share to MS Teams", "description":
+      "Share link to current content into Teams channel", "services": [ "Customizer"
+      ], "state": "enabled", "extensions": [ { "name": "MS Teams Share Extension",
+      "type": "com.ibm.customizer.ui", "payload": { "include-files": [ "ms-teams/teamsshare/connections-teams-share-integration.js"
+      ], "cache-headers": { "cache-control": "max-age=43200" } }, "path": "global",
+      "state": "enabled" } ] }'
+    force_basic_auth: true
+    body_format: json
+  register: request_msteams_share_status
 
-  - name: print request_msteams_share_status   
-    debug: 
-      msg: "{{ request_msteams_share_status.status }}"  
+- name: print request_msteams_share_status
+  debug:
+    msg: '{{ request_msteams_share_status.status }}'
 
-  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams itm
-    uri:
-      url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
-      validate_certs: false
-      method: POST
-      return_content: yes
-      status_code: 201, 400
-      headers:
-        Content-Type: "application/json"
-        ldap_orgid: "a"
-        appreg-ui-request: "true"
-        iv-groups: "\"CustomerAdministrator\""
-        appreglogging: "DeployAutomation"
-        authorization: "{{ get_tokens.authorization }}"
-        Cookie: "{{ login.cookies_string }}"
-      body: "{
-            \"name\": \"MS Teams ITM Integrations\",
-            \"title\": \"MS Teams ITM Integrations\",
-            \"description\": \"MS Teams integration actions\",
-            \"services\": [
-                \"ImportantToMe\"
-            ],
-            \"extensions\": [
-                {
-                    \"name\": \"MS Teams Chat and Call Integrations\",
-                    \"description\": \"Enable chat and call from ITM bubbles\",
-                    \"translations\": {
-                        \"\": {
-                            \"ImportantToMeTeamsIntegrationSIP.label\": \"Teams call\",
-                            \"ImportantToMeTeamsIntegrationChat.label\": \"Teams chat\",
-                            \"ImportantToMeTeamsIntegrationWebChat.label\": \"Teams web chat\"
-                        },
-                        \"en\": {
-                            \"ImportantToMeTeamsIntegrationSIP.label\": \"Teams call\",
-                            \"ImportantToMeTeamsIntegrationChat.label\": \"Teams chat\",
-                            \"ImportantToMeTeamsIntegrationWebChat.label\": \"Teams web chat\"
-                        },
-                        \"fr\": {
-                            \"ImportantToMeTeamsIntegrationSIP.label\": \"Teams appel\",
-                            \"ImportantToMeTeamsIntegrationChat.label\": \"Teams bavarder\",
-                            \"ImportantToMeTeamsIntegrationWebChat.label\": \"Teams bavarder Web\"
-                        }
-                    },
-                    \"type\": \"com.ibm.itm.entry.person.default\",
-                    \"payload\": {
-                        \"url\": \"/profiles/html/profileView.do?userid=${exId}\",
-                        \"label\": \"Person Profile\",
-                        \"show\": true,
-                        \"actions\": [
-                            {
-                                \"type\": \"sipcall\",
-                                \"label\": \"%nls:ImportantToMeTeamsIntegrationSIP.label\",
-                                \"icon\": {
-                                    \"type\": \"svg\",
-                                    \"data\": \"data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgNTYuNDUgNTQuOTYiPjxkZWZzPjxzdHlsZT4uY2xzLTEsLmNscy0yLC5jbHMtM3tmaWxsOiM0MTc4YmU7fS5jbHMtMXtjbGlwLXJ1bGU6ZXZlbm9kZDt9LmNscy0ze2ZpbGwtcnVsZTpldmVub2RkO30uY2xzLTR7Y2xpcC1wYXRoOnVybCgjY2xpcC1wYXRoKTt9LmNscy01e2lzb2xhdGlvbjppc29sYXRlO30uY2xzLTZ7Y2xpcC1wYXRoOnVybCgjY2xpcC1wYXRoLTIpO30uY2xzLTd7Y2xpcC1wYXRoOnVybCgjY2xpcC1wYXRoLTMpO308L3N0eWxlPjxjbGlwUGF0aCBpZD0iY2xpcC1wYXRoIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4LjkgOC45MSkiPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQuNDcsM0ExLjQ5LDEuNDksMCwwLDAsMyw0LjU4Yy42OSw4Ljc5LDUuMDcsMjkuNTgsMzEuMTEsMzEuMDdhMS41MSwxLjUxLDAsMCwwLDEuMTEtLjQsMS41MywxLjUzLDAsMCwwLC40Ni0xLjA5VjI2LjMybC01LjYtMi4yNEwyNS44LDI4LjMxbC0uNzEtLjA5QzEyLjE2LDI2LjYsMTAuNDEsMTMuNjgsMTAuNDEsMTMuNTVsLS4wOS0uNzIsNC4yMi00LjI2TDEyLjMxLDNaTTM0LjE4LDM4LjYyaC0uMjZDNC43NCwzNi45NC41OSwxMi4zMSwwLDQuOEE0LjQ1LDQuNDUsMCwwLDEsNC40NywwSDEyLjNhMywzLDAsMCwxLDIuNzYsMS44N2wyLjI2LDUuNTZhMywzLDAsMCwxLS42NiwzLjIxTDEzLjUsMTMuODNBMTMuOTIsMTMuOTIsMCwwLDAsMjQuNzYsMjUuMTJMMjgsMjEuOTJhMywzLDAsMCwxLDMuMjMtLjZsNS42LDIuMjRhMywzLDAsMCwxLDEuODIsMi43NnY3Ljg0QTQuNDUsNC40NSwwLDAsMSwzNC4xOCwzOC42MloiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0iY2xpcC1wYXRoLTIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDguOSA4LjkxKSI+PHJlY3QgY2xhc3M9ImNscy0yIiB4PSItOC45IiB5PSItOC45MSIgd2lkdGg9IjU2LjQ1IiBoZWlnaHQ9IjU0Ljk2Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4LjkgOC45MSkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMC4wMSIgd2lkdGg9IjM4LjYyIiBoZWlnaHQ9IjM4LjYyIi8+PC9jbGlwUGF0aD48L2RlZnM+PGcgaWQ9IkxheWVyXzIiIGRhdGEtbmFtZT0iTGF5ZXIgMiI+PGcgaWQ9IkxheWVyXzEtMiIgZGF0YS1uYW1lPSJMYXllciAxIj48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik00LjQ3LDNBMS40OSwxLjQ5LDAsMCwwLDMsNC41OGMuNjksOC43OSw1LjA3LDI5LjU4LDMxLjExLDMxLjA3YTEuNTEsMS41MSwwLDAsMCwxLjExLS40LDEuNTMsMS41MywwLDAsMCwuNDYtMS4wOVYyNi4zMmwtNS42LTIuMjRMMjUuOCwyOC4zMWwtLjcxLS4wOUMxMi4xNiwyNi42LDEwLjQxLDEzLjY4LDEwLjQxLDEzLjU1bC0uMDktLjcyLDQuMjItNC4yNkwxMi4zMSwzWk0zNC4xOCwzOC42MmgtLjI2QzQuNzQsMzYuOTQuNTksMTIuMzEsMCw0LjhBNC40NSw0LjQ1LDAsMCwxLDQuNDcsMEgxMi4zYTMsMywwLDAsMSwyLjc2LDEuODdsMi4yNiw1LjU2YTMsMywwLDAsMS0uNjYsMy4yMUwxMy41LDEzLjgzQTEzLjkyLDEzLjkyLDAsMCwwLDI0Ljc2LDI1LjEyTDI4LDIxLjkyYTMsMywwLDAsMSwzLjIzLS42bDUuNiwyLjI0YTMsMywwLDAsMSwxLjgyLDIuNzZ2Ny44NEE0LjQ1LDQuNDUsMCwwLDEsMzQuMTgsMzguNjJaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4LjkgOC45MSkiLz48ZyBjbGFzcz0iY2xzLTQiPjxnIGNsYXNzPSJjbHMtNSI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iNTYuNDUiIGhlaWdodD0iNTQuOTYiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iOC45MSIgeT0iOC45MSIgd2lkdGg9IjM4LjYyIiBoZWlnaHQ9IjM4LjYyIi8+PGcgY2xhc3M9ImNscy03Ij48cmVjdCBjbGFzcz0iY2xzLTIiIHg9IjEuNDciIHk9IjEuNDkiIHdpZHRoPSI1My40OSIgaGVpZ2h0PSI1My40NyIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg\"
-                                },
-                                \"url\": \"sip:${email}\",
-                                \"enabled\": false
-                            },
-                            {
-                                \"type\": \"msteams\",
-                                \"label\": \"%nls:ImportantToMeTeamsIntegrationChat.label\",
-                                \"icon\": {
-                                    \"type\": \"svg\",
-                                    \"data\": \"data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjU3LjQ5IDI0My45NCI+PGRlZnM+PHN0eWxlPi5jbHMtMSwuY2xzLTIsLmNscy0ze2ZpbGw6IzQxNzhiZTt9LmNscy0xe2NsaXAtcnVsZTpldmVub2RkO30uY2xzLTN7ZmlsbC1ydWxlOmV2ZW5vZGQ7fS5jbHMtNHtjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgpO30uY2xzLTV7aXNvbGF0aW9uOmlzb2xhdGU7fS5jbHMtNntjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMik7fS5jbHMtN3tjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMyk7fTwvc3R5bGU+PGNsaXBQYXRoIGlkPSJjbGlwLXBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMzLjg4IDMzLjg4KSI+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAuNjYsODEuMzFoNjcuNzZWOTQuODZINDAuNjZabTAtNDAuNjVIMTQ5LjA3VjU0LjIxSDQwLjY2Wm02NiwxMzUuNTJMOTQuODYsMTY5LjQsMTIyLDEyMmg0MC42NWExMy41NiwxMy41NiwwLDAsMCwxMy41Ni0xMy41NVYyNy4xYTEzLjU2LDEzLjU2LDAsMCwwLTEzLjU2LTEzLjU1SDI3LjFBMTMuNTUsMTMuNTUsMCwwLDAsMTMuNTUsMjcuMXY4MS4zMkExMy41NSwxMy41NSwwLDAsMCwyNy4xLDEyMmg2MXYxMy41NWgtNjFBMjcuMSwyNy4xLDAsMCwxLDAsMTA4LjQyVjI3LjFBMjcuMSwyNy4xLDAsMCwxLDI3LjEsMEgxNjIuNjJhMjcuMSwyNy4xLDAsMCwxLDI3LjExLDI3LjF2ODEuMzJhMjcuMTEsMjcuMTEsMCwwLDEtMjcuMTEsMjcuMUgxMjkuODNaIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0yIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iLTMzLjg4IiB5PSItMzMuODgiIHdpZHRoPSIyNTcuNDkiIGhlaWdodD0iMjQzLjk0Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjE4OS43MyIgaGVpZ2h0PSIxNzYuMTgiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIj48ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyIDEiPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQwLjY2LDgxLjMxaDY3Ljc2Vjk0Ljg2SDQwLjY2Wm0wLTQwLjY1SDE0OS4wN1Y1NC4yMUg0MC42NlptNjYsMTM1LjUyTDk0Ljg2LDE2OS40LDEyMiwxMjJoNDAuNjVhMTMuNTYsMTMuNTYsMCwwLDAsMTMuNTYtMTMuNTVWMjcuMWExMy41NiwxMy41NiwwLDAsMC0xMy41Ni0xMy41NUgyNy4xQTEzLjU1LDEzLjU1LDAsMCwwLDEzLjU1LDI3LjF2ODEuMzJBMTMuNTUsMTMuNTUsMCwwLDAsMjcuMSwxMjJoNjF2MTMuNTVoLTYxQTI3LjEsMjcuMSwwLDAsMSwwLDEwOC40MlYyNy4xQTI3LjEsMjcuMSwwLDAsMSwyNy4xLDBIMTYyLjYyYTI3LjEsMjcuMSwwLDAsMSwyNy4xMSwyNy4xdjgxLjMyYTI3LjExLDI3LjExLDAsMCwxLTI3LjExLDI3LjFIMTI5LjgzWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzMuODggMzMuODgpIi8+PGcgY2xhc3M9ImNscy00Ij48ZyBjbGFzcz0iY2xzLTUiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjI1Ny40OSIgaGVpZ2h0PSIyNDMuOTQiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMzMuODgiIHk9IjMzLjg4IiB3aWR0aD0iMTg5LjczIiBoZWlnaHQ9IjE3Ni4xOCIvPjxnIGNsYXNzPSJjbHMtNyI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iMjU3LjQ5IiBoZWlnaHQ9IjI0My45NCIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg\"
-                                },
-                                \"url\": \"msteams:/l/chat/0/0?users=${email}\",
-                                \"enabled\": false
-                            },
-                            {
-                                \"type\": \"msteamsweb\",
-                                \"label\": \"%nls:ImportantToMeTeamsIntegrationWebChat.label\",
-                                \"icon\": {
-                                    \"type\": \"svg\",
-                                    \"data\": \"data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjU3LjQ5IDI0My45NCI+PGRlZnM+PHN0eWxlPi5jbHMtMSwuY2xzLTIsLmNscy0ze2ZpbGw6IzQxNzhiZTt9LmNscy0xe2NsaXAtcnVsZTpldmVub2RkO30uY2xzLTN7ZmlsbC1ydWxlOmV2ZW5vZGQ7fS5jbHMtNHtjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgpO30uY2xzLTV7aXNvbGF0aW9uOmlzb2xhdGU7fS5jbHMtNntjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMik7fS5jbHMtN3tjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMyk7fTwvc3R5bGU+PGNsaXBQYXRoIGlkPSJjbGlwLXBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMzLjg4IDMzLjg4KSI+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAuNjYsODEuMzFoNjcuNzZWOTQuODZINDAuNjZabTAtNDAuNjVIMTQ5LjA3VjU0LjIxSDQwLjY2Wm02NiwxMzUuNTJMOTQuODYsMTY5LjQsMTIyLDEyMmg0MC42NWExMy41NiwxMy41NiwwLDAsMCwxMy41Ni0xMy41NVYyNy4xYTEzLjU2LDEzLjU2LDAsMCwwLTEzLjU2LTEzLjU1SDI3LjFBMTMuNTUsMTMuNTUsMCwwLDAsMTMuNTUsMjcuMXY4MS4zMkExMy41NSwxMy41NSwwLDAsMCwyNy4xLDEyMmg2MXYxMy41NWgtNjFBMjcuMSwyNy4xLDAsMCwxLDAsMTA4LjQyVjI3LjFBMjcuMSwyNy4xLDAsMCwxLDI3LjEsMEgxNjIuNjJhMjcuMSwyNy4xLDAsMCwxLDI3LjExLDI3LjF2ODEuMzJhMjcuMTEsMjcuMTEsMCwwLDEtMjcuMTEsMjcuMUgxMjkuODNaIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0yIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iLTMzLjg4IiB5PSItMzMuODgiIHdpZHRoPSIyNTcuNDkiIGhlaWdodD0iMjQzLjk0Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjE4OS43MyIgaGVpZ2h0PSIxNzYuMTgiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIj48ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyIDEiPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQwLjY2LDgxLjMxaDY3Ljc2Vjk0Ljg2SDQwLjY2Wm0wLTQwLjY1SDE0OS4wN1Y1NC4yMUg0MC42NlptNjYsMTM1LjUyTDk0Ljg2LDE2OS40LDEyMiwxMjJoNDAuNjVhMTMuNTYsMTMuNTYsMCwwLDAsMTMuNTYtMTMuNTVWMjcuMWExMy41NiwxMy41NiwwLDAsMC0xMy41Ni0xMy41NUgyNy4xQTEzLjU1LDEzLjU1LDAsMCwwLDEzLjU1LDI3LjF2ODEuMzJBMTMuNTUsMTMuNTUsMCwwLDAsMjcuMSwxMjJoNjF2MTMuNTVoLTYxQTI3LjEsMjcuMSwwLDAsMSwwLDEwOC40MlYyNy4xQTI3LjEsMjcuMSwwLDAsMSwyNy4xLDBIMTYyLjYyYTI3LjEsMjcuMSwwLDAsMSwyNy4xMSwyNy4xdjgxLjMyYTI3LjExLDI3LjExLDAsMCwxLTI3LjExLDI3LjFIMTI5LjgzWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzMuODggMzMuODgpIi8+PGcgY2xhc3M9ImNscy00Ij48ZyBjbGFzcz0iY2xzLTUiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjI1Ny40OSIgaGVpZ2h0PSIyNDMuOTQiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMzMuODgiIHk9IjMzLjg4IiB3aWR0aD0iMTg5LjczIiBoZWlnaHQ9IjE3Ni4xOCIvPjxnIGNsYXNzPSJjbHMtNyI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iMjU3LjQ5IiBoZWlnaHQ9IjI0My45NCIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg\"
-                                },
-                                \"url\": \"https://teams.microsoft.com/l/chat/0/0?users=${email}\",
-                                \"enabled\": true
-                            }
-                        ]
-                    },
-                    \"path\": \"OrientMe\"
-                }
-            ]
-        }"
-      force_basic_auth: yes
-      body_format: json
-    register: request_msteams_itm_status 
+- name: Use the Bearer token value to create the Authorization header on the post
+    request - MS Teams itm
+  uri:
+    url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
+    validate_certs: false
+    method: POST
+    return_content: true
+    status_code: 201, 400
+    headers:
+      Content-Type: application/json
+      ldap_orgid: a
+      appreg-ui-request: 'true'
+      iv-groups: '"CustomerAdministrator"'
+      appreglogging: DeployAutomation
+      authorization: '{{ get_tokens.authorization }}'
+      Cookie: '{{ login.cookies_string }}'
+    body: '{ "name": "MS Teams ITM Integrations", "title": "MS Teams ITM Integrations",
+      "description": "MS Teams integration actions", "services": [ "ImportantToMe"
+      ], "extensions": [ { "name": "MS Teams Chat and Call Integrations", "description":
+      "Enable chat and call from ITM bubbles", "translations": { "": { "ImportantToMeTeamsIntegrationSIP.label":
+      "Teams call", "ImportantToMeTeamsIntegrationChat.label": "Teams chat", "ImportantToMeTeamsIntegrationWebChat.label":
+      "Teams web chat" }, "en": { "ImportantToMeTeamsIntegrationSIP.label": "Teams
+      call", "ImportantToMeTeamsIntegrationChat.label": "Teams chat", "ImportantToMeTeamsIntegrationWebChat.label":
+      "Teams web chat" }, "fr": { "ImportantToMeTeamsIntegrationSIP.label": "Teams
+      appel", "ImportantToMeTeamsIntegrationChat.label": "Teams bavarder", "ImportantToMeTeamsIntegrationWebChat.label":
+      "Teams bavarder Web" } }, "type": "com.ibm.itm.entry.person.default", "payload":
+      { "url": "/profiles/html/profileView.do?userid=${exId}", "label": "Person
+      Profile", "show": true, "actions": [ { "type": "sipcall", "label": "%nls:ImportantToMeTeamsIntegrationSIP.label",
+      "icon": { "type": "svg", "data": "data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgNTYuNDUgNTQuOTYiPjxkZWZzPjxzdHlsZT4uY2xzLTEsLmNscy0yLC5jbHMtM3tmaWxsOiM0MTc4YmU7fS5jbHMtMXtjbGlwLXJ1bGU6ZXZlbm9kZDt9LmNscy0ze2ZpbGwtcnVsZTpldmVub2RkO30uY2xzLTR7Y2xpcC1wYXRoOnVybCgjY2xpcC1wYXRoKTt9LmNscy01e2lzb2xhdGlvbjppc29sYXRlO30uY2xzLTZ7Y2xpcC1wYXRoOnVybCgjY2xpcC1wYXRoLTIpO30uY2xzLTd7Y2xpcC1wYXRoOnVybCgjY2xpcC1wYXRoLTMpO308L3N0eWxlPjxjbGlwUGF0aCBpZD0iY2xpcC1wYXRoIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4LjkgOC45MSkiPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQuNDcsM0ExLjQ5LDEuNDksMCwwLDAsMyw0LjU4Yy42OSw4Ljc5LDUuMDcsMjkuNTgsMzEuMTEsMzEuMDdhMS41MSwxLjUxLDAsMCwwLDEuMTEtLjQsMS41MywxLjUzLDAsMCwwLC40Ni0xLjA5VjI2LjMybC01LjYtMi4yNEwyNS44LDI4LjMxbC0uNzEtLjA5QzEyLjE2LDI2LjYsMTAuNDEsMTMuNjgsMTAuNDEsMTMuNTVsLS4wOS0uNzIsNC4yMi00LjI2TDEyLjMxLDNaTTM0LjE4LDM4LjYyaC0uMjZDNC43NCwzNi45NC41OSwxMi4zMSwwLDQuOEE0LjQ1LDQuNDUsMCwwLDEsNC40NywwSDEyLjNhMywzLDAsMCwxLDIuNzYsMS44N2wyLjI2LDUuNTZhMywzLDAsMCwxLS42NiwzLjIxTDEzLjUsMTMuODNBMTMuOTIsMTMuOTIsMCwwLDAsMjQuNzYsMjUuMTJMMjgsMjEuOTJhMywzLDAsMCwxLDMuMjMtLjZsNS42LDIuMjRhMywzLDAsMCwxLDEuODIsMi43NnY3Ljg0QTQuNDUsNC40NSwwLDAsMSwzNC4xOCwzOC42MloiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0iY2xpcC1wYXRoLTIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDguOSA4LjkxKSI+PHJlY3QgY2xhc3M9ImNscy0yIiB4PSItOC45IiB5PSItOC45MSIgd2lkdGg9IjU2LjQ1IiBoZWlnaHQ9IjU0Ljk2Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4LjkgOC45MSkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMC4wMSIgd2lkdGg9IjM4LjYyIiBoZWlnaHQ9IjM4LjYyIi8+PC9jbGlwUGF0aD48L2RlZnM+PGcgaWQ9IkxheWVyXzIiIGRhdGEtbmFtZT0iTGF5ZXIgMiI+PGcgaWQ9IkxheWVyXzEtMiIgZGF0YS1uYW1lPSJMYXllciAxIj48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik00LjQ3LDNBMS40OSwxLjQ5LDAsMCwwLDMsNC41OGMuNjksOC43OSw1LjA3LDI5LjU4LDMxLjExLDMxLjA3YTEuNTEsMS41MSwwLDAsMCwxLjExLS40LDEuNTMsMS41MywwLDAsMCwuNDYtMS4wOVYyNi4zMmwtNS42LTIuMjRMMjUuOCwyOC4zMWwtLjcxLS4wOUMxMi4xNiwyNi42LDEwLjQxLDEzLjY4LDEwLjQxLDEzLjU1bC0uMDktLjcyLDQuMjItNC4yNkwxMi4zMSwzWk0zNC4xOCwzOC42MmgtLjI2QzQuNzQsMzYuOTQuNTksMTIuMzEsMCw0LjhBNC40NSw0LjQ1LDAsMCwxLDQuNDcsMEgxMi4zYTMsMywwLDAsMSwyLjc2LDEuODdsMi4yNiw1LjU2YTMsMywwLDAsMS0uNjYsMy4yMUwxMy41LDEzLjgzQTEzLjkyLDEzLjkyLDAsMCwwLDI0Ljc2LDI1LjEyTDI4LDIxLjkyYTMsMywwLDAsMSwzLjIzLS42bDUuNiwyLjI0YTMsMywwLDAsMSwxLjgyLDIuNzZ2Ny44NEE0LjQ1LDQuNDUsMCwwLDEsMzQuMTgsMzguNjJaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4LjkgOC45MSkiLz48ZyBjbGFzcz0iY2xzLTQiPjxnIGNsYXNzPSJjbHMtNSI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iNTYuNDUiIGhlaWdodD0iNTQuOTYiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iOC45MSIgeT0iOC45MSIgd2lkdGg9IjM4LjYyIiBoZWlnaHQ9IjM4LjYyIi8+PGcgY2xhc3M9ImNscy03Ij48cmVjdCBjbGFzcz0iY2xzLTIiIHg9IjEuNDciIHk9IjEuNDkiIHdpZHRoPSI1My40OSIgaGVpZ2h0PSI1My40NyIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg"
+      }, "url": "sip:${email}", "enabled": false }, { "type": "msteams", "label":
+      "%nls:ImportantToMeTeamsIntegrationChat.label", "icon": { "type": "svg", "data":
+      "data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjU3LjQ5IDI0My45NCI+PGRlZnM+PHN0eWxlPi5jbHMtMSwuY2xzLTIsLmNscy0ze2ZpbGw6IzQxNzhiZTt9LmNscy0xe2NsaXAtcnVsZTpldmVub2RkO30uY2xzLTN7ZmlsbC1ydWxlOmV2ZW5vZGQ7fS5jbHMtNHtjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgpO30uY2xzLTV7aXNvbGF0aW9uOmlzb2xhdGU7fS5jbHMtNntjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMik7fS5jbHMtN3tjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMyk7fTwvc3R5bGU+PGNsaXBQYXRoIGlkPSJjbGlwLXBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMzLjg4IDMzLjg4KSI+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAuNjYsODEuMzFoNjcuNzZWOTQuODZINDAuNjZabTAtNDAuNjVIMTQ5LjA3VjU0LjIxSDQwLjY2Wm02NiwxMzUuNTJMOTQuODYsMTY5LjQsMTIyLDEyMmg0MC42NWExMy41NiwxMy41NiwwLDAsMCwxMy41Ni0xMy41NVYyNy4xYTEzLjU2LDEzLjU2LDAsMCwwLTEzLjU2LTEzLjU1SDI3LjFBMTMuNTUsMTMuNTUsMCwwLDAsMTMuNTUsMjcuMXY4MS4zMkExMy41NSwxMy41NSwwLDAsMCwyNy4xLDEyMmg2MXYxMy41NWgtNjFBMjcuMSwyNy4xLDAsMCwxLDAsMTA4LjQyVjI3LjFBMjcuMSwyNy4xLDAsMCwxLDI3LjEsMEgxNjIuNjJhMjcuMSwyNy4xLDAsMCwxLDI3LjExLDI3LjF2ODEuMzJhMjcuMTEsMjcuMTEsMCwwLDEtMjcuMTEsMjcuMUgxMjkuODNaIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0yIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iLTMzLjg4IiB5PSItMzMuODgiIHdpZHRoPSIyNTcuNDkiIGhlaWdodD0iMjQzLjk0Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjE4OS43MyIgaGVpZ2h0PSIxNzYuMTgiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIj48ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyIDEiPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQwLjY2LDgxLjMxaDY3Ljc2Vjk0Ljg2SDQwLjY2Wm0wLTQwLjY1SDE0OS4wN1Y1NC4yMUg0MC42NlptNjYsMTM1LjUyTDk0Ljg2LDE2OS40LDEyMiwxMjJoNDAuNjVhMTMuNTYsMTMuNTYsMCwwLDAsMTMuNTYtMTMuNTVWMjcuMWExMy41NiwxMy41NiwwLDAsMC0xMy41Ni0xMy41NUgyNy4xQTEzLjU1LDEzLjU1LDAsMCwwLDEzLjU1LDI3LjF2ODEuMzJBMTMuNTUsMTMuNTUsMCwwLDAsMjcuMSwxMjJoNjF2MTMuNTVoLTYxQTI3LjEsMjcuMSwwLDAsMSwwLDEwOC40MlYyNy4xQTI3LjEsMjcuMSwwLDAsMSwyNy4xLDBIMTYyLjYyYTI3LjEsMjcuMSwwLDAsMSwyNy4xMSwyNy4xdjgxLjMyYTI3LjExLDI3LjExLDAsMCwxLTI3LjExLDI3LjFIMTI5LjgzWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzMuODggMzMuODgpIi8+PGcgY2xhc3M9ImNscy00Ij48ZyBjbGFzcz0iY2xzLTUiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjI1Ny40OSIgaGVpZ2h0PSIyNDMuOTQiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMzMuODgiIHk9IjMzLjg4IiB3aWR0aD0iMTg5LjczIiBoZWlnaHQ9IjE3Ni4xOCIvPjxnIGNsYXNzPSJjbHMtNyI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iMjU3LjQ5IiBoZWlnaHQ9IjI0My45NCIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg"
+      }, "url": "msteams:/l/chat/0/0?users=${email}", "enabled": false }, { "type":
+      "msteamsweb", "label": "%nls:ImportantToMeTeamsIntegrationWebChat.label",
+      "icon": { "type": "svg", "data": "data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjU3LjQ5IDI0My45NCI+PGRlZnM+PHN0eWxlPi5jbHMtMSwuY2xzLTIsLmNscy0ze2ZpbGw6IzQxNzhiZTt9LmNscy0xe2NsaXAtcnVsZTpldmVub2RkO30uY2xzLTN7ZmlsbC1ydWxlOmV2ZW5vZGQ7fS5jbHMtNHtjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgpO30uY2xzLTV7aXNvbGF0aW9uOmlzb2xhdGU7fS5jbHMtNntjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMik7fS5jbHMtN3tjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMyk7fTwvc3R5bGU+PGNsaXBQYXRoIGlkPSJjbGlwLXBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMzLjg4IDMzLjg4KSI+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAuNjYsODEuMzFoNjcuNzZWOTQuODZINDAuNjZabTAtNDAuNjVIMTQ5LjA3VjU0LjIxSDQwLjY2Wm02NiwxMzUuNTJMOTQuODYsMTY5LjQsMTIyLDEyMmg0MC42NWExMy41NiwxMy41NiwwLDAsMCwxMy41Ni0xMy41NVYyNy4xYTEzLjU2LDEzLjU2LDAsMCwwLTEzLjU2LTEzLjU1SDI3LjFBMTMuNTUsMTMuNTUsMCwwLDAsMTMuNTUsMjcuMXY4MS4zMkExMy41NSwxMy41NSwwLDAsMCwyNy4xLDEyMmg2MXYxMy41NWgtNjFBMjcuMSwyNy4xLDAsMCwxLDAsMTA4LjQyVjI3LjFBMjcuMSwyNy4xLDAsMCwxLDI3LjEsMEgxNjIuNjJhMjcuMSwyNy4xLDAsMCwxLDI3LjExLDI3LjF2ODEuMzJhMjcuMTEsMjcuMTEsMCwwLDEtMjcuMTEsMjcuMUgxMjkuODNaIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0yIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iLTMzLjg4IiB5PSItMzMuODgiIHdpZHRoPSIyNTcuNDkiIGhlaWdodD0iMjQzLjk0Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjE4OS43MyIgaGVpZ2h0PSIxNzYuMTgiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIj48ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyIDEiPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQwLjY2LDgxLjMxaDY3Ljc2Vjk0Ljg2SDQwLjY2Wm0wLTQwLjY1SDE0OS4wN1Y1NC4yMUg0MC42NlptNjYsMTM1LjUyTDk0Ljg2LDE2OS40LDEyMiwxMjJoNDAuNjVhMTMuNTYsMTMuNTYsMCwwLDAsMTMuNTYtMTMuNTVWMjcuMWExMy41NiwxMy41NiwwLDAsMC0xMy41Ni0xMy41NUgyNy4xQTEzLjU1LDEzLjU1LDAsMCwwLDEzLjU1LDI3LjF2ODEuMzJBMTMuNTUsMTMuNTUsMCwwLDAsMjcuMSwxMjJoNjF2MTMuNTVoLTYxQTI3LjEsMjcuMSwwLDAsMSwwLDEwOC40MlYyNy4xQTI3LjEsMjcuMSwwLDAsMSwyNy4xLDBIMTYyLjYyYTI3LjEsMjcuMSwwLDAsMSwyNy4xMSwyNy4xdjgxLjMyYTI3LjExLDI3LjExLDAsMCwxLTI3LjExLDI3LjFIMTI5LjgzWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzMuODggMzMuODgpIi8+PGcgY2xhc3M9ImNscy00Ij48ZyBjbGFzcz0iY2xzLTUiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjI1Ny40OSIgaGVpZ2h0PSIyNDMuOTQiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMzMuODgiIHk9IjMzLjg4IiB3aWR0aD0iMTg5LjczIiBoZWlnaHQ9IjE3Ni4xOCIvPjxnIGNsYXNzPSJjbHMtNyI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iMjU3LjQ5IiBoZWlnaHQ9IjI0My45NCIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg"
+      }, "url": "https://teams.microsoft.com/l/chat/0/0?users=${email}", "enabled":
+      true } ] }, "path": "OrientMe" } ] }'
+    force_basic_auth: true
+    body_format: json
+  register: request_msteams_itm_status
 
-  - name: print request_msteams_itm_status   
-    debug: 
-      msg: "{{ request_msteams_itm_status.status }}"    
+- name: print request_msteams_itm_status
+  debug:
+    msg: '{{ request_msteams_itm_status.status }}'
 
-  - name: Use the Bearer token value to create the Authorization header on the post request - MS Teams Profile BizCard
-    uri:
-      url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
-      validate_certs: false
-      method: POST
-      return_content: yes
-      status_code: 201, 400
-      headers:
-        Content-Type: "application/json"
-        ldap_orgid: "a"
-        appreg-ui-request: "true"
-        iv-groups: "\"CustomerAdministrator\""
-        appreglogging: "DeployAutomation"
-        authorization: "{{ get_tokens.authorization }}"
-        Cookie: "{{ login.cookies_string }}"
-      body: "{
-          \"name\": \"MS Teams Chat Integrations\",
-          \"title\": \"MS Teams Chat Integrations\",
-          \"description\": \"MS Teams chat for bizcard and profiles\",
-          \"services\": [
-              \"Connections\"
-          ],
-          \"extensions\": [
-              {
-                  \"ext_id\": \"com.msteams.v3.bizcard.chat\",
-                  \"name\": \"MS Teams Chat Integration\",
-                  \"title\": \"MS Teams Chat Integration\",
-                  \"description\": \"Enable 1-1 chat from profile and bizcard\",
-                  \"translations\": {
-                      \"\": {
-                          \"TeamsBizcardChat-Connections_text\": \"Chat\"
-                      },
-                      \"fr\": {
-                          \"TeamsBizcardChat-Connections_text\": \"Bavarder\"
-                      },
-                      \"en\": {
-                          \"TeamsBizcardChat-Connections_text\": \"Chat\"
-                      }
-                  },
-                  \"type\": \"com.hcl.appreg.ext.templatedLink\",
-                  \"payload\": {
-                      \"url\": \"\",
-                      \"text\": \"%nls:TeamsBizcardChat-Connections_text\",
-                      \"href\": \"https://teams.microsoft.com/l/chat/0/0?users=${!emails}\",
-                      \"locator\": \"chat\",
-                      \"target\": \"TeamsChat\"
-                  },
-                  \"object\": \"com.hcl.appreg.object.person\",
-                  \"state\": \"enabled\"
-              }
-          ]
-        }"
-      force_basic_auth: yes
-      body_format: json
-    register: request_msteams_bizcard_status
+- name: Use the Bearer token value to create the Authorization header on the post
+    request - MS Teams Profile BizCard
+  uri:
+    url: https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
+    validate_certs: false
+    method: POST
+    return_content: true
+    status_code: 201, 400
+    headers:
+      Content-Type: application/json
+      ldap_orgid: a
+      appreg-ui-request: 'true'
+      iv-groups: '"CustomerAdministrator"'
+      appreglogging: DeployAutomation
+      authorization: '{{ get_tokens.authorization }}'
+      Cookie: '{{ login.cookies_string }}'
+    body: '{ "name": "MS Teams Chat Integrations", "title": "MS Teams Chat Integrations",
+      "description": "MS Teams chat for bizcard and profiles", "services": [ "Connections"
+      ], "extensions": [ { "ext_id": "com.msteams.v3.bizcard.chat", "name": "MS
+      Teams Chat Integration", "title": "MS Teams Chat Integration", "description":
+      "Enable 1-1 chat from profile and bizcard", "translations": { "": { "TeamsBizcardChat-Connections_text":
+      "Chat" }, "fr": { "TeamsBizcardChat-Connections_text": "Bavarder" }, "en":
+      { "TeamsBizcardChat-Connections_text": "Chat" } }, "type": "com.hcl.appreg.ext.templatedLink",
+      "payload": { "url": "", "text": "%nls:TeamsBizcardChat-Connections_text",
+      "href": "https://teams.microsoft.com/l/chat/0/0?users=${!emails}", "locator":
+      "chat", "target": "TeamsChat" }, "object": "com.hcl.appreg.object.person",
+      "state": "enabled" } ] }'
+    force_basic_auth: true
+    body_format: json
+  register: request_msteams_bizcard_status
 
-  - name: print request_msteams_bizcard_status   
-    debug: 
-      msg: "{{ request_msteams_bizcard_status.status }}"   
+- name: print request_msteams_bizcard_status
+  debug:
+    msg: '{{ request_msteams_bizcard_status.status }}'

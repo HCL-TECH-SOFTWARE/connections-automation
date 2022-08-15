@@ -1,25 +1,26 @@
-- name:                     "Create {{ __packages_location }}"
+---
+- name: Create {{ __packages_location }}
   file:
-    path:                   "{{ item }}"
-    state:                  directory
+    path: '{{ item }}'
+    state: directory
   with_items:
-   - "{{ __packages_location }}"
+    - '{{ __packages_location }}'
 
-- name:                     "Render {{ __packages_conf_location }}"
+- name: Render {{ __packages_conf_location }}
   template:
-    src:                    "{{ __packages_conf_template }}"
-    dest:                   "{{ __packages_conf_location }}"
+    src: '{{ __packages_conf_template }}'
+    dest: '{{ __packages_conf_location }}'
 
-- name:                     "Let nginx serve on defined port {{ __packages_conf_port }}"
+- name: Let nginx serve on defined port {{ __packages_conf_port }}
   seport:
-    ports:                  "{{ __packages_conf_port }}"
-    proto:                  tcp
-    setype:                 http_port_t
-    state:                  present
-  ignore_errors:            true
+    ports: '{{ __packages_conf_port }}'
+    proto: tcp
+    setype: http_port_t
+    state: present
+  ignore_errors: true
 
-- name:                     Restart nginx service
+- name: Restart nginx service
   service:
-    name:                   nginx
-    state:                  restarted
-    daemon_reload:          yes
+    name: nginx
+    state: restarted
+    daemon_reload: 'yes'

@@ -1,11 +1,10 @@
-# Setup Prometheus Node Exporter
 ---
-- name:                    Gather facts
-  hosts:                   prometheus_node_exporter
-  tasks:                   []
+- name: Gather facts
+  hosts: prometheus_node_exporter
+  tasks: []
 
-- name:                    Setup Node Exporter
-  hosts:                   prometheus_node_exporter
-  become:                  true
+- name: Setup Node Exporter
+  hosts: prometheus_node_exporter
+  become: true
   roles:
     - roles/third_party/node-exporter-install

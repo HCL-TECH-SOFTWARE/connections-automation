@@ -1,19 +1,19 @@
 ---
-- name:          Install pre-requisites Apt
+- name: Install pre-requisites Apt
   apt:
-    name: ['unzip', 'tar', 'wget']
+    name: [unzip, tar, wget]
     state: present
   when: ansible_os_family == "Debian"
 
-- name:          Install pre-requisites Zypper
+- name: Install pre-requisites Zypper
   zypper:
-    name: ['unzip', 'tar', 'wget','libgtk-2_0-0']
+    name: [unzip, tar, wget, libgtk-2_0-0]
     state: present
   when: ansible_os_family == "Suse"
 
-- name:          Install pre-requisites Yum
+- name: Install pre-requisites Yum
   yum:
-    name: ['unzip', 'tar', 'wget', 'apr-util']
+    name: [unzip, tar, wget, apr-util]
     state: present
   when:
     - ansible_os_family == "RedHat"

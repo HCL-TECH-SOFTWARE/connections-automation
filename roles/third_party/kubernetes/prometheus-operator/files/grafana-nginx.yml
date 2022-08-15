@@ -1,3 +1,4 @@
+---
 grafana:
   ## Configure grafana dashboard providers
   ## ref: http://docs.grafana.org/administration/provisioning/#dashboards
@@ -5,17 +6,17 @@ grafana:
   ## `path` must be /var/lib/grafana/dashboards/<provider_name>
   ##
   dashboardProviders:
-   dashboardproviders.yaml:
-     apiVersion: 1
-     providers:
-     - name: 'extra'
-       orgId: 1
-       folder: 'Extra'
-       type: file
-       disableDeletion: true
-       editable: true
-       options:
-         path: /var/lib/grafana/dashboards/extra
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: extra
+          orgId: 1
+          folder: Extra
+          type: file
+          disableDeletion: true
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/extra
 
   ## Configure grafana dashboard to import
   ## NOTE: To use dashboards you must also enable/configure dashboardProviders
@@ -24,19 +25,19 @@ grafana:
   ## dashboards per provider, use provider name as key.
   ##
   dashboards:
-   extra:
-     nginx-ingress:
-       gnetId: 9614
-       datasource: Prometheus
-     nginx-ingress-stats:
-       gnetId: 10690
-       datasource: Prometheus
-     jvm-dashboard:
-       gnetId: 10519
-       datasource: Prometheus
-     node-exporter-dashboard:
-       gnetId: 12486
-       datasource: Prometheus
-     OracleDB Monitoring performance and table space stats:
-       gnetId: 13555
-       datasource: Prometheus
+    extra:
+      nginx-ingress:
+        gnetId: 9614
+        datasource: Prometheus
+      nginx-ingress-stats:
+        gnetId: 10690
+        datasource: Prometheus
+      jvm-dashboard:
+        gnetId: 10519
+        datasource: Prometheus
+      node-exporter-dashboard:
+        gnetId: 12486
+        datasource: Prometheus
+      OracleDB Monitoring performance and table space stats:
+        gnetId: 13555
+        datasource: Prometheus

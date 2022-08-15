@@ -1,41 +1,43 @@
-- name:                  "Create {{ __ansible_cache }}"
+---
+- name: Create {{ __ansible_cache }}
   file:
-    path:                "{{ item }}"
-    state:               directory
-  with_items: 
-   - "{{ __ansible_cache }}"
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - '{{ __ansible_cache }}'
 
-- name:                  "Cleanup {{ __ansible_cache_charts }}"
+- name: Cleanup {{ __ansible_cache_charts }}
   file:
-    path:                "{{ item }}"
-    state:               absent
-  with_items: 
-   - "{{ __ansible_cache_charts }}"
+    path: '{{ item }}'
+    state: absent
+  with_items:
+    - '{{ __ansible_cache_charts }}'
 
-- name:                  "Create {{ __ansible_cache_charts }}"
+- name: Create {{ __ansible_cache_charts }}
   file:
-    path:                "{{ item }}"
-    state:               directory
-  with_items: 
-   - "{{ __ansible_cache_charts }}"
-  become_user:           "{{ __sudo_user }}"
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - '{{ __ansible_cache_charts }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                  Clean up installation folder(s)
+- name: Clean up installation folder(s)
   file:
-    path:                "{{ __extraction_folder }}"
-    state:               absent
-    
-- name:                  Create installation folder
+    path: '{{ __extraction_folder }}'
+    state: absent
+
+- name: Create installation folder
   file:
-    path:                "{{ __extraction_folder }}"
-    state:               directory
+    path: '{{ __extraction_folder }}'
+    state: directory
 
 
-- name:                  "Unzip installation {{ __download_location }}/{{ __package_name }} to the {{ __extraction_folder }}"
+- name: Unzip installation {{ __download_location }}/{{ __package_name }} to the
+    {{ __extraction_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __package_name }}"
-    dest:                "{{ __extraction_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ __package_name }}'
+    dest: '{{ __extraction_folder }}'
+    remote_src: 'yes'
   register: download_and_unpack_component_pack
   until: download_and_unpack_component_pack is succeeded
   retries: 3

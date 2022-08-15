@@ -1,53 +1,53 @@
 ---
-- name:                     Show me Linux distribution
+- name: Show me Linux distribution
   debug:
-    msg:                    "{{ ansible_distribution }}"
+    msg: '{{ ansible_distribution }}'
 
-- name:                     Show me Linux distribution version
+- name: Show me Linux distribution version
   debug:
-    msg:                    "{{ ansible_distribution_version }}"
+    msg: '{{ ansible_distribution_version }}'
 
-- name:                     Install docker on SUSE
-  zypper: 
-    name:                   ['docker'] 
-    state:                  present
+- name: Install docker on SUSE
+  zypper:
+    name: [docker]
+    state: present
 
-- name:                     Install pip and passlib modules for Docker
+- name: Install pip and passlib modules for Docker
   vars:
-    ansible_python_interpreter:     /usr/bin/python3
+    ansible_python_interpreter: /usr/bin/python3
   pip:
-    name:                   ['docker', 'passlib', 'six']
+    name: [docker, passlib, six]
   when:
 
-- name:                     Prepare Docker folders
+- name: Prepare Docker folders
   file:
-    path:                   "{{ item }}"
-    state:                  directory
+    path: '{{ item }}'
+    state: directory
   with_items:
-   - "/etc/docker"
-   - "/etc/docker/auth"
-   - "/etc/docker/certs"
-   - "/etc/docker/registry"
-   - "/etc/docker/certs.d"
-   - "/etc/docker/certs.d/{{ inventory_hostname }}:5000"
-   - "/etc/systemd/system/docker.service.d"
+    - /etc/docker
+    - /etc/docker/auth
+    - /etc/docker/certs
+    - /etc/docker/registry
+    - /etc/docker/certs.d
+    - /etc/docker/certs.d/{{ inventory_hostname }}:5000
+    - /etc/systemd/system/docker.service.d
 
-- name:                     Setup Docker daemon
+- name: Setup Docker daemon
   template:
-    src:                    "{{ __docker_daemon_json_template }}"
-    dest:                   "{{ __docker_daemon_json_location }}"
+    src: '{{ __docker_daemon_json_template }}'
+    dest: '{{ __docker_daemon_json_location }}'
   when:
-   - __overlay2_enabled |bool
+    - __overlay2_enabled |bool
 
-- name:                     Add {{ __kubectl_user }} to the group docker
+- name: Add {{ __kubectl_user }} to the group docker
   user:
-    name:                   "{{ __kubectl_user }}"
-    groups:                 docker
-    append:                 yes
+    name: '{{ __kubectl_user }}'
+    groups: docker
+    append: 'yes'
 
-- name:                     Start Docker service
+- name: Start Docker service
   service:
-    name:                   docker
-    state:                  started
-    enabled:                yes
-    daemon_reload:          yes
+    name: docker
+    state: started
+    enabled: 'yes'
+    daemon_reload: 'yes'

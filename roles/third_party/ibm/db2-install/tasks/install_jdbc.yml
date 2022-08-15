@@ -1,26 +1,28 @@
-- name:                Install pre-requisites Yum
+---
+- name: Install pre-requisites Yum
   yum:
-    name:              ['unzip']
-    state:             present
+    name: [unzip]
+    state: present
   when:
     - ansible_os_family == "RedHat"
 
-- name:                "Create {{ __jdbc_installation_folder }}"
+- name: Create {{ __jdbc_installation_folder }}
   file:
-    path:              "{{ __jdbc_installation_folder }}"
-    state:             directory
+    path: '{{ __jdbc_installation_folder }}'
+    state: directory
 
-- name:                "Download and unzip drivers {{ __jdbc_package_name }} to the {{ __jdbc_installation_folder }}"
+- name: Download and unzip drivers {{ __jdbc_package_name }} to the {{ __jdbc_installation_folder }}
   unarchive:
-    src:               "{{ __download_location }}/{{ __jdbc_package_name }}"
-    dest:              "{{ __jdbc_installation_folder }}"
-    remote_src:        yes
+    src: '{{ __download_location }}/{{ __jdbc_package_name }}'
+    dest: '{{ __jdbc_installation_folder }}'
+    remote_src: 'yes'
   register: download_and_unpack_jdbc
   until: download_and_unpack_jdbc is succeeded
   retries: 3
 
-- name:                "Unzip the drivers distributed as zip in {{ __jdbc_package_name }}"
+- name: Unzip the drivers distributed as zip in {{ __jdbc_package_name }}
   unarchive:
-    src:               "{{ __jdbc_installation_folder }}/jdbc_sqlj/{{ __jdbc_bin_package_name }}"
-    dest:              "{{ __jdbc_installation_folder }}"
-    remote_src:        yes
+    src: '{{ __jdbc_installation_folder }}/jdbc_sqlj/{{ __jdbc_bin_package_name
+      }}'
+    dest: '{{ __jdbc_installation_folder }}'
+    remote_src: 'yes'

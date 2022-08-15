@@ -1,25 +1,26 @@
-- name:                   Download Haproxy
+---
+- name: Download Haproxy
   unarchive:
-    src:                  "{{ __haproxy_url }}"
-    dest:                 "/tmp"
-    copy:                 no
-  tags:                   download_haproxy
+    src: '{{ __haproxy_url }}'
+    dest: /tmp
+    copy: 'no'
+  tags: download_haproxy
   register: download_and_unpack_haproxy
   until: download_and_unpack_haproxy is succeeded
   retries: 3
 
-- name:                   Build Haproxy target with params
+- name: Build Haproxy target with params
   make:
-    chdir:                "{{ __haproxy_download_dir }}"
+    chdir: '{{ __haproxy_download_dir }}'
     params:
-      TARGET:             linux_glibc
-      USE_PCRE:           1
-      USE_OPENSSL:        1
-      ARCH:               x86_64
-      PCRE_LIB:           /usr/lib64
-      SSL_LIB:            /usr/lib64
+      TARGET: linux_glibc
+      USE_PCRE: 1
+      USE_OPENSSL: 1
+      ARCH: x86_64
+      PCRE_LIB: /usr/lib64
+      SSL_LIB: /usr/lib64
 
-- name:                   Install Haproxy
+- name: Install Haproxy
   make:
-    chdir:                "{{ __haproxy_download_dir }}"
-    target:               install
+    chdir: '{{ __haproxy_download_dir }}'
+    target: install

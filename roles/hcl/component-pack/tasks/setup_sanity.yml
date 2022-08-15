@@ -1,49 +1,54 @@
-- name:                      Find sanity helm file
+---
+- name: Find sanity helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "sanity-0*.tgz"
-    file_type:               file
-  register:                  sanity_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: sanity-0*.tgz
+    file_type: file
+  register: sanity_tgz
 
-- name:                      Found sanity file
+- name: Found sanity file
   debug:
-    msg:                     "{{ sanity_tgz.files[0].path }}"
+    msg: '{{ sanity_tgz.files[0].path }}'
 
-- name:                      "Render {{ __sanity_env }}"
+- name: Render {{ __sanity_env }}
   template:
-    src:                     "helmvars/sanity.yml.j2"
-    dest:                    "{{ __sanity_env }}"
-  become_user:               "{{ __sudo_user }}"
+    src: helmvars/sanity.yml.j2
+    dest: '{{ __sanity_env }}'
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Setup sanity
-  command:                   "helm upgrade sanity {{ sanity_tgz.files[0].path }} -i -f {{ __sanity_env }} --namespace {{ __default_namespace }}"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup sanity
+  command: helm upgrade sanity {{ sanity_tgz.files[0].path }} -i -f {{ __sanity_env }}
+    --namespace {{ __default_namespace }}
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Find sanity-watcher helm file
+- name: Find sanity-watcher helm file
   find:
-    paths:                   "{{ __helmbuilds_folder }}"
-    patterns:                "sanity-watcher-*.tgz"
-    file_type:               file
-  register:                  sanity_watcher_tgz
+    paths: '{{ __helmbuilds_folder }}'
+    patterns: sanity-watcher-*.tgz
+    file_type: file
+  register: sanity_watcher_tgz
 
-- name:                      Found sanity-watcher file
+- name: Found sanity-watcher file
   debug:
-    msg:                     "{{ sanity_watcher_tgz.files[0].path }}"
+    msg: '{{ sanity_watcher_tgz.files[0].path }}'
 
-- name:                      Setup sanity-watcher
-  command:                   "helm upgrade sanity-watcher {{ sanity_watcher_tgz.files[0].path }} -i -f {{ __sanity_env }} --namespace {{ __default_namespace }}"
-  become_user:               "{{ __sudo_user }}"
+- name: Setup sanity-watcher
+  command: helm upgrade sanity-watcher {{ sanity_watcher_tgz.files[0].path }} -i
+    -f {{ __sanity_env }} --namespace {{ __default_namespace }}
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Get the port where Sanity is running
-  shell:                     kubectl get --namespace {{ __default_namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services sanity
-  register:                  sanity_external_port
-  become_user:               "{{ __sudo_user }}"
+- name: Get the port where Sanity is running
+  shell: kubectl get --namespace {{ __default_namespace }} -o jsonpath="{.spec.ports[0].nodePort}"
+    services sanity
+  register: sanity_external_port
+  become_user: '{{ __sudo_user }}'
 
-- name:                      Get the IP where Sanity is accessible
-  shell:                     kubectl get nodes --namespace {{ __default_namespace }} -o jsonpath="{.items[0].status.addresses[0].address}"
-  register:                  sanity_external_ip
-  become_user:               "{{ __sudo_user }}"
+- name: Get the IP where Sanity is accessible
+  shell: kubectl get nodes --namespace {{ __default_namespace }} -o jsonpath="{.items[0].status.addresses[0].address}"
+  register: sanity_external_ip
+  become_user: '{{ __sudo_user }}'
 
-- name:                      You can access Sanity here
+- name: You can access Sanity here
   debug:
-    msg:                     "http://{{ sanity_external_ip['stdout'] }}:{{ sanity_external_port['stdout'] }}"
+    msg: http://{{ sanity_external_ip['stdout'] }}:{{ sanity_external_port['stdout']
+      }}

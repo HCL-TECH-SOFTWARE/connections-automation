@@ -1,34 +1,34 @@
 ---
-- name:                    Restart HTTP Servers
-  hosts:                   ihs_servers
-  become:                  true
+- name: Restart HTTP Servers
+  hosts: ihs_servers
+  become: true
   roles:
     - roles/third_party/ibm/ihs/ibm-http-server-restart
 
-- name:                    Restart DMGR
-  hosts:                   dmgr
-  become:                  true
+- name: Restart DMGR
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-restart
 
-- name:                    Restart WAS Nodes
-  hosts:                   was_servers
-  serial:                  1
-  become:                  true
+- name: Restart WAS Nodes
+  hosts: was_servers
+  serial: 1
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-nodeagent-stop
     - roles/third_party/ibm/wasnd/was-nodeagent-start
 
-- name:                    Restart CNX Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Restart CNX Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
 
-- name:                    Restart Docs Clusters
-  hosts:                   dmgr
-  become:                  true
+- name: Restart Docs Clusters
+  hosts: dmgr
+  become: true
   roles:
     - roles/hcl/docs/stop_docs_clusters
     - roles/hcl/docs/start_docs_clusters

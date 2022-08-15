@@ -1,17 +1,18 @@
 ---
-- name:          "Is nodeagent Running?"
-  shell:         "ps -p `cat '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/nodeagent/nodeagent.pid'` > /dev/null"
-  register:      nodeagent_is_running
+- name: Is nodeagent Running?
+  shell: ps -p `cat '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/nodeagent/nodeagent.pid'`
+    > /dev/null
+  register: nodeagent_is_running
   ignore_errors: true
 
-- name:          "Start nodeagent"
-  command:       "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin/startNode.sh"
-  register:      dmgr_start
-  changed_when:  dmgr_start.rc == 0
-  failed_when:   dmgr_start.rc != 0
-  when:          nodeagent_is_running.rc != 0
+- name: Start nodeagent
+  command: '{{ __was_install_location }}/profiles/{{ __profile_name }}/bin/startNode.sh'
+  register: dmgr_start
+  changed_when: dmgr_start.rc == 0
+  failed_when: dmgr_start.rc != 0
+  when: nodeagent_is_running.rc != 0
 
-- name:          Wait 60 seconds for nodeagent to activate
+- name: Wait 60 seconds for nodeagent to activate
   pause:
-    seconds:     60
-  when:          (dmgr_start.rc is defined) and (dmgr_start.rc == 0)
+    seconds: 60
+  when: (dmgr_start.rc is defined) and (dmgr_start.rc == 0)

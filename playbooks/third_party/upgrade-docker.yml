@@ -1,8 +1,7 @@
-# Setup Docker Registry
 ---
-- name:                    Setup Docker Registry
-  hosts:                   docker_registry
-  serial:                  1
-  become:                  true
+- name: Setup Docker Registry
+  hosts: docker_registry
+  serial: 1
+  become: true
   roles:
     - roles/third_party/docker-install

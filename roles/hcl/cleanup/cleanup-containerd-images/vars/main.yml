@@ -1,2 +1,2 @@
 ---
-__force_destroy_containerd_images:        "{{ force_destroy_containerd_images | default(false) }}"
+__force_destroy_containerd_images: '{{ force_destroy_containerd_images | default(false) }}'

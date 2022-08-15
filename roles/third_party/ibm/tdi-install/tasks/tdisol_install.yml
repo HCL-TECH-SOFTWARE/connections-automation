@@ -1,32 +1,33 @@
-- name:                  "Going to update tdisol from Connections kit: {{ __cnx_updates_enabled }} "
+---
+- name: 'Going to update tdisol from Connections kit: {{ __cnx_updates_enabled }} '
   debug:
-    var:                 "{{ __cnx_updates_enabled }}"
+    var: '{{ __cnx_updates_enabled }}'
 
-- name:                  "Going to update tdisol from a separate tdisol tar: {{ tdi_sol_location }}"
+- name: 'Going to update tdisol from a separate tdisol tar: {{ tdi_sol_location }}'
   debug:
-    var:                 tdi_sol_location is defined
+    var: tdi_sol_location is defined
   when:
     - tdi_sol_location is defined
 
-- name:                  Clean up installation folder(s)
+- name: Clean up installation folder(s)
   file:
-    path:                "{{ __cnx_extraction_folder }}"
-    state:               absent
+    path: '{{ __cnx_extraction_folder }}'
+    state: absent
   when:
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
 
-- name:                  Create installation folder
+- name: Create installation folder
   file:
-    path:                "{{ __cnx_extraction_folder }}"
-    state:               directory
+    path: '{{ __cnx_extraction_folder }}'
+    state: directory
   when:
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
 
-- name:                  Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
+- name: Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
   unarchive:
-    src:                 "{{ __cnx_download_location }}/{{ __cnx_package_name }}"
-    dest:                "{{ __cnx_extraction_folder }}"
-    remote_src:          yes
+    src: '{{ __cnx_download_location }}/{{ __cnx_package_name }}'
+    dest: '{{ __cnx_extraction_folder }}'
+    remote_src: 'yes'
   when:
     - __cnx_updates_enabled  |bool
     - tdi_sol_location is not defined
@@ -34,126 +35,127 @@
   until: download_and_unpack_tdisol_cnx is succeeded
   retries: 3
 
-- name:                  Clean up tdisol installation folder(s)
+- name: Clean up tdisol installation folder(s)
   file:
-    path:                "{{ __tdi_sol_dest }}"
-    state:               absent
+    path: '{{ __tdi_sol_dest }}'
+    state: absent
   when:
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
 
-- name:                  "Create {{ __tdi_sol_dest }} folder"
+- name: Create {{ __tdi_sol_dest }} folder
   file:
-    path:                "{{ __tdi_sol_dest }}"
-    state:               directory
+    path: '{{ __tdi_sol_dest }}'
+    state: directory
   when:
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
 
-- name:                  Set up tdisol
+- name: Set up tdisol
   unarchive:
-    src:                 "{{ __tdi_sol_location }}"
-    dest:                "{{ __tdi_sol_dest }}"
-    remote_src:          yes
+    src: '{{ __tdi_sol_location }}'
+    dest: '{{ __tdi_sol_dest }}'
+    remote_src: 'yes'
   when:
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
   register: download_and_unpack_tdisol
   until: download_and_unpack_tdisol is succeeded
   retries: 3
 
-- name:                  "Render {{ __tdienv_sh_dest }}"
+- name: Render {{ __tdienv_sh_dest }}
   template:
-    src:                 "{{ __tdienv_sh_template }}"
-    dest:                "{{ __tdienv_sh_dest }}"
+    src: '{{ __tdienv_sh_template }}'
+    dest: '{{ __tdienv_sh_dest }}'
 
-- name:                  "Render {{ __tdi_properties_dest }}"
+- name: Render {{ __tdi_properties_dest }}
   template:
-    src:                 "{{ __tdi_properties_template }}"
-    dest:                "{{ __tdi_properties_dest }}"
+    src: '{{ __tdi_properties_template }}'
+    dest: '{{ __tdi_properties_dest }}'
 
-- name:                  "Render {{ __tdi_mdbrfs_destination }}"
+- name: Render {{ __tdi_mdbrfs_destination }}
   template:
-    src:                 "{{ __tdi_mdbrfs_template }}"
-    dest:                "{{ __tdi_mdbrfs_destination }}"
+    src: '{{ __tdi_mdbrfs_template }}'
+    dest: '{{ __tdi_mdbrfs_destination }}'
 
-- name:                  Make files executable
+- name: Make files executable
   file:
-    dest:                "{{ __tdi_sol_dest }}/TDI/{{ item }}"
-    mode:                a+x
+    dest: '{{ __tdi_sol_dest }}/TDI/{{ item }}'
+    mode: a+x
   with_items:
-   - "clearRC.sh"
-   - "collect_dns.sh"
-   - "derby.sh"
-   - "netstore"
-   - "tdienv.sh"
-   - "populate_from_dn_file.sh"
+    - clearRC.sh
+    - collect_dns.sh
+    - derby.sh
+    - netstore
+    - tdienv.sh
+    - populate_from_dn_file.sh
 
-- name:                   Checking existing version for jre
-  shell:                  "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
-  register:               jre_version_stat
+- name: Checking existing version for jre
+  shell: "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"\
+    ' 'NR==1{ print $2 }'"
+  register: jre_version_stat
 
 - debug:
-    msg: "{{ jre_version_stat.stdout }}"
+    msg: '{{ jre_version_stat.stdout }}'
 
-- name:                  "Copy DB2 JDBC files"
+- name: Copy DB2 JDBC files
   copy:
-    src:                 "{{ __db2_jdbc_location }}/{{ item }}"
-    dest:                "{{ __jdbc_destination }}"
-    remote_src:          yes
+    src: '{{ __db2_jdbc_location }}/{{ item }}'
+    dest: '{{ __jdbc_destination }}'
+    remote_src: 'yes'
   with_items:
-   - "db2jcc4.jar"
-   - "db2jcc_license_cu.jar"
+    - db2jcc4.jar
+    - db2jcc_license_cu.jar
   when:
     - "'db2_servers' in groups"
 
-- name:                  "Copy Oracle JDBC files for TDI JRE 7"
+- name: Copy Oracle JDBC files for TDI JRE 7
   get_url:
-    url:                 "{{ __oracle_download_location }}/{{ item }}"
-    dest:                "{{ __jdbc_destination }}"
-    mode:                0755
+    url: '{{ __oracle_download_location }}/{{ item }}'
+    dest: '{{ __jdbc_destination }}'
+    mode: 0755
   with_items:
-   - "ojdbc7.jar"
+    - ojdbc7.jar
   when:
     - "'oracle_servers' in groups"
     - "'1.7' in jre_version_stat.stdout"
 
-- name:                  "Copy Oracle JDBC files for TDI JRE 8"
+- name: Copy Oracle JDBC files for TDI JRE 8
   get_url:
-    url:                 "{{ __oracle_download_location }}/{{ item }}"
-    dest:                "{{ __jdbc_destination }}"
-    mode:                0755
+    url: '{{ __oracle_download_location }}/{{ item }}'
+    dest: '{{ __jdbc_destination }}'
+    mode: 0755
   with_items:
-   - "ojdbc8.jar"
+    - ojdbc8.jar
   when:
     - "'oracle_servers' in groups"
     - "'1.8' in jre_version_stat.stdout"
 
-- name:                  "Copy MSSQL JDBC files for TDI JRE 7"
+- name: Copy MSSQL JDBC files for TDI JRE 7
   copy:
-    src:                 "{{ __mssql_jdbc_location }}/{{ item }}"
-    dest:                "{{ __jdbc_destination }}"
-    remote_src:          yes
+    src: '{{ __mssql_jdbc_location }}/{{ item }}'
+    dest: '{{ __jdbc_destination }}'
+    remote_src: 'yes'
   with_items:
-   - "sqljdbc41.jar"
+    - sqljdbc41.jar
   when:
     - "'mssql_servers' in groups"
     - "'1.7' in jre_version_stat.stdout"
 
-- name:                  "Copy MSSQL JDBC files for TDI JRE 8"
+- name: Copy MSSQL JDBC files for TDI JRE 8
   copy:
-    src:                 "{{ __mssql_jdbc_jre8_location }}/{{ item }}"
-    dest:                "{{ __jdbc_destination }}"
-    remote_src:          yes
+    src: '{{ __mssql_jdbc_jre8_location }}/{{ item }}'
+    dest: '{{ __jdbc_destination }}'
+    remote_src: 'yes'
   with_items:
-   - "sqljdbc42.jar"
+    - sqljdbc42.jar
   when:
     - "'mssql_servers' in groups"
     - "'1.8' in jre_version_stat.stdout"
 
-- name:                  "Run collect_dns.sh"
-  command:               "sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh"
-  register:              collectdns
-  failed_when:           collectdns.rc != 0
+- name: Run collect_dns.sh
+  command: sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh
+  register: collectdns
+  failed_when: collectdns.rc != 0
 
-- name:                  "Run populate_from_dn_file.sh"
-  command:               "sh {{ __tdi_sol_dest }}/TDI/populate_from_dn_file.sh"
-  register:              populatefromdnfile
-  failed_when:           populatefromdnfile.rc != 0
+- name: Run populate_from_dn_file.sh
+  command: sh {{ __tdi_sol_dest }}/TDI/populate_from_dn_file.sh
+  register: populatefromdnfile
+  failed_when: populatefromdnfile.rc != 0

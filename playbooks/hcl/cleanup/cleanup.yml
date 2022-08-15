@@ -1,61 +1,60 @@
-# Cleanup
 ---
-- name:                              Cleanup WAS
+- name: Cleanup WAS
   vars:
-    force_destroy_kubernetes:        false
-    force_destroy_db2:               false
-    force_destroy_ihs:               false
-    force_destroy_oracle:            false
-    force_destroy_tdi:               false
-  import_playbook:                   cleanup-was.yml
+    force_destroy_kubernetes: false
+    force_destroy_db2: false
+    force_destroy_ihs: false
+    force_destroy_oracle: false
+    force_destroy_tdi: false
+  import_playbook: cleanup-was.yml
 
-- name:                              Cleanup IHS
+- name: Cleanup IHS
   vars:
-    force_destroy_kubernetes:        false
-    force_destroy_db2:               false
-    force_destroy_websphere:         false
-    force_destroy_oracle:            false
-    force_destroy_tdi:               false
-  import_playbook:                   cleanup-ihs.yml
+    force_destroy_kubernetes: false
+    force_destroy_db2: false
+    force_destroy_websphere: false
+    force_destroy_oracle: false
+    force_destroy_tdi: false
+  import_playbook: cleanup-ihs.yml
 
-- name:                              Cleanup Kubernetes
+- name: Cleanup Kubernetes
   vars:
-    force_destroy_ihs:               false
-    force_destroy_db2:               false
-    force_destroy_websphere:         false
-    force_destroy_oracle:            false
-    force_destroy_tdi:               false
-  import_playbook:                   cleanup-k8s.yml
+    force_destroy_ihs: false
+    force_destroy_db2: false
+    force_destroy_websphere: false
+    force_destroy_oracle: false
+    force_destroy_tdi: false
+  import_playbook: cleanup-k8s.yml
 
-- name:                              Cleanup DB2 database
+- name: Cleanup DB2 database
   vars:
-    force_destroy_ihs:               false
-    force_destroy_kubernetes:        false
-    force_destroy_websphere:         false
-    force_destroy_oracle:            false
-    force_destroy_tdi:               false
-  import_playbook:                   cleanup-db2.yml
+    force_destroy_ihs: false
+    force_destroy_kubernetes: false
+    force_destroy_websphere: false
+    force_destroy_oracle: false
+    force_destroy_tdi: false
+  import_playbook: cleanup-db2.yml
 
-- name:                              Cleanup TDI
+- name: Cleanup TDI
   vars:
-    force_destroy_ihs:               false
-    force_destroy_kubernetes:        false
-    force_destroy_websphere:         false
-    force_destroy_oracle:            false
-    force_destroy_db2:               false
-  import_playbook:                   cleanup-tdi.yml
+    force_destroy_ihs: false
+    force_destroy_kubernetes: false
+    force_destroy_websphere: false
+    force_destroy_oracle: false
+    force_destroy_db2: false
+  import_playbook: cleanup-tdi.yml
 
-- name:                              Cleanup Oracle database
+- name: Cleanup Oracle database
   vars:
-    force_destroy_ihs:               false
-    force_destroy_kubernetes:        false
-    force_destroy_websphere:         false
-    force_destroy_db2:               false
-    force_destroy_tdi:               false
-  import_playbook:                   cleanup-oracle.yml
+    force_destroy_ihs: false
+    force_destroy_kubernetes: false
+    force_destroy_websphere: false
+    force_destroy_db2: false
+    force_destroy_tdi: false
+  import_playbook: cleanup-oracle.yml
 
-- name:                              Cleanup NFS
-  import_playbook:                   cleanup-nfs.yml
+- name: Cleanup NFS
+  import_playbook: cleanup-nfs.yml
 
-- name:                              Cleanup Containerd Images
-  import_playbook:                   cleanup-containerd-images.yml
+- name: Cleanup Containerd Images
+  import_playbook: cleanup-containerd-images.yml

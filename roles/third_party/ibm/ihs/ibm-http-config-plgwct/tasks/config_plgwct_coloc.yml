@@ -1,21 +1,30 @@
 ---
-- name:                 Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml to {{ __plg_install_location }}/config/{{ inventory_hostname_short }}/
+- name: Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+    __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml to {{ __plg_install_location }}/config/{{
+    inventory_hostname_short }}/
   copy:
-    src:                "{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml"
-    dest:               "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/"
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: '{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+      __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml'
+    dest: '{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/'
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb to {{ __plg_install_location }}/config/{{ inventory_hostname_short }}/
+- name: Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+    __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb to {{ __plg_install_location }}/config/{{
+    inventory_hostname_short }}/
   copy:
-    src:                "{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb"
-    dest:               "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/"
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: '{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+      __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.kdb'
+    dest: '{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/'
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'
 
-- name:                 Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth to {{ __plg_install_location }}/config/{{ inventory_hostname_short }}/
+- name: Copy {{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+    __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth to {{ __plg_install_location }}/config/{{
+    inventory_hostname_short }}/
   copy:
-    src:                "{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth"
-    dest:               "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/"
-    remote_src:         yes
-  delegate_to:          "{{ dmgr_hostname }}"
+    src: '{{ __was_install_location }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{
+      __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-key.sth'
+    dest: '{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/'
+    remote_src: 'yes'
+  delegate_to: '{{ dmgr_hostname }}'

@@ -1,7 +1,6 @@
-# check defined variables
 ---
 - name: ihs_password should be defined
   assert:
     that:
-    - ihs_password is defined and ihs_password|length > 0
-    msg: "Set the value of 'ihs_password' in the inventory file."
+      - ihs_password is defined and ihs_password|length > 0
+    msg: Set the value of 'ihs_password' in the inventory file.

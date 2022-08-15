@@ -1,15 +1,15 @@
 ---
-- name:                        Install build dependencies
-  include_tasks:               setup_os.yml
+- name: Install build dependencies
+  include_tasks: setup_os.yml
 
-- name:                        Setup user
-  include_tasks:               setup_prereqs.yml
+- name: Setup user
+  include_tasks: setup_prereqs.yml
 
-- name:                        Create folders
-  include_tasks:               setup_haproxy.yml
+- name: Create folders
+  include_tasks: setup_haproxy.yml
 
-- name:                        Download and build Haproxy
-  include_tasks:               download_and_build_haproxy.yml
+- name: Download and build Haproxy
+  include_tasks: download_and_build_haproxy.yml
 
-- name:                        Configure Haproxy
-  include_tasks:               configure_haproxy.yml
+- name: Configure Haproxy
+  include_tasks: configure_haproxy.yml

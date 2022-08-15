@@ -2,54 +2,55 @@
 - name: cnx_repository_url should be defined
   assert:
     that:
-    - cnx_repository_url|length > 0
-    msg: "Set the value of 'cnx_repository_url' in the inventory file."
+      - cnx_repository_url|length > 0
+    msg: Set the value of 'cnx_repository_url' in the inventory file.
 
 - name: dmgr_hostname should be defined
   assert:
     that:
-    - dmgr_hostname|length > 0
-    msg: "Set the value of 'dmgr_hostname' in the inventory file."
+      - dmgr_hostname|length > 0
+    msg: Set the value of 'dmgr_hostname' in the inventory file.
 
 - name: cnx_was_servers should be defined
   assert:
     that:
-    - "groups['cnx_was_servers'] |length > 0"
-    msg: "Set the value of 'cnx_was_servers' in the inventory file."
+      - groups['cnx_was_servers'] |length > 0
+    msg: Set the value of 'cnx_was_servers' in the inventory file.
 
 - name: was_username should be defined
   assert:
     that:
-    - was_username|length > 0
-    msg: "Set the value of 'was_username' in the inventory file."
+      - was_username|length > 0
+    msg: Set the value of 'was_username' in the inventory file.
 
 - name: was_password should be defined
   assert:
     that:
-    - was_password|length > 0
-    msg: "Set the value of 'was_password' in the inventory file."
+      - was_password|length > 0
+    msg: Set the value of 'was_password' in the inventory file.
 
 - name: smtp_hostname should be defined
   assert:
     that:
-    - smtp_hostname|length > 0
-    msg: "Set the value of 'smtp_hostname' in the inventory file."
+      - smtp_hostname|length > 0
+    msg: Set the value of 'smtp_hostname' in the inventory file.
 
 - name: cnx_application_ingress should be defined
   assert:
     that:
-    - cnx_application_ingress|length > 0
-    msg: "Set the value of 'cnx_application_ingress' in the inventory file. This is dynamicHost value."
+      - cnx_application_ingress|length > 0
+    msg: Set the value of 'cnx_application_ingress' in the inventory file. This
+      is dynamicHost value.
 
 - name: connections_admin should be defined
   assert:
     that:
-    - connections_admin|length > 0
-    msg: "Set the value of 'connections_admin' in the inventory file."
+      - connections_admin|length > 0
+    msg: Set the value of 'connections_admin' in the inventory file.
 
 - name: ldap_user_mail_domain should be defined
   assert:
     that:
-    - ldap_user_mail_domain|length > 0
-    msg: "Set the value of 'ldap_user_mail_domain' in the inventory file."
+      - ldap_user_mail_domain|length > 0
+    msg: Set the value of 'ldap_user_mail_domain' in the inventory file.
   ignore_errors: true

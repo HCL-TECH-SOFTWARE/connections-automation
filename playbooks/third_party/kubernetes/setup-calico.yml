@@ -1,8 +1,7 @@
-# Install/Upgrade Calico CNI
 ---
-- name:                    Install Kubernetes addons...
-  hosts:                   k8s_masters
-  serial:                  1
-  become:                  true
+- name: Install Kubernetes addons...
+  hosts: k8s_masters
+  serial: 1
+  become: true
   roles:
     - roles/third_party/kubernetes/install-network-addons

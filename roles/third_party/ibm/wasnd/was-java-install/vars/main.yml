@@ -1,34 +1,34 @@
 ---
-__tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}/was_fixes"
-__logs_dir:               "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
-__iim_install_location:   "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
-__was_install_location:   "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
-__imshared_location:      "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
-__now:                    "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
-__rsp_file:               "{{ __logs_dir }}/was_java.rsp"
-__log_file:               "{{ __logs_dir }}/was_java_install.{{ __now }}.log"
-__tpl_file:               "was_java.rsp.j2"
+__tmp_dir: "{{ tmp_dir | default('/opt/IBM/Binaries') }}/was_fixes"
+__logs_dir: "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
+__iim_install_location: "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__imshared_location: "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__now: "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__rsp_file: '{{ __logs_dir }}/was_java.rsp'
+__log_file: '{{ __logs_dir }}/was_java_install.{{ __now }}.log'
+__tpl_file: was_java.rsp.j2
 
-__version_latest:         "{{ was_java_version_latest | default( __version_fp18 ) }}"
-__files_latest:           "{{ was_java_files_latest | default( __files_fp18 ) }}"
+__version_latest: '{{ was_java_version_latest | default( __version_fp18 ) }}'
+__files_latest: '{{ was_java_files_latest | default( __files_fp18 ) }}'
 
-__version_fp18:           "8.0.6015.20200826_0935"
+__version_fp18: 8.0.6015.20200826_0935
 __files_fp18:
-  - { file_name: 8.0.6.15-WS-IBMWASJAVA-Linux.zip }
+  - {file_name: 8.0.6.15-WS-IBMWASJAVA-Linux.zip}
 
-__version_fp16:           "8.0.5017.20180726_2118"
+__version_fp16: 8.0.5017.20180726_2118
 __files_fp16:
-  - { file_name: 8.0.5.17-WS-IBMWASJAVA-Linux.zip }
+  - {file_name: 8.0.5.17-WS-IBMWASJAVA-Linux.zip}
 
-__was_java_version:       "{{ java_version | default( __version_latest ) }}"
-__was_java_files:         "{{ java_files | default( __files_latest ) }}"
-__was_java_version_check: "Installed com.ibm.websphere.IBMJAVA.v80_{{ __was_java_version }}"
+__was_java_version: '{{ java_version | default( __version_latest ) }}'
+__was_java_files: '{{ java_files | default( __files_latest ) }}'
+__was_java_version_check: Installed com.ibm.websphere.IBMJAVA.v80_{{ __was_java_version }}
 
-__iim_keep_fetched_files: "{{ iim_keep_fetched_files | default(false) }}"
-__iim_preserve_artifacts: "{{ iim_preserve_artifacts | default(false) }}"
+__iim_keep_fetched_files: '{{ iim_keep_fetched_files | default(false) }}'
+__iim_preserve_artifacts: '{{ iim_preserve_artifacts | default(false) }}'
 
-__was_fixes_version:       "{{ was_fp_version | default( __was_fp_version_latest ) }}"
-__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp21 ) }}"
-__was_fp_version_fp20:     "8.5.5020.20210708_1826"
-__was_fp_version_fp19:     "8.5.5019.20210118_0346"
-__was_fp_version_fp21:     "8.5.5021.20220202_1245"
+__was_fixes_version: '{{ was_fp_version | default( __was_fp_version_latest ) }}'
+__was_fp_version_latest: '{{ was_fp_version_latest | default( __was_fp_version_fp21 ) }}'
+__was_fp_version_fp20: 8.5.5020.20210708_1826
+__was_fp_version_fp19: 8.5.5019.20210118_0346
+__was_fp_version_fp21: 8.5.5021.20220202_1245

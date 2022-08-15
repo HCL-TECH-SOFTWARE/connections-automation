@@ -1,8 +1,10 @@
-- name:                 Label worker nodes as infrastructure for HA
-  command:              "kubectl label nodes {{ item }} type=infrastructure --overwrite"
+---
+- name: Label worker nodes as infrastructure for HA
+  command: kubectl label nodes {{ item }} type=infrastructure --overwrite
   with_items:
-   - "{{ groups['k8s_workers'] }}"
+    - "{{ groups['k8s_workers'] }}"
   when:
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length)
+      == 1 and (groups.k8s_workers|length) == 1 ) != true
     - inventory_hostname in groups['k8s_workers']
-  become:               false
+  become: false

@@ -1,23 +1,26 @@
 ---
-- name:          "Is dmgr Running?"
-  shell:         "ps -p `cat '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid'` > /dev/null"
-  register:      dmgr_is_running
+- name: Is dmgr Running?
+  shell: ps -p `cat '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid'`
+    > /dev/null
+  register: dmgr_is_running
   ignore_errors: true
 
-- name:          "Stop Dmgr"
-  command:       "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin/stopManager.sh  -username {{ was_username }} -password {{ was_password }}"
-  register:      cout
-  changed_when:  cout.rc == 0
-  when:          dmgr_is_running.rc == 0
+- name: Stop Dmgr
+  command: '{{ __was_install_location }}/profiles/{{ __profile_name }}/bin/stopManager.sh  -username
+    {{ was_username }} -password {{ was_password }}'
+  register: cout
+  changed_when: cout.rc == 0
+  when: dmgr_is_running.rc == 0
   retries: 3
   delay: 30
   until: cout is not search("is already in progress")
 
-- name:          Wait 10 seconds to start DMGR
+- name: Wait 10 seconds to start DMGR
   pause:
-    seconds:     10
+    seconds: 10
 
-- name:          "Is dmgr Running?"
-  shell:         "ps -p `cat '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid'` > /dev/null"
-  register:      dmgr_is_running
+- name: Is dmgr Running?
+  shell: ps -p `cat '{{ __was_install_location }}/profiles/{{ __profile_name }}/logs/dmgr/dmgr.pid'`
+    > /dev/null
+  register: dmgr_is_running
   ignore_errors: true

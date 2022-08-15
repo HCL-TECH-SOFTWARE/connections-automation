@@ -1,4 +1,5 @@
-- name:                                             Install nfs-server
+---
+- name: Install nfs-server
   yum:
-    name:                                           ['nfs-utils', 'cifs-utils']
-    state:                                          present
+    name: [nfs-utils, cifs-utils]
+    state: present

@@ -1,78 +1,82 @@
 ---
-- name:              Cleanup Binaries directory
-  file:              path={{ __tmp_dir }}/{{ item }} state=absent
-  ignore_errors:     true
+- name: Cleanup Binaries directory
+  file: path={{ __tmp_dir }}/{{ item }} state=absent
+  ignore_errors: true
   with_items:
-    - "cnx"
-    - "cnx-cr"
-    - "CTemp"
+    - cnx
+    - cnx-cr
+    - CTemp
 
-- name:              Create Binaries directory
-  file:              path={{ __tmp_dir }}/{{ item }} state=directory mode=0755
+- name: Create Binaries directory
+  file: path={{ __tmp_dir }}/{{ item }} state=directory mode=0755
   with_items:
-    - "cnx"
-    - "cnx-cr"
-    - "CTemp"
+    - cnx
+    - cnx-cr
+    - CTemp
 
-- name:              Create Logs directory
-  file:              path={{ __logs_dir }} state=directory mode=0755
+- name: Create Logs directory
+  file: path={{ __logs_dir }} state=directory mode=0755
 
-- name:              Download Installer
+- name: Download Installer
   get_url:
-    url:             "{{ cnx_repository_url }}/{{ __cnx_package }}"
-    dest:            "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
-    mode:            0755
+    url: '{{ cnx_repository_url }}/{{ __cnx_package }}'
+    dest: '{{ __tmp_dir }}/cnx/{{ __cnx_package }}'
+    mode: 0755
 
-- name:              Extract Installer
+- name: Extract Installer
   unarchive:
-    src:             "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
-    dest:            "{{ __tmp_dir }}/cnx/"
-    copy:            no
+    src: '{{ __tmp_dir }}/cnx/{{ __cnx_package }}'
+    dest: '{{ __tmp_dir }}/cnx/'
+    copy: 'no'
   register: download_and_unpack_connections
   until: download_and_unpack_connections is succeeded
   retries: 3
 
-- name:              Download Installer CCM
+- name: Download Installer CCM
   get_url:
-    url:             "{{ cnx_repository_url }}/{{ item.file_name }}"
-    dest:            "{{ __tmp_dir }}/cnx/{{ item.file_name }}"
-    mode:            0755
-  with_items:        "{{ __ccm_files }}"
-  when:              (ccm_install is defined)
+    url: '{{ cnx_repository_url }}/{{ item.file_name }}'
+    dest: '{{ __tmp_dir }}/cnx/{{ item.file_name }}'
+    mode: 0755
+  with_items: '{{ __ccm_files }}'
+  when: (ccm_install is defined)
 
-- name:              "Download Installer Connections CR Fixes"
+- name: Download Installer Connections CR Fixes
   get_url:
-    url:             "{{ cnx_fixes_repository_url }}/{{ item.file_name }}"
-    dest:            "{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}"
-    mode:            0755
-  with_items:        "{{ __cnx_fixes_files }}"
-  when:             (cnx_fixes_version is defined)
+    url: '{{ cnx_fixes_repository_url }}/{{ item.file_name }}'
+    dest: '{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}'
+    mode: 0755
+  with_items: '{{ __cnx_fixes_files }}'
+  when: (cnx_fixes_version is defined)
 
-- name:              "Extract Installer Connections CR Fixes"
+- name: Extract Installer Connections CR Fixes
   unarchive:
-    src:             "{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}"
-    dest:            "{{ __tmp_dir }}/cnx-cr/"
-    copy:            no
-  with_items:        "{{ __cnx_fixes_files }}"
-  when:             (cnx_fixes_version is defined)
+    src: '{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}'
+    dest: '{{ __tmp_dir }}/cnx-cr/'
+    copy: 'no'
+  with_items: '{{ __cnx_fixes_files }}'
+  when: (cnx_fixes_version is defined)
   register: download_and_unpack_connections_crs
   until: download_and_unpack_connections_crs is succeeded
   retries: 3
 
-- name:              "Get the installation ID"
-  shell:             cat "{{ __tmp_dir }}/cnx/HCL_Connections_Install/HCLConnections/repository.xml" | grep "offering id" | grep version | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2
-  register:          cnx_upgrade_version_base
-  when:              (cnx_fixes_version is not defined)
+- name: Get the installation ID
+  shell: cat "{{ __tmp_dir }}/cnx/HCL_Connections_Install/HCLConnections/repository.xml"
+    | grep "offering id" | grep version | awk {'print $3'} | cut -d'=' -f2 | cut
+    -d '>' -f1 | tail -c +2 | head -c -2
+  register: cnx_upgrade_version_base
+  when: (cnx_fixes_version is not defined)
 
-- name:              "Get the installation ID from CR"
-  # offering id appears three times in the repository file, so limiting to last occurrence
-  shell:             cat "{{ __tmp_dir }}/cnx-cr/updates/repository.xml" | grep "offering id" | tail -n1 | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2 | head -c -2
-  register:          cnx_upgrade_version_cr
-  when:              (cnx_fixes_version is defined)
+- name: Get the installation ID from CR
+# offering id appears three times in the repository file, so limiting to last occurrence
+  shell: cat "{{ __tmp_dir }}/cnx-cr/updates/repository.xml" | grep "offering id"
+    | tail -n1 | awk {'print $3'} | cut -d'=' -f2 | cut -d '>' -f1 | tail -c +2
+    | head -c -2
+  register: cnx_upgrade_version_cr
+  when: (cnx_fixes_version is defined)
 
-- name:              Set cnx_upgrade_version
+- name: Set cnx_upgrade_version
   set_fact:
-    cnx_upgrade_version:  "{{ cnx_upgrade_version_base if (cnx_upgrade_version_base is changed) else cnx_upgrade_version_cr }}"
+    cnx_upgrade_version: '{{ cnx_upgrade_version_base if (cnx_upgrade_version_base is changed) else cnx_upgrade_version_cr }}'
 
 - debug: var=cnx_upgrade_version.stdout
   run_once: true

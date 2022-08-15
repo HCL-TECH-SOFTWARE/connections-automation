@@ -1,7 +1,8 @@
-- name:                 Show me hostvars
+---
+- name: Show me hostvars
   debug:
-    msg:                "{{ hostvars }}"
+    msg: '{{ hostvars }}'
 
-- name:                 Show me hostvars
+- name: Show me hostvars
   debug:
-    msg:                "{{ groups['k8s_masters'][0].split('.', 1)[1] }}"
+    msg: "{{ groups['k8s_masters'][0].split('.', 1)[1] }}"

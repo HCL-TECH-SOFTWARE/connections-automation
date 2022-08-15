@@ -1,63 +1,64 @@
 ---
-__tmp_dir:                 "{{ tmp_dir | default('/opt/IBM/Binaries') }}/was_fixes"
-__logs_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
-__iim_install_location:    "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
-__was_install_location:    "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
-__imshared_location:       "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
-__now:                     "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
-__rsp_file:                "{{ __logs_dir }}/was_nd_fixes.rsp"
-__log_file:                "{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log"
-__tpl_file:                "was_nd_fixes.rsp.j2"
+__tmp_dir: "{{ tmp_dir | default('/opt/IBM/Binaries') }}/was_fixes"
+__logs_dir: "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
+__iim_install_location: "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__imshared_location: "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__now: "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__rsp_file: '{{ __logs_dir }}/was_nd_fixes.rsp'
+__log_file: '{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log'
+__tpl_file: was_nd_fixes.rsp.j2
 
-__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp21 ) }}"
-__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp21 ) }}"
+__was_fp_version_latest: '{{ was_fp_version_latest | default( __was_fp_version_fp21 ) }}'
+__was_fp_files_latest: '{{ was_fp_files_latest | default( __was_fp_files_fp21 ) }}'
 
-__was_fp_version_log4j:       "8.5.5011.20211215_1027"
+__was_fp_version_log4j: 8.5.5011.20211215_1027
 __was_fp_files_log4j:
-    - { file_name: 8.5.5.11-ws-wasprod-ifph42762.zip }
+  - {file_name: 8.5.5.11-ws-wasprod-ifph42762.zip}
 
-__was_fp_version_fp21:     "8.5.5021.20220202_1245"
+__was_fp_version_fp21: 8.5.5021.20220202_1245
 __was_fp_files_fp21:
-  - { file_name: 8.5.5-WS-WAS-FP021-part1.zip }
-  - { file_name: 8.5.5-WS-WAS-FP021-part2.zip }
-  - { file_name: 8.5.5-WS-WAS-FP021-part3.zip }
+  - {file_name: 8.5.5-WS-WAS-FP021-part1.zip}
+  - {file_name: 8.5.5-WS-WAS-FP021-part2.zip}
+  - {file_name: 8.5.5-WS-WAS-FP021-part3.zip}
 
-__was_fp_version_fp20:     "8.5.5020.20210708_1826"
+__was_fp_version_fp20: 8.5.5020.20210708_1826
 __was_fp_files_fp20:
-  - { file_name: 8.5.5-WS-WAS-FP020-part1.zip }
-  - { file_name: 8.5.5-WS-WAS-FP020-part2.zip }
-  - { file_name: 8.5.5-WS-WAS-FP020-part3.zip }
+  - {file_name: 8.5.5-WS-WAS-FP020-part1.zip}
+  - {file_name: 8.5.5-WS-WAS-FP020-part2.zip}
+  - {file_name: 8.5.5-WS-WAS-FP020-part3.zip}
 
-__was_fp_version_fp19:     "8.5.5019.20210118_0346"
+__was_fp_version_fp19: 8.5.5019.20210118_0346
 __was_fp_files_fp19:
-  - { file_name: 8.5.5-WS-WAS-FP019-part1.zip }
-  - { file_name: 8.5.5-WS-WAS-FP019-part2.zip }
-  - { file_name: 8.5.5-WS-WAS-FP019-part3.zip }
+  - {file_name: 8.5.5-WS-WAS-FP019-part1.zip}
+  - {file_name: 8.5.5-WS-WAS-FP019-part2.zip}
+  - {file_name: 8.5.5-WS-WAS-FP019-part3.zip}
 
-__was_fp_version_fp18:     "8.5.5018.20200910_1821"
+__was_fp_version_fp18: 8.5.5018.20200910_1821
 __was_fp_files_fp18:
-  - { file_name: 8.5.5-WS-WAS-FP018-part1.zip }
-  - { file_name: 8.5.5-WS-WAS-FP018-part2.zip }
-  - { file_name: 8.5.5-WS-WAS-FP018-part3.zip }
+  - {file_name: 8.5.5-WS-WAS-FP018-part1.zip}
+  - {file_name: 8.5.5-WS-WAS-FP018-part2.zip}
+  - {file_name: 8.5.5-WS-WAS-FP018-part3.zip}
 
-__was_fp_version_fp16:     "8.5.5016.20190801_0951"
+__was_fp_version_fp16: 8.5.5016.20190801_0951
 __was_fp_files_fp16:
-  - { file_name: 8.5.5-WS-WAS-FP016-part1.zip }
-  - { file_name: 8.5.5-WS-WAS-FP016-part2.zip }
-  - { file_name: 8.5.5-WS-WAS-FP016-part3.zip }
+  - {file_name: 8.5.5-WS-WAS-FP016-part1.zip}
+  - {file_name: 8.5.5-WS-WAS-FP016-part2.zip}
+  - {file_name: 8.5.5-WS-WAS-FP016-part3.zip}
 
-__was_fixes_version:       "{{ was_fp_version | default( __was_fp_version_latest ) }}"
-__was_fixes_files:         "{{ was_fp_files | default( __was_fp_files_latest ) }}"
-__was_fp_version_check:    "Updated to {{ __was_product_id_prefix }}_{{ __was_fixes_version }}"
-__was_fp_id:               "\"id='{{ __was_product_id_prefix }}' version='{{ __was_fixes_version }}'\""
-__was_log4j_fix_id:        "\"id='{{ __was_log4j_fix_prefix }}' version='{{ __was_fp_version_log4j }}'\""
+__was_fixes_version: '{{ was_fp_version | default( __was_fp_version_latest ) }}'
+__was_fixes_files: '{{ was_fp_files | default( __was_fp_files_latest ) }}'
+__was_fp_version_check: Updated to {{ __was_product_id_prefix }}_{{ __was_fixes_version
+  }}
+__was_fp_id: "\"id='{{ __was_product_id_prefix }}' version='{{ __was_fixes_version }}'\""
+__was_log4j_fix_id: "\"id='{{ __was_log4j_fix_prefix }}' version='{{ __was_fp_version_log4j }}'\""
 
-__was_product_id_prefix:   "com.ibm.websphere.ND.v85"
-__was_log4j_fix_prefix:    "8.5.5.11-WS-WASProd-IFPH42762"
-__was_fp_id_prefix:        "{{ was_fp_id_prefix | default( __was_product_id_prefix ) }}"
+__was_product_id_prefix: com.ibm.websphere.ND.v85
+__was_log4j_fix_prefix: 8.5.5.11-WS-WASProd-IFPH42762
+__was_fp_id_prefix: '{{ was_fp_id_prefix | default( __was_product_id_prefix ) }}'
 
-__iim_product_id:          "\"id='com.ibm.cic.agent\""
-__was_product_id:          "\"id='{{ __was_product_id_prefix }}'\""
+__iim_product_id: "\"id='com.ibm.cic.agent\""
+__was_product_id: "\"id='{{ __was_product_id_prefix }}'\""
 
-__iim_keep_fetched_files: "{{ iim_keep_fetched_files | default(false) }}"
-__iim_preserve_artifacts: "{{ iim_preserve_artifacts | default(false) }}"
+__iim_keep_fetched_files: '{{ iim_keep_fetched_files | default(false) }}'
+__iim_preserve_artifacts: '{{ iim_preserve_artifacts | default(false) }}'

@@ -1,22 +1,23 @@
 ---
-  - name:                        Configure User account repository trusted realms to include the JWT issuer
-    include_role:
-      name:                      roles/third_party/ibm/wasnd/was-dmgr-add-trusted-realms
-    vars:
-      __trusted_realm_name:      "{{ __azure_interceptor_issuerIdentifier }}"
+- name: Configure User account repository trusted realms to include the JWT issuer
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-add-trusted-realms
+  vars:
+    __trusted_realm_name: '{{ __azure_interceptor_issuerIdentifier }}'
 
-  - name:                        Add root signing certificate of the Microsoft Certificate endpoint to the Default Trust Store
-    include_role:
-      name:                      roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
-    vars:
-      __trust_cert_host:         "{{ __azure_interceptor_login_host }}"
-      __trust_cert_alias:        "{{ __azure_interceptor_sign_alias }}"
+- name: Add root signing certificate of the Microsoft Certificate endpoint to the
+    Default Trust Store
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+  vars:
+    __trust_cert_host: '{{ __azure_interceptor_login_host }}'
+    __trust_cert_alias: '{{ __azure_interceptor_sign_alias }}'
 
-  - name:                        Disable com.ibm.websphere.security.disableGetTokenFromMBean
-    include_role:
-      name:                      roles/third_party/ibm/wasnd/was-dmgr-config-sec-custom-prop
-    vars:
-      __sec_custom_prop:         "com.ibm.websphere.security.disableGetTokenFromMBean"
-      __sec_custom_prop_value:   "{{ __sec_custom_prop_disableGetTokenFromMBean|lower }}"
-      __sec_custom_prop_append:  false
-      __sec_custom_prop_always_write: true
+- name: Disable com.ibm.websphere.security.disableGetTokenFromMBean
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-config-sec-custom-prop
+  vars:
+    __sec_custom_prop: com.ibm.websphere.security.disableGetTokenFromMBean
+    __sec_custom_prop_value: '{{ __sec_custom_prop_disableGetTokenFromMBean|lower }}'
+    __sec_custom_prop_append: false
+    __sec_custom_prop_always_write: true

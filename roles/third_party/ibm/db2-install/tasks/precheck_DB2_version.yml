@@ -1,71 +1,81 @@
 ---
-- name:                       Register current db2 version
-  shell:                      runuser -l "{{ __db2_user }}" -c 'db2level' | grep "DB2 v" | cut -d'"' -f 2
-  register:                   db2_installed_version
-  ignore_errors:              true
-  delegate_to:               "{{ item }}"
+- name: Register current db2 version
+  shell: runuser -l "{{ __db2_user }}" -c 'db2level' | grep "DB2 v" | cut -d'"'
+    -f 2
+  register: db2_installed_version
+  ignore_errors: true
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['db2_servers'] }}"
+    - "{{ groups['db2_servers'] }}"
 
 - debug:
-    msg:                      "Installed DB2 version is {{ db2_installed_version.results[0].stdout_lines }}"
-  delegate_to:               "{{ item }}"
+    msg: Installed DB2 version is {{ db2_installed_version.results[0].stdout_lines }}
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['db2_servers'] }}"
+    - "{{ groups['db2_servers'] }}"
 
-- name:                       "Check if existing DB2 installed version is same as expected one to be installed"
-  shell:                      grep -iq {{ __install_version_db2 }} <<< {{ db2_installed_version.results[0].stdout_lines }} && echo "true" || echo "false"
-  register:                   db2_version_match
-  ignore_errors:              true
-  delegate_to:               "{{ item }}"
+- name: Check if existing DB2 installed version is same as expected one to be installed
+  shell: grep -iq {{ __install_version_db2 }} <<< {{ db2_installed_version.results[0].stdout_lines }}
+    && echo "true" || echo "false"
+  register: db2_version_match
+  ignore_errors: true
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['db2_servers'] }}"
+    - "{{ groups['db2_servers'] }}"
 
 - debug:
-    msg:                      "Installed DB2 version is {{ db2_installed_version.results[0].stdout_lines }}. Expected is DB2 {{ __install_version_db2 }}"
-  delegate_to:               "{{ item }}"
+    msg: Installed DB2 version is {{ db2_installed_version.results[0].stdout_lines }}.
+      Expected is DB2 {{ __install_version_db2 }}
+  delegate_to: '{{ item }}'
   with_items:
-   - "{{ groups['db2_servers'] }}"
+    - "{{ groups['db2_servers'] }}"
   when:
     - db2_version_match.results[0].stdout == "false"
 
-- name:                       "Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }} and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}"
+- name: Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }}
+    and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}
   set_fact:
-    __default_package_name:        "v11.1.4fp5_linuxx64_universal_fixpack.tar.gz"
-    __default_license_file:        "CNB23ML.zip"
-    __db2_default_install_path:    "/opt/IBM/db2/V11.1"
-    __default_jdbc_install_folder: "/opt/IBM/db2/V11.1/java"
-    __default_jdbc_package_name:   "v11.1.4fp5_jdbc_sqlj.tar.gz"
-  delegate_to: "{{ item }}"
-  with_items: "{{ play_hosts }}"
-  run_once: yes
+    __default_package_name: v11.1.4fp5_linuxx64_universal_fixpack.tar.gz
+    __default_license_file: CNB23ML.zip
+    __db2_default_install_path: /opt/IBM/db2/V11.1
+    __default_jdbc_install_folder: /opt/IBM/db2/V11.1/java
+    __default_jdbc_package_name: v11.1.4fp5_jdbc_sqlj.tar.gz
+  delegate_to: '{{ item }}'
+  with_items: '{{ play_hosts }}'
+  run_once: true
   when:
     - db2_version_match.results[0].stdout == "false"
     - db2_installed_version is search("11.1")
 
-- name:                       "Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }} and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}"
+- name: Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }}
+    and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}
   set_fact:
-    __default_package_name:        "v11.5.6_linuxx64_universal_fixpack.tar.gz"
-    __default_license_file:        "DB2_ESE_AUSI_Activation_11.5.zip"
-    __db2_default_install_path:    "/opt/IBM/db2/V11.5"
-    __default_jdbc_install_folder: "/opt/IBM/db2/V11.5/java"
-    __default_jdbc_package_name:   "v11.5.6_jdbc_sqlj.tar.gz"
-  delegate_to: "{{ item }}"
-  with_items: "{{ play_hosts }}"
-  run_once: yes
+    __default_package_name: v11.5.6_linuxx64_universal_fixpack.tar.gz
+    __default_license_file: DB2_ESE_AUSI_Activation_11.5.zip
+    __db2_default_install_path: /opt/IBM/db2/V11.5
+    __default_jdbc_install_folder: /opt/IBM/db2/V11.5/java
+    __default_jdbc_package_name: v11.5.6_jdbc_sqlj.tar.gz
+  delegate_to: '{{ item }}'
+  with_items: '{{ play_hosts }}'
+  run_once: true
   when:
     - db2_version_match.results[0].stdout == "false"
     - db2_installed_version is search("11.5")
 
-- name:                       "Terminate DB2 installation if 'force_check_db2_version_mismatch' is set to true and Installed DB2 version is different than the expected one"
+- name: Terminate DB2 installation if 'force_check_db2_version_mismatch' is set
+    to true and Installed DB2 version is different than the expected one
   assert:
     that:
       - db2_version_match.results[0].stdout == "true"
-    fail_msg:                 "Terminating DB2 installation since 'force_check_db2_version_mismatch' is true and installed DB2 version is {{ db2_installed_version.results[0].stdout_lines }}. Expected is DB2 {{ __install_version_db2 }}"
+    fail_msg: Terminating DB2 installation since 'force_check_db2_version_mismatch'
+      is true and installed DB2 version is {{ db2_installed_version.results[0].stdout_lines }}.
+      Expected is DB2 {{ __install_version_db2 }}
   when:
     - __force_check_db2_version_mismatch|bool == true
 
 - debug:
-    msg:                      "Proceed with the DB2 installation since 'force_check_db2_version_mismatch' is set to false. Installation will skip expected DB2 {{ __install_version_db2 }} and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}."
+    msg: Proceed with the DB2 installation since 'force_check_db2_version_mismatch'
+      is set to false. Installation will skip expected DB2 {{ __install_version_db2 }}
+      and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}.
   when:
     - db2_version_match.results[0].stdout == "false"

@@ -1,328 +1,369 @@
-- name:                  "Verify if migrations are already done"
+---
+- name: Verify if migrations are already done
   stat:
-    path:                "{{ __success_file }}"
-  register:              migrations_already_done
+    path: '{{ __success_file }}'
+  register: migrations_already_done
 
-- name:                  Clean up installation folder(s)
+- name: Clean up installation folder(s)
   file:
-    path:                "{{ __db_extraction_folder }}"
-    state:               absent
+    path: '{{ __db_extraction_folder }}'
+    state: absent
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool
+      )
 
-- name:                  Create installation folder
+- name: Create installation folder
   file:
-    path:                "{{ __db_extraction_folder }}"
-    state:               directory
+    path: '{{ __db_extraction_folder }}'
+    state: directory
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool
+      )
 
 
-- name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __db_extraction_folder }}
+- name: Download and unzip installation "{{ __download_location}}/{{ __package_name
+    }}" to the {{ __db_extraction_folder }}
   unarchive:
-    src:                 "{{ __download_location }}/{{ __package_name }}"
-    dest:                "{{ __db_extraction_folder }}"
-    remote_src:          yes
+    src: '{{ __download_location }}/{{ __package_name }}'
+    dest: '{{ __db_extraction_folder }}'
+    remote_src: 'yes'
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
-  retries:               3
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool)
+      or (__db_enable_upgrades |bool)
+  retries: 3
 
-- name:                  Stop CNX cluster for database cleanup
+- name: Stop CNX cluster for database cleanup
   include_role:
-    name:                roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     apply:
-      delegate_to:       "{{ dmgr_hostname }}"
-      become:            true
-      ignore_errors:     yes
-  when:                  __cnx_force_repopulation |bool
+      delegate_to: '{{ dmgr_hostname }}'
+      become: true
+      ignore_errors: 'yes'
+  when: __cnx_force_repopulation |bool
 
 # Observed lingering connections even after CNX is stopped so do a force application.
-- name:                   Force application to disconnect for database cleanup
-  shell:                  "db2 force application all"
-  become_user:            "{{ __db2_user }}"
+- name: Force application to disconnect for database cleanup
+  shell: db2 force application all
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:          "{{ __db2_user }}"
-    IBM_DB_LIB:           "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:           "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:      "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:       "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:               "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:             "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   when:
     - __cnx_force_repopulation |bool
-  ignore_errors:         yes
+  ignore_errors: 'yes'
 
-- name:                  Drop Connections Databases
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "{{ __db2_user }}"
+- name: Drop Connections Databases
+  shell: '{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/activities/db2/dropDb.sql"
-   - "connections.sql/blogs/db2/dropDb.sql"
-   - "connections.sql/dogear/db2/dropDb.sql"
-   - "connections.sql/communities/db2/dropDb.sql"
-   - "connections.sql/files/db2/dropDb.sql"
-   - "connections.sql/forum/db2/dropDb.sql"
-   - "connections.sql/homepage/db2/dropDb.sql"
-   - "connections.sql/metrics/db2/dropDb.sql"
-   - "connections.sql/mobile/db2/dropDb.sql"
-   - "connections.sql/profiles/db2/dropDb.sql"
-   - "connections.sql/pushnotification/db2/dropDb.sql"
-   - "connections.sql/wikis/db2/dropDb.sql"
+    - connections.sql/activities/db2/dropDb.sql
+    - connections.sql/blogs/db2/dropDb.sql
+    - connections.sql/dogear/db2/dropDb.sql
+    - connections.sql/communities/db2/dropDb.sql
+    - connections.sql/files/db2/dropDb.sql
+    - connections.sql/forum/db2/dropDb.sql
+    - connections.sql/homepage/db2/dropDb.sql
+    - connections.sql/metrics/db2/dropDb.sql
+    - connections.sql/mobile/db2/dropDb.sql
+    - connections.sql/profiles/db2/dropDb.sql
+    - connections.sql/pushnotification/db2/dropDb.sql
+    - connections.sql/wikis/db2/dropDb.sql
   when:
     - __cnx_force_repopulation |bool
-  ignore_errors:         yes
+  ignore_errors: 'yes'
 
 
-- name:                  Drop IC360 database
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "{{ __db2_user }}"
+- name: Drop IC360 database
+  shell: '{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/ic360/db2/dropDb.sql"
+    - connections.sql/ic360/db2/dropDb.sql
   when:
     - __cnx_force_repopulation |bool
     - __db_version is version('7.0', '>=')
-  ignore_errors:         yes
+  ignore_errors: 'yes'
 
-- name:                  Drop ICEC database only
-  shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              icec_cleanup_result
-  failed_when:           ( icec_cleanup_result.rc not in [0] )
-  become_user:           "{{ __db2_user }}"
+- name: Drop ICEC database only
+  shell: '{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  register: icec_cleanup_result
+  failed_when: ( icec_cleanup_result.rc not in [0] )
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/icec/db2/dropDb.sql"
+    - connections.sql/icec/db2/dropDb.sql
   when:
     - __cnx_force_repopulation |bool
-  ignore_errors:         yes
+  ignore_errors: 'yes'
 
-- name:                  "Delete {{ __success_file }} file"
+- name: Delete {{ __success_file }} file
   file:
-    path:                "{{ item }}"
-    state:               absent
+    path: '{{ item }}'
+    state: absent
   with_items:
-    - "{{ __success_file }}"
-    - "{{ __ic360_success_file }}"
-    - "{{ __sharepoint_success_file }}"
+    - '{{ __success_file }}'
+    - '{{ __ic360_success_file }}'
+    - '{{ __sharepoint_success_file }}'
   when:
     - __cnx_force_repopulation |bool
 
-- name:                  "Verify if should proceed with migrations if cleanup was done"
+- name: Verify if should proceed with migrations if cleanup was done
   stat:
-    path:                "{{ __success_file }}"
-  register:              migrations_already_done
+    path: '{{ __success_file }}'
+  register: migrations_already_done
 
-- name:                  Creating Connections databases (except ICEC)
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
+- name: Creating Connections databases (except ICEC)
+  shell: '{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  register: all_migrations_result
+  failed_when: ( all_migrations_result.rc not in [0, 1, 2, 3] )
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/activities/db2/createDb.sql"
-   - "connections.sql/activities/db2/appGrants.sql"
-   - "connections.sql/blogs/db2/createDb.sql"
-   - "connections.sql/blogs/db2/appGrants.sql"
-   - "connections.sql/dogear/db2/createDb.sql"
-   - "connections.sql/dogear/db2/appGrants.sql"
-   - "connections.sql/communities/db2/createDb.sql"
-   - "connections.sql/communities/db2/appGrants.sql"
-   - "connections.sql/communities/db2/calendar-createDb.sql"
-   - "connections.sql/communities/db2/calendar-appGrants.sql"
-   - "connections.sql/files/db2/createDb.sql"
-   - "connections.sql/files/db2/appGrants.sql"
-   - "connections.sql/forum/db2/createDb.sql"
-   - "connections.sql/forum/db2/appGrants.sql"
-   - "connections.sql/homepage/db2/createDb.sql"
-   - "connections.sql/homepage/db2/appGrants.sql"
-   - "connections.sql/homepage/db2/initData.sql"
-   - "connections.sql/homepage/db2/reorg.sql"
-   - "connections.sql/homepage/db2/updateStats.sql"
-   - "connections.sql/metrics/db2/createDb.sql"
-   - "connections.sql/metrics/db2/appGrants.sql"
-   - "connections.sql/mobile/db2/createDb.sql"
-   - "connections.sql/mobile/db2/appGrants.sql"
-   - "connections.sql/profiles/db2/createDb.sql"
-   - "connections.sql/profiles/db2/appGrants.sql"
-   - "connections.sql/pushnotification/db2/createDb.sql"
-   - "connections.sql/pushnotification/db2/appGrants.sql"
-   - "connections.sql/wikis/db2/createDb.sql"
-   - "connections.sql/wikis/db2/appGrants.sql"
+    - connections.sql/activities/db2/createDb.sql
+    - connections.sql/activities/db2/appGrants.sql
+    - connections.sql/blogs/db2/createDb.sql
+    - connections.sql/blogs/db2/appGrants.sql
+    - connections.sql/dogear/db2/createDb.sql
+    - connections.sql/dogear/db2/appGrants.sql
+    - connections.sql/communities/db2/createDb.sql
+    - connections.sql/communities/db2/appGrants.sql
+    - connections.sql/communities/db2/calendar-createDb.sql
+    - connections.sql/communities/db2/calendar-appGrants.sql
+    - connections.sql/files/db2/createDb.sql
+    - connections.sql/files/db2/appGrants.sql
+    - connections.sql/forum/db2/createDb.sql
+    - connections.sql/forum/db2/appGrants.sql
+    - connections.sql/homepage/db2/createDb.sql
+    - connections.sql/homepage/db2/appGrants.sql
+    - connections.sql/homepage/db2/initData.sql
+    - connections.sql/homepage/db2/reorg.sql
+    - connections.sql/homepage/db2/updateStats.sql
+    - connections.sql/metrics/db2/createDb.sql
+    - connections.sql/metrics/db2/appGrants.sql
+    - connections.sql/mobile/db2/createDb.sql
+    - connections.sql/mobile/db2/appGrants.sql
+    - connections.sql/profiles/db2/createDb.sql
+    - connections.sql/profiles/db2/appGrants.sql
+    - connections.sql/pushnotification/db2/createDb.sql
+    - connections.sql/pushnotification/db2/appGrants.sql
+    - connections.sql/wikis/db2/createDb.sql
+    - connections.sql/wikis/db2/appGrants.sql
   when:
     - not migrations_already_done.stat.exists
 
-- name:                  "Verify if Sharepoint migration has already run"
+- name: Verify if Sharepoint migration has already run
   stat:
-    path:                "{{ __sharepoint_success_file }}"
-  register:              sharepoint_migrations_already_done
+    path: '{{ __sharepoint_success_file }}'
+  register: sharepoint_migrations_already_done
 
-- name:                  Run Sharepoint migration for Connections 7
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              sharepoint_migration_result
-  failed_when:           ( sharepoint_migration_result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
+- name: Run Sharepoint migration for Connections 7
+  shell: '{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  register: sharepoint_migration_result
+  failed_when: ( sharepoint_migration_result.rc not in [0, 1, 2, 3] )
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/homepage/db2/upgrade-60CR4-70.sql"
+    - connections.sql/homepage/db2/upgrade-60CR4-70.sql
   when:
     - not sharepoint_migrations_already_done.stat.exists
     - __db_version == '7.0'
     - __db_enable_upgrades |bool
 
-- name:                  "Verify if IC360 DB is already created"
+- name: Verify if IC360 DB is already created
   stat:
-    path:                "{{ __ic360_success_file }}"
-  register:              ic360_migrations_already_done
+    path: '{{ __ic360_success_file }}'
+  register: ic360_migrations_already_done
 
-- name:                  Creating Connections database for IC360
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              ic360_migration_result
-  failed_when:           ( ic360_migration_result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
+- name: Creating Connections database for IC360
+  shell: '{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  register: ic360_migration_result
+  failed_when: ( ic360_migration_result.rc not in [0, 1, 2, 3] )
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/ic360/db2/createDb.sql"
-   - "connections.sql/ic360/db2/appGrants.sql"
+    - connections.sql/ic360/db2/createDb.sql
+    - connections.sql/ic360/db2/appGrants.sql
   when:
     - not ic360_migrations_already_done.stat.exists
     - __db_version is version('7.0', '>=')
 
-- name:                  Creating Connections database for ICEC
-  shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              icec_migrations_result
-  failed_when:           ( icec_migrations_result.rc not in [0] )
-  become_user:           "{{ __db2_user }}"
+- name: Creating Connections database for ICEC
+  shell: '{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  register: icec_migrations_result
+  failed_when: ( icec_migrations_result.rc not in [0] )
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/icec/db2/createDb.sql"
-   - "connections.sql/icec/db2/appGrants.sql"
+    - connections.sql/icec/db2/createDb.sql
+    - connections.sql/icec/db2/appGrants.sql
   when:
     - not migrations_already_done.stat.exists
 
-- name:                  Run runstats.sql and reorg.sql everywhere
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
+- name: Run runstats.sql and reorg.sql everywhere
+  shell: '{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}'
+  register: result
+  failed_when: ( result.rc not in [0, 1, 2, 3] )
+  become_user: '{{ __db2_user }}'
   environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+    DB2INSTANCE: '{{ __db2_user }}'
+    IBM_DB_LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    IBM_DB_DIR: '{{ __db2_instance_homedir }}/sqllib'
+    LD_LIBRARY_PATH: '{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir
+      }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32'
+    IBM_DB_INCLUDE: '{{ __db2_instance_homedir }}/sqllib/include'
+    DB2LIB: '{{ __db2_instance_homedir }}/sqllib/lib'
+    DB2_HOME: '{{ __db2_instance_homedir }}/sqllib'
+    PATH: /usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{
+      __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{
+      __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{
+      __db2_instance_homedir }}/bin
   with_items:
-   - "connections.sql/activities/db2/runstats.sql"
-   - "connections.sql/blogs/db2/runstats.sql"
-   - "connections.sql/dogear/db2/runstats.sql"
-   - "connections.sql/communities/db2/runstats.sql"
-   - "connections.sql/forum/db2/runstats.sql"
-   - "connections.sql/mobile/db2/runstats.sql"
-   - "connections.sql/profiles/db2/runstats.sql"
-   - "connections.sql/activities/db2/reorg.sql"
-   - "connections.sql/blogs/db2/reorg.sql"
-   - "connections.sql/dogear/db2/reorg.sql"
-   - "connections.sql/communities/db2/reorg.sql"
-   - "connections.sql/files/db2/reorg.sql"
-   - "connections.sql/forum/db2/reorg.sql"
-   - "connections.sql/homepage/db2/reorg.sql"
-   - "connections.sql/metrics/db2/reorg.sql"
-   - "connections.sql/mobile/db2/reorg.sql"
-   - "connections.sql/profiles/db2/reorg.sql"
-   - "connections.sql/pushnotification/db2/reorg.sql"
-   - "connections.sql/wikis/db2/reorg.sql"
-   - "connections.sql/activities/db2/clearScheduler.sql"
-   - "connections.sql/communities/db2/clearScheduler.sql"
-   - "connections.sql/forum/db2/clearScheduler.sql"
-   - "connections.sql/files/db2/clearScheduler.sql"
-   - "connections.sql/profiles/db2/clearScheduler.sql"
-   - "connections.sql/homepage/db2/clearScheduler.sql"
-   - "connections.sql/metrics/db2/clearScheduler.sql"
-   - "connections.sql/wikis/db2/clearScheduler.sql"
-   - "connections.sql/pushnotification/db2/clearScheduler.sql"
+    - connections.sql/activities/db2/runstats.sql
+    - connections.sql/blogs/db2/runstats.sql
+    - connections.sql/dogear/db2/runstats.sql
+    - connections.sql/communities/db2/runstats.sql
+    - connections.sql/forum/db2/runstats.sql
+    - connections.sql/mobile/db2/runstats.sql
+    - connections.sql/profiles/db2/runstats.sql
+    - connections.sql/activities/db2/reorg.sql
+    - connections.sql/blogs/db2/reorg.sql
+    - connections.sql/dogear/db2/reorg.sql
+    - connections.sql/communities/db2/reorg.sql
+    - connections.sql/files/db2/reorg.sql
+    - connections.sql/forum/db2/reorg.sql
+    - connections.sql/homepage/db2/reorg.sql
+    - connections.sql/metrics/db2/reorg.sql
+    - connections.sql/mobile/db2/reorg.sql
+    - connections.sql/profiles/db2/reorg.sql
+    - connections.sql/pushnotification/db2/reorg.sql
+    - connections.sql/wikis/db2/reorg.sql
+    - connections.sql/activities/db2/clearScheduler.sql
+    - connections.sql/communities/db2/clearScheduler.sql
+    - connections.sql/forum/db2/clearScheduler.sql
+    - connections.sql/files/db2/clearScheduler.sql
+    - connections.sql/profiles/db2/clearScheduler.sql
+    - connections.sql/homepage/db2/clearScheduler.sql
+    - connections.sql/metrics/db2/clearScheduler.sql
+    - connections.sql/wikis/db2/clearScheduler.sql
+    - connections.sql/pushnotification/db2/clearScheduler.sql
   when:
     - migrations_already_done.stat.exists |bool
 
-- name:                  "Create {{ __success_file }} file"
+- name: Create {{ __success_file }} file
   file:
-    path:                "{{ __success_file }}"
-    state:               touch
+    path: '{{ __success_file }}'
+    state: touch
   when:
-   - all_migrations_result is defined
-   - not migrations_already_done.stat.exists
+    - all_migrations_result is defined
+    - not migrations_already_done.stat.exists
 
-- name:                  "Create {{ __ic360_success_file }} file"
+- name: Create {{ __ic360_success_file }} file
   file:
-    path:                "{{ __ic360_success_file }}"
-    state:               touch
+    path: '{{ __ic360_success_file }}'
+    state: touch
   when:
-   - ic360_migration_result is defined
-   - not ic360_migrations_already_done.stat.exists
+    - ic360_migration_result is defined
+    - not ic360_migrations_already_done.stat.exists
 
-- name:                  "Create {{ __sharepoint_success_file }} file"
+- name: Create {{ __sharepoint_success_file }} file
   file:
-    path:                "{{ __sharepoint_success_file }}"
-    state:               touch
+    path: '{{ __sharepoint_success_file }}'
+    state: touch
   when:
-   - sharepoint_migration_result is defined
-   - not sharepoint_migrations_already_done.stat.exists
+    - sharepoint_migration_result is defined
+    - not sharepoint_migrations_already_done.stat.exists

@@ -1,15 +1,14 @@
-# Upgrade Kubernetes
 ---
-- name:                    Upgrade Kubernetes masters
-  hosts:                   k8s_masters
-  serial:                  1
-  become:                  true
+- name: Upgrade Kubernetes masters
+  hosts: k8s_masters
+  serial: 1
+  become: true
   roles:
     - roles/third_party/kubernetes/kubernetes-upgrade
 
-- name:                    Upgrade Kubernetes workers
-  hosts:                   k8s_workers
-  serial:                  1
-  become:                  true
+- name: Upgrade Kubernetes workers
+  hosts: k8s_workers
+  serial: 1
+  become: true
   roles:
     - roles/third_party/kubernetes/kubernetes-upgrade

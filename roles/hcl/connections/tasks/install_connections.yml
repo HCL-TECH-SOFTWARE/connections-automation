@@ -1,90 +1,94 @@
 ---
-- name:              Encode Password XOR
-  shell:             "echo \"xpw={{ was_password }}\" > {{__logs_dir}}/xor.props && {{__was_install_location}}/bin/PropFilePasswordEncoder.sh {{__logs_dir}}/xor.props xpw > /dev/null && cat {{__logs_dir}}/xor.props | awk -F= '{ printf $2\"=\"}'"
-  register:          __xor_encoded_password
-  changed_when:      ( __xor_encoded_password.rc == 0)
+- name: Encode Password XOR
+  shell: echo "xpw={{ was_password }}" > {{__logs_dir}}/xor.props && {{__was_install_location}}/bin/PropFilePasswordEncoder.sh
+    {{__logs_dir}}/xor.props xpw > /dev/null && cat {{__logs_dir}}/xor.props | awk
+    -F= '{ printf $2"="}'
+  register: __xor_encoded_password
+  changed_when: ( __xor_encoded_password.rc == 0)
 
-- name:              Encode WAS Password
-  command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ was_password }} -silent -noSplash"
-  register:          __was_encoded_password
-  changed_when:      ( __was_encoded_password.rc == 0)
+- name: Encode WAS Password
+  command: '{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ was_password }}
+    -silent -noSplash'
+  register: __was_encoded_password
+  changed_when: ( __was_encoded_password.rc == 0)
 
-- name:              Encode DB Passwords
-  command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }} -silent -noSplash"
-  register:          __cnx_db_info_results
-  with_items:        "{{ __cnx_db_info }}"
+- name: Encode DB Passwords
+  command: '{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }}
+    -silent -noSplash'
+  register: __cnx_db_info_results
+  with_items: '{{ __cnx_db_info }}'
 
-- name:              Encode CCM Password
-  command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ ccm_password }} -silent -noSplash"
-  register:          __ccm_encoded_password
-  changed_when:      ( __ccm_encoded_password.rc == 0)
-  when:              ( ccm_install is defined )
+- name: Encode CCM Password
+  command: '{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ ccm_password }}
+    -silent -noSplash'
+  register: __ccm_encoded_password
+  changed_when: ( __ccm_encoded_password.rc == 0)
+  when: ( ccm_install is defined )
 
-- name:              Encode DB Passwords for CCM
-  command:           "{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }} -silent -noSplash"
-  register:          __ccm_db_info_results
-  with_items:        "{{ __ccm_db_info }}"
-  when:              ( ccm_install is defined )
+- name: Encode DB Passwords for CCM
+  command: '{{ __iim_install_location }}/eclipse/tools/imutilsc encryptString {{ item.pw }}
+    -silent -noSplash'
+  register: __ccm_db_info_results
+  with_items: '{{ __ccm_db_info }}'
+  when: ( ccm_install is defined )
 
-- name:              Generate node list
+- name: Generate node list
   set_fact:
     __cnx_node_list: "{{ groups['cnx_was_servers'] | list }}"
 
 - debug: var=__cnx_node_list
   run_once: true
 
-- name:              Set deployment type to small
+- name: Set deployment type to small
   set_fact:
-    __installer_deployment_type: "{{ __cnx_deploy_small }}"
+    __installer_deployment_type: '{{ __cnx_deploy_small }}'
   when:
     - __cnx_deploy_type == "small"
 
-- name:              Set deployment type to medium
+- name: Set deployment type to medium
   set_fact:
-    __installer_deployment_type: "{{ __cnx_deploy_medium }}"
+    __installer_deployment_type: '{{ __cnx_deploy_medium }}'
   when:
     - __cnx_deploy_type == "medium"
 
-- name:              Set deployment type to large
+- name: Set deployment type to large
   set_fact:
-    __installer_deployment_type: "{{ __cnx_deploy_large }}"
+    __installer_deployment_type: '{{ __cnx_deploy_large }}'
   when:
     - __cnx_deploy_type == "large"
 
 - debug: var=__installer_deployment_type
   run_once: true
 
-
-
-- name:              Generate Response file {{ __rsp_file }} from {{ __tpl_file }}
+- name: Generate Response file {{ __rsp_file }} from {{ __tpl_file }}
   template:
-    src:             "{{ __tpl_file }}"
-    dest:            "{{ __rsp_file }}"
+    src: '{{ __tpl_file }}'
+    dest: '{{ __rsp_file }}'
 
-- name:              Disable Repository on Installation Manager
+- name: Disable Repository on Installation Manager
   replace:
-    path:            /var/ibm/InstallationManager/.settings/com.ibm.cic.agent.core.prefs
-    regexp:          '(\s*)RepositoryIsOpen=true(\s*)'
-    replace:         '\1RepositoryIsOpen=false\2'
-    backup:          yes
-  ignore_errors:     true
+    path: /var/ibm/InstallationManager/.settings/com.ibm.cic.agent.core.prefs
+    regexp: (\s*)RepositoryIsOpen=true(\s*)
+    replace: \1RepositoryIsOpen=false\2
+    backup: 'yes'
+  ignore_errors: true
 
 # Changed for shell for CCM
-- name:              Install Connections Software
+- name: Install Connections Software
   shell: |
     mkdir -p /opt/IBM/CTemp
     export IATEMPDIR=/opt/IBM/CTemp
     export CHECK_DISK_SPACE=OFF
     {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }} -sVP -log {{ __log_file }} input {{ __rsp_file }}
   environment:
-    IATEMPDIR: "/opt/IBM/CTemp"
-  register:          cout
+    IATEMPDIR: /opt/IBM/CTemp
+  register: cout
 
 
-- name:              Cleanup Binaries directory
+- name: Cleanup Binaries directory
   file:
-    state:           absent
-    path:            "{{ __tmp_dir }}/{{ item }}"
+    state: absent
+    path: '{{ __tmp_dir }}/{{ item }}'
   with_items:
     - cnx
     - cnx-cr

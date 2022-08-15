@@ -1,18 +1,21 @@
 ---
-- name:          Join second master node to cluster
+- name: Join second master node to cluster
   include_tasks: join_first_node.yml
   when:
-   - __kubernetes_version is version('1.12.0', '<')
-   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - __kubernetes_version is version('1.12.0', '<')
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length)
+      == 1 and (groups.k8s_workers|length) == 1 ) != true
 
-- name:          Join third master node to cluster
+- name: Join third master node to cluster
   include_tasks: join_second_node.yml
   when:
-   - __kubernetes_version is version('1.12.0', '<')
-   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - __kubernetes_version is version('1.12.0', '<')
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length)
+      == 1 and (groups.k8s_workers|length) == 1 ) != true
 
-- name:          Join another control plane node
+- name: Join another control plane node
   include_tasks: join_control_plane_node.yml
   when:
-   - __kubernetes_version is version('1.12.0', '>=')
-   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - __kubernetes_version is version('1.12.0', '>=')
+    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length)
+      == 1 and (groups.k8s_workers|length) == 1 ) != true

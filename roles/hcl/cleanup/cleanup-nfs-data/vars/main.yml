@@ -1,26 +1,27 @@
-__nfsMasterAddress:                          "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
-__nfs_master_source:                         "{{ nfs_master_source | default('/pv-connections') }}"
+---
+__nfsMasterAddress: "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
+__nfs_master_source: "{{ nfs_master_source | default('/pv-connections') }}"
 
-__preserve_nfs_data:                         "{{ preserve_nfs_data | default(true) |lower }}"
+__preserve_nfs_data: '{{ preserve_nfs_data | default(true) |lower }}'
 
-__cnx_message_store:                         "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"
-__cnx_message_store_nfs:                     "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"
-__cnx_shared_area:                           "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
-__cnx_shared_area_nfs:                       "{{ cnx_shared_area_nfs | default('/nfs/data/shared') }}"
+__cnx_message_store: "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"
+__cnx_message_store_nfs: "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"
+__cnx_shared_area: "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"
+__cnx_shared_area_nfs: "{{ cnx_shared_area_nfs | default('/nfs/data/shared') }}"
 
-__persistentVolumePath:                      "{{ persistentVolumePath | default('pv-connections') }}"
-__customizer_js_files_mount:                 "{{ customizer_js_files_mount | default('/mnt/customizations') }}"
+__persistentVolumePath: "{{ persistentVolumePath | default('pv-connections') }}"
+__customizer_js_files_mount: "{{ customizer_js_files_mount | default('/mnt/customizations') }}"
 
-__viewer_data_local_path:                    "{{ viewer_data_local_path | default('/mnt/viewer_data') }}"
-__viewer_data_remote_path:                   "{{ viewer_data_remote_path | default('/nfs/viewer_data') }}"
+__viewer_data_local_path: "{{ viewer_data_local_path | default('/mnt/viewer_data') }}"
+__viewer_data_remote_path: "{{ viewer_data_remote_path | default('/nfs/viewer_data') }}"
 
-__docs_data_local_path:                      "{{ docs_data_local_path | default('/mnt/docs_data') }}"
-__docs_data_remote_path:                     "{{ docs_data_remote_path | default('/nfs/docs_data') }}"
+__docs_data_local_path: "{{ docs_data_local_path | default('/mnt/docs_data') }}"
+__docs_data_remote_path: "{{ docs_data_remote_path | default('/nfs/docs_data') }}"
 
-__cnx_data_local_path:                       "{{ cnx_data_local_path | default('/mnt/cnx_data') }}"
-__cnx_data_remote_path:                      "{{ cnx_data_remote_path | default('/nfs/data/shared') }}"
+__cnx_data_local_path: "{{ cnx_data_local_path | default('/mnt/cnx_data') }}"
+__cnx_data_remote_path: "{{ cnx_data_remote_path | default('/nfs/data/shared') }}"
 
-__force_destroy_kubernetes:                  "{{ force_destroy_kubernetes | default(false) }}"
-__force_destroy_ihs:                         "{{ force_destroy_ihs | default(false) }}"
-__force_destroy_websphere:                   "{{ force_destroy_websphere | default(false) }}"
-__force_destroy_docs:                        "{{ force_destroy_docs | default(false) }}"
+__force_destroy_kubernetes: '{{ force_destroy_kubernetes | default(false) }}'
+__force_destroy_ihs: '{{ force_destroy_ihs | default(false) }}'
+__force_destroy_websphere: '{{ force_destroy_websphere | default(false) }}'
+__force_destroy_docs: '{{ force_destroy_docs | default(false) }}'

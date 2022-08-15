@@ -1,6 +1,6 @@
 ---
-- name:            Install Helm
-  include_tasks:   install_helm.yml
+- name: Install Helm
+  include_tasks: install_helm.yml
 
-- name:            Init Helm with Tiller
-  include_tasks:   init_helm.yml
+- name: Init Helm with Tiller
+  include_tasks: init_helm.yml

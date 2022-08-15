@@ -1,90 +1,91 @@
-- name:                  "Delete {{ __sql_docs_success_file }} file"
+---
+- name: Delete {{ __sql_docs_success_file }} file
   file:
-    path:                "{{ __sql_docs_success_file }}"
-    state:               absent
+    path: '{{ __sql_docs_success_file }}'
+    state: absent
   when:
     - __cnx_docs_force_repopulation |bool
 
-- name:                 "Verify if migrations are already done"
+- name: Verify if migrations are already done
   stat:
-    path:                "{{ __sql_docs_success_file }}"
-  register:              docs_migrations_already_done
+    path: '{{ __sql_docs_success_file }}'
+  register: docs_migrations_already_done
 
-- name:                  Clean up installation folder(s)
+- name: Clean up installation folder(s)
   file:
-    path:                "{{ __docs_extraction_folder }}"
-    state:               absent
+    path: '{{ __docs_extraction_folder }}'
+    state: absent
   when:
     - not docs_migrations_already_done.stat.exists
 
-- name:                  Create installation folder
+- name: Create installation folder
   file:
-    path:                "{{ __docs_extraction_folder }}"
-    state:               directory
+    path: '{{ __docs_extraction_folder }}'
+    state: directory
   when:
     - not docs_migrations_already_done.stat.exists
 
-- name:                  Download and unzip installation {{ __docs_package_name }} to the {{ __docs_extraction_folder }}
+- name: Download and unzip installation {{ __docs_package_name }} to the {{ __docs_extraction_folder }}
   unarchive:
-    src:                 "{{ __docs_download_location }}/{{ __docs_package_name }}"
-    dest:                "{{ __docs_extraction_folder }}"
-    remote_src:          yes
+    src: '{{ __docs_download_location }}/{{ __docs_package_name }}'
+    dest: '{{ __docs_extraction_folder }}'
+    remote_src: 'yes'
   when:
     - not docs_migrations_already_done.stat.exists
 
-- name:                  Cleanup Docs database
-  shell:                 "{{ __sql_migration_cmd }} {{ item }}"
+- name: Cleanup Docs database
+  shell: '{{ __sql_migration_cmd }} {{ item }}'
   environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+    PATH: PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin
   with_items:
-   - "{{ __docs_installation_folder}}/sqlserver/dropdb.sql"
+    - '{{ __docs_installation_folder}}/sqlserver/dropdb.sql'
   when:
     - __cnx_docs_force_repopulation |bool
-  ignore_errors:         yes
+  ignore_errors: 'yes'
 
-- name:                 "Verify if should proceed with migrations if cleanup was done"
+- name: Verify if should proceed with migrations if cleanup was done
   stat:
-    path:                "{{ __sql_docs_success_file }}"
-  register:              docs_migrations_already_done
+    path: '{{ __sql_docs_success_file }}'
+  register: docs_migrations_already_done
 
-- name:                  Create Docs database and update schema
-  shell:                 "{{ __sql_migration_cmd }} {{ item }} {{ __sql_migration_cmd_args }}"
+- name: Create Docs database and update schema
+  shell: '{{ __sql_migration_cmd }} {{ item }} {{ __sql_migration_cmd_args }}'
   environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+    PATH: PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin
   with_items:
-   - "{{ __docs_installation_folder}}/sqlserver/createdb.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup1.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup2.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup3.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup4.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup5.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup6.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup7.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup8.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup9.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup10.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup11.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup12.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup13.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup14.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup15.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup16.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup17.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup18.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup19.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup20.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup21.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup22.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup23.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup24.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup25.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup26.sql"
-   - "{{ __docs_installation_folder}}/sqlserver/fixup27.sql"
-   #- "updateDBSchema.sh"
+    - '{{ __docs_installation_folder}}/sqlserver/createdb.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup1.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup2.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup3.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup4.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup5.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup6.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup7.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup8.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup9.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup10.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup11.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup12.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup13.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup14.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup15.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup16.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup17.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup18.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup19.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup20.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup21.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup22.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup23.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup24.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup25.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup26.sql'
+    - '{{ __docs_installation_folder}}/sqlserver/fixup27.sql'
+ #- "updateDBSchema.sh"
   when:
     - not docs_migrations_already_done.stat.exists
 
-- name:                  "Create {{ __sql_docs_success_file }} file"
+- name: Create {{ __sql_docs_success_file }} file
   file:
-    path:                "{{ __sql_docs_success_file }}"
-    state:               touch
+    path: '{{ __sql_docs_success_file }}'
+    state: touch

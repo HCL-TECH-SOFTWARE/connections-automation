@@ -1,4 +1,5 @@
-- name:                    Upgrade kubelet configuration
-  command:                 "{{ item }}"
-  with_items:              "kubeadm upgrade node config --kubelet-version v{{ __kubernetes_version }}"
-  when:                    inventory_hostname in groups["k8s_workers"]
+---
+- name: Upgrade kubelet configuration
+  command: '{{ item }}'
+  with_items: kubeadm upgrade node config --kubelet-version v{{ __kubernetes_version }}
+  when: inventory_hostname in groups["k8s_workers"]

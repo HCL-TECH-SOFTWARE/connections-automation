@@ -1,64 +1,44 @@
-# Create an item via API
 ---
-  - name: "Enable the Community GK flags for comm-highlight"
-    uri:
-      url: https://{{ __frontend_fqdn }}/connections/config/basic/rest/gatekeeper/
-      validate_certs: false
-      user: "{{ was_username }}"
-      password: "{{ was_password }}"
-      method: POST
-      return_content: yes
-      headers:
-        Content-Type: application/json
-      body: "{
-        \"organization\": \"00000000-0000-0000-0000-000000000000\",
-        \"role\": \"read only\",
-        \"settings\": [
-            {
-                \"name\": \"COMMUNITIES_HIGHLIGHTS_AS_OVERVIEW\",
-                \"value\": true
-            }
-        ],
-        \"source\": \"highway\"
-    }"
-      body_format: json
-      force_basic_auth: yes
-    register: highlights_request_status
+- name: Enable the Community GK flags for comm-highlight
+  uri:
+    url: https://{{ __frontend_fqdn }}/connections/config/basic/rest/gatekeeper/
+    validate_certs: false
+    user: '{{ was_username }}'
+    password: '{{ was_password }}'
+    method: POST
+    return_content: true
+    headers:
+      Content-Type: application/json
+    body: '{ "organization": "00000000-0000-0000-0000-000000000000", "role": "read
+      only", "settings": [ { "name": "COMMUNITIES_HIGHLIGHTS_AS_OVERVIEW", "value":
+      true } ], "source": "highway" }'
+    body_format: json
+    force_basic_auth: true
+  register: highlights_request_status
 
-  - name:  print GK Highlights update status
-    debug:
-      msg: "{{ highlights_request_status.status }}"
+- name: print GK Highlights update status
+  debug:
+    msg: '{{ highlights_request_status.status }}'
 
 
-  - name: "Set Community GK flags for te-wizard, comm-templates to {{ __setup_tailored_exp }}"
-    uri:
-      url: https://{{ __frontend_fqdn }}/connections/config/basic/rest/gatekeeper/
-      validate_certs: false
-      user: "{{ was_username }}"
-      password: "{{ was_password }}"
-      method: POST
-      return_content: yes
-      headers:
-        Content-Type: application/json
-      body: "{
-        \"organization\": \"00000000-0000-0000-0000-000000000000\",
-        \"role\": \"read only\",
-        \"settings\": [
-            {
-                \"name\": \"COMMUNITIES_TEMPLATE\",
-                \"value\": \"{{ __setup_tailored_exp | bool }}\"
-            },
-            {
-                \"name\": \"COMMUNITIES_TE_CREATION_WIZARD\",
-                \"value\": \"{{ __setup_tailored_exp | bool }}\"
-            }
-        ],
-        \"source\": \"highway\"
-    }"
-      body_format: json
-      force_basic_auth: yes
-    register: te_update_request_status
+- name: Set Community GK flags for te-wizard, comm-templates to {{ __setup_tailored_exp }}
+  uri:
+    url: https://{{ __frontend_fqdn }}/connections/config/basic/rest/gatekeeper/
+    validate_certs: false
+    user: '{{ was_username }}'
+    password: '{{ was_password }}'
+    method: POST
+    return_content: true
+    headers:
+      Content-Type: application/json
+    body: '{ "organization": "00000000-0000-0000-0000-000000000000", "role": "read
+      only", "settings": [ { "name": "COMMUNITIES_TEMPLATE", "value": "{{ __setup_tailored_exp | bool }}"
+      }, { "name": "COMMUNITIES_TE_CREATION_WIZARD", "value": "{{ __setup_tailored_exp | bool }}"
+      } ], "source": "highway" }'
+    body_format: json
+    force_basic_auth: true
+  register: te_update_request_status
 
-  - name:  print GK TE update status
-    debug:
-      msg: "{{ te_update_request_status.status }}"
+- name: print GK TE update status
+  debug:
+    msg: '{{ te_update_request_status.status }}'

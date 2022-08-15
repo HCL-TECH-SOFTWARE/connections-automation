@@ -1,147 +1,147 @@
 ---
 # Mandatory changes!
 
-cnx_component_pack_ingress:                      "web.internal.example.com"
-cnx_application_ingress:                         "connections.example.com"
+cnx_component_pack_ingress: web.internal.example.com
+cnx_application_ingress: connections.example.com
 
 # Usernames and password for eventual customization. Shown here are default usernames and password. Change it to customize it
 
-was_username:                                    wasadmin
-was_password:                                    password
+was_username: wasadmin
+was_password: password
 
-ldap_userid:                                     "fakeuser"
-ldap_nr_of_users:                                1000
-ldap_user_password:                              "password"
-ldap_user_admin_password:                        "password"
+ldap_userid: fakeuser
+ldap_nr_of_users: 1000
+ldap_user_password: password
+ldap_user_admin_password: password
 
-ihs_username:                                    ihsadmin
-ihs_password:                                    password
+ihs_username: ihsadmin
+ihs_password: password
 
-connections_admin:                               fakeuser1
+connections_admin: fakeuser1
 
-db_password:                                     password
-db_concord_password:                             password
+db_password: password
+db_concord_password: password
 
-docs_username:                                   docsuser
-docs_password:                                   password
-sudo_group:                                      wheel
+docs_username: docsuser
+docs_password: password
+sudo_group: wheel
 
-tinyeditors_username:                            tinyeditorsuser
-tinyeditors_password:                            password
+tinyeditors_username: tinyeditorsuser
+tinyeditors_password: password
 
 # Non-mandatory changes
 
 # Type of HCL Connections deployment: small (default), medium and large.
-cnx_deploy_type:                                 medium
-ldap_user_mail_domain:                           "connections.example.com"
+cnx_deploy_type: medium
+ldap_user_mail_domain: connections.example.com
 
-db2_download_location:                           http://{{ groups['installer'][0] }}:8001/DB2
-tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/TDI
-connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
-iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
-ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
-cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
-cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
-component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
-tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
+db2_download_location: http://{{ groups['installer'][0] }}:8001/DB2
+tdi_download_location: http://{{ groups['installer'][0] }}:8001/TDI
+connections_wizards_download_location: http://{{ groups['installer'][0] }}:8001/Connections7
+iim_repository_url: http://{{ groups['installer'][0] }}:8001/was855
+was_repository_url: http://{{ groups['installer'][0] }}:8001/was855
+was_fixes_repository_url: http://{{ groups['installer'][0] }}:8001/was855FP21
+ihs_repository_url: http://{{ groups['installer'][0] }}:8001/was855
+ihs_fixes_repository_url: http://{{ groups['installer'][0] }}:8001/was855FP21
+cnx_docs_download_location: http://{{ groups['installer'][0] }}:8001/Docs
+cnx_repository_url: http://{{ groups['installer'][0] }}:8001/Connections7
+component_pack_download_location: http://{{ groups['installer'][0] }}:8001/cp
+tinyeditors_download_location: http://{{ groups['installer'][0] }}:8001/TinyEditors
 
 # Use SDI JRE8
-upgrade_tdi_jre:                                 true
-tdi_sol_location:                                http://{{ groups['installer'][0] }}:8001/Connections7/tdisol_70_java8.tar
+upgrade_tdi_jre: true
+tdi_sol_location: http://{{ groups['installer'][0] }}:8001/Connections7/tdisol_70_java8.tar
 
-cnx_updates_enabled:                             True
+cnx_updates_enabled: true
 
-dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
+dmgr_hostname: "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
 
-smtp_hostname:                                   localhost
+smtp_hostname: localhost
 
-connections_admin_password:                      "{{ ldap_user_admin_password }}"
+connections_admin_password: '{{ ldap_user_admin_password }}'
 
-db_username:                                     LCUSER
-db_concord_username:                             docsuser
-db_hostname:                                     "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
-db_port:                                         50000
-#db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
-#db_docs_jdbc_file:                               "{{ db_jdbc_file }}"
-db_type:                                         DB2
-setup_db2_jdbc:                                  True
+db_username: LCUSER
+db_concord_username: docsuser
+db_hostname: "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
+db_port: 50000
+# db_jdbc_file:                                    /opt/IBM/db2/V11.1/java
+# db_docs_jdbc_file:                               "{{ db_jdbc_file }}"
+db_type: DB2
+setup_db2_jdbc: true
 
-cnx_force_repopulation:                          True
+cnx_force_repopulation: true
 
-cnx_enable_moderation:                           true
-cnx_enable_invite:                               true
-cnx_enable_full_icec:                            true
+cnx_enable_moderation: true
+cnx_enable_invite: true
+cnx_enable_full_icec: true
 
-enable_prometheus_jmx_exporter:                  True
+enable_prometheus_jmx_exporter: true
 
 # uncomment these lines, set to the latest cFix to include it as part of the initial install 
-#ifix_apar:                                       CFix.70.2110
-#cnx_ifix_installer:                              "updateInstaller_2104.zip"
-#ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
+# ifix_apar:                                       CFix.70.2110
+# cnx_ifix_installer:                              "updateInstaller_2104.zip"
+# ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
 
-setup_docker_registry:                           true
-component_pack_package_name:                     hybridcloud_latest.zip
+setup_docker_registry: true
+component_pack_package_name: hybridcloud_latest.zip
 
-enable_pod_auto_scaling:                         true
+enable_pod_auto_scaling: true
 
-#setup_installation:                              false
-#setup_images:                                    false
-#setup_credentials:                               false
-#setup_psp:                                       false
-#setup_connections_volumes:                       false
-#setup_bootstrap:                                 false
-#setup_connections_env:                           false
-#setup_infrastructure:                            false
-#setup_customizer:                                false
-#setup_elasticsearch7:                            false
-#setup_community_ingress:                         false
-#setup_teams:                                     false
-#setup_tailored_exp:                              false
-#setup_orientme:                                  false
-#setup_dashboards:                                false
-#setup_elasticstack:                              false
-#setup_sanity:                                    false
-#setup_kudosboards:                               false
-#setup_outlook_addin:                             false
-#enable_es_metrics:                               false
-#enable_gk_flags:                                 false
-#setup_ms_teams_extensions:                       false
-#skip_configure_redis:                            True
+# setup_installation:                              false
+# setup_images:                                    false
+# setup_credentials:                               false
+# setup_psp:                                       false
+# setup_connections_volumes:                       false
+# setup_bootstrap:                                 false
+# setup_connections_env:                           false
+# setup_infrastructure:                            false
+# setup_customizer:                                false
+# setup_elasticsearch7:                            false
+# setup_community_ingress:                         false
+# setup_teams:                                     false
+# setup_tailored_exp:                              false
+# setup_orientme:                                  false
+# setup_dashboards:                                false
+# setup_elasticstack:                              false
+# setup_sanity:                                    false
+# setup_kudosboards:                               false
+# setup_outlook_addin:                             false
+# enable_es_metrics:                               false
+# enable_gk_flags:                                 false
+# setup_ms_teams_extensions:                       false
+# skip_configure_redis:                            True
 
-kudos_boards_licence:                            "PASTE_YOUR_LICENCE_KEY_HERE"
+kudos_boards_licence: PASTE_YOUR_LICENCE_KEY_HERE
 
-docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
-load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
-ic_internal:                                     "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"
-frontend_fqdn:                                   "{{ cnx_application_ingress }}"
-frontend_domain:                                 "{{ cnx_application_ingress.split('.')[1:] | join('.') }}"
-db_server:                                       "{{ db_hostname }}"
-db_server_user:                                  "{{ db_username }}"
-db_server_password:                              "{{ db_password }}"
+docker_registry_url: "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
+load_balancer_dns: "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
+ic_internal: "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"
+frontend_fqdn: '{{ cnx_application_ingress }}'
+frontend_domain: "{{ cnx_application_ingress.split('.')[1:] | join('.') }}"
+db_server: '{{ db_hostname }}'
+db_server_user: '{{ db_username }}'
+db_server_password: '{{ db_password }}'
 
-setup_connections_docs:                          true
-setup_connections_wizards:                       true
+setup_connections_docs: true
+setup_connections_wizards: true
 
-docs_shared_storage_type:                        nfs
-docs_data_remote_path:                           /nfs/docs_data
-docs_data_local_path:                            /mnt/docs_data
+docs_shared_storage_type: nfs
+docs_data_remote_path: /nfs/docs_data
+docs_data_local_path: /mnt/docs_data
 
-viewer_shared_storage_type:                      nfs
-viewer_data_remote_path:                         /nfs/viewer_data
-viewer_data_local_path:                          /mnt/viewer_data
+viewer_shared_storage_type: nfs
+viewer_data_remote_path: /nfs/viewer_data
+viewer_data_local_path: /mnt/viewer_data
 
-cnx_shared_storage_type:                         nfs
-cnx_data_remote_path:                            /nfs/data/shared
-cnx_data_local_path:                             /mnt/cnx_data
+cnx_shared_storage_type: nfs
+cnx_data_remote_path: /nfs/data/shared
+cnx_data_local_path: /mnt/cnx_data
 
-cnx_data_path_on_cnx_server:                     /opt/IBM/SharedArea
+cnx_data_path_on_cnx_server: /opt/IBM/SharedArea
 
-docs_url:                                        "{{ cnx_application_ingress }}"
+docs_url: '{{ cnx_application_ingress }}'
 
-force_destroy_db2:                               True
-force_destroy_ihs:                               True
-force_destroy_websphere:                         True
-force_destroy_kubernetes:                        True
+force_destroy_db2: true
+force_destroy_ihs: true
+force_destroy_websphere: true
+force_destroy_kubernetes: true

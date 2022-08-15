@@ -1,69 +1,69 @@
 ---
-- name:               Verify if MT (DB) is already updated ({{ __mt_update_db_success_file }})
+- name: Verify if MT (DB) is already updated ({{ __mt_update_db_success_file }})
   stat:
-    path:             "{{ __mt_update_db_success_file }}"
-  register:           mt_db_already_installed
+    path: '{{ __mt_update_db_success_file }}'
+  register: mt_db_already_installed
 
-- name:               Synchronize MT Update installation directory to DB server temp location
+- name: Synchronize MT Update installation directory to DB server temp location
   synchronize:
-    src:              "{{ __tmp_dir }}/mt/"
-    dest:             "/tmp/mt/"
-  delegate_to:        "{{ dmgr_hostname }}"
-  become:             false
-  when:               not mt_db_already_installed.stat.exists
+    src: '{{ __tmp_dir }}/mt/'
+    dest: /tmp/mt/
+  delegate_to: '{{ dmgr_hostname }}'
+  become: false
+  when: not mt_db_already_installed.stat.exists
 
-- name:               Copy the files to {{ __tmp_dir }}/mt
+- name: Copy the files to {{ __tmp_dir }}/mt
   copy:
-    src:              "/tmp/mt/"
-    dest:             "{{ __tmp_dir }}/mt/"
-    remote_src:       yes
-  when:               not mt_db_already_installed.stat.exists
+    src: /tmp/mt/
+    dest: '{{ __tmp_dir }}/mt/'
+    remote_src: 'yes'
+  when: not mt_db_already_installed.stat.exists
 
-- name:               Delete MT Update installation directory from temp location
+- name: Delete MT Update installation directory from temp location
   file:
-    path:             "{{ item }}"
-    state:            absent
+    path: '{{ item }}'
+    state: absent
   with_items:
-    - "/tmp/mt/"
-    - "{{ __tmp_dir }}/mt/install/mtupdate_was.rc"
-  when:               not mt_db_already_installed.stat.exists
+    - /tmp/mt/
+    - '{{ __tmp_dir }}/mt/install/mtupdate_was.rc'
+  when: not mt_db_already_installed.stat.exists
 
-- name:                Run MT Update (DB), log file {{ __tmp_dir }}/mt/install/mtupdate_db.log
+- name: Run MT Update (DB), log file {{ __tmp_dir }}/mt/install/mtupdate_db.log
   shell: |
-     set timeout 300
-     ./connections-mt-db-update-cli.sh -f config.properties 2>&1 | tee mtupdate_db.log
-     echo ${PIPESTATUS[0]} > mtupdate_db.rc
+    set timeout 300
+    ./connections-mt-db-update-cli.sh -f config.properties 2>&1 | tee mtupdate_db.log
+    echo ${PIPESTATUS[0]} > mtupdate_db.rc
   args:
-      chdir:           "{{ __tmp_dir }}/mt/install"
-  become:              true
-  register:            mt_update_db_performed
+    chdir: '{{ __tmp_dir }}/mt/install'
+  become: true
+  register: mt_update_db_performed
 
-- name:                Check install return code
-  become:              yes
-  shell:               "cat {{ __tmp_dir }}/mt/install/mtupdate_db.rc"
-  register:            return_code
+- name: Check install return code
+  become: 'yes'
+  shell: cat {{ __tmp_dir }}/mt/install/mtupdate_db.rc
+  register: return_code
   failed_when:
     - return_code.stdout != "0"
   when:
     - mt_update_db_performed is not skipped
 
-- name:               Search for success message in log
-  become:             yes
-  shell:              "grep -i 'Updating HCL Connections DB2 configuration to MT completed' {{ __tmp_dir }}/mt/install/mtupdate_db.log"
-  register:           grep_success_message
-  failed_when:        grep_success_message.stdout|length == 0
-  when:               not __mt_skip_error_checking|bool and mt_update_db_performed is not skipped
+- name: Search for success message in log
+  become: 'yes'
+  shell: grep -i 'Updating HCL Connections DB2 configuration to MT completed' {{ __tmp_dir }}/mt/install/mtupdate_db.log
+  register: grep_success_message
+  failed_when: grep_success_message.stdout|length == 0
+  when: not __mt_skip_error_checking|bool and mt_update_db_performed is not skipped
 
-- name:               Search for potential errors in log
-  become:             yes
-  shell:              "grep -i 'SQLSTATE'  {{ __tmp_dir }}/mt/install/mtupdate_db.log"
-  register:           mt_update_db_error_found
-  failed_when:        mt_update_db_error_found.stdout|length != 0
-  when:               not __mt_skip_error_checking|bool and mt_update_db_performed is not skipped
+- name: Search for potential errors in log
+  become: 'yes'
+  shell: grep -i 'SQLSTATE'  {{ __tmp_dir }}/mt/install/mtupdate_db.log
+  register: mt_update_db_error_found
+  failed_when: mt_update_db_error_found.stdout|length != 0
+  when: not __mt_skip_error_checking|bool and mt_update_db_performed is not skipped
 
-- name:               "Create {{ __mt_update_db_success_file }} file"
+- name: Create {{ __mt_update_db_success_file }} file
   file:
-    path:             "{{ __mt_update_db_success_file }}"
-    state:            touch
+    path: '{{ __mt_update_db_success_file }}'
+    state: touch
   when:
     - mt_update_db_performed is not skipped

@@ -1,15 +1,16 @@
-- name:               Check if PodSecurity is enabled...
+---
+- name: Check if PodSecurity is enabled...
   debug:
-    msg:              "{{ enable_pod_security }}"
-  ignore_errors:      true
+    msg: '{{ enable_pod_security }}'
+  ignore_errors: true
 
-- name:               Check if single node installation is enabled...
+- name: Check if single node installation is enabled...
   debug:
-    msg:              "Single node installation : {{ ((groups.k8s_workers | difference(groups.k8s_masters) | list) == []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) }}"
-  ignore_errors:      true
+    msg: 'Single node installation : {{ ((groups.k8s_workers | difference(groups.k8s_masters) | list) == []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) }}'
+  ignore_errors: true
 
-- name:               Generate master config initialization file
+- name: Generate master config initialization file
   template:
-    src:              "{{ __kubeadm_config_template }}"
-    dest:             "{{ __kubeadm_config_location }}"
+    src: '{{ __kubeadm_config_template }}'
+    dest: '{{ __kubeadm_config_location }}'
 #  when:               inventory_hostname == groups['k8s_masters'][0]

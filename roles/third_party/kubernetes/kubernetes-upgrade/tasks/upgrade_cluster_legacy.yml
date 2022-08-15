@@ -1,19 +1,25 @@
-- name:               Generate master config initialization file
+---
+- name: Generate master config initialization file
   template:
-    src:              "{{ __kubeadm_config_template }}"
-    dest:             "{{ __kubeadm_config_location }}"
+    src: '{{ __kubeadm_config_template }}'
+    dest: '{{ __kubeadm_config_location }}'
 #  when:               inventory_hostname == groups['k8s_masters'][0]
 
-- name:               Wait for the cluster to become healthy due to the latest restart
+- name: Wait for the cluster to become healthy due to the latest restart
   pause:
-    seconds:          30
+    seconds: 30
 
-- name:               Upgrade Kubernetes {{ inventory_hostname }}  master
-  command:            "{{ item }}"
-  with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config=/tmp/kubeadm-config.yaml -f"
-  when:               inventory_hostname in groups["k8s_masters"] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+- name: Upgrade Kubernetes {{ inventory_hostname }}  master
+  command: '{{ item }}'
+  with_items: kubeadm upgrade apply v{{ __kubernetes_version }} --config=/tmp/kubeadm-config.yaml
+    -f
+  when: inventory_hostname in groups["k8s_masters"] and ((groups.k8s_workers | difference(groups.k8s_masters)
+    | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length)
+    == 1 ) != true
 
-- name:               Upgrade Kubernetes {{ inventory_hostname }}  - single node installation
-  command:            "{{ item }}"
-  with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} -f"
-  when:               inventory_hostname in groups["k8s_masters"] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+- name: Upgrade Kubernetes {{ inventory_hostname }}  - single node installation
+  command: '{{ item }}'
+  with_items: kubeadm upgrade apply v{{ __kubernetes_version }} -f
+  when: inventory_hostname in groups["k8s_masters"] and ((groups.k8s_workers | difference(groups.k8s_masters)
+    | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length)
+    == 1 ) == true
