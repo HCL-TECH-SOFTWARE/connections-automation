@@ -1,7 +1,10 @@
 ---
 __setup_environment:                       "{{ setup_environment | default(true) }}"
 __download_location:                       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
-__package_name:                            "{{ cnx_docs_package_name | default('IBMConnectionsDocs_2.0.1.zip') }}"
+__package_name:                            "{{ cnx_docs_package_name | default('HCL_Docs_v202.zip') }}"
+__docs_install_version:                    "{{ docs_install_version | default('2.0.2') }}"
+__docs_updates_enabled:                    "{{ docs_updates_enabled | default(true) }}"
+
 __hcl_program_folder:                      "{{ hcl_program_folder | default('/opt/HCL') }}"
 __extraction_folder:                       "{{ __hcl_program_folder }}/InstallBinaries/Docs"
 __installation_folder:                     "{{ __extraction_folder }}"
@@ -17,6 +20,8 @@ __docs_viewer_ext_install_location:        "{{ __hcl_program_folder }}/{{ __view
 __install_success_message:                 "Installation Completed Successfully"
 __install_success_message_node:            "Deployment on node completed successfully"
 __uninstall_success_message:               "Uninstall successfully"
+__upgrade_success_message:                 "Upgrade completed successfully"
+__upgrade_success_message_2:               "Upgrade successfully"
 #
 __was_install_location:              "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __dmgr_profile_name:                 "{{ profile_name | default('Dmgr01') }}"
@@ -99,9 +104,6 @@ __files_path_r:                           "{{ __cnx_data_local_path }}/files/upl
 __editor_installed_r:                     "Yes"
 __viewer_scope_name_r:                    "{{ __viewer_cluster_name }}"
 __docs_url_r:                             "https://{{ docs_url }}/docs"
-__ecm_fncmis_server_url:                  ""
-__ecm_fncs_server_url:                    ""
-__ecm_community_server_url:               ""
 
 
 # Docs Editor Proxy install config
@@ -133,7 +135,6 @@ __enable_upload_conversion_r:              "Yes"
 __auth_type_r:                             "BASIC"
 __viewer_server_url_r:                     "https://{{ docs_url }}/viewer"
 __viewer_admin_j2c_alias_r:                "connectionsAdmin"
-
 
 __conversion_install_success_file:        "{{ __docs_conversion_install_location }}/docs.conversion.installed.success"
 __editor_install_success_file:            "{{ __docs_editor_install_location }}/docs.editor.installed.success"

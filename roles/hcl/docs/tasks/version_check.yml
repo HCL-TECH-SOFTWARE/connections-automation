@@ -1,0 +1,55 @@
+---
+- name:               "Find {{ name }} install success file"
+  stat:
+    path:             "{{ success_file }}"
+  register:           already_installed_success_file
+
+- name:               "Find {{ name }} product file"
+  find:
+    paths:            "{{ program_path }}/{{ product_file_path}}"
+    patterns:         "{{ product_file_pattern }}"
+  register:           product_file
+  ignore_errors:      true
+
+- name:               "Exit when old {{ name }} install files are found"
+  fail:
+    msg:              "{{ success_file }} is found but {{ name }} is not fully installed. If it has been uninstalled please remove the directory before installing again."
+  when:
+    - already_installed_success_file.stat.exists
+    - product_file.matched|int == 0
+
+- name:               "Determine if {{ name }} is already installed"
+  set_fact:
+    "{{ already_installed_var }}":   "{{ true if (already_installed_success_file.stat.exists and product_file.matched|int > 0) else false }}"
+    component_already_installed:     "{{ true if (already_installed_success_file.stat.exists and product_file.matched|int > 0) else false }}"
+
+- name:               "Is {{ name }} installed?"
+  debug:              var="{{ already_installed_var }}"
+
+- name:               "Read {{ name }} version file if installed"
+  slurp:
+    src:              "{{ version_string_path }}"
+  register:           component_config_json
+  when:
+    - component_already_installed |bool
+
+- name:               "Get {{ name }} version if installed"
+  set_fact:
+    "{{ component_var }}_version":  "{{ component_config_json['content'] | b64decode | regex_search(' ?\"build_version\" ?: ?\"(.+)\"', '\\1') | first }}"
+    component_version:              "{{ component_config_json['content'] | b64decode | regex_search(' ?\"build_version\" ?: ?\"(.+)\"', '\\1') | first }}"
+  when:
+    - component_already_installed |bool
+
+- name:               "Print {{ name }} version if installed"
+  debug:              var={{ component_var}}_version
+  when:
+    - component_already_installed |bool
+
+- name:               "Show me __docs_updates_enabled"
+  debug:              var=__docs_updates_enabled
+
+# Docs python script does not allow running upgrade on same version
+- name:               Determine if {{ name }} can be upgraded
+  set_fact:
+    "{{ upgrade_var }}":   "{{ false if component_version is not defined else true if (component_version is version( __docs_install_version, '<') and __docs_updates_enabled|bool) else false }}"
+    upgrade_eligable:      "{{ false if component_version is not defined else true if (component_version is version( __docs_install_version, '<') and __docs_updates_enabled|bool) else false }}"

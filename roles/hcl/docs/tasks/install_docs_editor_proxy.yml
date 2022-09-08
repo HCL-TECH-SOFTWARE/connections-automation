@@ -1,7 +1,9 @@
-- name:               Verify if Docs Editor Proxy  is already installed
-  stat:
-    path:             "{{ __editor_proxy_install_success_file }}"
-  register:           editor_proxy_already_installed
+---
+- name:               Is Docs Editor Proxy is already installed?
+  debug:              var=editor_proxy_already_installed
+
+- name:               Is this a Docs Editor Proxy upgrade?
+  debug:              var=editor_proxy_upgrade
 
 - name:               Edit cfg.properties
   replace:
@@ -15,27 +17,45 @@
     - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
     - { prop_name: "docs_scope_name", prop_value: "{{ __docs_scope_name_r  }}" }
   when:
-    - not editor_proxy_already_installed.stat.exists
+    - not editor_proxy_already_installed|bool or editor_proxy_upgrade|bool
 
 # Note: Documentation says only need to install on one of the HCL Docs Proxy server nodes.
-- name:              Run the Docs Editor Proxy installer
+# upgrade actually uses the cfg file in the program folder but updating it anyway in case we need it
+- name:              Run the Docs Editor Proxy installer (fresh)
   shell:
     chdir:           "{{ __extraction_folder }}/{{ __proxy_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -acceptLicense"
   become:            true
   when:
-    - not editor_proxy_already_installed.stat.exists
-  register:          sec_install_performed
+    - not editor_proxy_already_installed|bool
+  register:          install_performed
 
-- name:              Search for success message in install log
+- name:              Run the Docs Editor Proxy installer (upgrade)
+  shell:
+    chdir:           "{{ __extraction_folder }}/{{ __proxy_install_folder }}/installer"
+    cmd:             "./upgrade.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense -installRoot {{ __docs_editor_install_location }}"
+  become:            true
+  when:
+    - editor_proxy_upgrade|bool
+  register:          upgrade_performed
+
+- name:              Search for success message in install log (fresh)
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_editor_install_location }}/proxy/logs/proxy_install.log"
   register:          editor_proxy_success_message_found
   failed_when:       editor_proxy_success_message_found.stdout|length == 0
-  when:              sec_install_performed is not skipped
+  when:              install_performed is not skipped
+
+- name:              Search for success message in install log (upgrade)
+  become:            yes
+  shell:             "grep -i '{{ __upgrade_success_message }}' {{ __docs_editor_install_location }}/proxy/logs/proxy_upgrade.log"
+  register:          editor_proxy_upgrade_success_message_found
+  failed_when:       editor_proxy_upgrade_success_message_found.stdout|length == 0
+  when:              upgrade_performed is not skipped
 
 - name:              "Create {{ __editor_proxy_install_success_file }} file"
   file:
     path:            "{{ __editor_proxy_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and editor_proxy_success_message_found.stdout|length > 0
+  when:              install_performed is not skipped and editor_proxy_success_message_found.stdout|length > 0 or
+                     upgrade_performed is not skipped and editor_proxy_upgrade_success_message_found.stdout|length > 0

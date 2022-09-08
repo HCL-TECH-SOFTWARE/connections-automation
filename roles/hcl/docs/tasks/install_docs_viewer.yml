@@ -1,22 +1,24 @@
-- name:               Verify if Docs Viewer is already installed
-  stat:
-    path:             "{{ __viewer_install_success_file }}"
-  register:           viewer_already_installed
+---
+- name:               Is Docs Viewer already installed?
+  debug:              var=viewer_already_installed
+
+- name:               Is this a Docs Viewer upgrade?
+  debug:              var=viewer_upgrade
 
 - name:               Get CNX shared data mount target for {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }}
   shell:              "findmnt --source {{ __nfsMasterAddress }}:{{ __cnx_data_remote_path }} -o target -n | head -n 1"
   register:           cnx_data_mount_target
   failed_when:        cnx_data_mount_target.stdout|length == 0
   when:
-    - not viewer_already_installed.stat.exists
+    - not viewer_already_installed|bool or viewer_upgrade|bool
     - __cnx_shared_storage_type == 'nfs'
 
 - debug:                    var=cnx_data_mount_target
   when:
-    - not viewer_already_installed.stat.exists
+    - not viewer_already_installed|bool or viewer_upgrade|bool
     - cnx_data_mount_target is defined
 
-
+# upgrade actually uses the cfg file in the program folder but updating it anyway in case we need it
 - name:               Edit cfg.properties
   replace:
     path:            "{{ __viewer_cfg_prop_location }}/cfg.properties"
@@ -34,32 +36,46 @@
     - { prop_name: "scope", prop_value: "{{ __scope_r  }}" }
     - { prop_name: "files_url", prop_value: "{{ __files_url_r }}" }
     - { prop_name: "docs_url", prop_value: "{{ __docs_url_r }}" }
-    - { prop_name: "ecm_fncmis_server_url", prop_value: "{{ __ecm_fncmis_server_url }}" }
-    - { prop_name: "ecm_fncs_server_url", prop_value: "{{ __ecm_fncs_server_url }}" }
-    - { prop_name: "ecm_community_server_url", prop_value: "{{ __ecm_community_server_url }}" }
   when:
-    - not viewer_already_installed.stat.exists
+    - not viewer_already_installed|bool or viewer_upgrade|bool
 
 # Note: documentation says only need to install File Viewer on one of the nodes in the cluster as this makes all the config and other install files available to any additional File Viewer node in the cluster.
 
-- name:              Run the Docs Viewer installer
+- name:              Run the Docs Viewer installer (fresh)
   shell:
     chdir:           "{{ __extraction_folder }}/{{ __viewer_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.properties -mapWebserver true -acceptLicense"
   become:            true
   when:
-    - not viewer_already_installed.stat.exists
-  register:          sec_install_performed
+    - not viewer_already_installed|bool
+  register:          install_performed
 
-- name:              Search for success message in install log
+- name:              Run the Docs Viewer installer (upgrade)
+  shell:
+    chdir:           "{{ __extraction_folder }}/{{ __viewer_install_folder }}/installer"
+    cmd:             "./upgrade.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -mapWebserver true -acceptLicense -installRoot {{ __docs_viewer_install_location }}"
+  become:            true
+  when:
+    - viewer_upgrade|bool
+  register:          upgrade_performed
+
+- name:              Search for success message in install log (fresh)
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_viewer_install_location }}/logs/viewerInstall.log"
-  register:          viewer_success_message_found
-  failed_when:       viewer_success_message_found.stdout|length == 0
-  when:              sec_install_performed is not skipped
+  register:          viewer_install_success_message_found
+  failed_when:       viewer_install_success_message_found.stdout|length == 0
+  when:              install_performed is not skipped
+
+- name:              Search for success message in install log (upgrade)
+  become:            yes
+  shell:             "grep -i '{{ __upgrade_success_message }}' {{ __docs_viewer_install_location }}/logs/viewerUpgrade.log"
+  register:          viewer_upgrade_success_message_found
+  failed_when:       viewer_upgrade_success_message_found.stdout|length == 0
+  when:              upgrade_performed is not skipped
 
 - name:              "Create {{ __viewer_install_success_file }} file"
   file:
     path:            "{{ __viewer_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and viewer_success_message_found.stdout|length > 0
+  when:              install_performed is not skipped and viewer_install_success_message_found.stdout|length > 0 or
+                     upgrade_performed is not skipped and viewer_upgrade_success_message_found.stdout|length > 0

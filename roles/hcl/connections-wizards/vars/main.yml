@@ -14,7 +14,7 @@ __db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2
 __installation_folder:          "{{ __db_extraction_folder }}/Wizards"
 
 __docs_download_location:       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
-__docs_package_name:            "{{ cnx_docs_package_name | default('IBMConnectionsDocs_2.0.1.zip') }}"
+__docs_package_name:            "{{ cnx_docs_package_name | default('HCL_Docs_v202.zip') }}"
 __docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
 __docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"
 

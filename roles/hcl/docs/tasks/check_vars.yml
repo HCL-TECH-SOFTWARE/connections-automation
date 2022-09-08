@@ -64,3 +64,95 @@
     that:
     - docs_url|length > 0
     msg: "Set the value of 'docs_url' in the inventory file."
+
+# Check Docs install status
+- name:                    Check if Docs Conversion has been installed
+  include_tasks:
+    file:                  version_check.yml
+  vars:
+    name:                  "Docs Conversion"
+    success_file:          "{{ __conversion_install_success_file }}"
+    program_path:          "{{ __docs_conversion_install_location }}"
+    product_file_path:     "product/properties/version"
+    product_file_pattern:  "*.swidtag"
+    version_string_path:   "{{ __docs_conversion_install_location }}/product/installer/version.txt"
+    component_var:         "conversion"
+    already_installed_var: "conversion_already_installed"
+    upgrade_var:           "conversion_upgrade"
+  when:                    inventory_hostname in groups["conversion_servers"]
+
+# use product/installer/version.txt in each node to determine installed version for that node
+- name:                    Check if Docs Editor has been installed
+  include_tasks:
+    file:                  version_check.yml
+  vars:
+    name:                  "Docs Editor"
+    success_file:          "{{ __editor_install_success_file }}"
+    program_path:          "{{ __docs_editor_install_location }}"
+    product_file_path:     "product/properties/version"
+    product_file_pattern:  "*.swidtag"
+    version_string_path:   "{{ __docs_editor_install_location }}/product/installer/version.txt"
+    component_var:         "editor"
+    already_installed_var: "editor_already_installed"
+    upgrade_var:           "editor_upgrade"
+  when:                    inventory_hostname in groups["docs_servers"]
+
+- name:                    Check if Docs Viewer has been installed
+  include_tasks:
+    file:                  version_check.yml
+  vars:
+    name:                  "Docs Viewer"
+    success_file:          "{{ __viewer_install_success_file }}"
+    program_path:          "{{ __docs_viewer_install_location }}"
+    product_file_path:     "product"
+    product_file_pattern:  "*.ear"
+    version_string_path:   "{{ __docs_viewer_install_location }}/product/installer/version.txt"
+    component_var:         "viewer"
+    already_installed_var: "viewer_already_installed"
+    upgrade_var:           "viewer_upgrade"
+  when:                    inventory_hostname in groups["viewer_servers"][0]
+
+- name:                    Check if Docs Editor Proxy has been installed
+  include_tasks:
+    file:                  version_check.yml
+  vars:
+    name:                  "Docs Editor Proxy"
+    success_file:          "{{ __editor_proxy_install_success_file }}"
+    program_path:          "{{ __docs_editor_install_location }}/proxy"
+    product_file_path:     "product"
+    product_file_pattern:  "*.jar"
+    version_string_path:   "{{ __docs_editor_install_location }}/proxy/product/installer/version.txt"
+    component_var:         "editor_proxy"
+    already_installed_var: "editor_proxy_already_installed"
+    upgrade_var:           "editor_proxy_upgrade"
+  when:                    inventory_hostname in groups["proxy_servers"][0]
+
+- name:                    Check if Docs Editor Extension has been installed
+  include_tasks:
+    file:                  version_check.yml
+  vars:
+    name:                  "Docs Editor Extension"
+    success_file:          "{{ __docs_editor_ext_install_success_file }}"
+    program_path:          "{{ __docs_editor_ext_install_location }}"
+    product_file_path:     "product"
+    product_file_pattern:  "*.jar"
+    version_string_path:   "{{ __docs_editor_ext_install_location }}/product/installer/version.txt"
+    component_var:         "docs_ext"
+    already_installed_var: "docs_ext_already_installed"
+    upgrade_var:           "docs_ext_upgrade"
+  when:                    inventory_hostname in groups["cnx_was_servers"][0]
+
+- name:                    Check if Docs Viewer Extension has been installed
+  include_tasks:
+    file:                  version_check.yml
+  vars:
+    name:                  "Docs Viewer Extension"
+    success_file:          "{{ __docs_viewer_ext_install_success_file }}"
+    program_path:          "{{ __docs_viewer_ext_install_location }}"
+    product_file_path:     "product"
+    product_file_pattern:  "*.jar"
+    version_string_path:   "{{ __docs_viewer_ext_install_location }}/product/installer/version.txt"
+    component_var:         "viewer_ext"
+    already_installed_var: "viewer_ext_already_installed"
+    upgrade_var:           "viewer_ext_upgrade"
+  when:                    inventory_hostname in groups["cnx_was_servers"][0]

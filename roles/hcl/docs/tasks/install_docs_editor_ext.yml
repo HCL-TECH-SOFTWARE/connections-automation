@@ -1,11 +1,14 @@
-- name:               Verify if Docs Editor Extension is already installed
-  stat:
-    path:             "{{ __docs_editor_ext_install_success_file }}"
-  register:           editor_ext_already_installed
+---
+- name:               Is Docs Editor Extension already installed?
+  debug:              var=docs_ext_already_installed
+
+- name:               Is this a Docs Editor Extension upgrade?
+  debug:              var=docs_ext_upgrade
 
 - name:               Get the names of the clusters
   include_tasks:      get_cluster_names.yml
 
+# upgrade actually uses the cfg file in the program folder but updating it anyway in case we need it
 - name:               Edit cfg.properties
   replace:
     path:            "{{ __editor_ext_cfg_prop_location }}/cfg.properties"
@@ -24,7 +27,7 @@
     - { prop_name: "docs_admin_j2c_alias", prop_value: "{{ __docs_admin_j2c_alias_r }}" }
     - { prop_name: "ccm_enabled", prop_value: "{{ __ccm_enabled_r }}" }
   when:
-    - not editor_ext_already_installed.stat.exists
+    - not docs_ext_already_installed|bool or docs_ext_upgrade|bool
 
 - name:               Add more properties to cfg.properties
   lineinfile:
@@ -34,27 +37,44 @@
   with_items:
     - { prop_name: "auth_type=", prop_value: "auth_type={{ __auth_type_r }}" }
   when:
-    - not editor_ext_already_installed.stat.exists
+    - not docs_ext_already_installed|bool or docs_ext_upgrade|bool
 
 # Note: Documentation says it can be installed on one of the HCL Connections server
-- name:              Run the Docs Editor Extension installer
+- name:              Run the Docs Editor Extension installer (fresh)
   shell:
     chdir:           "{{ __extraction_folder }}/DocsCnxExtension/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - not editor_ext_already_installed.stat.exists
-  register:          sec_install_performed
+    - not docs_ext_already_installed|bool
+  register:          install_performed
 
-- name:              Search for success message in install log
+- name:              Run the Docs Editor Extension installer (upgrade)
+  shell:
+    chdir:           "{{ __extraction_folder }}/DocsCnxExtension/installer"
+    cmd:             "./upgrade.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense -silentlyInstall -installRoot {{ __docs_editor_ext_install_location }}"
+  become:            true
+  when:
+    - docs_ext_upgrade|bool
+  register:          upgrade_performed
+
+- name:              Search for success message in install log (fresh)
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_editor_ext_install_location }}/logs/icext_install.log"
   register:          editor_ext_success_message_found
   failed_when:       editor_ext_success_message_found.stdout|length == 0
-  when:              sec_install_performed is not skipped
+  when:              install_performed is not skipped
+
+- name:              Search for success message in install log (upgrade)
+  become:            yes
+  shell:             "grep -i '{{ __upgrade_success_message }}' {{ __docs_editor_ext_install_location }}/logs/icext_upgrade.log"
+  register:          editor_ext_upgrade_success_message_found
+  failed_when:       editor_ext_upgrade_success_message_found.stdout|length == 0
+  when:              upgrade_performed is not skipped
 
 - name:              "Create {{ __docs_editor_ext_install_success_file }} file"
   file:
     path:            "{{ __docs_editor_ext_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and editor_ext_success_message_found.stdout|length > 0
+  when:              install_performed is not skipped and editor_ext_success_message_found.stdout|length > 0 or
+                     upgrade_performed is not skipped and editor_ext_upgrade_success_message_found.stdout|length > 0
