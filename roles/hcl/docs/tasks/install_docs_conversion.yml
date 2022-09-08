@@ -1,8 +1,10 @@
-- name:               Verify if Docs Conversion is already installed
-  stat:
-    path:             "{{ __conversion_install_success_file }}"
-  register:           conversion_already_installed
+- name:               Is Docs Conversion already installed?
+  debug:              var=conversion_already_installed
 
+- name:               Is this a Docs Conversion upgrade?
+  debug:              var=conversion_upgrade
+
+# upgrade actually uses the cfg file in the program folder but updating it anyway in case we need it
 - name:               Edit cfg.properties
   replace:
     path:            "{{ __conversion_cfg_prop_location }}/cfg.properties"
@@ -23,7 +25,7 @@
     - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
     - { prop_name: "non_job_mgr_mode", prop_value: "{{ __non_job_mgr_mode_r }}" }
     - { prop_name: "viewer_url", prop_value: "{{ __viewer_url_r }}" }
-  when:              not conversion_already_installed.stat.exists
+  when:              not conversion_already_installed|bool or conversion_upgrade|bool
 
 # need to copy cfg to cfg.node before install per documentation
 - name:               Copy cfg.properties to cfg.node.properties
@@ -31,26 +33,43 @@
     src:              "{{ __conversion_cfg_prop_location }}/cfg.properties"
     dest:             "{{ __conversion_cfg_prop_location }}/cfg.node.properties"
     remote_src:       yes
-  when:               not conversion_already_installed.stat.exists
+  when:               not conversion_already_installed|bool or conversion_upgrade|bool
 
-- name:              Run the Docs Conversion installer
+- name:              Run the Docs Conversion installer (fresh)
   shell:
     chdir:           "{{ __extraction_folder }}/{{ __conversion_install_folder }}/installer"
     cmd:             "./install.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -mapWebserver true -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - not conversion_already_installed.stat.exists
-  register:          sec_install_performed
+    - not conversion_already_installed|bool
+  register:          install_performed
 
-- name:              Search for success message in install log
+- name:              Run the Docs Conversion installer (upgrade)
+  shell:
+    chdir:           "{{ __extraction_folder }}/{{ __conversion_install_folder }}/installer"
+    cmd:             "./upgrade.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense -silentlyInstall -installRoot {{ __docs_conversion_install_location }}"
+  become:            true
+  when:
+    - conversion_upgrade|bool
+  register:          upgrade_performed
+
+- name:              Search for success message in install log (fresh)
   become:            yes
   shell:             "grep -i '{{ __install_success_message }}' {{ __docs_conversion_install_location }}/logs/conversion_install.log"
-  register:          conversion_success_message_found
-  failed_when:       conversion_success_message_found.stdout|length == 0
-  when:              sec_install_performed is not skipped
+  register:          conversion_install_success_message_found
+  failed_when:       conversion_install_success_message_found.stdout|length == 0
+  when:              install_performed is not skipped
+
+- name:              Search for success message in install log (upgrade)
+  become:            yes
+  shell:             "grep -i '{{ __upgrade_success_message }}' {{ __docs_conversion_install_location }}/logs/conversion_upgrade.log"
+  register:          conversion_upgrade_success_message_found
+  failed_when:       conversion_upgrade_success_message_found.stdout|length == 0
+  when:              upgrade_performed is not skipped
 
 - name:              "Create {{ __conversion_install_success_file }} file"
   file:
     path:            "{{ __conversion_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and conversion_success_message_found.stdout|length > 0
+  when:              install_performed is not skipped and conversion_install_success_message_found.stdout|length > 0 or
+                     upgrade_performed is not skipped and conversion_upgrade_success_message_found.stdout|length > 0

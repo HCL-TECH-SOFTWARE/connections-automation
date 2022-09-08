@@ -5,28 +5,27 @@
   register:           editor_first_already_installed
   delegate_to:        "{{ groups['docs_servers'][0] }}"
 
-- name:               Verify if Docs Editor is already installed on subsequent node
-  stat:
-    path:             "{{ __editor_install_success_file }}"
-  register:           editor_current_already_installed
-
 - debug:               var=editor_first_already_installed.stat.exists
   run_once:            true
 
-- debug:               var=editor_current_already_installed.stat.exists
-  run_once:            true
+- name:               Is Docs Editor already installed on this subsequent node?
+  debug:              var=editor_already_installed
+
+- name:               Is this a Docs Editor upgrade?
+  debug:              var=editor_upgrade
 
 # orig cfg.node.properties is missing properties, also documentation says use node.properties from 1st node and rename to cfg.node.properties
+# upgrade actually uses the cfg file in the program folder but updating it anyway in case we need it
 - name:               Copy cfg.properties to cfg.node.properties
   copy:
     src:              "{{ __editor_cfg_prop_location }}/cfg.properties"
     dest:             "{{ __editor_cfg_prop_location }}/cfg.node.properties"
     remote_src:       yes
-  when:               not editor_current_already_installed.stat.exists
+  when:               not editor_already_installed|bool or editor_upgrade|bool
 
 - name:               Get database type
   include_tasks:      get_db_type.yml
-  when:               not editor_current_already_installed.stat.exists
+  when:               not editor_already_installed|bool or editor_upgrade|bool
 
 - name:               Edit cfg.node.properties
   replace:
@@ -50,27 +49,45 @@
     - { prop_name: "conversion_url", prop_value: "{{ __conversion_url_r }}" }
     - { prop_name: "files_url", prop_value: "{{ __files_url_r }}" }
     - { prop_name: "email_url", prop_value: "{{ __email_url_r }}" }
-  when:              not editor_current_already_installed.stat.exists
+  when:              not editor_already_installed|bool or editor_upgrade|bool
 
-- name:              Run the Docs Editor installer for the second node
+- name:              Run the Docs Editor installer for the second node (fresh)
   shell:
     chdir:           "{{ __extraction_folder }}/{{ __editor_install_folder }}/installer"
     cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -dbadminID {{ __db_concord_username }} -dbadminPW {{ db_concord_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - not editor_current_already_installed.stat.exists
+    - not editor_already_installed|bool
     - editor_first_already_installed.stat.exists |bool
   register:          sec_install_performed
 
-- name:              Search for success message in install log
+- name:              Run the Docs Editor installer for the second node (upgrade)
+  shell:
+    chdir:           "{{ __extraction_folder }}/{{ __editor_install_folder }}/installer"
+    cmd:             "./upgrade_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -dbadminID {{ __db_concord_username }} -dbadminPW {{ db_concord_password }} -acceptLicense -silentlyInstall -installRoot {{ __docs_editor_install_location }}"
+  become:            true
+  when:
+    - editor_upgrade|bool
+    - editor_first_already_installed.stat.exists |bool
+  register:          sec_upgrade_performed
+
+- name:              Search for success message in install log (fresh)
   become:            yes
   shell:             "grep -i '{{ __install_success_message_node }}' {{ __docs_editor_install_location }}/logs/docs_install_node.log"
-  register:          editor_success_message_found
-  failed_when:       editor_success_message_found.stdout|length == 0
+  register:          editor_install_success_message_found
+  failed_when:       editor_install_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
+
+- name:              Search for success message in install log (upgrade)
+  become:            yes
+  shell:             "grep -i '{{ __upgrade_success_message }}' {{ __docs_editor_install_location }}/logs/docs_upgrade_node.log"
+  register:          editor_upgrade_success_message_found
+  failed_when:       editor_upgrade_success_message_found.stdout|length == 0
+  when:              sec_upgrade_performed is not skipped
 
 - name:              "Create {{ __editor_install_success_file }} file"
   file:
     path:            "{{ __editor_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and editor_success_message_found.stdout|length > 0
+  when:              sec_install_performed is not skipped and editor_install_success_message_found.stdout|length > 0 or
+                     sec_upgrade_performed is not skipped and editor_upgrade_success_message_found.stdout|length > 0

@@ -65,40 +65,48 @@
     __zip_prefix:        ViewerLCCustomizeApp
   when:                  inventory_hostname in groups["cnx_was_servers"]
 
-# Docs install scripts require python2
-- name:                  Check whether python2 is installed on RHEL 8
+# Docs 2.0.1 install scripts require python2
+- name:                  Check whether python2 is installed on RHEL 8 (for v2.0.1)
   command:               python2 --version
   register:              python_installed
   ignore_errors:         true
   when:
+    - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
-- name:                  Install python2 on RHEL 8
+- name:                  Install python2 on RHEL 8 (for v2.0.1)
   yum:
     name:                ['python2']
     state:               present
   when:
+    - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
     - python_installed.failed
 
-- name:                  Get default python version on RHEL 8
+- name:                  Get default python version on RHEL 8 (for v2.0.1)
   command:               python --version
   register:              python_default_version
   ignore_errors:         true
   when:
+    - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
-- name:                  Print current default python version on RHEL 8
+- name:                  Print current default python version on RHEL 8 (for v2.0.1)
   debug:                 var=python_default_version
+  when:
+    - __docs_install_version is version('2.0.2', '<')
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
 
-- name:                  Set python2 as default for RHEL 8
+- name:                  Set python2 as default for RHEL 8 (for v2.0.1)
   command:               alternatives --set python /usr/bin/python2
   become:                true
   register:              python2_alternatives_set
   when:
+    - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
     - (python_default_version is defined) and (python_default_version is not search("Python 2"))
@@ -107,4 +115,6 @@
   file:
     path:                "{{ __hcl_program_folder }}/python2_alternatives_set.success"
     state:               touch
-  when:                  python2_alternatives_set is changed
+  when:
+    - __docs_install_version is version('2.0.2', '<')
+    - python2_alternatives_set is changed

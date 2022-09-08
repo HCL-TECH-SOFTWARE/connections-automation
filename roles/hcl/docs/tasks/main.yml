@@ -3,12 +3,15 @@
 - include_vars:            ../create_docs_clusters/vars/main.yml
 
 - name:                    Check Vars
-  include_tasks:           check_vars.yml
+  include_tasks:
+     file:                 check_vars.yml
+     apply:
+        any_errors_fatal:  true
 
 - name:                    Pre-check DB2 version
   include_tasks:           precheck_DB2_version.yml
   when:
-    - "'db2_servers' in groups"  
+    - "'db2_servers' in groups"
 
 - name:                    Download Docs installer to Docs env
   include_tasks:           download_docs.yml

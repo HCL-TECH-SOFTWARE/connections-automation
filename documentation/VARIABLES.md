@@ -242,7 +242,7 @@ restrict_reader_access__trusted_realms | *none* - optional | true will set appli
 Name | Default | Description
 ---- | --------| -------------
 cnx_docs_download_location | *none* - required | Connections Docs kit download location
-cnx_docs_package_name | IBMConnectionsDocs_2.0.1.zip | Connections Docs install kit file
+cnx_docs_package_name | HCL_Docs_v202.zip | Connections Docs install kit file
 hcl_program_folder | /opt/HCL | Location to store Docs program folders
 conversion_install_folder | DocsConversion | Conversion program folder name
 editor_install_folder | DocsEditor | Editor program folder name

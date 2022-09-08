@@ -4,11 +4,13 @@
     state:                 absent
     path:                  "{{ __extraction_folder }}"
 
+# Docs 2.0.1 install scripts require python2
 - name:                    Verify if python default was changed on RHEL 8
   stat:
     path:                  "{{ __hcl_program_folder }}/python2_alternatives_set.success"
   register:                python2_default_was_set
   when:
+    - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
@@ -17,6 +19,7 @@
   become:                  true
   register:                python2_alternatives_unset
   when:
+    - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
     - python2_default_was_set.stat.exists
@@ -25,4 +28,6 @@
   file:
     path:                  "{{ __hcl_program_folder }}/python2_alternatives_set.success"
     state:                 absent
-  when:                    python2_alternatives_unset is changed
+  when:
+    - __docs_install_version is version('2.0.2', '<')
+    - python2_alternatives_unset is changed

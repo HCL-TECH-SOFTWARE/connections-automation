@@ -5,18 +5,17 @@
   register:           conversion_first_already_installed
   delegate_to:        "{{ groups['conversion_servers'][0] }}"
 
-- name:               Verify if Docs Conversion is already installed on subsequent node
-  stat:
-    path:             "{{ __conversion_install_success_file }}"
-  register:           conversion_current_node_already_installed
-
 - debug:               var=conversion_first_already_installed.stat.exists
   run_once:            true
 
-- debug:               var=conversion_current_node_already_installed.stat.exists
-  run_once:            true
+- name:               Is Docs Conversion already installed on this subsequent node?
+  debug:              var=conversion_already_installed
+
+- name:               Is this a Docs Conversion upgrade?
+  debug:              var=conversion_upgrade
 
 # cfg.properties and cfg.node.properties content are the same so omit copying unlike install_docs_editor_sec_node.yml
+# upgrade actually uses the cfg file in the program folder but updating it anyway in case we need it
 - name:                Edit cfg.node.properties
   replace:
     path:              "{{ __conversion_cfg_prop_location }}/cfg.node.properties"
@@ -37,27 +36,45 @@
     - { prop_name: "was_install_root", prop_value: "{{ __was_install_root_r }}" }
     - { prop_name: "non_job_mgr_mode", prop_value: "{{ __non_job_mgr_mode_r }}" }
     - { prop_name: "viewer_url", prop_value: "{{ __viewer_url_r }}" }
-  when:               not conversion_current_node_already_installed.stat.exists
+  when:               not conversion_already_installed|bool or conversion_upgrade|bool
 
-- name:              Run the Docs Conversion installer for the second node
+- name:              Run the Docs Conversion installer for the second node (fresh)
   shell:
     chdir:           "{{ __extraction_folder }}/{{ __conversion_install_folder }}/installer"
     cmd:             "./install_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -configFile cfg.node.properties -acceptLicense -silentlyInstall"
   become:            true
   when:
-    - not conversion_current_node_already_installed.stat.exists
+    - not conversion_already_installed|bool
     - conversion_first_already_installed.stat.exists |bool
   register:          sec_install_performed
 
-- name:              Search for success message in install log
+- name:              Run the Docs Conversion installer for the second node (upgrade)
+  shell:
+    chdir:           "{{ __extraction_folder }}/{{ __conversion_install_folder }}/installer"
+    cmd:             "./upgrade_node.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense -silentlyInstall -installRoot {{ __docs_conversion_install_location }}"
+  become:            true
+  when:
+    - conversion_upgrade|bool
+    - conversion_first_already_installed.stat.exists |bool
+  register:          sec_upgrade_performed
+
+- name:              Search for success message in install log (fresh)
   become:            yes
   shell:             "grep -i '{{ __install_success_message_node }}' {{ __docs_conversion_install_location }}/logs/conversion_install_node.log"
-  register:          conversion_success_message_found
-  failed_when:       conversion_success_message_found.stdout|length == 0
+  register:          conversion_install_success_message_found
+  failed_when:       conversion_install_success_message_found.stdout|length == 0
   when:              sec_install_performed is not skipped
+
+- name:              Search for success message in install log (upgrade)
+  become:            yes
+  shell:             "grep -i '{{ __upgrade_success_message }}' {{ __docs_conversion_install_location }}/logs/conversion_upgrade_node.log"
+  register:          conversion_upgrade_success_message_found
+  failed_when:       conversion_upgrade_success_message_found.stdout|length == 0
+  when:              sec_upgrade_performed is not skipped
 
 - name:              "Create {{ __conversion_install_success_file }} file"
   file:
     path:            "{{ __conversion_install_success_file }}"
     state:           touch
-  when:              sec_install_performed is not skipped and conversion_success_message_found.stdout|length > 0
+  when:              sec_install_performed is not skipped and conversion_install_success_message_found.stdout|length > 0 or
+                     sec_upgrade_performed is not skipped and conversion_upgrade_success_message_found.stdout|length > 0
