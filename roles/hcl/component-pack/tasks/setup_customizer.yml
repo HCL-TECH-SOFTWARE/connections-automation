@@ -52,7 +52,7 @@
     dest:                    "{{ __customizer_js_files_mount }}"
     remote_src:              yes
   with_items:
-   - "{{ __support_folder }}/ms-teams"
+   - "{{ __support_folder }}/ms-teams/customizations/ms-teams/teamsshare"
   when:
    - __setup_teams |bool
 
