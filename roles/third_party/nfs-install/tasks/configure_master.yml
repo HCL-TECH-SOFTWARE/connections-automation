@@ -1,55 +1,112 @@
-- name:                                             Setup PV folders for root, kudos-board and backups
+- name:                                             Setup PV folders for root, kudos-board
   file:
     path:                                           "{{ item }}"
     mode:                                           '0700'
     state:                                          directory
   with_items:
    - "/pv-connections"
-   - "/pv-connections/esbackup"
-   - "/pv-connections/esbackup-7"
    - "/pv-connections/kudos-boards-minio"
+
+- name:                                             Setup PV folders for ElasticSearch5 backup
+  file:
+    path:                                           "/pv-connections/esbackup"
+    mode:                                           '0700'
+    state:                                          directory
+  when:  __es_replicaset | int != 0
+
+- name:                                             Setup PV folders for ElasticSearch7 backup
+  file:
+    path:                                           "/pv-connections/esbackup-7"
+    mode:                                           '0700'
+    state:                                          directory
+  when:  __es7_replicaset | int != 0
+
+- name:                                             Setup PV folders for OpenSearch backup
+  file:
+    path:                                           "/pv-connections/opensearchbackup"
+    mode:                                           '0700'
+    state:                                          directory
+  when:  __opensearch_replicaset | int != 0
 
 - name:                                             Setup PV folders for mongo
   file:
     path:                                           "/pv-connections/mongo-node-{{ item }}/data/db"
     mode:                                           '0700'
     state:                                          directory
-  with_sequence:                                    start=0 end={{ __mongo_replicaset | int - 1 }}
+  with_sequence:                                    start=0 end={{ __mongo_replicaset | int - 1 if __mongo_replicaset | int != 0 else 0}}
+  when:  __mongo_replicaset | int != 0
+
+- name:                                             Setup PV folders for mongo5
+  file:
+    path:                                           "/pv-connections/mongo5-node-{{ item }}/data/db"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __mongo5_replicaset | int - 1 if __mongo5_replicaset | int != 0 else 0}}
+  when:  __mongo5_replicaset | int != 0
 
 - name:                                             Setup PV folders for solr
   file:
     path:                                           "/pv-connections/solr-data-solr-{{ item }}"
     mode:                                           '0700'
     state:                                          directory
-  with_sequence:                                    start=0 end={{ __solr_replicaset | int - 1 }}
+  with_sequence:                                    start=0 end={{ __solr_replicaset | int - 1 if __solr_replicaset | int != 0 else 0}}
+  when:  __solr_replicaset | int != 0
 
 - name:                                             Setup PV folders for zookeeper
   file:
     path:                                           "/pv-connections/zookeeper-data-zookeeper-{{ item }}"
     mode:                                           '0700'
     state:                                          directory
-  with_sequence:                                    start=0 end={{ __zookeeper_replicaset | int - 1 }}
+  with_sequence:                                    start=0 end={{ __zookeeper_replicaset | int - 1 if __zookeeper_replicaset | int != 0 else 0}}
+  when:  __zookeeper_replicaset | int != 0
 
 - name:                                             Setup PV folders for es5 data
   file:
     path:                                           "/pv-connections/esdata-{{ item }}"
     mode:                                           '0700'
     state:                                          directory
-  with_sequence:                                    start=0 end={{ __es_replicaset | int - 1 }}
+  with_sequence:                                    start=0 end={{ __es_replicaset | int - 1 if __es_replicaset | int != 0 else 0}}
+  when:  __es_replicaset | int != 0
 
 - name:                                             Setup PV folders for es7 data
   file:
     path:                                           "/pv-connections/esdata-7-{{ item }}"
     mode:                                           '0700'
     state:                                          directory
-  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 }}
+  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 if __es7_replicaset | int != 0 else 0}}
+  when:  __es7_replicaset | int != 0
 
 - name:                                             Setup PV folders for es7 master
   file:
     path:                                           "/pv-connections/esmaster-7-{{ item }}"
     mode:                                           '0700'
     state:                                          directory
-  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 }}
+  with_sequence:                                    start=0 end={{ __es7_replicaset | int - 1 if __es7_replicaset | int != 0 else 0}}
+  when:  __es7_replicaset | int != 0
+
+- name:                                             Setup PV folders for opensearch master
+  file:
+    path:                                           "/pv-connections/opensearchmaster-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __opensearch_replicaset | int - 1 if __opensearch_replicaset | int != 0 else 0}}
+  when:  __opensearch_replicaset | int != 0
+
+- name:                                             Setup PV folders for opensearch data
+  file:
+    path:                                           "/pv-connections/opensearchdata-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __opensearch_replicaset | int - 1 if __opensearch_replicaset | int !=0 else 0}}
+  when:  __opensearch_replicaset | int != 0
+
+- name:                                             Setup PV folders for opensearch client
+  file:
+    path:                                           "/pv-connections/opensearchclient-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+  with_sequence:                                    start=0 end={{ __opensearch_replicaset | int - 1 if __opensearch_replicaset | int !=0 else 0}}
+  when:  __opensearch_replicaset | int != 0
 
 - name:                                             Setup Connections & Docs folders
   file:

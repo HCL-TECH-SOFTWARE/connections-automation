@@ -1,0 +1,23 @@
+{
+    "name": "MS Teams Collapse Sidebar",
+    "title": "MS Teams Collapse Nav",
+    "description": "Collapse nav pane on content pages in MS Teams tab app",
+    "services": [
+        "Customizer"
+    ],
+    "extensions": [
+        {
+            "name": "MS Teams Collapse Nav",
+            "type": "com.ibm.customizer.ui",
+            "payload": {
+                "include-files": [
+                    "ms-teams/collapse-sidebar/wikis_sidebar_collapse.js"
+                ],
+                "cache-headers": {
+                    "cache-control": "max-age=43200"
+                }
+            },
+            "path": "global"
+        }
+    ]
+}

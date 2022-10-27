@@ -1,4 +1,5 @@
 ---
+__was_major_version:       "{{ was_major_version | default('8') }}"
 __ihs_install_location:    "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
 __now:                     "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
 
@@ -32,3 +33,5 @@ __max_request_per_child:   "{{ ihs_max_request_per_child | default('0') }}"
 __load_balancer_fqdn:      "{{ cnx_component_pack_ingress | default( inventory_hostname ) }}"
 
 __setup_kudosboards:       "{{ setup_kudosboards | default(true) |lower }}"
+__setup_huddoboards:       "{{ setup_huddoboards | default(__setup_kudosboards) }}"
+__setup_huddoboards_ext:   "{{ setup_huddoboards_ext | default(false) |lower }}"

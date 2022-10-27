@@ -7,11 +7,11 @@ To set this up, you will need at least four machines (for this example, let us s
 - ansible.internal.example.com is going to run Ansible commands (i.e. Ansible controller).  Typical laptop grade environment should be suffice.
 - web.internal.example.com is going to host, in this example, only Nginx and Haproxy. This is needed here only for the Customizer. At least 1CPU and 2G of RAM are preferable.
 - connections.internal.example.com is going to host IBM WebSphere, IHS and HCL Connections. We will put here also OpenLDAP with 10 users, and IBM DB2. NFS will be set for shared data and message stores. HCL Connections will be deployed as a small topology (single JVM). Here you need at least two CPUs and at least 16G of RAM for having everything self contained.
-- cp.internal.example.com is going to host Kubernetes, be NFS server for persistent volumes, Docker Registry, and Component Pack on top of it. You need at least 32G of RAM to install full offering and at least 8 CPUs.
+- cp.internal.example.com is going to host Kubernetes, be NFS server for persistent volumes, Container Runtime, and Component Pack on top of it. You need at least 32G of RAM to install full offering and at least 8 CPUs.
 
 Once the installation is done, we will access our HCL Connections login page through https://connections.example.com/
 
-Example inventory files for this Quick Start can be found in environments/examples/cnx7/quick_start folder.
+Example inventory files for this Quick Start can be found in environments/examples/cnx8/quick_start folder.
 
 # Setting up your environment
 
@@ -185,23 +185,31 @@ There are two things you need to adapt before you try the installation:
 To set up HCL Connections with DB2, OpenLDAP, TDI, IBM WebSphere, IBM IHS and HCL Connections, run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/quick_start/inventory.ini playbooks/setup-connections-complete.yml
+ansible-playbook -i environments/examples/cnx8/quick_start/inventory.ini playbooks/setup-connections-complete.yml
 ```
 
 ## Setting up Component Pack for HCL Connections with all the dependencies
 
-To set up Component Pack with Kubernetes, Docker, Docker Registry, NFS, Nginx and Haproxy all configured to support Customizer as well, run:
+To set up Component Pack with Kubernetes, Container Runtime, NFS, Nginx and Haproxy all configured to support Customizer as well, run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/quick_start/inventory.ini playbooks/setup-component-pack-complete.yml
+ansible-playbook -i environments/examples/cnx8/quick_start/inventory.ini playbooks/setup-component-pack-complete-harbor.yml
 ```
 
-## Setting up Connections Docs 2.0.1
+## Run post install task
 
-To set up Connections Docs 2.0.1, just run:
+Once your Component Pack installation is done, run this playbook to set up some post installation:
 
 ```
-ansible-playbook -i environments/examples/cnx7/quick_start/inventory.ini playbooks/hcl/setup-connections-docs.yml
+ansible-playbook -i environments/examples/cnx8/quick_start/inventory.ini playbooks/hcl/connections-post-install.yml
+```
+
+## Setting up Connections Docs 2.0.2
+
+To set up Connections Docs 2.0.2, just run:
+
+```
+ansible-playbook -i environments/examples/cnx8/quick_start/inventory.ini playbooks/hcl/setup-connections-docs.yml
 ```
 
 Note: if you are using old format of inventory files, it is all backwards compatible. The only thing that you need to add there is cnx_was_servers to your connections inventory (to make it same as done for docs already).

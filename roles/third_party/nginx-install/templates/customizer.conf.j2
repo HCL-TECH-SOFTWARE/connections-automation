@@ -19,6 +19,7 @@ server {
         ssl_certificate_key {{ __nginx_key_file }};
         ssl_session_cache    shared:SSL:1m;
         ssl_session_timeout  5m;
+        ssl_protocols TLSv1.2;
 
         ssl_ciphers  HIGH:!aNULL:!MD5;
         ssl_prefer_server_ciphers  on;
@@ -50,7 +51,6 @@ server {
                 location /grafana/ {
                     proxy_pass http://{{ __mw_proxy_address }}:31111;
                 }
-
                 location /kibana7/ {
                     proxy_http_version 1.1;
                     proxy_set_header Upgrade $http_upgrade;
@@ -59,7 +59,7 @@ server {
                     proxy_cache_bypass $http_upgrade;
                     proxy_pass https://{{ groups['k8s_workers'][0] }}:30108/;
                     rewrite ^/kibana7/(.*)$ /$1 break;
-                }                
+                }
 
                 proxy_pass https://{{ ic_internal }};
         }

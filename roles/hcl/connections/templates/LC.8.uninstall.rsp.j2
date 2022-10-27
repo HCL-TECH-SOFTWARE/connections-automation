@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent-input>
+<profile installLocation='{{ __cnx_install_location }}' id='HCL Connections'>
+<!-- Deployment Manager Administrative User id.  Note there is one entry for each HCL Connections application -->
+<data key='user.was.adminuser.id' value='{{ was_username }}'/>
+<data key='user.activities.adminuser.id' value='{{ was_username }}'/>
+<data key='user.blogs.adminuser.id' value='{{ was_username }}'/>
+<data key='user.communities.adminuser.id' value='{{ was_username }}'/>
+<data key='user.dogear.adminuser.id' value='{{ was_username }}'/>
+<data key='user.profiles.adminuser.id' value='{{ was_username }}'/>
+<data key='user.wikis.adminuser.id' value='{{ was_username }}'/>
+<data key='user.files.adminuser.id' value='{{ was_username }}'/>
+<data key='user.forums.adminuser.id' value='{{ was_username }}'/>
+<data key='user.news.adminuser.id' value='{{ was_username }}'/>
+<data key='user.search.adminuser.id' value='{{ was_username }}'/>
+<data key='user.homepage.adminuser.id' value='{{ was_username }}'/>
+<data key='user.mobile.adminuser.id' value='{{ was_username }}'/>
+<data key='user.moderation.adminuser.id' value='{{ was_username }}'/>
+<data key='user.metrics.adminuser.id' value='{{ was_username }}'/>
+<data key='user.ic360.adminuser.id' value='{{ was_username }}'/>
+<data key='user.ccm.adminuser.id' value='{{ was_username }}'/>
+
+<!-- The password should be encrpted. Refer the Information Center to get the encryption method -->
+<data key='user.was.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.news.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.activities.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.blogs.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.communities.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.dogear.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.profiles.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.wikis.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.files.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.forums.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.mobile.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.search.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.homepage.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.moderation.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.metrics.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.ic360.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+<data key='user.ccm.adminuser.password' value='{{ __was_encoded_password.stdout | trim }}'/>
+
+</profile>
+<uninstall modify='false'>
+<offering profile='HCL Connections' version='{{ __cnx_uninstall_version }}' id='com.ibm.connections'/>
+</uninstall>
+<preference value='{{ __imshared_location }}' name='com.ibm.cic.common.core.preferences.eclipseCache'/>
+<preference value='30' name='com.ibm.cic.common.core.preferences.connectTimeout'/>
+<preference value='30' name='com.ibm.cic.common.core.preferences.readTimeout'/>
+<preference value='0' name='com.ibm.cic.common.core.preferences.downloadAutoRetryCount'/>
+<preference value='true' name='offering.service.repositories.areUsed'/>
+<preference value='false' name='com.ibm.cic.common.core.preferences.ssl.nonsecureMode'/>
+<preference value='false' name='com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication'/>
+<preference value='true' name='com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts'/>
+<preference value='false' name='PassportAdvantageIsEnabled'/>
+<preference value='false' name='com.ibm.cic.common.core.preferences.searchForUpdates'/>
+</agent-input>

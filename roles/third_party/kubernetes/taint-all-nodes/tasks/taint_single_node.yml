@@ -1,10 +1,29 @@
-- name:                 "[Single Node] Allow pods to run on master"
-  command:              kubectl taint nodes --all node-role.kubernetes.io/master- --overwrite
+- name:                   Run kubectl version
+  command:                "kubectl version --client --short"
+  register:               kubectl_version_output
+  ignore_errors:          True
+
+- name:                   Get kubectl version
+  set_fact:
+    kubectl_version:        "{{ kubectl_version_output.stdout | regex_search('Client Version:\\sv(.*)', '\\1') | first }}"
+  when:                   kubectl_version_output.rc == 0
+
+- name:                   "[Single Node] Allow pods to run on master for kubernetes < v1.24"
+  command:                kubectl taint nodes --all node-role.kubernetes.io/master- --overwrite
   when:
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
-    - inventory_hostname == groups['k8s_masters'][0]
-  become:               false
-  ignore_errors:        true
+   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+   - inventory_hostname == groups['k8s_masters'][0]
+  become:                 false
+  ignore_errors:          true
+
+- name:                   "[Single Node] Allow pods to run on master for kubernetes v1.24 and above"
+  command:                kubectl taint nodes --all node-role.kubernetes.io/control-plane:NoSchedule- --overwrite
+  when:
+   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+   - inventory_hostname == groups['k8s_masters'][0]
+   - kubectl_version is version('1.24', '>=')
+  become:                 false
+  ignore_errors:          true
 
 - name:                 "[Single Node] Label worker nodes as infrastructure for single node environment"
   command:              "kubectl label nodes {{ inventory_hostname }} type=infrastructure --overwrite"

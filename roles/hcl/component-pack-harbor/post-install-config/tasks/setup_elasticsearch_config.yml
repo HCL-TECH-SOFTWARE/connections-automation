@@ -1,0 +1,91 @@
+---
+- name:              Disable Solr indexing and queries
+  xml:
+    path:            "{{ __searchcfg_full_path }}"
+    namespaces:      "{{ __searchcfg_namespaces }}"
+    xpath:           "{{ item.xpath }}"
+    attribute:       "{{ item.attribute }}"
+    value:           "{{ item.value }}"
+  with_items:
+    - { xpath: "{{ __searchcfg_qr_solr_xpath }}", attribute: "value", value: "false" }
+    - { xpath: "{{ __searchcfg_queries_solr_xpath }}", attribute: "value", value: "false" }
+
+- name:              Enable ElasticSearch Read, Write for ES7
+  xml:
+    path:            "{{ __searchcfg_full_path }}"
+    namespaces:      "{{ __searchcfg_namespaces }}"
+    xpath:           "{{ item.xpath }}"
+    attribute:       "{{ item.attribute }}"
+    value:           "{{ item.value }}"
+    pretty_print:    yes
+  with_items:
+    - { xpath: "{{ __searchcfg_es_write_xpath }}", attribute: "value", value: "true" }
+    - { xpath: "{{ __searchcfg_es_read_xpath }}", attribute: "value", value: "true" }
+  when:
+    - __enable_es7_r_and_w |bool
+    - __cnx_major_version is version('7', '>=')
+
+- name:              Enable ElasticSearch Indexing
+  xml:
+    path:            "{{ __searchcfg_full_path }}"
+    namespaces:      "{{ __searchcfg_namespaces }}"
+    xpath:           "{{ item.xpath }}"
+    attribute:       "{{ item.attribute }}"
+    value:           "{{ item.value }}"
+    pretty_print:    yes
+  with_items:
+    - { xpath: "{{ __searchcfg_es_index_xpath }}", attribute: "value", value: "true" }
+
+- name:              Switch ES5 to ES7
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_es_version_xpath }}"
+    value:           "{{ __lcc_es_version }}"
+  when:
+    - __enable_major_es7 |bool
+    - __cnx_major_version is version('7', '>=')
+
+- name:              "Render {{ __es_qr_index_template }} to {{ __es_qr_index_destination }}"
+  template:
+    src:             "{{ __es_qr_index_template }}"
+    dest:            "{{ __es_qr_index_destination }}"
+  when:
+    - __enable_qr |bool
+
+- name:              "Run create Quick Results Index with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_qr_index_destination }}"
+  command:
+    chdir={{ __dmgr_bin_dir }}
+    {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_qr_index_destination }}
+  register:                 es_qr_index_created
+  changed_when:             es_qr_index_created.rc == 0
+  ignore_errors:            true
+  when:
+    - __enable_qr |bool
+
+- name:              Enable Quick Results
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_qr_xpath }}"
+    value:           "true"
+  when:
+    - __enable_qr |bool
+
+# repeat this step from enable_es_metrics.yml because it gets 404 sometimes
+- name:                      Copy config_blue_metrics.py to the host
+  copy:
+    src:                     ../../../component-pack-harbor/files/config_blue_metrics.py
+    dest:                    /tmp/
+    mode:                    '0755'
+  become_user:               "{{ __sudo_user }}"
+  delegate_to:               "{{ groups['component_pack_master'][0] }}"
+
+- name:                      Run {{ __config_blue_metrics_cmd }}
+  shell:                     "/usr/bin/python3 {{ __config_blue_metrics_cmd }}"
+  become_user:               "{{ __sudo_user }}"
+  register:                  configured_blue_metrics
+  ignore_errors:             true
+  delegate_to:               "{{ groups['component_pack_master'][0] }}"
+
+- debug:                     var=configured_blue_metrics.stdout_lines

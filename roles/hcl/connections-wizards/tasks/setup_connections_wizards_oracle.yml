@@ -17,7 +17,6 @@
   when:
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
 
-
 - name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __db_extraction_folder }}
   unarchive:
     src:                 "{{ __download_location }}/{{ __package_name }}"
@@ -37,12 +36,12 @@
   when:                  __cnx_force_repopulation |bool
 
 - name:                  Cleanup Databases
-  shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:
+    file:                ../../../third_party/oracle-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/activities/oracle/dropDb.sql"
    - "connections.sql/blogs/oracle/dropDb.sql"
@@ -64,12 +63,12 @@
 
 
 - name:                  Cleanup IC360 database
-  shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:
+    file:                ../../../third_party/oracle-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/ic360/oracle/dropDb.sql"
   when:
@@ -78,12 +77,12 @@
   ignore_errors:         yes
 
 - name:                  Clenaup ICEC database only
-  shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:
+    file:                 ../../../third_party/oracle-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/icec/oracle/dropDb.sql"
   when:
@@ -107,14 +106,10 @@
   register:              migrations_already_done
 
 - name:                  Run migrations for everything but ICEC
-  shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0, 1, 2, 3] )
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   with_items:
    - "connections.sql/activities/oracle/createDb.sql"
    - "connections.sql/activities/oracle/appGrants.sql"
@@ -155,18 +150,26 @@
   register:              sharepoint_migrations_already_done
 
 - name:                  Run Sharepoint migration for Connections 7
-  shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
-  failed_when:           ( sharepoint_migration_result.rc not in [0, 1, 2, 3] )
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
+  register:              sharepoint_migration_result
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   with_items:
    - "connections.sql/homepage/oracle/upgrade-60CR4-70.sql"
   when:
     - not sharepoint_migrations_already_done.stat.exists
     - __db_version == '7.0'
+    - __db_enable_upgrades |bool
+
+- name:                  Run Profiles migration for Connections 8
+  include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }}"
+  with_items:
+   - "connections.sql/profiles/oracle/upgrade-60-80.sql"
+  when:
+    - migrations_already_done.stat.exists
+    - __db_version == '8.0'
     - __db_enable_upgrades |bool
 
 - name:                  "Verify if IC360 DB is already created"
@@ -175,14 +178,10 @@
   register:              ic360_migrations_already_done
 
 - name:                  Creating Connections database for IC360
-  shell:                 "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   register:              ic360_migration_result
-  failed_when:           ( ic360_migration_result.rc not in [0, 1, 2, 3] )
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   with_items:
    - "connections.sql/ic360/oracle/createDb.sql"
    - "connections.sql/ic360/oracle/appGrants.sql"
@@ -191,14 +190,10 @@
     - not ic360_migrations_already_done.stat.exists
 
 - name:                  Run migrations for ICEC only
-  shell:                 "echo exit | {{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   register:              icec_migrations_result
-  failed_when:           ( icec_migrations_result.rc not in [0] )
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "echo exit | {{ __oracle_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __dbw_oracle_password }}"
   with_items:
    - "connections.sql/icec/oracle/createDb.sql"
    - "connections.sql/icec/oracle/appGrants.sql"
@@ -210,7 +205,7 @@
     path:                "{{ __ora_success_file }}"
     state:               touch
   when:
-   - all_migrations_result is defined
+   - all_migrations_result is not skipped
    - not migrations_already_done.stat.exists
 
 - name:                  "Create {{ __ora_ic360_success_file }} file"
@@ -218,7 +213,7 @@
     path:                "{{ __ora_ic360_success_file }}"
     state:               touch
   when:
-   - ic360_migration_result is defined
+   - ic360_migration_result is not skipped
    - not ic360_migrations_already_done.stat.exists
 
 - name:                  "Create {{ __ora_sharepoint_success_file }} file"
@@ -226,5 +221,5 @@
     path:                "{{ __ora_sharepoint_success_file }}"
     state:               touch
   when:
-   - sharepoint_migration_result is defined
+   - sharepoint_migration_result is not skipped
    - not sharepoint_migrations_already_done.stat.exists

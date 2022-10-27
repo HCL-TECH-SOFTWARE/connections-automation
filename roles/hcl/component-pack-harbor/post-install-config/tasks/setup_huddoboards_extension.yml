@@ -1,0 +1,126 @@
+# based on https://docs.huddo.com/boards/connections/customizer/customizer-integrations-package/#boardsURLConfig
+---
+  - name:               Does Huddo Boards extension exist?
+    stat:
+      path:             "/{{ __customizer_huddo_extension }}/VERSION"
+    register:           huddo_ext_already_installed_file
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+
+  - name:               "Create /{{ __customizer_huddo_extension }} if not exists (fresh)"
+    file:
+      path:             "/{{ __customizer_huddo_extension }}"
+      state:            directory
+      mode:             '0755'
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+    when:               not huddo_ext_already_installed_file.stat.exists
+
+  - name:               "Download Huddo Extension if not exists (fresh)"
+    shell:
+      chdir:            "/{{ __customizer_huddo_extension }}"
+      cmd:              "curl -s {{ __customizer_huddo_extension_url }} | tar zxvf - -C /{{ __customizer_huddo_extension }}"
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+    when:               not huddo_ext_already_installed_file.stat.exists
+
+  - name:               "Change update.sh permission"
+    file:
+      path:             "/{{ __customizer_huddo_extension }}/update.sh"
+      state:            file
+      mode:             '0750'
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+
+  - name:               "Update Huddo Extension if exists"
+    shell:
+      chdir:            "/{{ __customizer_huddo_extension }}"
+      cmd:              "./update.sh"
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+    register:           update_performed
+    when:               huddo_ext_already_installed_file.stat.exists
+
+  - name:               Print update output if performed
+    debug:
+      var:              update_performed.stdout_lines
+    when:
+      - update_performed is changed
+
+  - name:               "Replace Boards URL with {{ cnx_application_ingress }}"
+    shell:
+      chdir:            "/{{ __customizer_huddo_extension }}"
+      cmd:              "sed -i.original 's|https://boards.huddo.com|https://{{ cnx_application_ingress }}/boards|g' settings.js"
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+
+  - name:                      Authentication to CNX and store the LtpaToken2 (and other cookies)
+    uri:
+      url:                     https://{{ __frontend_fqdn }}/news/j_security_check
+      method:                  GET
+      body_format:             form-urlencoded
+      user:                    "{{ __connections_admin }}"
+      password:                "{{ __connections_admin_password }}"
+      validate_certs:          false
+      force_basic_auth:        yes
+      status_code:             200
+      headers:
+        Content-Type:          application/x-www-form-urlencoded
+        Accept-Charset:        utf-8
+    register:                  login
+    retries:                   5
+    delay:                     30
+    until:                     login.status == 200
+
+  - name:                        Connect to appreg to get Bearer token
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/appreg/apps
+      method:                    GET
+      validate_certs:            false
+      status_code:               200
+      headers:
+        Cookie :                 "{{ login.cookies_string }}"
+    register:                    bearer_token
+
+  - name:                        Check if the app registry Huddo Boards is already added
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/appregistry/api/v3/applications/?detail=&state=any
+      method:                    GET
+      validate_certs:            false
+      force_basic_auth:          yes
+      return_content:            yes
+      status_code:               200
+      headers:
+          Cookie:                "{{ login.cookies_string }}"
+    register:                    get_appreg_apps
+
+  - name:                        Read the manifest.json JSON file content
+    shell:                       "cat /{{ __customizer_huddo_extension }}/manifest.json"
+    register:                    json_content
+    delegate_to:                 "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+
+  - name:                        Add Huddo Boards appreg if not present
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
+      method:                    POST
+      body_format:               json
+      validate_certs:            false
+      force_basic_auth:          yes
+      return_content:            yes
+      status_code:               201
+      headers:
+          Content-Type:          "application/json"
+          authorization:         "{{ bearer_token.authorization }}"
+          Cookie:                "{{ login.cookies_string }}"
+      body:                      "{{ json_content.stdout | from_json }}"
+    when:                        not get_appreg_apps.content is search( 'Huddo Boards Extensions' )
+
+  - name:                        Update Huddo Boards appreg if present
+    uri:
+      url:                       "https://{{ __frontend_fqdn }}/appregistry/api/v3/applications/Huddo%20Boards?errorLang=en"
+      method:                    PUT
+      body_format:               json
+      validate_certs:            false
+      force_basic_auth:          yes
+      return_content:            yes
+      status_code:               200
+      headers:
+          Content-Type:          "application/json"
+          authorization:         "{{ bearer_token.authorization }}"
+          Cookie:                "{{ login.cookies_string }}"
+      body:                      "{{ json_content.stdout }}"
+    when:                        get_appreg_apps.content is search( 'Huddo Boards Extensions' )

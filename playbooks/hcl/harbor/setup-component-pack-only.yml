@@ -1,0 +1,11 @@
+# Setup Component Pack only (i.e. no post-install-config, restart server)
+---
+- name:                    Gather facts
+  hosts:                   nfs_servers, was_servers
+  tasks:                   []
+
+- name:                    Setup Component Pack
+  hosts:                   component_pack_master
+  become:                  true
+  roles:
+    - roles/hcl/component-pack-harbor

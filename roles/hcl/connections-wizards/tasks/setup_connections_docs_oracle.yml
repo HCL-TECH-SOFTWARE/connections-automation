@@ -33,12 +33,12 @@
     - not docs_migrations_already_done.stat.exists
 
 - name:                  Cleanup Docs database
-  shell:                 "chdir={{ __docs_installation_folder }}/oracle sh {{ item }}"
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:
+    file:                ../../../third_party/oracle-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "cd {{ __docs_installation_folder }}/oracle sh {{ item }}"
   with_items:
    - "dropDb.sh"
   when:
@@ -51,12 +51,10 @@
   register:              docs_migrations_already_done
 
 - name:                  Create Docs database and update schema
-  shell:                 "chdir={{ __docs_installation_folder }}/oracle echo {{ __dbw_oracle_password }} | sh {{ item }} {{ __dbw_oracle_password }}"
-  become_user:           "oracle"
-  environment:
-    ORACLE_HOME:         "{{ __dbw_oracle_home }}"
-    ORACLE_SID:          "{{ __dbw_oracle_sid }}"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/.local/bin:/home/oracle/bin:{{ __dbw_oracle_home }}/bin"
+  include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
+  register:              all_creation_result
+  vars:
+    db_command:          "cd {{ __docs_installation_folder }}/oracle echo {{ __dbw_oracle_password }} | cd {{ __docs_installation_folder }}/oracle sh {{ item }} {{ __dbw_oracle_password }}"
   with_items:
    - "createDb.sh"
    - "updateDBSchema.sh"
@@ -67,3 +65,5 @@
   file:
     path:                "{{ __ora_docs_success_file }}"
     state:               touch
+  when:
+    - all_creation_result is not skipped

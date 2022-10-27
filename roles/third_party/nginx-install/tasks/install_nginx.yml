@@ -1,7 +1,7 @@
 - name:                     Install nginx
   package:
     name:                   nginx
-    state:                  present
+    state:                  latest
     allow_downgrade:        yes
 
 - name:                     Create Nginx folders

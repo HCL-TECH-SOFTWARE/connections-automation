@@ -1,0 +1,21 @@
+{
+    "organisation": "00000000-0000-0000-0000-000000000000",
+    "settings": [
+        {
+            "id": "e00c9b1e-ae2a-4ea7-ab9a-1d557e132d8a",
+            "name": "c2.export.redis.pass",
+            "title": "c2.export.redis.pass",
+            "category": "General",
+            "description": "The password used by Redis, if auth is enabled.  Required if Redis Authenication is enabled",
+            "canModify": true,
+            "allowRoles": false,
+            "values": {
+                "___default_role___": {
+                    "isFile": false,
+                    "content": "REDIS_SECRET"
+                }
+            }
+        }
+    ]
+}
+

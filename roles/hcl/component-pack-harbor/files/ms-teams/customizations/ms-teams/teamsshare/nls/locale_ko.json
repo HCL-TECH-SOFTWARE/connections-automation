@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "HCL Connections에서 공유됨 <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "HCL Connections에서 공유된 파일: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "Microsoft Teams에 공유"
+}

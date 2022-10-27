@@ -1,0 +1,86 @@
+---
+##### Check vars #####
+- name:                    Check if kubectl is configured for the user
+  shell:                   kubectl get nodes
+  changed_when:            true
+  register:                kubectl_configured
+  become_user:             "{{ __sudo_user }}"
+  ignore_errors:           true
+
+- name:                    Fail if kubectl is not configured
+  fail:
+    msg:                   "kubectl seems not to be configured for your user, failing here."
+  when:
+   - kubectl_configured.rc != 0
+
+##### Get ES7 replica count for master, data and client #####
+- name:                    Get number of es-master replicas
+  shell:                   kubectl get sts es-master-7 -n {{ __default_namespace }} -o=jsonpath='{.status.replicas}'
+  register:                es_master_replicas
+  become_user:             "{{ __sudo_user }}"
+
+- name:                    Get number of es-data replicas
+  shell:                   kubectl get sts es-data-7 -n {{ __default_namespace }} -o=jsonpath='{.status.replicas}'
+  register:                es_data_replicas
+  become_user:             "{{ __sudo_user }}"
+
+- name:                    Get number of es-client replicas
+  shell:                   kubectl get deployments es-client-7 -n {{ __default_namespace }} -o=jsonpath='{.status.replicas}'
+  register:                es_client_replicas
+  become_user:             "{{ __sudo_user }}"
+
+##### Scale down ES7 to 0 replica #####
+- name:                    Scale down es-data sts to 0
+  become_user:             "{{ __sudo_user }}"
+  shell:                   |
+                           kubectl scale --replicas={{ item }} sts es-data-7 -n {{ __default_namespace }}
+  with_sequence:           start={{ es_data_replicas.stdout|int -1 if es_data_replicas.stdout|int > 0 else 0 }} end=0
+
+- name:                    Scale down es-master sts to 0
+  become_user:             "{{ __sudo_user }}"
+  shell:                   |
+                           kubectl scale --replicas={{ item }} sts es-master-7 -n {{ __default_namespace }}
+  with_sequence:           start={{ es_master_replicas.stdout|int -1 if es_master_replicas.stdout|int >0 else 0 }} end=0
+
+- name:                    Scale down es-client deployment to 0
+  become_user:             "{{ __sudo_user }}"
+  shell:                   |
+                           kubectl scale --replicas={{ item }} deployments es-client-7 -n {{ __default_namespace }}
+  with_sequence:           start={{ es_client_replicas.stdout|int -1 if es_client_replicas.stdout|int > 0 else 0 }} end=0
+
+##### Wait for sts/deploy to scale down to 0. Timeout 30s #####
+- name:                    Wait for statefulset/es-data-7 to scale down to 0
+  shell:                   "kubectl -n {{ __default_namespace }} rollout status statefulset/es-data-7 --watch --timeout=30s"
+  become_user:             "{{ __sudo_user }}"
+
+- name:                    Wait for statefulset/es-master-7 to scale down to 0
+  shell:                   "kubectl -n {{ __default_namespace }} rollout status statefulset/es-master-7 --watch --timeout=30s"
+  become_user:             "{{ __sudo_user }}"
+
+- name:                    Wait for deploy/es-client-7 to scale down to 0
+  shell:                   "kubectl -n {{ __default_namespace }} rollout status deploy/es-client-7 --watch --timeout=30s"
+  become_user:             "{{ __sudo_user }}"
+
+##### Scale up ES7 to the original replica count #####
+- name:                    Scale up es-data sts to {{es_data_replicas.stdout|int if es_data_replicas.stdout|int >0 else 1 }}
+  become_user:             "{{ __sudo_user }}"
+  shell:                   |
+                           kubectl scale --replicas={{ item }} sts es-data-7 -n {{ __default_namespace }}
+  with_sequence:           start=1 end={{ es_data_replicas.stdout|int if es_data_replicas.stdout|int >0 else 1 }}
+
+- name:                    Scale up es-master sts to {{es_master_replicas.stdout|int if es_master_replicas.stdout|int >0 else 1 }}
+  become_user:             "{{ __sudo_user }}"
+  shell:                   |
+                           kubectl scale --replicas={{ item }} sts es-master-7 -n {{ __default_namespace }}
+  with_sequence:           start=1 end={{ es_master_replicas.stdout|int if es_master_replicas.stdout|int >0 else 1 }}
+
+- name:                    Scale up es-client deployment to {{es_client_replicas.stdout|int if es_client_replicas.stdout|int >0 else 1 }}
+  become_user:             "{{ __sudo_user }}"
+  shell:                   |
+                           kubectl scale --replicas={{ item }} deployments es-client-7 -n {{ __default_namespace }}
+  with_sequence:           start=1 end={{ es_client_replicas.stdout|int if es_client_replicas.stdout|int >0 else 1 }}
+
+##### Verify if ES7 pods are up. Timeout 10m #####
+- name:                    Wait for elasticsearch7 pods become ready
+  shell:                   "kubectl wait -n {{ __default_namespace }} --for=condition=Ready pods -l component=elasticsearch7 --timeout=600s"
+  become_user:             "{{ __sudo_user }}"

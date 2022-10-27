@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "Udostępnione z programu HCL Connections <br/> [{PAGE_TITLE}] — {PAGE_HREF}",
+  "teamshare.files.message": "Plik udostępniony z programu HCL Connections: <br/> [{PAGE_TITLE}] — {PAGE_HREF}",
+  "teamshare.action.title": "Udostępnij w aplikacji Microsoft Teams"
+}

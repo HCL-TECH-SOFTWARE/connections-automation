@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "แชร์จาก HCL Connections <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "แบ่งใช้ไฟล์จาก HCL Connections: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "แบ่งใช้ไปยัง Microsoft Teams"
+}

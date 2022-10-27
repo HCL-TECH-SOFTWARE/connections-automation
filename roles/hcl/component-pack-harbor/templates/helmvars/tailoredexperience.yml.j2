@@ -1,0 +1,57 @@
+global:
+  onPrem: true
+  image:
+    repository: {{ __docker_registry_url }}
+
+replicaCount: {{ __replica_count }}
+
+te-creation-wizard:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+      nginx.ingress.kubernetes.io/proxy-body-size: 20m
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-tailored-exp
+    tls: []
+
+community-template-service:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+
+admin-portal:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-admin-portal
+    tls: []

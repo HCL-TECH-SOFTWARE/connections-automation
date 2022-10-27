@@ -1,11 +1,11 @@
 ---
-__cnx_major_version:         "{{ cnx_major_version | default('7') }}"
-
+__cnx_major_version:         "{{ cnx_major_version | default('8') }}"
 __cnx_uninstall:             "{{ cnx_uninstall | default(false) }}"
 
 __iim_keep_fetched_files:    "{{ iim_keep_fetched_files | default(false) }}"
 __iim_preserve_artifacts:    "{{ iim_preserve_artifacts | default(false) }}"
 
+__was_major_version:         "{{ was_major_version | default('8') }}"  
 __profile_name:              "{{ profile_name | default('Dmgr01') }}"
 __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
 __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
@@ -66,9 +66,12 @@ __cnx_prom_cfg_destination:       "{{ __jmx_install_location }}/config.yml"
 __cnx_enable_moderation:          "{{ cnx_enable_moderation | default('false') }}"
 
 # Connections Files
-__cnx_package:               "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
-__cnx_files:
-  - { file_name: 'HCL_Connections_7.0_lin.tar' }
+__cnx_package:                "{{ cnx_package | default('HCL_Connections_8.0_lin.tar') }}"
+
+__cnx_files_names:
+  - { file_name: 'HCL_Connections_8.0_lin.tar' }
+
+_cnx_files:                   "{{ cnx_files | default(__cnx_files_names)  }}"
 
 __cnx_fixes_version:         "{{ cnx_fixes_version | default( __cnx_fixes_version_latest ) }}"
 __cnx_fixes_files:           "{{ cnx_fixes_files | default( __cnx_fixes_files_latest ) }}"

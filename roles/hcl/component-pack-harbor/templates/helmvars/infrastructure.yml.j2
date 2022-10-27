@@ -1,0 +1,71 @@
+global:
+  onPrem: true
+  image:
+    repository: {{ __docker_registry_url }}
+haproxy:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+redis:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+redis-sentinel:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+mongodb:
+  namespace: {{ __default_namespace }}
+  createSecret: false
+  replicaCount: {{ __replica_count }}
+mongo5:
+  namespace: {{ __default_namespace }}
+  createSecret: false
+  replicaCount: {{ __replica_count }}
+appregistry-client:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-appreg
+    tls: []
+appregistry-service:
+  namespace: {{ __default_namespace }}
+  deploymentType: hybrid_cloud
+  replicaCount: {{ __replica_count }}
+middleware-jsonapi:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-jsonapi
+    tls: []
+replicaCount: {{ __replica_count }}
+

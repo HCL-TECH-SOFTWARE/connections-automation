@@ -1,0 +1,91 @@
+#jinja2: trim_blocks:False
+global:
+  onPrem: true
+  image:
+    repository: {{ __docker_registry_url }}
+{% if cnx_setup_mt is defined | default(false) and cnx_setup_mt|bool %}
+  # for orient-web-client
+  mt:
+    orient_cnx_use_rel_path: true
+    use_request_host_for_cnx: true
+{% endif %}
+itm-services:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+community-suggestions:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+mail-service:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+middleware-graphql:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+orient-analysis-service:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+orient-web-client:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+#  service:
+#    nodePort:
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-orient-me
+    tls: []
+orient-indexing-service:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  indexing:
+    solr: false
+    elasticsearch: {{ __setup_elasticsearch }}
+{% if  __setup_opensearch == "true" %}
+    opensearch: "true"
+{% else %}
+    elasticsearch7: {{ __setup_elasticsearch7 }}
+{% endif %}
+orient-retrieval-service:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  retrieval:
+    elasticsearch: {{ __setup_elasticsearch }}
+{% if  __setup_opensearch == "true" %}
+    opensearch: "true"
+{% else %}
+    elasticsearch7: {{ __setup_elasticsearch7 }}
+{% endif %}
+people-datamigration:
+  namespace: {{ __default_namespace }}
+  replicaCount: 1
+  migrate:
+    maxConcurrentUser: {{ __om_max_conc_users }}
+people-idmapping:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+people-relationship:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+people-scoring:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+userprefs-service:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+
+deploymentType: hybrid_cloud
+replicaCount: {{ __replica_count }}

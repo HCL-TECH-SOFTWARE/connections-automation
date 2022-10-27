@@ -1,0 +1,52 @@
+---
+- name: Show me the was_username
+  debug: var=was_username
+
+- name: Show me the connections_admin
+  debug: var=connections_admin
+
+- name:                      Set admin role for Activities, Blogs, Common, Communities, Files, Forums, Homepage, Invite, MetricsEventCapture, MetricsUI, News, Profiles, Search, WidgetContainer
+  include_role:
+    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:                   "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "admin", __everyone: 'no', __allauth: 'no', __users: "{{ was_username }}|{{ connections_admin }}", __groups: '""', __allauth_trusted: '""', __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+  with_items:
+    - Activities
+    - Blogs
+    - Common
+    - Communities
+    - Files
+    - Forums
+    - Homepage
+    - Invite
+    - MetricsEventCapture
+    - MetricsUI
+    - News
+    - Profiles
+    - Search
+    - WidgetContainer
+    - Wikis
+
+- name:                      Set admin role for ICEC
+  include_role:
+    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:                   "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "ADMIN", __everyone: 'no', __allauth: 'no', __users: "{{ was_username }}|{{ connections_admin }}", __groups: '""', __allauth_trusted: '""', __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+  with_items:
+    - ICEC
+
+- name:                      Set admin role for RichTextEditors, PushNotification, URLPreview
+  include_role:
+    name:                    roles/third_party/ibm/wasnd/was-dmgr-j2ee-role-update
+  vars:
+    __app:                   "{{ item }}"
+    __role_mapping_prop:
+      - { __role: "admin", __everyone: 'no', __allauth: 'no', __users: "{{ connections_admin }}", __groups: '""', __allauth_trusted: '""', __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+  with_items:
+    - RichTextEditors
+    - PushNotification
+    - URLPreview

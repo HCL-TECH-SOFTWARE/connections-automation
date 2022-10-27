@@ -1,0 +1,36 @@
+{
+    "organisation": "00000000-0000-0000-0000-000000000000",
+    "settings": [
+        {
+            "id": "e00c9b1e-ae2a-4ea7-ab9a-1d557e132d8a",
+            "name": "c2.export.redis.host",
+            "title": "c2.export.redis.host",
+            "category": "General",
+            "description": "The redis host to which we should export Connections SIB events. REQUIRED for Redis export",
+            "canModify": true,
+            "allowRoles": false,
+            "values": {
+                "___default_role___": {
+                    "isFile": false,
+                    "content": "REDIS_HOST"
+                }
+            }
+        },
+        {
+            "id": "e00c9b1e-ae2a-4ea7-ab9a-1d557e132d8a",
+            "name": "c2.export.redis.port",
+            "title": "c2.export.redis.port",
+            "category": "General",
+            "description": "The redis port to which we should export Connections SIB events. REQUIRED for Redis export",
+            "canModify": true,
+            "allowRoles": false,
+            "values": {
+                "___default_role___": {
+                    "isFile": false,
+                    "content": "REDIS_PORT"
+                }
+            }
+        }
+    ]
+}
+

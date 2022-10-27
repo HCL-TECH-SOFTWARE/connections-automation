@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "HCL Connections から共有<br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "HCL Connections から共有されたファイル: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "Microsoft Teams と共有する"
+}

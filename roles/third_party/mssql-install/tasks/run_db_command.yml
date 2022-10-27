@@ -1,0 +1,7 @@
+---
+  - name:                  "Run database command {{ db_command }}"
+    shell:                 "{{ db_command }}"
+    register:              result
+    failed_when:           ( result.rc not in [0] )
+    environment:
+      PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"

@@ -190,40 +190,40 @@ backend masters_grafana
     server {{ server }} {{ server }}:31111 check
     {% endfor %}
 
-frontend community_template_service_frontend
-    bind *:30794
-    mode tcp
-    option tcplog
-    timeout client  10800s
-    default_backend community_template_service_masters
-
-backend community_template_service_masters
-    mode tcp
-    option tcplog
-    option tcp-check
-    balance roundrobin
-    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_workers %}
-    server {{ server }} {{ server }}:30794 check
-    {% endfor %}
-
-frontend te_creation_wizard_frontend
-    bind *:30751
-    mode tcp
-    option tcplog
-    timeout client  10800s
-    default_backend te_creation_wizard_masters
-
-backend te_creation_wizard_masters
-    mode tcp
-    option tcplog
-    option tcp-check
-    balance roundrobin
-    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
-    {% for server in groups.k8s_workers %}
-    server {{ server }} {{ server }}:30751 check
-    {% endfor %}
-
+#frontend community_template_service_frontend
+#    bind *:30794
+#    mode tcp
+#    option tcplog
+#    timeout client  10800s
+#    default_backend community_template_service_masters
+#
+#backend community_template_service_masters
+#    mode tcp
+#    option tcplog
+#    option tcp-check
+#    balance roundrobin
+#    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+#    {% for server in groups.k8s_workers %}
+#    server {{ server }} {{ server }}:30794 check
+#    {% endfor %}
+#
+#frontend te_creation_wizard_frontend
+#    bind *:30751
+#    mode tcp
+#    option tcplog
+#    timeout client  10800s
+#    default_backend te_creation_wizard_masters
+#
+#backend te_creation_wizard_masters
+#    mode tcp
+#    option tcplog
+#    option tcp-check
+#    balance roundrobin
+#    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+#    {% for server in groups.k8s_workers %}
+#    server {{ server }} {{ server }}:30751 check
+#    {% endfor %}
+#
 #frontend outlook_addin_frontend
 #    bind *:31810
 #    mode tcp

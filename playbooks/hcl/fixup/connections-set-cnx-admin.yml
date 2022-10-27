@@ -1,0 +1,12 @@
+---
+# Note: the application admin role is set by the Connections Installer.
+# This playbook is meant to be a fixup script in case the Connections Admin was not set to the desired user during the initial install.
+- name:                    Gather facts
+  hosts:                   dmgr
+  tasks:                   []
+
+- name:                    Set Admin role
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/set_cnx_admin

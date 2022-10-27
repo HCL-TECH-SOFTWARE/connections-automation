@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "Опубликовано из HCL Connections <br/> [{PAGE_TITLE}] – {PAGE_HREF}",
+  "teamshare.files.message": "Файл опубликован из HCL Connections: <br/> [{PAGE_TITLE}] – {PAGE_HREF}",
+  "teamshare.action.title": "Поделиться в Microsoft Teams"
+}

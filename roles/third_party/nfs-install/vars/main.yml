@@ -14,7 +14,9 @@ __docs_data_shared:                  "{{ docs_data_remote_path | default('/nfs/d
 __viewer_data_shared:                "{{ viewer_data_remote_path | default('/nfs/viewer_data') }}"
 
 __mongo_replicaset:                  "{{ mongo_replicaset | default('3') }}"
+__mongo5_replicaset:                 "{{ mongo5_replicaset | default('3') }}"
 __es_replicaset:                     "{{ es_replicaset | default('3') }}"
 __es7_replicaset:                    "{{ es7_replicaset | default('3') }}"
 __solr_replicaset:                   "{{ solr_replicaset | default('3') }}"
 __zookeeper_replicaset:              "{{ zookeeper_replicaset | default('3') }}"
+__opensearch_replicaset:             "{{ opensearch_replicaset | default('3') }}"

@@ -1,25 +1,25 @@
 # HCL Connections and Component Pack Automation Scripts
 
-This set of scripts is able to spin up end-to-end HCL Connections 7 with Component Pack and all the dependencies. They can be used as whole and set up end to end environment, including the set of fake users for a sake of quickly being able to log in and see how the application works, or they can can be used autonomously from each other.  
+This set of scripts is able to spin up end-to-end HCL Connections 8 with Component Pack and all the dependencies. They can be used as whole and set up end to end environment, including the set of fake users for a sake of quickly being able to log in and see how the application works, or they can can be used autonomously from each other.
 
 Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md).
 
-For HCL Connections 7 dependencies this means that:
+For HCL Connections 8 dependencies this means that:
 
 * Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from FlexNet, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
 * HCL Connections Wizard will populate the database with needed schemas and grants.
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 16 and 18. By default, FP18 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 7.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 21. By default, FP21 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
-For HCL Connections 7 itself it means:
+For HCL Connections 8 itself it means:
 
 * The script will mount NFS shares needed for the shared data and message stores where needed.
 * Install and configure database (currently IBM DB2 and Oracle are supported)
-* HCL Connections 7 will be downloaded and installed. Any type of layout is supported and customizable.
+* HCL Connections 8 will be downloaded and installed. Any type of layout is supported and customizable.
 * In LotusConnections-config.xml dynamicHost will be updated.
 * Optionaly, Prometheus JMX exported will be enabled for all HCL Connections clusters.
 * Optionally, Moderation can be enabled as well.
@@ -29,16 +29,15 @@ For HCL Connections 7 itself it means:
 * IBM HTTP Server's httpd.conf will be generated ready to support Component Pack integrations.
 * Needed post installation tasks on IBM WebSphere Application Server, like setting up properly session management and single sign on will be also handled.
 
-For Component Pack for HCL Connections 7 it means:
+For Component Pack for HCL Connections 8 it means:
 
 * Nginx will be set up and configured to support Customizer.
 * Haproxy will be set up configured to be the control plane for Kubernetes cluster and Component Pack.
 * NFS will be set up for Component Pack.
-* docker-ce 19.08.15 will be set up and configured for overlay2 and systemd support with the optimisations required by the version of Kubernetes.
-* Docker Registry will be set up on all future Kubernetes nodes, including enabling and handling TLS.
-* Kubernetes 1.18.18 will be set up.
+* Containerd(container runtime) v1.4.12 will be installed with the optimisations required by the version of Kubernetes.
+* Kubernetes 1.24.1 will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
-* Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using ElasticSearch 7.
+* Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using OpenSearch.
 
 ## Requirements:
 
@@ -51,9 +50,9 @@ To learn more about how to install Ansible on your local machine or Ansible cont
 Supported OSs:
 
 * CentOS 7+
-* RHEL 7+
+* RHEL 8+
 
-NOTE: Recommended OS for this automation is CentOS/RHEL 7.9. All HCL Connections, Docs and Component Pack builds are done on CentOS/RHEL 7. While it is being tested, in different scenarios, using version 8+ of both CentOS and RHEL you may hit different issues that are eventually not being tested. Component Pack itself is also tested on Amazon EKS and RedHat OpenShift 4 to ensure that builds are compatible.
+NOTE: Recommended OS for this automation is CentOS 7.9/RHEL 8.6. All HCL Connections, Docs and Component Pack builds are done on CentOS 7.9/RHEL 8.6. While it is being tested, in different scenarios, using version 8+ on CentOS you may hit different issues that are eventually not being tested.
 
 ### Have files ready for download
 
@@ -65,21 +64,38 @@ This is the example data folder structure we are following at HCL
 
 ```
 [root@c7lb1 packages]# ls -la *
-Connections6.5:
-total 3185512
-drwxr-xr-x.  2 root orion         88 Sep 11 12:34 .
-drwxr-xr-x. 13 root orion        192 Nov 18 08:33 ..
--rw-r--r--.  1 root orion 2444339200 Apr 23  2020 HCL_Connections_6.5_lin.tar
--r-xr-xr-x.  1 root orion  817623040 Apr 28  2020 HCL_Connections_6.5_wizards_lin_aix.tar
+Connections6.5CR1:
+total 3068576
+drwxr-xr-x.  2 root       root              184 Mar  7  2022 .
+drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
+-rw-r--r--   1 root       root            82208 Nov  2  2021 65cr1-database-updates.zip
+-rw-r--r--   1 sabrinayee sabrinayee 1345343235 Mar  2  2022 CFix.65CR1.XXXX-IC6.5.0.0_CR1-Common-Fix.jar
+-r-xr-xr-x.  1 root       root       1720553596 Nov  2  2021 HC6.5_CR1.zip
+-rw-rw-r--   1 pnott      pnott        38266880 Oct 18  2021 tdisol_65CR1_java8.tar
+-rw-r--r--   1 sabrinayee sabrinayee   37959680 Mar  2  2022 tdisol_65CR1_java8_linux_XXXX.tar
 
 Connections7:
-total 3079024
-drwxr-xr-x.  2 root    orion          195 Feb  4 21:29 .
-drwxr-xr-x. 16 root    orion          238 Jan 27 14:26 ..
--r-xr-xr-x.  1 dmenges dmenges 2001305600 Jan 20 11:54 HCL_Connections_7.0_lin.tar
--r-xr-xr-x.  1 root    root     817807360 Dec 17 05:21 HCL_Connections_7.0_wizards_lin_aix.tar
--rw-r--r--.  1 root    root     125556954 Feb  4 21:24 LO100079-IC7.0.0.0-Common-Fix.jar
--rwxr--r--.  1 root    root     189793326 Feb  4 21:28 updateInstaller.zip
+total 11041040
+drwxr-xr-x.  2 dmenges    orion            4096 May  9 14:53 .
+drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
+-rw-r--r--   1 sabrinayee sabrinayee 1410458423 May  9 14:48 CFix.70.XXXX-IC7.0.0.0-Common-Fix.jar
+-r-xr-xr-x.  1 root       root       2001305600 Jan 20  2021 HCL_Connections_7.0_lin.tar
+-r-xr-xr-x.  1 root       root        817807360 Oct 29  2020 HCL_Connections_7.0_wizards_lin_aix.tar
+-rw-r--r--.  1 root       root        125556954 Feb  4  2021 LO100079-IC7.0.0.0-Common-Fix.jar
+-rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections7.0_XXXXXX_vX.X.X.XX.zip
+-rw-r--r--.  1 dmenges    orion             133 Jan  6  2021 current.version
+-rw-rw-r--   1 pnott      pnott        37928960 Feb 25  2022 tdisol_70_java8_linux_XXXX.tar
+-rw-rw-r--   1 pnott      pnott        31179723 Feb 25  2022 tdisol_70_java8_windows_XXXX.zip
+-rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
+
+Connections8:
+total 2895968
+drwxr-xr-x   2 root root         138 Oct  6 06:41 .
+drwxr-xr-x. 24 root orion       4096 Sep 28 14:30 ..
+-r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
+-r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
+-rw-r--r--   1 root root         133 Oct  6 06:41 current.version
+-r-xr-xr-x   1 root root   185730992 Oct  6 06:41 updateInstaller.zip
 
 DB2:
 total 2067052
@@ -90,10 +106,10 @@ drwxr-xr-x. 13 root    orion          192 Nov 18 08:33 ..
 -rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.5.6_linuxx64_universal_fixpack.tar.gz
 
 Docs:
-total 1397484
-drwxr-xr-x.  2 root orion        78 Sep  7 11:31 .
-drwxr-xr-x. 13 root orion       192 Nov 18 08:33 ..
--r-xr-xr-x.  1 root orion 737753769 Sep  7 11:02 IBMConnectionsDocs_2.0.1.zip
+total 720468
+drwxr-xr-x.  2 root orion        42 Sep 28  2021 .
+drwxr-xr-x. 24 root orion      4096 Sep 28 14:30 ..
+-r-xr-xr-x.  1 root orion 737753769 Sep  7  2020 HCL_Docs_v202.zip
 
 MSSQL:
 total 2956
@@ -107,7 +123,6 @@ total 2998572
 drwxr-xr-x.  2 root       root               96 Feb 22 13:41 .
 drwxr-xr-x. 16 root       orion             238 Jan 27 14:26 ..
 -rwxr--r--.  1 root       root       3059705302 Jan 25 15:12 LINUX.X64_193000_db_home.zip
--rw-r--r--.  1 root       root          3389454 Feb 22 13:41 ojdbc6.jar
 -rw-r--r--.  1 sabrinayee sabrinayee    3397734 Feb 18 21:54 ojdbc7.jar
 -rw-r--r--.  1 sabrinayee sabrinayee    4036257 Feb 18 21:54 ojdbc8.jar
 
@@ -117,25 +132,20 @@ drwxr-xr-x.  2 root orion        70 May  6  2020 .
 drwxr-xr-x. 13 root orion       192 Nov 18 08:33 ..
 -r-xr-xr-x.  1 root orion  76251327 May  6  2020 7.2.0-ISS-SDI-FP0006.zip
 -r-xr-xr-x.  1 root orion 644894720 Apr 30  2020 SDI_7.2_XLIN86_64_ML.tar
+-rw-r--r--   1 sabrinayee sabrinayee 130165047 Sep  8 19:40 ibm-java-jre-8.0-6.25-linux-x86_64.tgz
 
 cp:
-total 22500184
-drwxr-xr-x.  2 dmenges orion         255 Nov 19 10:10 .
-drwxr-xr-x. 13 root    orion         192 Nov 18 08:33 ..
-lrwxrwxrwx.  1 root    root           31 Nov 17 21:01 component_pack_65.zip -> hybridcloud_20191122-120706.zip
-lrwxrwxrwx.  1 root    root           31 Nov  6 17:21 component_pack_6501.zip -> hybridcloud_20200420-105909.zip
-lrwxrwxrwx.  1 root    root           49 Nov 19 10:10 component_pack_latest.zip -> /data/packages/cp/hybridcloud_20201118-181644.zip
--r-xr-xr-x.  1 root    root   5339289797 Nov 17 21:01 hybridcloud_20191122-120706.zip
--rw-rw-r--.  1 dmenges orion  5559028115 Apr 20  2020 hybridcloud_20200420-105909.zip
--rw-rw-r--.  1 dmenges orion  6667502885 Aug 25 17:30 hybridcloud_20200825-172059.zip
--rw-r--r--.  1 lcuser  lcuser 5474360862 Nov 19 10:10 hybridcloud_20201118-181644.zip
+total 21720260
+drwxr-xr-x.  2 dmenges    orion            4096 Mar  7  2022 .
+drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
+-rw-r--r--   1 sabrinayee sabrinayee 5550666926 Mar  7  2022 ComponentPack_7.0.0.2.zip
 
 was855:
-total 8280848
-drwxr-xr-x.  2 dmenges orion       4096 Oct 21 09:18 .
-drwxr-xr-x. 13 root    orion        192 Nov 18 08:33 ..
+total 8491100
+drwxr-xr-x.  2 dmenges orion       4096 Jan  5  2022 .
+drwxr-xr-x. 24 root    orion       4096 Sep 28 14:30 ..
 -rw-r--r--.  1 dmenges orion 1025869744 Apr 23  2020 8.0.5.17-WS-IBMWASJAVA-Linux.zip
--rw-r--r--.  1 root    root  1022054019 Oct 21 09:15 8.0.6.15-WS-IBMWASJAVA-Linux.zip
+-rw-r--r--.  1 root    root  1022054019 Oct 21  2020 8.0.6.15-WS-IBMWASJAVA-Linux.zip
 -rw-r--r--.  1 dmenges orion  135872014 Apr 23  2020 InstalMgr1.6.2_LNX_X86_64_WAS_8.5.5.zip
 -rw-r--r--.  1 dmenges orion 1054717615 Apr 23  2020 WAS_ND_V8.5.5_1_OF_3.zip
 -rw-r--r--.  1 dmenges orion 1022550691 Apr 23  2020 WAS_ND_V8.5.5_2_OF_3.zip
@@ -145,32 +155,58 @@ drwxr-xr-x. 13 root    orion        192 Nov 18 08:33 ..
 -rw-r--r--.  1 dmenges orion 1056708869 Apr 23  2020 WAS_V8.5.5_SUPPL_2_OF_3.zip
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
 -rw-r--r--.  1 dmenges orion  171921530 Apr 23  2020 agent.installer.linux.gtk.x86_64_1.8.9006.20190918_1303.zip
--rw-r--r--.  1 root    root   215292676 Aug 12 22:52 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
+-rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
-was855FP16:
-total 7391380
-drwxr-xr-x.  2 dmenges orion       4096 Oct 21 09:08 .
-drwxr-xr-x. 13 root    orion        192 Nov 18 08:33 ..
--rw-r--r--.  1 dmenges orion 1037725904 Apr 23  2020 8.0.5.37-WS-IBMWASJAVA-Linux.zip
--rw-r--r--.  1 dmenges orion  359841878 Apr 23  2020 8.0.5.37-WS-IBMWASJAVA-Win.zip
--rw-r--r--.  1 dmenges orion  967852764 Apr 23  2020 8.5.5-WS-WAS-FP016-part1.zip
--rw-r--r--.  1 dmenges orion  216147845 Apr 23  2020 8.5.5-WS-WAS-FP016-part2.zip
--rw-r--r--.  1 dmenges orion 1899893435 Apr 23  2020 8.5.5-WS-WAS-FP016-part3.zip
--rw-r--r--.  1 dmenges orion  471099562 Apr 23  2020 8.5.5-WS-WASSupplements-FP016-part1.zip
--rw-r--r--.  1 dmenges orion  716291953 Apr 23  2020 8.5.5-WS-WASSupplements-FP016-part2.zip
--rw-r--r--.  1 dmenges orion 1899893435 Apr 23  2020 8.5.5-WS-WASSupplements-FP016-part3.zip
+was855FP21:
+total 8396800
+drwxr-xr-x   2 root  root        4096 Feb 25  2022 .
+drwxr-xr-x. 24 root  orion       4096 Sep 28 14:30 ..
+-rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WAS-FP021-part1.sha256
+-rw-rw-r--   1 pnott pnott 1032048285 Feb 22  2022 8.5.5-WS-WAS-FP021-part1.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WAS-FP021-part1.zip.sig
+-rw-rw-r--   1 pnott pnott  198957251 Feb 22  2022 8.5.5-WS-WAS-FP021-part2.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WAS-FP021-part2.zip.sig
+-rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WAS-FP021-part3.sha256
+-rw-rw-r--   1 pnott pnott 1954178904 Feb 22  2022 8.5.5-WS-WAS-FP021-part3.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WAS-FP021-part3.zip.sig
+-rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part1.sha256
+-rw-rw-r--   1 pnott pnott  475341796 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part1.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part1.zip.sig
+-rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2(1).sha256
+-rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2.sha256
+-rw-rw-r--   1 pnott pnott  776696122 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2.zip.sig
+-rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part3.sha256
+-rw-rw-r--   1 pnott pnott 1954178904 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part3.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part3.zip.sig
+-rw-rw-r--   1 pnott pnott         65 Feb 23  2022 8.5.5-WS-WCT-FP021-part1.sha256
+-rw-rw-r--   1 pnott pnott  249177805 Feb 23  2022 8.5.5-WS-WCT-FP021-part1.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 23  2022 8.5.5-WS-WCT-FP021-part1.zip.sig
+-rw-rw-r--   1 pnott pnott         65 Feb 23  2022 8.5.5-WS-WCT-FP021-part2.sha256
+-rw-rw-r--   1 pnott pnott 1957651868 Feb 23  2022 8.5.5-WS-WCT-FP021-part2.zip
+-rw-rw-r--   1 pnott pnott        256 Feb 23  2022 8.5.5-WS-WCT-FP021-part2.zip.sig
 
-was855FP18:
-total 7240080
-drwxr-xr-x.  2 root    orion       4096 Oct 21 09:12 .
-drwxr-xr-x. 13 root    orion        192 Nov 18 08:33 ..
--rw-r--r--.  1 root    orion 1022054019 Sep 24 15:33 8.0.6.15-WS-IBMWASJAVA-Linux.zip
--rw-rw-r--.  1 dmenges orion 1024726232 Sep 24 16:17 8.5.5-WS-WAS-FP018-part1.zip
--rw-rw-r--.  1 dmenges orion  216415911 Sep 24 16:20 8.5.5-WS-WAS-FP018-part2.zip
--rw-rw-r--.  1 dmenges orion 1955876681 Sep 24 16:23 8.5.5-WS-WAS-FP018-part3.zip
--rw-r--r--.  1 root    orion  472424472 Sep 24 16:40 8.5.5-WS-WASSupplements-FP018-part1.zip
--rw-r--r--.  1 root    orion  766454469 Sep 24 16:44 8.5.5-WS-WASSupplements-FP018-part2.zip
--rw-r--r--.  1 root    orion 1955876681 Sep 24 16:47 8.5.5-WS-WASSupplements-FP018-part3.zip
+was855FP22:
+total 8421304
+drwxr-xr-x   2 pnott pnott       4096 Sep 28 13:25 .
+drwxr-xr-x. 24 root  orion       4096 Sep 28 14:30 ..
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:21 8.5.5-WS-WAS-FP022-part1.sha256
+-rw-rw-r--   1 pnott pnott 1036290018 Aug 30 16:21 8.5.5-WS-WAS-FP022-part1.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:21 8.5.5-WS-WAS-FP022-part2.sha256
+-rw-rw-r--   1 pnott pnott  198986174 Aug 30 16:21 8.5.5-WS-WAS-FP022-part2.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:18 8.5.5-WS-WAS-FP022-part3.sha256
+-rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:22 8.5.5-WS-WAS-FP022-part3.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part1.sha256
+-rw-rw-r--   1 pnott pnott  475703540 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part1.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part2.sha256
+-rw-rw-r--   1 pnott pnott  778170802 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part2.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part3.sha256
+-rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:29 8.5.5-WS-WASSupplements-FP022-part3.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:33 8.5.5-WS-WCT-FP022-part1.sha256
+-rw-rw-r--   1 pnott pnott  249260151 Aug 30 16:33 8.5.5-WS-WCT-FP022-part1.zip
+-rw-rw-r--   1 pnott pnott         65 Aug 30 16:33 8.5.5-WS-WCT-FP022-part2.sha256
+-rw-rw-r--   1 pnott pnott 1963965494 Aug 30 16:34 8.5.5-WS-WCT-FP022-part2.zip
+
 ```
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
@@ -221,7 +257,7 @@ This scenario is useful in multiple cases:
 * If you want to spin up a production ready environment that you know will work, see it work, and then start replacing component by component (like switching/adding LDAP servers, switching databases, etc).
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup-connections-complete.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-connections-complete.yml
 ```
 
 Running this playbook will:
@@ -244,7 +280,7 @@ setup_db2_jdbc: True
 To install IBM DB2 only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-db2.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-db2.yml
 ```
 
 This will install IBM DB2 on a Linux server, tune the server and IBM DB2 as per Performance tunning guide for HCL Connections, and apply the licence.
@@ -262,7 +298,7 @@ setup_oracle_jdbc: True
 To install Oracle 19c only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/oracle/inventory.ini playbooks/third_party/setup-oracle.yml
+ansible-playbook -i environments/examples/cnx8/oracle/inventory.ini playbooks/third_party/setup-oracle.yml
 ```
 
 Running this playbook will set up the prerequisites for Oracle 19c (like setting up big enough swap on the node dedicated for Oracle database) but it will also set up the JDBC for HCL Connections and HCL Connections Docs.
@@ -274,7 +310,7 @@ JDBC drivers for Oracle will be only installed if you have setup_oracle_jdbc set
 This requires the database already being set. To create the databases and apply the grants, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-wizards.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/setup-connections-wizards.yml
 ```
 
 If databases already exist, this script will execute runstats and rerogs on all the databases by default on each consecutive run.
@@ -285,7 +321,7 @@ If you want to recreate the databases, uncomment:
 #cnx_force_repopulation: True
 ```
 
-If you are upgrading from Connections 6.5.0.1 to 7 and want to only create IC360 database and run needed migrations, uncomment:
+If you want to run database migration scripts, uncomment:
 
 ```
 #db_enable_upgrades: True
@@ -298,7 +334,7 @@ in your inventory file. This will then drop all the databases and recreate them 
 To install OpenLDAP with SSL enabled and generate fake users, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-ldap.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-ldap.yml
 ```
 
 You can turn on or off creating any of fake users by manipulating:
@@ -330,7 +366,7 @@ This comes in handy if you don't have any other LDAP server ready and you want t
 To install IBM TDI, set up tdisol folder as per documentation, and migrate the users from LDAP to IBM DB2, run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-tdi.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-tdi.yml
 ```
 
 ### Installing and configuring IBM WebSphere Application Server only
@@ -366,7 +402,7 @@ setup_oracle_jdbc: True
 To install IBM WebSphere Application Server, IBM HTTP Server and configure it, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-webspherend.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-webspherend.yml
 ```
 
 ### Preparing NFS for HCL Connections
@@ -376,7 +412,7 @@ By default, HCL Connections would use NFS for message stores and shared data. In
 If you are going to use NFS with HCL Connections, then set it up first before you proceed with HCL Connections installation with:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nfs.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-nfs.yml
 ```
 
 ### Installing HCL Connections
@@ -390,7 +426,7 @@ skip_nfs_mount_for_connections: true
 To install the WebSphere-side of HCL Connections only, on an already prepared environment (all previous steps are already done and the environment is ready for HCL Connections to be installed) execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-only.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/setup-connections-only.yml
 ```
 
 Note that installation will not start (and will inform you about that) if mandatory variables are missing.
@@ -417,36 +453,52 @@ cnx_message_store: "/nfs/data/messageStores"
 
 ### Installing iFix for HCL Connections
 
-To install iFix for HCL Connections 7 (version 7.0.0.1) on already installed HCL Connections 7, edit your connections inventory file, and append these two lines:
+To install iFix on already installed HCL Connections, edit your connections inventory file, and append these two lines:
 
 ```
-ifix_apar:                                       CFix.70.2110
-ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
-cnx_ifix_installer:                              "updateInstaller_2104.zip"
+ifix_apar:                                       CFix.XX.XXXX
+ifix_file:                                       CFix.XX.XXXX-ICX.X.X.X-Common-Fix.jar
+cnx_ifix_installer:                              "updateInstaller_XXXX.zip"
 ```
 
 After it, run the iFix installation:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-ifix.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/setup-connections-ifix.yml
 ```
 
 ### Running post installation tasks
 
-If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post installation bits and pieces to make the Connections deployment accessible.  Otherwise, continue to the Component Pack deployment before testing the deployment. 
+If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post installation bits and pieces to make the Connections deployment accessible.  Otherwise, continue to the Component Pack deployment before testing the deployment.
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/connections-post-install.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/connections-post-install.yml
 ```
 
-## Setting up Component Pack for HCL Connections 7 with its dependencies
+## Setting up Component Pack for HCL Connections 8 with its dependencies
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
-To set up Component Pack, execute:
+Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials as environment variables.
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup-component-pack-complete.yml
+set HARBOR_USERNAME=<<harbor username>>
+set HARBOR_USERNAME=<<Harbor password>>
+```
+
+Then add Harbor variables to the inventory files as below
+
+```
+component_pack_helm_repository:                  https://hclcr.io/chartrepo/cnx
+docker_registry_url:                             hclcr.io/cnx
+docker_registry_username:                        "{{ lookup('env','HARBOR_USERNAME') }}"
+docker_registry_password:                        "{{ lookup('env','HARBOR_SECRET') }}"
+```
+
+Then execute:
+
+```
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-component-pack-complete-harbor.yml
 ```
 
 This playbook will:
@@ -454,7 +506,7 @@ This playbook will:
 * Set up Nginx
 * Set up Haproxy
 * Set up NFS
-* Set up Docker and Docker Registry
+* Set up containerd (container runtime)
 * Set up Kubernetes
 * Install and configure Component Pack to work with Connections
 
@@ -476,7 +528,7 @@ Nginx is used only as an example of a reverse proxy for the WebSphere-side of Co
 To install Nginx only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nginx.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-nginx.yml
 ```
 
 ### Setting up Haproxy
@@ -493,7 +545,7 @@ main_ssl_port: '444'
 To install Haproxy only, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-haproxy.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-haproxy.yml
 ```
 
 ### Setting up NFS
@@ -501,7 +553,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 If you are setting up your own NFS, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-nfs.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-nfs.yml
 ```
 
 This will set up the NFS master, create and export needed folders for Component Pack components, and set up the clients so they can connect to it.
@@ -512,26 +564,31 @@ By default, NFS master will export the folders for its own network. If you want 
 nfs_export_netmask: 255.255.0.0
 ```
 
-### Setting up Docker and Docker Registry
+### Setting up containerd (container runtime)
 
-This will install docker-ce and configure Docker Registry with SSL enabled, and also ensure that all future workers can authenticate to that Docker Registry. Default usernames/passwords can be overridden.
+This will install containerd.io and Configure containerd.
 
 To set it up, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/setup-docker-registry.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-containerd.yml
 ```
 
 ### Setting up Kubernetes
 
 This will install Kubernetes, set up kubectl and Helm and make the Kubernetes cluster ready for Component Pack to be installed. However, this is really a minimum way of installing a stable Kubernetes using kubeadm. We do advice using more battle-proven solutions like kubespray or kops (or anything else) for production-ready Kubernetes clusters.
 
-This set of automation will install by default 1.18.18 and should be always able to install the Kubernetes versions supported by Component Pack.
+Desired kubernetes version can be set using
+```
+kubernetes_version
+```
+
+This set of automation will install by default 1.24.1 and should be always able to install the Kubernetes versions supported by Component Pack.
 
 To install Kubernetes, execute:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubernetes.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubernetes.yml
 ```
 
 #### Setting up kubectl for your user
@@ -539,7 +596,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 If the cluster is already created, and you only want to set up kubectl for your own user, just run:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubectl.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/kubernetes/setup-kubectl.yml
 ```
 
 ### Setting up Component Pack without Haproxy
@@ -547,7 +604,7 @@ ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/third
 If you don't want to use Haproxy (if you simply don't need it), then you can use this playbook:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/setup-component-pack-complete-development.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-component-pack-complete-development-harbor.yml
 ```
 
 It will do exactly the same as playbooks/setup-component-pack-complete.yml but it will not setup Haproxy.
@@ -557,7 +614,7 @@ It will do exactly the same as playbooks/setup-component-pack-complete.yml but i
 Once your Component Pack installation is done, run this playbook to set up some post installation:
 
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/connections-post-install.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/connections-post-install.yml
 ```
 
 ## Troubleshooting
@@ -603,7 +660,7 @@ For HCL Connections Docs itself it means:
 
 To install HCL Connections Docs, after adjusting your inventory files, execute:
 ```
-ansible-playbook -i environments/examples/cnx7/db2/inventory.ini playbooks/hcl/setup-connections-docs.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/setup-connections-docs.yml
 ```
 
 ### HCL Connections Docs Troubleshooting

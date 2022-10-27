@@ -33,9 +33,12 @@
     - not docs_migrations_already_done.stat.exists
 
 - name:                  Cleanup Docs database
-  shell:                 "{{ __sql_migration_cmd }} {{ item }}"
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  include_tasks:
+    file:                ../../../third_party/mssql-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ item }}"
   with_items:
    - "{{ __docs_installation_folder}}/sqlserver/dropdb.sql"
   when:
@@ -48,9 +51,12 @@
   register:              docs_migrations_already_done
 
 - name:                  Create Docs database and update schema
-  shell:                 "{{ __sql_migration_cmd }} {{ item }} {{ __sql_migration_cmd_args }}"
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  include_tasks:
+    file:                ../../../third_party/mssql-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "{{ __docs_installation_folder}}/sqlserver/createdb.sql"
    - "{{ __docs_installation_folder}}/sqlserver/fixup1.sql"

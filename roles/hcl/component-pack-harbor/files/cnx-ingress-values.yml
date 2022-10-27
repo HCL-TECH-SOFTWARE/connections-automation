@@ -1,0 +1,375 @@
+## nginx configuration
+## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/index.md
+##
+
+## Overrides for generated resource names
+# See templates/_helpers.tpl
+# nameOverride:
+# fullnameOverride:
+
+controller:
+  ## Annotations to be added to the controller config configuration configmap
+  ##
+  configAnnotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+
+
+  ## Limit the scope of the controller
+  ##
+  scope:
+    enabled: true
+    namespace: ""   # defaults to $(POD_NAMESPACE)
+
+
+    ## Annotations to be added to the tcp config configmap
+    annotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+
+  ## Allows customization of the udp-services-configmap
+  ##
+  udp:
+    configMapNamespace: ""   # defaults to $(POD_NAMESPACE)
+    ## Annotations to be added to the udp config configmap
+    annotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+
+
+
+  ## DaemonSet or Deployment
+  ##
+  kind: Deployment
+
+  ## Annotations to be added to the controller Deployment or DaemonSet
+  ##
+  annotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+  #  keel.sh/pollSchedule: "@every 60m"
+
+
+
+
+
+  ## Liveness and readiness probe values
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+  ##
+  livenessProbe:
+    httpGet:
+      # should match container.healthCheckPath
+      path: "/healthz"
+      port: 10254
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 60
+    successThreshold: 1
+    failureThreshold: 5
+  readinessProbe:
+    httpGet:
+      # should match container.healthCheckPath
+      path: "/healthz"
+      port: 10254
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 60
+    successThreshold: 1
+    failureThreshold: 3
+
+
+  # Path of the health check endpoint. All requests received on the port defined by
+  # the healthz-port parameter are forwarded internally to this path.
+  healthStatus: true
+  healthCheckPath: "/healthz"
+
+
+  ## Annotations to be added to controller pods
+  ##
+  podAnnotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+
+
+  # Ideally, there should be no limits.
+  # https://engineering.indeedblog.com/blog/2019/12/cpu-throttling-regression-fix/
+  resources:
+  #  limits:
+  #    cpu: 100m
+  #    memory: 90Mi
+    requests:
+      cpu: 100m
+      memory: 90Mi
+
+  enableMimalloc: false
+
+  service:
+    enabled: true
+
+    annotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+    labels: {}
+    # clusterIP: ""
+
+    ## List of IP addresses at which the controller services are available
+    ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+    ##
+    externalIPs: []
+
+    # loadBalancerIP: ""
+    loadBalancerSourceRanges: []
+
+    enableHttp: true
+    enableHttps: true
+
+    ## Set external traffic policy to: "Local" to preserve source IP on
+    ## providers supporting it
+    ## Ref: https://kubernetes.io/docs/tutorials/services/source-ip/#source-ip-for-services-with-typeloadbalancer
+    # externalTrafficPolicy: ""
+
+    # Must be either "None" or "ClientIP" if set. Kubernetes will default to "None".
+    # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    # sessionAffinity: ""
+
+    # specifies the health check node port (numeric port number) for the service. If healthCheckNodePort isn’t specified,
+    # the service controller allocates a port from your cluster’s NodePort range.
+    # Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    # healthCheckNodePort: 0
+
+    ports:
+      http: 80
+      https: 443
+
+    targetPorts:
+      http: http
+      https: https
+
+    type: LoadBalancer
+
+    # type: NodePort
+    # nodePorts:
+    #   http: 32080
+    #   https: 32443
+    #   tcp:
+    #     8080: 32808
+    nodePorts:
+      http: ""
+      https: ""
+      tcp: {}
+      udp: {}
+
+    ## Enables an additional internal load balancer (besides the external one).
+    ## Annotations are mandatory for the load balancer to come up. Varies with the cloud service.
+    internal:
+      enabled: false
+      annotations: {}
+
+      # loadBalancerIP: ""
+
+      ## Restrict access For LoadBalancer service. Defaults to 0.0.0.0/0.
+      loadBalancerSourceRanges: []
+
+    service:
+      annotations:
+        prometheus.io/port: "10254"
+        prometheus.io/scrape: "true"
+      # clusterIP: ""
+      externalIPs: []
+      # loadBalancerIP: ""
+      loadBalancerSourceRanges: []
+      servicePort: 443
+      type: ClusterIP
+
+      priorityClassName: ""
+      podAnnotations:
+         prometheus.io/port: "10254"
+         prometheus.io/scrape: "true"
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations: []
+      runAsUser: 2000
+
+  metrics:
+    port: 10254
+    # if this port is changed, change healthz-port: in extraArgs: accordingly
+    enabled: true
+
+    service:
+      annotations:
+         prometheus.io/scrape: "true"
+         prometheus.io/port: "10254"
+
+      # clusterIP: ""
+
+      ## List of IP addresses at which the stats-exporter service is available
+      ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+      ##
+      externalIPs: []
+
+      # loadBalancerIP: ""
+      loadBalancerSourceRanges: []
+      servicePort: 9913
+      type: ClusterIP
+      # externalTrafficPolicy: ""
+      # nodePort: ""
+
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+      namespace: "connections"
+      # The label to use to retrieve the job name from.
+      # jobLabel: "app.kubernetes.io/name"
+      namespace: "connections"
+      namespaceSelector:
+         any: true
+      # Default: scrape .Release.Namespace only
+      # To scrape all, use the following:
+      # namespaceSelector:
+      #   any: true
+      scrapeInterval: 30s
+      # honorLabels: false
+      targetLabels: []
+      metricRelabelings: []
+
+    prometheusRule:
+      enabled: true
+      additionalLabels:
+       namespace: "connections"
+      rules:
+        # # These are just examples rules, please adapt them to your needs
+         - alert: NGINXConfigFailed
+           expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
+           for: 1s
+           labels:
+             severity: critical
+           annotations:
+             description: bad ingress config - nginx config test failed
+             summary: uninstall the latest ingress changes to allow config reloads to resume
+         - alert: NGINXCertificateExpiry
+           expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds) by (host) - time()) < 604800
+           for: 1s
+           labels:
+             severity: critical
+           annotations:
+             description: ssl certificate(s) will expire in less then a week
+             summary: renew expiring certificates to avoid downtime
+         - alert: NGINXTooMany500s
+           expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+           for: 1m
+           labels:
+             severity: warning
+           annotations:
+             description: Too many 5XXs
+             summary: More than 5% of all requests returned 5XX, this requires your attention
+         - alert: NGINXTooMany400s
+           expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+           for: 1m
+           labels:
+             severity: warning
+           annotations:
+             description: Too many 4XXs
+             summary: More than 5% of all requests returned 4XX, this requires your attention
+
+  ## Improve connection draining when ingress controller pod is deleted using a lifecycle hook:
+  ## With this new hook, we increased the default terminationGracePeriodSeconds from 30 seconds
+  ## to 300, allowing the draining of connections up to five minutes.
+  ## If the active connections end before that, the pod will terminate gracefully at that time.
+  ## To effectively take advantage of this feature, the Configmap feature
+  ## worker-shutdown-timeout new value is 240s instead of 10s.
+  ##
+  lifecycle:
+    preStop:
+      exec:
+        command:
+          - /wait-shutdown
+
+  priorityClassName: ""
+
+## Rollback limit
+##
+revisionHistoryLimit: 10
+
+## Default 404 backend
+##
+defaultBackend:
+  ##
+  enabled: true
+
+
+  serviceAccount:
+    create: true
+    name: ""
+    automountServiceAccountToken: true
+  ## Additional environment variables to set for defaultBackend pods
+  extraEnvs: []
+
+  port: 8080
+
+  ## Readiness and liveness probes for default backend
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+  ##
+  livenessProbe:
+    failureThreshold: 3
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 5
+  readinessProbe:
+    failureThreshold: 6
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 5
+
+  ## Annotations to be added to default backend pods
+  ##
+  podAnnotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+
+
+  resources:
+   limits:
+     cpu: 10m
+     memory: 20Mi
+   requests:
+     cpu: 10m
+     memory: 20Mi
+
+
+  service:
+    annotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+
+    # clusterIP: ""
+
+    ## List of IP addresses at which the default backend service is available
+    ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+    ##
+    externalIPs: []
+
+    # loadBalancerIP: ""
+    loadBalancerSourceRanges: []
+    servicePort: 80
+    type: ClusterIP
+
+  priorityClassName: ""
+
+## Enable RBAC as per https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/rbac.md and https://github.com/kubernetes/ingress-nginx/issues/266
+rbac:
+  create: true
+  scope: false
+
+# If true, create & use Pod Security Policy resources
+# https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+podSecurityPolicy:
+  enabled: false
+
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: true

@@ -61,6 +61,11 @@ ihs_files:
   - { "file_name": "CIK1WML.zip", "check_sum": "ac00e7ab43cc528fe7f3ccd69aeb6564a2e738e7bc6e30e71fd2e0d4bd64f39e" }
   - { "file_name": "CIK1XML.zip", "check_sum": "94e3d9b70b139ad5fa0578da6857b295c5d2370c1b6ecb544c1e5757406fec90" }
 
+
+cnx_package:                                     "HCL_Connections_7.0_lin.tar"
+connections_wizards_package_name:                "HCL_Connections_7.0_wizards_lin_aix.tar"
+cnx_major_version:                               "7"
+
 cnx_updates_enabled:                             True
 
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
@@ -85,7 +90,7 @@ enable_prometheus_jmx_exporter:                  True
 
 # uncomment these lines, set to the latest cFix to include it as part of the initial install 
 # ifix_apar:                                       LO100079
-# cnx_ifix_installer:                              "updateInstaller_2102.zip"
+# cnx_ifix_installer:                              "updateInstaller_XXXX.zip"
 # ifix_file:                                       HCL_Connections_70_Update.jar
 
 setup_docker_registry:                           true
@@ -102,7 +107,7 @@ enable_pod_auto_scaling:                         true
 #setup_connections_env:                           false
 #setup_infrastructure:                            false
 #setup_customizer:                                false
-#setup_elasticsearch7:                            false
+#setup_opensearch:                                false
 #setup_community_ingress:                         false
 #setup_teams:                                     false
 #setup_tailored_exp:                              false

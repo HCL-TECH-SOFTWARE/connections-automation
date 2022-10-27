@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "S'ha compartit de l'HCL Connections <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "Fitxer compartit de l'HCL Connections: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "Comparteix al Microsoft Teams"
+}

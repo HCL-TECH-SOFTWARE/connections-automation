@@ -1,4 +1,5 @@
 ---
+__was_major_version:    "{{ was_major_version | default('8') }}"  
 __profile_name:         "{{ profile_name | default('AppSrv01') }}"
 __was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __default_nodename:      "{{ inventory_hostname_short }}-node"

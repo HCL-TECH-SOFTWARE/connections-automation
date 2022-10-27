@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "Jaettu HCL Connectionsista <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "Tiedosto, joka on jaettu HCL Connectionsista: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "Jaa Microsoft Teamsiin"
+}

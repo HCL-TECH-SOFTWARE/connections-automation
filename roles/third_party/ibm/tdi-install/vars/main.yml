@@ -2,7 +2,7 @@
 __tdi_upgrade:                  "{{ tdi_upgrade_enable | default(true) }}"
 __upgrade_tdi_jre:              "{{ upgrade_tdi_jre | default(false) |lower }}"
 
-__cnx_major_version:            "{{ cnx_major_version | default('7') }}"
+__cnx_major_version:            "{{ cnx_major_version | default('8') }}"
 __cnx_updates_enabled:          "{{ cnx_updates_enabled | default(false) |lower }}"
 
 __download_location:            "{{ tdi_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/TDI') }}"
@@ -31,7 +31,7 @@ __tdi_install_bin:              "{{ __extraction_folder }}/linux_x86_64/install_
 __tdi_upgrade_bin:              "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh"
 
 __cnx_download_location:        "{{ cnx_repository_url | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
-__cnx_package_name:             "{{ cnx_package | default('HCL_Connections_7.0_lin.tar') }}"
+__cnx_package_name:             "{{ cnx_package | default('HCL_Connections_8.0_lin.tar') }}"
 __cnx_extraction_folder:        "{{ cnx_extraction_folder | default('/opt/IBM/InstallBinaries/CNX') }}"
 
 __tdi_sol_location_kit:         "{{ __cnx_extraction_folder }}/HCL_Connections_Install/tools/tdisol.tar"
@@ -51,6 +51,7 @@ __oracle_jdbc_location:         "{{ oracle_jdbc_location | default('/opt/oracle'
 
 __install_latest_db2:           "{{ install_latest_db2 | default(true) }}"
 __db2_default_jdbc_location:    "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"
+
 __db2_user:                    "{{ db2_user | default('db2inst1') }}"
 __install_version_db2:         "{{ 'V11.5' if __install_latest_db2 else 'V11.1' }}"
 

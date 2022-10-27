@@ -37,6 +37,12 @@
   vars:
     __restrict_cookies:   "true"
 
+- name:                    Set WAS server JVM heap size if provided
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/set_was_jvm_heap
+
 - name:                    Restart DMGR
   hosts:                   dmgr
   become:                  true

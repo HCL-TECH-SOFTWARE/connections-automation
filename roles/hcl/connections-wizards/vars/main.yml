@@ -7,9 +7,9 @@ __cnx_db_updates_url:           "{{ cnx_db_updates_url }}"
 __cnx_db_update_file:           "{{ cnx_db_update_file | default('65cr1-database-updates.zip') }}"
 
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
-__db_version:                   "{{ db_version | default('7.0') }}"
+__db_version:                   "{{ db_version | default('8.0') }}"
 __download_location:            "{{ connections_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
-__package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_7.0_wizards_lin_aix.tar') }}"
+__package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_8.0_wizards_lin_aix.tar') }}"
 __db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
 __installation_folder:          "{{ __db_extraction_folder }}/Wizards"
 

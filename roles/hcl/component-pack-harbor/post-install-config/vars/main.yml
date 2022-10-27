@@ -1,0 +1,105 @@
+---
+__cnx_major_version:            "{{ cnx_major_version | default('8') }}"
+__setup_teams:                  "{{ hostvars[groups['component_pack_master'][0]]['setup_teams'] | default(true)|bool }}"
+__setup_kudosboards:            "{{ hostvars[groups['component_pack_master'][0]]['setup_kudosboards'] | default(true)|bool }}"
+__setup_huddoboards:            "{{ setup_huddoboards | default(__setup_kudosboards) }}"
+__setup_huddoboards_ext:        "{{ setup_huddoboards_ext | default(false) |lower }}"
+
+__was_install_location:         "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__profile_name:                 "{{ profile_name | default('Dmgr01') }}"
+__was_cellname:                 "{{ was_cellname | default('ConnectionsCell') }}"
+__bin_dir:                      "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
+
+__was_username:                 "{{ was_username }}"
+__was_password:                 "{{ was_password }}"
+__connections_admin:            "{{ connections_admin | default('jjones1') }}"
+__connections_admin_password:   "{{ connections_admin_password | default('password') }}"
+
+__sudo_user:                    "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
+__default_namespace:            "{{ default_namespace | default('connections') }}"
+__frontend_fqdn:                "{{ frontend_fqdn | default(localhost) }}"
+
+__lcc_namespaces:
+    xmlns="http://www.ibm.com/LotusConnections-config"
+    xsi="http://www.w3.org/2001/XMLSchema-instance"
+    sloc="http://www.ibm.com/service-location"
+    tns="http://www.ibm.com/LotusConnections-config"
+__lcc_full_path:                "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/LotusConnections-config.xml"
+
+__lcc_componentpackinstalled_xpath:    "/tns:config/tns:properties/tns:genericProperty[@name=\"componentPackInstalled\"]"
+
+# OrientMe
+__lcc_orientme_serviceRef:      |
+  <sloc:serviceReference serviceName="orient"
+    enabled="true"
+    ssl_enabled="true"
+    bootstrapHost="{{ ic_internal }}"
+    bootstrapPort="admin_replace"
+    clusterName="">
+    <sloc:href>
+        <sloc:hrefPathPrefix>/social</sloc:hrefPathPrefix>
+        <sloc:static href="http://{{ ic_internal }}" ssl_href="https://{{ ic_internal }}" />
+        <sloc:interService href="https://{{ ic_internal }}" />
+    </sloc:href>
+  </sloc:serviceReference>
+
+__lcc_action_center_xpath:             "/tns:config/tns:properties/tns:genericProperty[@name=\"actioncenter\"]"
+__lcc_genprop_default_ome_xpath:       "/tns:config/tns:properties/tns:genericProperty[@name = 'com.ibm.orient.isOrientHomepage']"
+__lcc_genprop_default_hpswitch_xpath:  "/tns:config/tns:properties/tns:genericProperty[@name = 'com.ibm.orient.isHomepageSwitcherEnabled']"
+
+__enable_homepage_switcher_default:    "{{ 'true' if __cnx_major_version is version('7', '<=') else 'false' }}"
+__enable_homepage_switcher:            "{{ enable_homepage_switcher | default( __enable_homepage_switcher_default ) }}"
+__enable_orientme_default_hp_default:  "{{ 'true' if __cnx_major_version is version('7', '<=') else 'false' }}"
+__enable_orientme_default_hp:          "{{ enable_orientme_default_hp | default( __enable_orientme_default_hp_default ) }}"
+__enable_action_center:                "{{ enable_action_center | default('enabled') }}"
+
+# appreg
+__lcc_version_xpath: "/tns:config/tns:properties"
+__lcc_sloc_service_extRegistry_xpath: "/tns:config/sloc:serviceReference[@serviceName='extensionRegistry']"
+__success_file: "{{ __bin_dir }}/add-children-properties-lcc-nodes.success"
+
+# QuickResults Solr
+__searchcfg_full_path:       "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/search-config.xml"
+__searchcfg_namespaces:
+  xmlns="http://www.ibm.com/LotusConnectionsSearch"
+  tns="http://www.ibm.com/LotusConnectionsSearch"
+  xsi="http://www.w3.org/2001/XMLSchema-instance"
+__searchcfg_qr_solr_xpath:   "/tns:config/tns:propertySettings/tns:property[@name=\"quickResults\"]/tns:propertyField[@name=\"quick.results.solr.indexing.enabled\"]"
+__searchcfg_queries_solr_xpath: "/tns:config/tns:propertySettings/tns:property[@name=\"quickResults\"]/tns:propertyField[@name=\"quick.results.use.solr.for.queries\"]"
+
+# QuickResults
+__enable_qr:                 "{{ enable_qr | default(true) }}"
+__lcc_qr_xpath:              "/tns:config/tns:properties/tns:genericProperty[@name=\"quickResultsEnabled\"]"
+__es_qr_index_template:      "enable_es_qr_index.j2"
+__es_qr_index_destination:   "{{ __dmgr_bin_dir }}/enable_es_qr_index"
+
+# OpenSearch
+__enable_major_es7:          "{{ enable_major_es7 | default(true) }}"
+__enable_es7_r_and_w:        "{{ enable_es7_r_and_w | default(true) }}"
+__searchcfg_es_index_xpath:  "/tns:config/tns:propertySettings/tns:property[@name=\"quickResults\"]/tns:propertyField[@name=\"quick.results.elasticsearch.indexing.enabled\"]"
+__searchcfg_es_write_xpath:  "/tns:config/tns:propertySettings/tns:property[@name=\"quickResults\"]/tns:propertyField[@name=\"quick.results.elasticsearch7.writing.enabled\"]"
+__searchcfg_es_read_xpath:   "/tns:config/tns:propertySettings/tns:property[@name=\"quickResults\"]/tns:propertyField[@name=\"quick.results.elasticsearch7.reading.enabled\"]"
+__lcc_es_version_xpath:      "/tns:config/tns:properties/tns:genericProperty[@name=\"elasticsearch.eSmajorVersion\"]"
+__lcc_es_version:            "7"
+
+__config_blue_metrics_bin:   "/tmp/config_blue_metrics.py"
+__config_blue_metrics_cmd:   "{{ __config_blue_metrics_bin }} --skipSslCertCheck true --pinkhost {{ __master_ip }} --namespace {{ __default_namespace }}"
+__master_ip:                 "{{ load_balancer_dns | default( __k8s_master_ip ) }}"
+
+# ConnectionProvider
+__connprovider_full_path:    "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/oauth20/connectionsProvider.xml"
+__oauth20_autoauth_xpath:    "/OAuthServiceConfiguration/parameter[@name=\"oauth20.autoauthorize.clients\" and @type=\"ws\" and  @customizable=\"true\"]"
+__oauth20_autoauth_template: "oauthprovider.j2"
+__oauth20_destination:       "{{ __dmgr_bin_dir }}/register_oauth20kudosboards"
+
+# HuddoBoards
+__persistentVolumePath:         "{{ persistentVolumePath | default('pv-connections') }}"
+__customizer_huddo_extension:   "{{ __persistentVolumePath }}/customizations/boards-extensions"
+__customizer_huddo_extension_url:  "https://docs.huddo.com/boards/connections/customizer/boards-extensions.tgz"
+
+__dmgr_bin_dir:              "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
+__dmgr_soap_port:            "{{ dmgr_soap_port | default(8879) }}"
+
+# JWT in configmap - LTPA timeout synch
+__ltpa_tpl_file:             "get_set_was_ltpa_timeout.py.j2"
+__ltpa_rsp_file:             "{{ __bin_dir }}/get_set_was_ltpa_timeout.py"

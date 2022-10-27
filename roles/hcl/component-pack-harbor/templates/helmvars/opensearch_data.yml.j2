@@ -1,0 +1,11 @@
+clusterName:                {{ __opensearch_cluster_name }}
+nodeGroup:                  "data"
+masterService:              "{{ __opensearch_cluster_name }}-master"
+
+roles:
+  - ingest
+  - data
+
+imageTag:                   "{{ __opensearch_version }}"
+
+replicas:                   {{ __opensearch_replica_count }}

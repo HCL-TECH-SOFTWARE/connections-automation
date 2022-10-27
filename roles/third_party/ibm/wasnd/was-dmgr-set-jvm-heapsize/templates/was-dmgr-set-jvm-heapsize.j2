@@ -1,0 +1,24 @@
+import copy
+
+#jinja2: trim_blocks:False
+property = ['-serverName', '{{ server }}',  '-nodeName', '{{ node }}' ]
+
+#Change Initial Heap Size
+{% if initial_heap_size is defined and initial_heap_size != '' %}
+init_heap_property = copy.copy(property)
+init_heap_property.append('-initialHeapSize')
+init_heap_property.append({{ initial_heap_size }})
+AdminTask.setJVMInitialHeapSize(init_heap_property)
+{% endif %}
+
+{% if max_heap_size is defined and max_heap_size != '' %}
+max_heap_property = copy.copy(property)
+max_heap_property.append('-maximumHeapSize')
+max_heap_property.append({{ max_heap_size }})
+AdminTask.setJVMMaxHeapSize(max_heap_property)
+{% endif %}
+
+#Show JVM Properties and Heaps Size
+AdminTask.showJVMProperties(property)
+
+AdminConfig.save()

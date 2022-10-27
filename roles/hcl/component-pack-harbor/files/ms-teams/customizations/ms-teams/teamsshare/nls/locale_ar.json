@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "تمت المشاركة من HCL Connections <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "تمت مشاركة الملف من HCL Connections: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "مشاركة إلى Microsoft Teams"
+}

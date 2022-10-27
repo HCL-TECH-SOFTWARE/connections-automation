@@ -1,4 +1,5 @@
 ---
+__was_major_version:      "{{ was_major_version | default('8') }}"  
 __tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}/was_fixes"
 __logs_dir:               "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
 __iim_install_location:   "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
