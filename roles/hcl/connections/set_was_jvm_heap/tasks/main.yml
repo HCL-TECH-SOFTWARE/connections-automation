@@ -1,0 +1,11 @@
+---
+  - name:                      Set WAS server JVM heap size
+    include_role:
+      name:                    roles/third_party/ibm/wasnd/was-dmgr-set-jvm-heapsize
+    vars:
+      server:                  "{{ item.server }}"
+      node:                    "{{ item.node }}"
+      initial_heap_size:       "{{ item.initial_heap_size | default('') }}"
+      max_heap_size:           "{{ item.max_heap_size | default('') }}"
+    with_items:                "{{ app_server_heap }}"
+    when:                      app_server_heap is defined

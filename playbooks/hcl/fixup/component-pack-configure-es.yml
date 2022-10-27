@@ -1,0 +1,21 @@
+---
+# This playbook runs enable_es_metrics.yml standalone if needed.  It is already part of playbooks/hcl/setup-component-pack.yml.
+
+- name:                        Gather facts
+  hosts:                       component_pack_master
+  tasks:                       []
+
+- name:                        Configure ElasticSearch cert, setup for QuickResults and metrics
+  hosts:                       component_pack_master
+  become:                      true
+  tasks:
+    - include_vars:                    ../../../roles/hcl/component-pack-harbor/vars/main.yml
+    - include:                         ../../../roles/hcl/component-pack-harbor/tasks/enable_es_metrics.yml
+      vars:
+        __config_blue_metrics_file:    ../../../roles/hcl/component-pack-harbor/files/config_blue_metrics.py
+        __es_merge_template:           ../../../roles/hcl/component-pack-harbor/templates/merge-es-certificates-to-keystore.j2
+        __opensearch_merge_template:   ../../../roles/hcl/component-pack-harbor/templates/merge-opensearch-certificates-to-keystore.j2
+        __es_metrics_enable_template:  ../../../roles/hcl/component-pack-harbor/templates/enable-es-for-metrics.j2
+      when:
+         - __enable_es_metrics |bool
+         - not __skip_connections_integration

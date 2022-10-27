@@ -37,34 +37,21 @@
   when:                  __cnx_force_repopulation |bool
 
 # Observed lingering connections even after CNX is stopped so do a force application.
-- name:                   Force application to disconnect for database cleanup
-  shell:                  "db2 force application all"
-  become_user:            "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:          "{{ __db2_user }}"
-    IBM_DB_LIB:           "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:           "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:      "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:       "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:               "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:             "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                 "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+- name:                  Force application to disconnect for database cleanup
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+  vars:
+    db_command:           "db2 force application all"
   when:
     - __cnx_force_repopulation |bool
   ignore_errors:         yes
 
 - name:                  Drop Connections Databases
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  include_tasks:
+    file:                ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/activities/db2/dropDb.sql"
    - "connections.sql/blogs/db2/dropDb.sql"
@@ -84,17 +71,12 @@
 
 
 - name:                  Drop IC360 database
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  include_tasks:
+    file:                ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/ic360/db2/dropDb.sql"
   when:
@@ -103,19 +85,12 @@
   ignore_errors:         yes
 
 - name:                  Drop ICEC database only
-  shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              icec_cleanup_result
-  failed_when:           ( icec_cleanup_result.rc not in [0] )
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  include_tasks:
+    file:                ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/icec/db2/dropDb.sql"
   when:
@@ -133,25 +108,16 @@
   when:
     - __cnx_force_repopulation |bool
 
-- name:                  "Verify if should proceed with migrations if cleanup was done"
+- name:                  "Verify if should proceed with creating databases if cleanup was done"
   stat:
     path:                "{{ __success_file }}"
   register:              migrations_already_done
 
 - name:                  Creating Connections databases (except ICEC)
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
   register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/activities/db2/createDb.sql"
    - "connections.sql/activities/db2/appGrants.sql"
@@ -191,24 +157,26 @@
   register:              sharepoint_migrations_already_done
 
 - name:                  Run Sharepoint migration for Connections 7
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yaml
   register:              sharepoint_migration_result
-  failed_when:           ( sharepoint_migration_result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/homepage/db2/upgrade-60CR4-70.sql"
   when:
     - not sharepoint_migrations_already_done.stat.exists
     - __db_version == '7.0'
+    - __db_enable_upgrades |bool
+
+- name:                  Run Profiles migration for Connections 8
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
+  with_items:
+   - "connections.sql/profiles/db2/upgrade-60-80.sql"
+  when:
+    - migrations_already_done.stat.exists
+    - __db_version == '8.0'
     - __db_enable_upgrades |bool
 
 - name:                  "Verify if IC360 DB is already created"
@@ -217,19 +185,10 @@
   register:              ic360_migrations_already_done
 
 - name:                  Creating Connections database for IC360
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
   register:              ic360_migration_result
-  failed_when:           ( ic360_migration_result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/ic360/db2/createDb.sql"
    - "connections.sql/ic360/db2/appGrants.sql"
@@ -238,19 +197,9 @@
     - __db_version is version('7.0', '>=')
 
 - name:                  Creating Connections database for ICEC
-  shell:                 "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              icec_migrations_result
-  failed_when:           ( icec_migrations_result.rc not in [0] )
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __db2_icec_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/icec/db2/createDb.sql"
    - "connections.sql/icec/db2/appGrants.sql"
@@ -258,19 +207,9 @@
     - not migrations_already_done.stat.exists
 
 - name:                  Run runstats.sql and reorg.sql everywhere
-  shell:                 "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
-  register:              result
-  failed_when:           ( result.rc not in [0, 1, 2, 3] )
-  become_user:           "{{ __db2_user }}"
-  environment:
-    DB2INSTANCE:         "{{ __db2_user }}"
-    IBM_DB_LIB:          "{{ __db2_instance_homedir }}/sqllib/lib"
-    IBM_DB_DIR:          "{{ __db2_instance_homedir }}/sqllib"
-    LD_LIBRARY_PATH:     "{{ __db2_instance_homedir }}/sqllib/lib64:{{ __db2_instance_homedir }}/sqllib/lib64/gskit:{{ __db2_instance_homedir }}/sqllib/lib32"
-    IBM_DB_INCLUDE:      "{{ __db2_instance_homedir }}/sqllib/include"
-    DB2LIB:              "{{ __db2_instance_homedir }}/sqllib/lib"
-    DB2_HOME:            "{{ __db2_instance_homedir }}/sqllib"
-    PATH:                "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ __db2_instance_homedir }}/sqllib/bin:{{ __db2_instance_homedir }}/sqllib/adm:{{ __db2_instance_homedir }}/sqllib/misc:{{ __db2_instance_homedir }}/sqllib/gskit/bin:{{ __db2_instance_homedir }}/.local/bin:{{ __db2_instance_homedir }}/bin"
+  include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
   with_items:
    - "connections.sql/activities/db2/runstats.sql"
    - "connections.sql/blogs/db2/runstats.sql"
@@ -308,7 +247,7 @@
     path:                "{{ __success_file }}"
     state:               touch
   when:
-   - all_migrations_result is defined
+   - all_migrations_result is not skipped
    - not migrations_already_done.stat.exists
 
 - name:                  "Create {{ __ic360_success_file }} file"
@@ -316,7 +255,7 @@
     path:                "{{ __ic360_success_file }}"
     state:               touch
   when:
-   - ic360_migration_result is defined
+   - ic360_migration_result is not skipped
    - not ic360_migrations_already_done.stat.exists
 
 - name:                  "Create {{ __sharepoint_success_file }} file"
@@ -324,5 +263,5 @@
     path:                "{{ __sharepoint_success_file }}"
     state:               touch
   when:
-   - sharepoint_migration_result is defined
+   - sharepoint_migration_result is not skipped
    - not sharepoint_migrations_already_done.stat.exists

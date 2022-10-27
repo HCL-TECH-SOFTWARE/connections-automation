@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "共享自 HCL Connections <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "文件共享自 HCL Connections：<br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "共享到 Microsoft Teams"
+}

@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "Compartido desde HCL Connections <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "Archivo compartido desde HCL Connections: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "Compartir con Microsoft Teams"
+}

@@ -2,6 +2,7 @@
 - name:                 Backup httpd.conf
   command:              cp {{ __ihs_install_location }}/conf/httpd.conf {{ __ihs_install_location }}/conf/httpd.conf_{{ __now }}
   ignore_errors:        true
+  when:                 __was_major_version is version('8', '=')
 
 - name:                 Clean up old certificates
   command:              "rm -rf {{ item }}"
@@ -10,23 +11,28 @@
    - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.rdb }}"
    - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.sth }}"
    - "{{ __ihs_kdb_filename }}"
+  when:                 __was_major_version is version('8', '=')
 
 - name:                 Generate key DB
   shell:                "{{ __ihs_install_location }}/bin/gskcapicmd -keydb -create -db {{__ihs_kdb_filename }} -type cms -pw {{ __ihs_kdb_password }} -stash"
   args:
     chdir:              "{{ __ihs_bin_directory }}"
     creates:            "{{ __ihs_kdb_filename }}"
+  when:                 __was_major_version is version('8', '=')
 
 - name:                 Generate self signed certificate
   shell:                "{{ __ihs_gsk_api }} -cert -create -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -sigalg SHA256WithRSA -size 4096 -dn \"{{ __ihs_cert_dn }}\" -san_dnsname {{ __ihs_hostname_fqdn }} -label {{ __ihs_hostname_fqdn }} -default_cert yes"
   args:
     chdir:              "{{ __ihs_bin_directory }}"
+  when:                 __was_major_version is version('8', '=')
 
 - name:                 "Am I going to enable ActivitiesPlus?"
   debug:
-    msg:                "{{ __setup_kudosboards }}"
+    msg:                "{{ __setup_huddoboards }}"
+  when:                 __was_major_version is version('8', '=')
 
 - name:                 "Generate httpd.conf"
   template:
     src:                "httpd.conf.j2"
     dest:               "{{ __ihs_install_location }}/conf/httpd.conf"
+  when:                 __was_major_version is version('8', '=')

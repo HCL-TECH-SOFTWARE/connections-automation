@@ -1,0 +1,9 @@
+---
+  - name:              Set componentPackInstalled to true
+    xml:
+      path:            "{{ __lcc_full_path }}"
+      namespaces:      "{{ __lcc_namespaces }}"
+      xpath:           "{{ __lcc_componentpackinstalled_xpath }}"
+      value:           "true"
+    when:
+      -  __cnx_major_version is version('8', '>=')

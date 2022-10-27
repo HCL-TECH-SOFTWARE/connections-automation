@@ -1,0 +1,25 @@
+{
+    "name": "MS Teams Share",
+    "title": "Share to MS Teams",
+    "description": "Share link to current content into Teams channel",
+    "services": [
+        "Customizer"
+    ],
+    "state": "enabled",
+    "extensions": [
+        {
+            "name": "MS Teams Share Extension",
+            "type": "com.ibm.customizer.ui",
+            "payload": {
+                "include-files": [
+                    "ms-teams/teamsshare/connections-teams-share-integration.js"
+                ],
+                "cache-headers": {
+                    "cache-control": "max-age=43200"
+                }
+            },
+            "path": "global",
+            "state": "enabled"
+        }
+    ]
+}

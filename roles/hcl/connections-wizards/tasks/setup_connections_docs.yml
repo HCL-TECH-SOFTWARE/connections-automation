@@ -5,24 +5,24 @@
   when:
     - __cnx_docs_force_repopulation |bool
 
-- name:                 "Verify if migrations are already done"
+- name:                 "Verify if Docs database was already created"
   stat:
     path:                "{{ __docs_success_file }}"
-  register:              docs_migrations_already_done
+  register:              docs_database_already_created
 
 - name:                  Clean up installation folder(s)
   file:
     path:                "{{ __docs_extraction_folder }}"
     state:               absent
   when:
-    - not docs_migrations_already_done.stat.exists
+    - not docs_database_already_created.stat.exists
 
 - name:                  Create installation folder
   file:
     path:                "{{ __docs_extraction_folder }}"
     state:               directory
   when:
-    - not docs_migrations_already_done.stat.exists
+    - not docs_database_already_created.stat.exists
 
 - name:                  Download and unzip installation {{ __docs_package_name }} to the {{ __docs_extraction_folder }}
   unarchive:
@@ -30,7 +30,7 @@
     dest:                "{{ __docs_extraction_folder }}"
     remote_src:          yes
   when:
-    - not docs_migrations_already_done.stat.exists
+    - not docs_database_already_created.stat.exists
 
 - name:                  Cleanup Docs database
   shell:                 "chdir={{ __docs_installation_folder }}/db2 sh {{ item }}"
@@ -50,10 +50,10 @@
     - __cnx_docs_force_repopulation |bool
   ignore_errors:         yes
 
-- name:                 "Verify if should proceed with migrations if cleanup was done"
+- name:                 "Verify if should proceed with creation if cleanup was done"
   stat:
     path:                "{{ __docs_success_file }}"
-  register:              docs_migrations_already_done
+  register:              docs_database_already_created
 
 - name:                  Create Docs database and update schema
   shell:                 "chdir={{ __docs_installation_folder }}/db2 sh {{ item }}"
@@ -71,7 +71,8 @@
    - "createDb.sh"
    - "updateDBSchema.sh"
   when:
-    - not docs_migrations_already_done.stat.exists
+    - not docs_database_already_created.stat.exists
+  register:              docs_database_created
 
 - name:                  Run appGrants.sql
   shell:                 "{{ __db2_migration_cmd }} {{ __docs_installation_folder }}/db2/{{ item }}"
@@ -90,9 +91,10 @@
   with_items:
    - "appGrants.sql"
   when:
-    - not docs_migrations_already_done.stat.exists
+    - not docs_database_already_created.stat.exists
 
 - name:                  "Create {{ __docs_success_file }} file"
   file:
     path:                "{{ __docs_success_file }}"
     state:               touch
+  when:                  docs_database_created is not skipped

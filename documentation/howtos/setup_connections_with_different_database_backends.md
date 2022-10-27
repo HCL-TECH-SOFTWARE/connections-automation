@@ -98,7 +98,7 @@ With the latest changes, what actually happens is:
 - TDI will use db_username, db_password, db_hostname, db_port to configure itself to successfully run.
 - HCL Connections response file will be populated based on *_db structures.
 
-## Using Oracle 19c as a database backend for HCL Connections 7
+## Using Oracle 19c as a database backend for HCL Connections 8
 
 If you want to try HCL Connections with Oracle 19c, now that is possible as well.
 
@@ -157,7 +157,7 @@ ic360_db={ 'name': 'LSCONN', 'server': 'db1.internal.example.com', 'user': 'ESSU
 - IBM TDI will find oracle_servers group name in the inventory, and because of that decide to download Oracle 19c JDBC driver from oracle_download_location necessary to successfully execute TDI scripts.
 - All variables with *_db will be added to the response file for HCL Connections installer.
 
-## Using Microsoft SQL Server 2019 as a database backend for HCL Connections 7
+## Using Microsoft SQL Server 2019 as a database backend for HCL Connections 8
 
 This was, obviously, implemented and tested on Linux (CentOS 7.9 to be more specific).
 

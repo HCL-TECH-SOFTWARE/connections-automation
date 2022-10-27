@@ -1,13 +1,15 @@
 ---
 - name:          Check Vars
   include_tasks: check_vars.yml
+  when:          __was_major_version is version('8', '=')
 
 - name:          Define Vars
   include_tasks: define_vars.yml
+  when:          __was_major_version is version('8', '=')
 
 - name:          Install WebSphere Application Server - Fixes
   include_tasks: install_was_fixes.yml
-  when:          version_already_installed.rc != 0
+  when:          __was_major_version is version('8', '=') and version_already_installed.rc != 0
 
 - name:              Install WebSphere Application Server - Log4j Fix
   include_tasks:     install_was_fixes.yml
@@ -18,5 +20,6 @@
     __was_fp_id_prefix:        "{{ __was_log4j_fix_prefix }}"
     version_already_installed: "{{ log4j_fix_already_installed }}"
   when:
+    - __was_major_version is version('8', '=')
     - __was_version_needs_log4j_fix is defined
     - log4j_fix_already_installed.rc != 0

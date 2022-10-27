@@ -1,0 +1,24 @@
+image:
+  repository: {{ __docker_registry_url }}
+
+replicaCount: {{ __replica_count }}
+
+namespace: {{ __default_namespace }}
+
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  enabled: true
+  hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}

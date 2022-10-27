@@ -26,6 +26,9 @@ docs_username:                                   docsuser
 docs_password:                                   password
 sudo_group:                                      wheel
 
+tinyeditors_username:                            tinyeditorsuser
+tinyeditors_password:                            password
+
 # Non-mandatory changes
 
 # Type of HCL Connections deployment: small (default), medium and large.
@@ -42,10 +45,11 @@ ihs_repository_url:                              http://{{ groups['installer'][0
 ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/
-component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/
+tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/
 
-upgrade_tdi_jre:                                 true
-tdi_sol_location:                                http://{{ groups['installer'][0] }}:8001/tdisol_70_java8.tar
+cnx_package:                                     "HCL_Connections_8.0_lin.tar"
+connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
+cnx_major_version:                               "8"
 
 cnx_updates_enabled:                             True
 
@@ -71,15 +75,16 @@ cnx_enable_full_icec:                            true
 
 enable_prometheus_jmx_exporter:                  True
 
-# uncomment these lines, set to the latest cFix to include it as part of the initial install
+# uncomment to install CFix, update these for the latest fix and updateInstaller
 # ifix_apar:                                       CFix.70.2110
 # cnx_ifix_installer:                              "updateInstaller_2104.zip"
 # ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
 
-setup_docker_registry:                           true
-component_pack_package_name:                     component_pack_latest.zip
+component_pack_helm_repository:                  https://hclcr.io/chartrepo/cnx
+docker_registry_url:                             hclcr.io/cnx
+docker_registry_username:                        "{{ lookup('env','HARBOR_USERNAME') }}"
+docker_registry_password:                        "{{ lookup('env','HARBOR_SECRET') }}"
 
-docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
 load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
 ic_internal:                                     "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"
 frontend_fqdn:                                   "{{ cnx_application_ingress }}"
@@ -109,6 +114,7 @@ cnx_data_path_on_cnx_server:                     /opt/IBM/SharedArea
 
 docs_url:                                        "{{ cnx_application_ingress }}"
 
+# for cleanup playbooks
 force_destroy_kubernetes:                        True
 force_destroy_db2:                               True
 force_destroy_ihs:                               True

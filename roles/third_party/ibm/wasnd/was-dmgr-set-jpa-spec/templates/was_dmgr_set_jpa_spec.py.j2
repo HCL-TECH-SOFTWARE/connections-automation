@@ -1,0 +1,14 @@
+# Update JPA spec level
+
+for node in AdminConfig.list('Node').splitlines():
+    nodeName = AdminConfig.showAttribute( node, 'name' )
+    for server in AdminConfig.list( 'Server', node ).splitlines():
+        serverType = AdminConfig.showAttribute( server, "serverType" )
+        if serverType == 'APPLICATION_SERVER':
+          serverName = AdminConfig.showAttribute( server, 'name' )
+          nodeName + '/' + serverName + ':' + AdminTask.showJPASpecLevel('[-node ' + nodeName + ' -server ' + serverName + ']')
+          AdminTask.modifyJPASpecLevel('[-node ' + nodeName + ' -server ' + serverName + ' -specLevel {{ __was_jpa_spec_level }} ]')
+
+#Save and Synchronise
+AdminConfig.save()
+AdminNodeManagement.syncActiveNodes()

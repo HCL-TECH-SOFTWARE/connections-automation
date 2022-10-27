@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "已從 HCL Connections 共用 <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "已從 HCL Connections 共用檔案：<br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "分享到 Microsoft Teams"
+}

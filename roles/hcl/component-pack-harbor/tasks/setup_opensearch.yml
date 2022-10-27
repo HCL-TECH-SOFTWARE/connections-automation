@@ -1,0 +1,64 @@
+- name:                      "Render {{ __opensearch_master_env }}"
+  template:
+    src:                     "helmvars/opensearch_master.yml.j2"
+    dest:                    "{{ __opensearch_master_env }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      "Render {{ __opensearch_data_env }}"
+  template:
+    src:                     "helmvars/opensearch_data.yml.j2"
+    dest:                    "{{ __opensearch_data_env }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      "Render {{ __opensearch_client_env }}"
+  template:
+    src:                     "helmvars/opensearch_client.yml.j2"
+    dest:                    "{{ __opensearch_client_env }}"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Get chart and version
+  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep opensearch | grep -vE \"opensearch-\" | awk {'print $2'}"
+  register:                  opensearch_chart_version
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Found opensearch chart version
+  debug:
+    msg:                     "{{ opensearch_chart_version.stdout }}"
+
+- name:                      Record opensearch chart version
+  local_action:
+    module:                  shell
+    cmd:                     echo "opensearch chart = {{ opensearch_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  become:                    false
+  when:                      __record_cp_versions|bool
+
+- name:                      Upgrade opensearch master
+  command:                   "helm upgrade opensearch-master {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_master_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Upgrade opensearch data
+  command:                   "helm upgrade opensearch-data {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_data_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Upgrade opensearch client
+  command:                   "helm upgrade opensearch-client {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_client_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if opensearch master is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i {{ __opensearch_cluster_name }}-master | grep -i Running
+  when:                      not __skip_pod_checks |bool
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if opensearch data is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i {{ __opensearch_cluster_name }}-data | grep -i Running
+  when:                      not __skip_pod_checks |bool
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if opensearch client is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i {{ __opensearch_cluster_name }}-client | grep -i Running
+  when:                      not __skip_pod_checks |bool
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Remove Master eligible nodes using voting configuration to support scaling down
+  shell:                     kubectl exec {{ __opensearch_cluster_name }}-master-0 -n "{{ __default_namespace }}" -- bash -c "curl --insecure --cert /usr/share/opensearch/config/certs/opensearch-healthcheck.crt.pem:{{ __opensearch_ca_password }} --key /usr/share/opensearch/config/certs/opensearch-healthcheck.key --cacert /usr/share/opensearch/config/certs/opensearch-http.crt.pem -X POST 'https://{{ __opensearch_cluster_name }}-master:9200/_cluster/voting_config_exclusions?node_names={{ __opensearch_cluster_name }}-master-1,{{ __opensearch_cluster_name }}-master-2'"
+  become_user:               "{{ __sudo_user }}"

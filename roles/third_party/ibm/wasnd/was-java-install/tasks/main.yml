@@ -1,10 +1,12 @@
 ---
 - name:          Check Vars
   include_tasks: check_vars.yml
+  when:          __was_major_version is version('8', '=')
 
 - name:          Define Vars
   include_tasks: define_vars.yml
+  when:          __was_major_version is version('8', '=')
 
 - name:          Install Java
   include_tasks: install_java.yml
-  when:          __was_upgrade_java is defined and version_already_installed.rc != 0
+  when:          __was_major_version is version('8', '=') and __was_upgrade_java is defined and version_already_installed.rc != 0

@@ -3,6 +3,7 @@
 # ansible-playbook -i hosts.development -k ansible-ibm-websphere/playbooks/was-dmgr-create-profile.yml
 #
 ---
+__was_major_version:    "{{ was_major_version | default('8') }}"    
 __profile_name:         "{{ profile_name | default('Dmgr01') }}"
 __was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __default_nodename:     "{{ inventory_hostname_short }}-dmgr"

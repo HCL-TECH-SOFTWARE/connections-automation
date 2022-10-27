@@ -1,0 +1,5 @@
+{
+  "teamshare.default.message": "Gedeeld vanuit HCL Connections <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.files.message": "Bestand gedeeld vanuit HCL Connections: <br/> [{PAGE_TITLE}] - {PAGE_HREF}",
+  "teamshare.action.title": "Delen naar Microsoft Teams"
+}

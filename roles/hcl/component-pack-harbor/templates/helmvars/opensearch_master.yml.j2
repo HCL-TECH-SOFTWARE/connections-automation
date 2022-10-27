@@ -1,0 +1,19 @@
+clusterName:                {{ __opensearch_cluster_name }}
+nodeGroup:                  "master"
+masterService:              "{{ __opensearch_cluster_name }}-master"
+
+roles:
+  - master
+
+imageTag:                   "{{ __opensearch_version }}"
+
+service:
+  labels:                   {}
+  labelsHeadless:           {}
+  type:                     NodePort
+  nodePort:                 {{ __opensearch_default_port }}
+  nodePortTransport:        ""
+
+createSecret:               false
+
+replicas:                   {{ __opensearch_replica_count }}

@@ -1,0 +1,4 @@
+.iframeContainer{margin-bottom: 20px;}
+.iframeHeader{background-color:white;border-bottom: 1px solid lightgray;}
+.iframeHeader h2{cursor: default;margin-top: 0px;padding-top:15px;padding-left:20px;}
+.iframeContent{width: 100%;border: none;}

@@ -1,0 +1,21 @@
+batchMode=1
+execfile('oauthAdmin.py')
+
+# get the target client applications
+oauth_app = OAuthApplicationRegistrationService.getApplicationById('{{ app.oauth_client_id }}')
+
+# edit if target app exists
+if oauth_app is not None:
+   orig_url = oauth_app.get('redirect_uri')
+   new_url = orig_url.replace('{{ app.oauth_redirect_host_old }}', '{{ app.oauth_redirect_host_new }}')
+   OAuthApplicationRegistrationService.editApplication('{{ app.oauth_client_id }}', oauth_app.get('display_name'), new_url)
+
+   AdminConfig.save()
+
+   # print client secret
+   clientSecret = OAuthApplicationRegistrationService.getApplicationById('{{ app.oauth_client_id }}').get('client_secret')
+   print clientSecret
+else:
+  print "{{ app.oauth_client_id }} does not exists."
+  print ""
+  

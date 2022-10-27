@@ -17,7 +17,7 @@
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
-  when:                 
+  when:
   - not profile_already_exists.stat.exists
   - not ( __was_fixes_version == __was_fp_version_fp21 )
 

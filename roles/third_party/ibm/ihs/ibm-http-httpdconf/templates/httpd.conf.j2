@@ -933,9 +933,11 @@ ProxyPassReverse "/appreg" "http://{{ __load_balancer_fqdn }}:32080/appreg/"
 ProxyPass "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 
-{% if __setup_kudosboards |bool %}
+{% if __setup_huddoboards |bool %}
 # Kudosboards Config
+{% if not __setup_huddoboards_ext |bool %}
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
+{% endif %}
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
@@ -954,11 +956,6 @@ ProxyPassReverse "/teams-share-ui" "http://{{ __load_balancer_fqdn }}:32080/team
 ProxyPass "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 ProxyPassReverse "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 
-# commented out, already included in rule above
-# teams-tab/api
-# ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
-# ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
-
 # proxy rules for admin-portal
 ProxyPass "/cnxadmin" "http://{{ __load_balancer_fqdn }}:32080/cnxadmin"
 ProxyPassReverse "/cnxadmin" "http://{{ __load_balancer_fqdn }}:32080/cnxadmin"
@@ -975,6 +972,10 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 Redirect "/outlook-addin" "/outlook-addin/"
 ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+
+# jsonapi
+ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
 
 #keycloak
 Redirect "/auth" "/auth/"
@@ -1014,9 +1015,11 @@ ProxyPassReverse "/appreg" "http://{{ __load_balancer_fqdn }}:32080/appreg/"
 ProxyPass "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregistry"
 
-{% if __setup_kudosboards |bool %}
+{% if __setup_huddoboards |bool %}
 # Kudosboards Config
+{% if not __setup_huddoboards_ext |bool %}
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
+{% endif %}
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
@@ -1026,11 +1029,6 @@ ProxyPassReverse "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boar
 # teams-tab-ui
 ProxyPass "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
 ProxyPassReverse "/teams-tab" "http://{{ __load_balancer_fqdn }}:32080/teams-tab"
-
-# commented out, already included in rule above
-# teams-tab/api
-# ProxyPass "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
-# ProxyPassReverse "/teams-tab/api" "http://{{ __load_balancer_fqdn }}:32080/teams-tab/api"
 
 # teams-share-service
 ProxyPass "/teams-share-service" "http://{{ __load_balancer_fqdn }}:32080/teams-share-service"
@@ -1056,6 +1054,10 @@ ProxyPassReverse "/te-creation-wizard/" "http://{{ __load_balancer_fqdn }}:32080
 Redirect "/outlook-addin" "/outlook-addin/"
 ProxyPass "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
 ProxyPassReverse "/outlook-addin/" "http://{{ __load_balancer_fqdn }}:32080/outlook-addin/"
+
+# jsonapi
+ProxyPass "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
+ProxyPassReverse "/jsonapi" "http://{{ __load_balancer_fqdn }}:32080/jsonapi"
 
 <Location /auth >
    RequestHeader set X-Forwarded-Proto "https"
@@ -1140,4 +1142,11 @@ RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=200,L]
 
 # Teams SameSite Fix
-# Header edit Set-Cookie ^(.*)$ "$1; SameSite=None"
+Header edit Set-Cookie ^(.*)$ "$1; SameSite=None;Secure"
+
+Header set X-content-Type-Options "nosniff"
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+# Apply CSP to all requests to prevent clickjacking
+Header unset Content-Security-Policy
+Header always set Content-Security-Policy "frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com"

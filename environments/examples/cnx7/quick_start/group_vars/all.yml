@@ -48,6 +48,10 @@ cnx_repository_url:                              http://{{ groups['installer'][0
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 
+cnx_package:                                     "HCL_Connections_7.0_lin.tar"
+connections_wizards_package_name:                "HCL_Connections_7.0_wizards_lin_aix.tar"
+cnx_major_version:                               "7"
+
 cnx_updates_enabled:                             True
 
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
@@ -72,9 +76,9 @@ cnx_enable_invite:                               true
 enable_prometheus_jmx_exporter:                  True
 
 # uncomment these lines, set to the latest cFix to include it as part of the initial install
-# ifix_apar:                                       CFix.70.2110
-# cnx_ifix_installer:                              "updateInstaller_2104.zip"
-# ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
+# ifix_apar:                                       CFix.70.XXXX
+# cnx_ifix_installer:                              "updateInstaller_XXXX.zip"
+# ifix_file:                                       CFix.70.XXXX-IC7.0.0.0-Common-Fix.jar
 
 setup_docker_registry:                           true
 component_pack_package_name:                     component_pack_latest.zip

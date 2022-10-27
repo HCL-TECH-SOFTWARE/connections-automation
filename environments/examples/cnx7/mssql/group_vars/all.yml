@@ -52,6 +52,10 @@ tinyeditors_download_location:                   http://{{ groups['installer'][0
 upgrade_tdi_jre:                                 true
 tdi_sol_location:                                http://{{ groups['installer'][0] }}:8001/Connections7/tdisol_70_java8.tar
 
+cnx_package:                                     "HCL_Connections_7.0_lin.tar"
+connections_wizards_package_name:                "HCL_Connections_7.0_wizards_lin_aix.tar"
+cnx_major_version:                               "7"
+
 cnx_updates_enabled:                             True
 
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
@@ -79,9 +83,9 @@ cnx_enable_full_icec:                            true
 enable_prometheus_jmx_exporter:                  True
 
 # uncomment these lines, set to the latest cFix to include it as part of the initial install
-# ifix_apar:                                       CFix.70.2110
-# cnx_ifix_installer:                              "updateInstaller_2104.zip"
-# ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
+# ifix_apar:                                       CFix.70.XXXX
+# cnx_ifix_installer:                              "updateInstaller_XXXX.zip"
+# ifix_file:                                       CFix.70.XXXX-IC7.0.0.0-Common-Fix.jar
 
 setup_docker_registry:                           true
 component_pack_package_name:                     hybridcloud_latest.zip
@@ -97,7 +101,7 @@ enable_pod_auto_scaling:                         true
 #setup_connections_env:                           false
 #setup_infrastructure:                            false
 #setup_customizer:                                false
-#setup_elasticsearch7:                            false
+#setup_opensearch:                                false
 #setup_community_ingress:                         false
 #setup_teams:                                     false
 #setup_tailored_exp:                              false

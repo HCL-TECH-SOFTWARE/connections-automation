@@ -9,5 +9,4 @@
     dest:                "{{ __jdbc_installation_folder }}"
     mode:                0755
   with_items:
-   - "ojdbc6.jar"
    - "ojdbc8.jar"

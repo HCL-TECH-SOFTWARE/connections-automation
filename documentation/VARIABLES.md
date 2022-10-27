@@ -134,6 +134,7 @@ Name | Default | Description
 ---- | --------| -------------
 was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
+was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
 was_fp_version | 8.5.5021.20220202_1245 | WebSphere Fix Pack version
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
@@ -199,7 +200,7 @@ cnx_package | HCL_Connections_7.0_lin.tar | Connections install kit file
 connections_wizards_package_name | HCL_Connections_7.0_wizards_lin_aix.tar | Connections Wizard kit file
 setup_connections_wizards | true | true will run the Connections database wizard
 cnx_force_repopulation | false | true will drop the Connections databases and recreate them in `setup-connections-wizards.yml` playbook
-cnx_major_version | "7" | Connections major version to install
+cnx_major_version | "8" | Connections major version to install
 cnx_fixes_version | *none* - optional | If defined (eg. 6.5.0.0_CR1) will install the CR version
 cnx_fixes_files | *none* - optional | If defined (eg. HC6.5_CR1.zip") and cnx_fixes_version is set, will download the CR install kit
 cnx_application_ingress | *none*  - required | Set as *dynamicHosts* in LotusConnections-config.xml
@@ -243,6 +244,7 @@ Name | Default | Description
 ---- | --------| -------------
 cnx_docs_download_location | *none* - required | Connections Docs kit download location
 cnx_docs_package_name | HCL_Docs_v202.zip | Connections Docs install kit file
+docs_install_version | 2.0.2 | Docs version to be installed
 hcl_program_folder | /opt/HCL | Location to store Docs program folders
 conversion_install_folder | DocsConversion | Conversion program folder name
 editor_install_folder | DocsEditor | Editor program folder name
@@ -299,7 +301,7 @@ docker_registry_url | {{ hostvars[groups['docker_registry'][0]]['inventory_hostn
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.21.7 | Kubernetes version to be installed
+kubernetes_version | 1.24.1 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
@@ -345,14 +347,16 @@ setup_customizer | true | True will deploy mw-proxy and setup customizations
 elasticsearch_default_version | 7 | Default ElasticSearch version
 elasticsearch_default_port | 30098 | ElasticSearch port
 setup_elasticsearch | false | True will deploy ElasticSearch 5 (for Connections 6.5CR1)
-setup_elasticsearch7 | true | True will deploy ElasticSearch 7 (for Connections 7)
+setup_elasticsearch7 | false | True will deploy ElasticSearch 7 (for Connections 7)
+setup_opensearch | True | True will deploy OpenSearch
 setup_ingress | false | True will setup old ingress controller (for Connections 6.5CR1)
 setup_community_ingress | true | True will setup community ingress controller (for Connections 7 onwards)
 setup_tailored_exp | true | True will deploy Tailored Experience features for communities (for Connections 7 onwards)
 setup_orientme | true | True will deploy Orient Me (make sure the corresponding setup_elasticsearch7 var is set to true)
-setup_sanity | true | True will deploy sanity-watcher
-setup_kudosboards | true | True will deploy Activities Plus, must have a license key (defined in kudos_boards_licence) for the feature to work
-kudos_boards_licence | *none* | Activities Plus license key
+setup_sanity | false | True will deploy sanity-watcher (for Connections 7)
+setup_huddoboards | true | (replace the old setup_kudosboards var) True will deploy Activities Plus, must have a license key (defined in huddo_boards_licence) for the feature to work
+setup_huddoboards_ext | false | True will install Huddo Boards extension
+huddo_boards_licence | *none* | Activities Plus license key
 setup_elasticstack | false | True will setup ElasticStack
 setup_elasticstack7 | false | True will setup ElasticStack7
 setup_outlook_addin | true | True will deploy Outlook Desktop Plugin
@@ -364,7 +368,12 @@ integrations_msteams_tenant_id | changeme | Tenant ID to configure Microsoft Tea
 integrations_msteams_client_id | changeme | Client ID to configure Microsoft Teams integration
 integrations_msteams_client_secret | changeme | Kubernetes secret name for Microsoft Teams integration
 integrations_msteams_auth_schema | 0 | Auth schema to configure Microsoft Teams integration
-
+opensearch_version | 1.3.0 | Opensearch version
+opensearch_replicaset | 3 | Replica count to set in Helm charts for Opensearch
+opensearch_cluster_name | opensearch-cluster | Opensearch cluster name
+opensearch_default_port | 30099 | Opensearch port
+opensearch_ca_password | password | Opensearch CA password
+opensearch_key_password | password | Opensearch Key password
 
 ### NFS Variables
 Name | Default | Description

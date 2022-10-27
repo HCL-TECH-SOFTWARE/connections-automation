@@ -37,11 +37,12 @@
   when:                  __cnx_force_repopulation |bool
 
 - name:                  Cleanup Databases
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  include_tasks:
+    file:                ../../../third_party/mssql-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/activities/sqlserver/dropDb.sql"
    - "connections.sql/blogs/sqlserver/dropDb.sql"
@@ -63,11 +64,12 @@
 
 
 - name:                  Cleanup IC360 database
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  include_tasks:
+    file:                ../../../third_party/mssql-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/ic360/sqlserver/dropDb.sql"
   when:
@@ -76,11 +78,12 @@
   ignore_errors:         yes
 
 - name:                  Clenaup ICEC database only
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  include_tasks:
+    file:                ../../../third_party/mssql-install/tasks/run_db_command.yml
+    apply:
+      ignore_errors:     yes
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/icec/sqlserver/dropDb.sql"
   when:
@@ -104,11 +107,10 @@
   register:              migrations_already_done
 
 - name:                  Run migrations for everything but ICEC
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  include_tasks:         ../../../third_party/mssql-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/activities/sqlserver/createDb.sql"
    - "connections.sql/activities/sqlserver/appGrants.sql"
@@ -148,16 +150,26 @@
   register:              sharepoint_migrations_already_done
 
 - name:                  Run Sharepoint migration for Connections 7
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  register:              sharepoint_migration_result
+  include_tasks:         ../../../third_party/mssql-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/homepage/sqlserver/upgrade-60CR4-70.sql"
   when:
     - not sharepoint_migrations_already_done.stat.exists
     - __db_version == '7.0'
+    - __db_enable_upgrades |bool
+
+- name:                  Run Profiles migration for Connections 8
+  include_tasks:         ../../../third_party/ibm/mssql-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __db2_migration_cmd }} {{ __installation_folder }}/{{ item }}"
+  with_items:
+   - "connections.sql/profiles/sqlserver/upgrade-60-80.sql"
+  when:
+    - migrations_already_done.stat.exists
+    - __db_version == '8.0'
     - __db_enable_upgrades |bool
 
 - name:                  "Verify if IC360 DB is already created"
@@ -166,11 +178,10 @@
   register:              ic360_migrations_already_done
 
 - name:                  Creating Connections database for IC360
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+  register:              ic360_migration_result
+  include_tasks:         ../../../third_party/mssql-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/ic360/sqlserver/createDb.sql"
    - "connections.sql/ic360/sqlserver/appGrants.sql"
@@ -178,12 +189,11 @@
     - __db_version is version('7.0', '>=')
     - not ic360_migrations_already_done.stat.exists
 
-- name:                  Run migrations for ICEC only
-  shell:                 "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
-  register:              all_migrations_result
-  failed_when:           ( all_migrations_result.rc not in [0] )
-  environment:
-    PATH:                "PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/mssql/bin:/opt/mssql-tools/bin:/home/vagrant/.local/bin:/home/vagrant/bin:/opt/mssql/bin:/opt/mssql-tools/bin"
+- name:                  Create database for ICEC
+  register:              icec_migrations_result
+  include_tasks:         ../../../third_party/mssql-install/tasks/run_db_command.yml
+  vars:
+    db_command:          "{{ __sql_migration_cmd }} {{ __installation_folder }}/{{ item }} {{ __sql_migration_cmd_args }}"
   with_items:
    - "connections.sql/icec/sqlserver/createDb.sql"
    - "connections.sql/icec/sqlserver/appGrants.sql"
@@ -195,7 +205,7 @@
     path:                "{{ __sql_success_file }}"
     state:               touch
   when:
-   - all_migrations_result is defined
+   - all_migrations_result is not skipped
    - not migrations_already_done.stat.exists
 
 - name:                  "Create {{ __sql_ic360_success_file }} file"
@@ -203,7 +213,7 @@
     path:                "{{ __sql_ic360_success_file }}"
     state:               touch
   when:
-   - ic360_migration_result is defined
+   - ic360_migration_result is not skipped
    - not ic360_migrations_already_done.stat.exists
 
 - name:                  "Create {{ __sql_sharepoint_success_file }} file"
@@ -211,5 +221,5 @@
     path:                "{{ __sql_sharepoint_success_file }}"
     state:               touch
   when:
-   - sharepoint_migration_result is defined
+   - sharepoint_migration_result is not skipped
    - not sharepoint_migrations_already_done.stat.exists

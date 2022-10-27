@@ -1,16 +1,20 @@
-- name:                     Install pre-requisites Yum for CentOS 7 - epel-release
-  yum:
-    name:                   ['epel-release']
-    enablerepo:             "extras"
-    state:                  present
+- name:                     Apply repository for CentOS
+  template:
+    src:                    "{{ __nginx_repo_template }}"
+    dest:                   "{{ __nginx_repo_location }}"
+  vars:
+    dist:                   "centos"
+    version:                "{{ ansible_distribution_major_version }}"
   when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
+   - ansible_distribution == "CentOS"
 
 - name:                     Apply repository for RHEL
   template:
     src:                    "{{ __nginx_repo_template }}"
     dest:                   "{{ __nginx_repo_location }}"
+  vars:
+    dist:                   "rhel"
+    version:                "{{ ansible_distribution_major_version }}"
   when:
    - ansible_distribution == "RedHat"
 

@@ -1,0 +1,37 @@
+{
+    "name": "MS Teams Chat Integrations",
+    "title": "MS Teams Chat Integrations",
+    "description": "MS Teams chat for bizcard and profiles",
+    "services": [
+        "Connections"
+    ],
+    "extensions": [
+        {
+            "ext_id": "com.msteams.v3.bizcard.chat",
+            "name": "MS Teams Chat Integration",
+            "title": "MS Teams Chat Integration",
+            "description": "Enable 1-1 chat from profile and bizcard",
+            "translations": {
+                "": {
+                    "TeamsBizcardChat-Connections_text": "Chat"
+                },
+                "fr": {
+                    "TeamsBizcardChat-Connections_text": "Bavarder"
+                },
+                "en": {
+                    "TeamsBizcardChat-Connections_text": "Chat"
+                }
+            },
+            "type": "com.hcl.appreg.ext.templatedLink",
+            "payload": {
+                "url": "",
+                "text": "%nls:TeamsBizcardChat-Connections_text",
+                "href": "https://teams.microsoft.com/l/chat/0/0?users=${email}",
+                "locator": "chat",
+                "target": "TeamsChat"
+            },
+            "object": "com.hcl.appreg.object.person",
+            "state": "enabled"
+        }
+    ]
+}

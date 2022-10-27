@@ -1,0 +1,8 @@
+batchMode=1
+execfile('oauthAdmin.py')
+
+OAuthApplicationRegistrationService.addApplication("connections-outlook-desktop","HCL Connections Outlook Addin","https://{{ frontend_fqdn }}/outlook-addin/auth/callback")
+
+clientSecret = OAuthApplicationRegistrationService.getApplicationById('connections-outlook-desktop').get('client_secret')
+
+print clientSecret

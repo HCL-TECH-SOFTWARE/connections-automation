@@ -1,4 +1,5 @@
 ---
+__was_major_version:       "{{ was_major_version | default('8') }}"  
 __repository_url:         "{{ ihs_repository_url }}"
 __tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}/wassup"
 __logs_dir:               "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
@@ -26,7 +27,7 @@ __iim_product_id:         "\"id='com.ibm.cic.agent\""
 __ihs_username:           "{{ ihs_username | default('ihsadmin') }}"
 __ihs_admins_group:       "{{ ihs_admins_group | default('ihsadmins') }}"
 
-__ihs_admin_port:         "{{ ihs_admin_port | default('8085') }}" 
+__ihs_admin_port:         "{{ ihs_admin_port | default('8085') }}"
 
 __iim_keep_fetched_files: "{{ iim_keep_fetched_files | default(false) }}"
 __iim_preserve_artifacts: "{{ iim_preserve_artifacts | default(false) }}"

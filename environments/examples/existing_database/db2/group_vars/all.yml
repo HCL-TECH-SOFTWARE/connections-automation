@@ -26,6 +26,9 @@ docs_username:                                   docsuser
 docs_password:                                   password
 sudo_group:                                      wheel
 
+tinyeditors_username:                            tinyeditorsuser
+tinyeditors_password:                            password
+
 # Non-mandatory changes
 
 # Type of HCL Connections deployment: small (default), medium and large.
@@ -34,18 +37,19 @@ ldap_user_mail_domain:                           "connections.example.com"
 
 db2_download_location:                           http://{{ groups['installer'][0] }}:8001/DB2
 tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/TDI
-connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
+connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections8
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
-cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
-component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
+cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections8
+tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 
-upgrade_tdi_jre:                                 true
-tdi_sol_location:                                http://{{ groups['installer'][0] }}:8001/Connections7/tdisol_70_java8.tar
+cnx_package:                                     "HCL_Connections_8.0_lin.tar"
+connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
+cnx_major_version:                               "8"
 
 cnx_updates_enabled:                             True
 
@@ -81,38 +85,35 @@ enable_prometheus_jmx_exporter:                  True
 # cnx_ifix_installer:                              "updateInstaller_2104.zip"
 # ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
 
-setup_docker_registry:                           true
-component_pack_package_name:                     hybridcloud_latest.zip
+component_pack_helm_repository:                  https://hclcr.io/chartrepo/cnx
+docker_registry_url:                             hclcr.io/cnx
+docker_registry_username:                        "{{ lookup('env','HARBOR_USERNAME') }}"
+docker_registry_password:                        "{{ lookup('env','HARBOR_SECRET') }}"
 
 enable_pod_auto_scaling:                         true
 
-#setup_installation:                              false
-#setup_images:                                    false
-#setup_credentials:                               false
-#setup_psp:                                       false
-#setup_connections_volumes:                       false
-#setup_bootstrap:                                 false
-#setup_connections_env:                           false
-#setup_infrastructure:                            false
-#setup_customizer:                                false
-#setup_elasticsearch7:                            false
-#setup_community_ingress:                         false
-#setup_teams:                                     false
-#setup_tailored_exp:                              false
-#setup_orientme:                                  false
-#setup_dashboards:                                false
-#setup_elasticstack:                              false
-#setup_sanity:                                    false
-#setup_kudosboards:                               false
-#setup_outlook_addin:                             false
-#enable_es_metrics:                               false
-#enable_gk_flags:                                 false
-#setup_ms_teams_extensions:                       false
-#skip_configure_redis:                            True
+# setup_installation:                             false
+# setup_credentials:                              false
+# setup_psp:                                      false
+# setup_connections_volumes:                      false
+# setup_bootstrap:                                false
+# setup_connections_env:                          false
+# setup_infrastructure:                           false
+# setup_customizer:                               false
+# setup_opensearch:                               false
+# setup_community_ingress:                        false
+# setup_teams:                                    false
+# setup_tailored_exp:                             false
+# setup_orientme:                                 false
+# setup_huddoboards:                              false
+# setup_outlook_addin:                            false
+# enable_es_metrics:                              false
+# enable_gk_flags:                                false
+# setup_ms_teams_extensions:                      false
+# skip_configure_redis:                           True
 
 kudos_boards_licence:                            "PASTE_YOUR_LICENCE_KEY_HERE"
 
-docker_registry_url:                             "{{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000"
 load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
 ic_internal:                                     "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"
 frontend_fqdn:                                   "{{ cnx_application_ingress }}"
@@ -140,6 +141,7 @@ cnx_data_path_on_cnx_server:                     /opt/IBM/SharedArea
 
 docs_url:                                        "{{ cnx_application_ingress }}"
 
+# for cleanup playbooks
 force_destroy_db2:                               True
 force_destroy_ihs:                               True
 force_destroy_websphere:                         True
