@@ -95,7 +95,6 @@ drwxr-xr-x. 24 root orion       4096 Sep 28 14:30 ..
 -r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
 -r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
 -rw-r--r--   1 root root         133 Oct  6 06:41 current.version
--r-xr-xr-x   1 root root   185730992 Oct  6 06:41 updateInstaller.zip
 
 DB2:
 total 2067052
