@@ -63,35 +63,35 @@
   when:
     - ansible_os_family == "RedHat"
 
-- name:                     Create containerd folders
-  file:
-    path:                   "/etc/containerd"
-    state:                  directory
-
-- name:                     Configure containerd
-  shell:                    containerd config default > /etc/containerd/config.toml
-
-- name:                     Configure docker.io mirror
-  replace:
-    path:                   "/etc/containerd/config.toml"
-    regexp:                 ".*registry\\.mirrors\\](\n|.)*?registry-1\\.docker\\.io\"\\]"
-    replace: |2
-            [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-              [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ containerd_docker_mirror }}"]
-                endpoint = ["https://{{ containerd_docker_mirror }}"]
-              [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-                endpoint = ["https://{{ containerd_docker_mirror }}"]
-    backup:                 yes
-  when:                     containerd_docker_mirror is defined
-
-- name:                     Use systemd as cgroup driver
-  replace:
-    path:                   /etc/containerd/config.toml
-    regexp:                 'systemd_cgroup.=.*$'
-    replace:                'systemd_cgroup = true'
-  when:
-   - ansible_distribution == "RedHat"
-   - ansible_distribution_major_version == "7"
+      # - name:                     Create containerd folders
+      #   file:
+      #     path:                   "/etc/containerd"
+      #     state:                  directory
+      #
+      # - name:                     Configure containerd
+      #   shell: /usr/bin/containerd config default > /etc/containerd/config.toml
+      #
+      # - name:                     Configure docker.io mirror
+      #   replace:
+      #     path:                   "/etc/containerd/config.toml"
+      #     regexp:                 ".*registry\\.mirrors\\](\n|.)*?registry-1\\.docker\\.io\"\\]"
+      #     replace: |2
+      #             [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+      #               [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ containerd_docker_mirror }}"]
+      #                 endpoint = ["https://{{ containerd_docker_mirror }}"]
+      #               [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+      #                 endpoint = ["https://{{ containerd_docker_mirror }}"]
+      #     backup:                 yes
+      #   when:                     containerd_docker_mirror is defined
+      #
+      # - name:                     Use systemd as cgroup driver
+      #   replace:
+      #     path:                   /etc/containerd/config.toml
+      #     regexp:                 'systemd_cgroup.=.*$'
+      #     replace:                'systemd_cgroup = true'
+      #   when:
+      #    - ansible_distribution == "RedHat"
+      #    - ansible_distribution_major_version == "7"
 
 - name:                     Restart containerd
   service:
