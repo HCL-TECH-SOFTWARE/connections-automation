@@ -478,6 +478,8 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
+Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) up till the point the image is imported into containerd. This is a manual step.
+
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials as environment variables.
 
 ```
