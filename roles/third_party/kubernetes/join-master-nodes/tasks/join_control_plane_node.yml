@@ -1,5 +1,5 @@
 - name:               Check if "{{ inventory_hostname }}" is already part of the cluster as master and in Ready status
-  shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep master | grep Ready
+  shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep control-plane | grep Ready
   changed_when:       true
   register:           master_already_joined
   when:

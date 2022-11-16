@@ -1,5 +1,5 @@
 {
-  "insecure-registries": ["{{ docker_registry_url.split('/')[0] }}"],
+  "insecure-registries": ["{{ __insecure_registries }}"],
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
   "log-opts": {

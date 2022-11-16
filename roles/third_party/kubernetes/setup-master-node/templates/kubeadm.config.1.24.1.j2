@@ -1,11 +1,7 @@
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
-{% if enable_pod_security is defined %}
-  extraArgs:
-    enable-admission-plugins: PodSecurityPolicy
-{% endif %}
 {% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
   certSANS:
     - "{{ __load_balancer_dns }}"
