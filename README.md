@@ -95,7 +95,6 @@ drwxr-xr-x. 24 root orion       4096 Sep 28 14:30 ..
 -r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
 -r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
 -rw-r--r--   1 root root         133 Oct  6 06:41 current.version
--r-xr-xr-x   1 root root   185730992 Oct  6 06:41 updateInstaller.zip
 
 DB2:
 total 2067052
@@ -478,6 +477,8 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 ## Setting up Component Pack for HCL Connections 8 with its dependencies
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
+
+Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) up till the point the image is imported into containerd. This is a manual step.
 
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials as environment variables.
 

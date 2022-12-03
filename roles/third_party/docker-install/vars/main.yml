@@ -20,3 +20,5 @@ __overlay2_enabled:             "{{ overlay2_enabled | default(true) }}"
 
 __docker_cnf_template:          "cert.cnf.j2"
 __docker_cnf_location:          "{{ __certs_folder }}/{{ inventory_hostname }}.cnf"
+
+__insecure_registries:          "{{ docker_insecure_registries | default( docker_registry_url ) }}"

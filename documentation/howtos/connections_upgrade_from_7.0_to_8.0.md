@@ -76,7 +76,7 @@ Run below playbook to install containerd(container runtime).
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-containerd.yml
 ```
 
-To deploy Component Pack 8, we use HCL Software’s Harbor container registry. Also we strongly recommend that you [install container runtime](https://help.hcltechsw.com/connections/v8/admin/install/upgrade_considerations.html#upgrade_considerations__section_sqh_ktx_bvb) (containerd installation playbook is already mentioned in the previous step), Follow the steps in [migrating from Docker to containerd](https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/change-runtime-containerd/), [upgrade helm to version 3.7.2](https://help.hcltechsw.com/connections/v8/admin/install/upgrade_considerations.html#upgrade_considerations__section_bqv_2vx_bvb) and [upgrade kubernetes](https://help.hcltechsw.com/connections/v8/admin/install/upgrade_considerations.html#upgrade_considerations__section_avm_v5x_bvb) before moving to Component pack 8.
+To deploy Component Pack 8, we use HCL Software’s Harbor container registry. Also we strongly recommend that you [install container runtime](https://opensource.hcltechsw.com/connections-doc/admin/install/upgrade_considerations.html#section_sqh_ktx_bvb) (containerd installation playbook is already mentioned in the previous step), Follow the steps in [migrating from Docker to containerd](https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/change-runtime-containerd/), [upgrade helm to version 3.7.2](https://opensource.hcltechsw.com/connections-doc/admin/install/upgrade_considerations.html#section_bqv_2vx_bvb) and [upgrade kubernetes](https://opensource.hcltechsw.com/connections-doc/admin/install/upgrade_considerations.html#section_avm_v5x_bvb) before moving to Component pack 8.
 
 Kubernetes can be upgraded using below playbook. Add 'upgrade_version' variable in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml). Follow [kubernetes official document](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade kubernetes version.
 
@@ -86,9 +86,9 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third
 
 For HCL Connections 8 we need to upgrade mongodb from v3 to v5 and OpenSearch replaces ElasticSearch7. So we need to backup data. This is a manual step. Please refer below links-
 
-[Backup mongo3 data](https://help.hcltechsw.com/connections/v8/admin/install/cp_install_services_tasks.html#cp_install_services_tasks__backup_mongo3)
+[Backup mongo3 data](https://opensource.hcltechsw.com/connections-doc/admin/install/cp_install_services_tasks.html#backup_mongo3)
 
-[Backup ElasticSearch 7 data](https://help.hcltechsw.com/connections/v8/admin/install/cp_install_services_tasks.html#cp_install_services_tasks__backup_es7)
+[Backup ElasticSearch 7 data](https://opensource.hcltechsw.com/connections-doc/admin/install/cp_install_services_tasks.html#backup_es7)
 
 Delete ingresses-
 Remove ingresses before Component Pack deployment, otherwise the infrastructure will fail:
@@ -111,10 +111,11 @@ Then execute
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-component-pack-complete-harbor.yml
 ```
+Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) up till the point the image is imported into containerd. This is a manual step.
 
-To migrate data from mongo 3 to mongo 5, [perform these steps](https://help.hcltechsw.com/connections/v8/admin/install/migrating_data_mongodb_v3_v5.html). This is a manual step.
+To migrate data from mongo 3 to mongo 5, [perform these steps](https://opensource.hcltechsw.com/connections-doc/admin/install/migrating_data_mongodb_v3_v5.html). This is a manual step.
 
-To migrate data from Elasticsearch 7 to OpenSearch, [perform these steps](https://help.hcltechsw.com/connections/v8/admin/install/cp_migrate_data_from_es7_to_opensearch.html). This is a manual step.
+To migrate data from Elasticsearch 7 to OpenSearch, [perform these steps](https://opensource.hcltechsw.com/connections-doc/admin/install/cp_migrate_data_from_es7_to_opensearch.html). This is a manual step.
 
 After this we will delete all the pods using below command on the kubernetes master node. This command will restart all the CP pods.
 

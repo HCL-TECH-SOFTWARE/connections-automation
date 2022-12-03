@@ -295,6 +295,7 @@ Name | Default | Description
 ---- | --------| -------------
 containerd_version | 1.4.12-3.1.el7 | Containerd version to be installed
 docker_version | 20.10.12 | Docker version to be installed
+docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
 setup_docker_registry | true | true sets up docker registry
 docker_registry_url | {{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000 | Docker Registry url
