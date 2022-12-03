@@ -1,11 +1,20 @@
 clusterName:                {{ __opensearch_cluster_name }}
 nodeGroup:                  "data"
 masterService:              "{{ __opensearch_cluster_name }}-master"
+pemkeyPass:                 {{ __opensearch_ca_password }}
 
 roles:
   - ingest
   - data
 
 imageTag:                   "{{ __opensearch_version }}"
+
+resources:
+  limits:
+    cpu:                    "2"
+    memory:                 "4096Mi"
+  requests:
+    cpu:                    "0.5"
+    memory:                 "3072Mi"
 
 replicas:                   {{ __opensearch_replica_count }}
