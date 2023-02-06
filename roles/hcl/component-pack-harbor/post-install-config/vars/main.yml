@@ -18,6 +18,7 @@ __connections_admin_password:   "{{ connections_admin_password | default('passwo
 __sudo_user:                    "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
 __default_namespace:            "{{ default_namespace | default('connections') }}"
 __frontend_fqdn:                "{{ frontend_fqdn | default(localhost) }}"
+__python_path:                  "{{ python_path | default('/usr/bin/python3') }}"
 
 __lcc_namespaces:
     xmlns="http://www.ibm.com/LotusConnections-config"

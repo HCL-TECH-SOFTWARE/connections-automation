@@ -2,6 +2,8 @@
   template:
     src:                     "helmvars/orientme.yml.j2"
     dest:                    "{{ __orientme_env }}"
+  vars:
+    __setup_opensearch:      "{{ __setup_opensearch|bool }}"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Get chart and version

@@ -219,10 +219,10 @@ controller:
     serviceMonitor:
       enabled: true
       additionalLabels:
-      namespace: "connections"
+      namespace: "{{ __default_namespace }}"
       # The label to use to retrieve the job name from.
       # jobLabel: "app.kubernetes.io/name"
-      namespace: "connections"
+      namespace: "{{ __default_namespace }}"
       namespaceSelector:
          any: true
       # Default: scrape .Release.Namespace only
@@ -237,7 +237,7 @@ controller:
     prometheusRule:
       enabled: true
       additionalLabels:
-       namespace: "connections"
+       namespace: "{{ __default_namespace }}"
       rules:
         # # These are just examples rules, please adapt them to your needs
          - alert: NGINXConfigFailed

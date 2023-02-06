@@ -6,11 +6,23 @@
     register:           huddo_ext_already_installed_file
     delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
 
+  - name:               Get nobody/nogroup
+    set_fact:
+      nobody:           "{{ nfs_nobody | default('nobody') }}"
+      nogroup:          "{{ nfs_nogroup | default('nobody') }}"
+
+  - name:               "Get user name for customizer PV folder owner"
+    command:            id -nu 1000
+    register:           customizer_pv_username
+    delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+
   - name:               "Create /{{ __customizer_huddo_extension }} if not exists (fresh)"
     file:
       path:             "/{{ __customizer_huddo_extension }}"
       state:            directory
-      mode:             '0755'
+      owner:            "{{ customizer_pv_username.stdout }}"
+      group:            "{{ nogroup }}"
+      mode:             '0700'
     delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
     when:               not huddo_ext_already_installed_file.stat.exists
 
@@ -25,7 +37,7 @@
     file:
       path:             "/{{ __customizer_huddo_extension }}/update.sh"
       state:            file
-      mode:             '0750'
+      mode:             '0700'
     delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
 
   - name:               "Update Huddo Extension if exists"
@@ -48,6 +60,13 @@
       cmd:              "sed -i.original 's|https://boards.huddo.com|https://{{ cnx_application_ingress }}/boards|g' settings.js"
     delegate_to:        "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
 
+  - name:               "Change files ownership to {{ customizer_pv_username.stdout }}"
+    file:
+      path:             "/{{ __customizer_huddo_extension }}"
+      recurse:          yes
+      group:            "{{ nogroup }}"
+      owner:            "{{ customizer_pv_username.stdout }}"
+  
   - name:                      Authentication to CNX and store the LtpaToken2 (and other cookies)
     uri:
       url:                     https://{{ __frontend_fqdn }}/news/j_security_check

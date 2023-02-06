@@ -6,7 +6,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Run {{ __config_blue_metrics_cmd }}
-  shell:                     "/usr/bin/python3 {{ __config_blue_metrics_cmd }}"
+  shell:                     "{{ __python_path }} {{ __config_blue_metrics_cmd }}"
   become_user:               "{{ __sudo_user }}"
   register:                  configured_blue_metrics
   ignore_errors:             true
@@ -274,7 +274,7 @@
   ignore_errors:             yes
 
 - name:                      Run {{ __config_blue_metrics_cmd }}
-  shell:                     "/usr/bin/python3 {{ __config_blue_metrics_cmd }}"
+  shell:                     "{{ __python_path }} {{ __config_blue_metrics_cmd }}"
   become_user:               "{{ __sudo_user }}"
   register:                  configured_blue_metrics_repeat
   retries:                   10
