@@ -313,7 +313,7 @@ calico_version | 3.11 | Calico version to be installed
 calico_install_latest | true | true installs/Upgrades Calico to the latest version
 helm_version | 3.7.2 | Helm version to be installed
 haproxy_version | 2.5.1 | HAProxy version to be installed
-
+ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
 
 ### Component Pack Variables
 Name | Default | Description
