@@ -24,7 +24,7 @@
 /pv-connections/esdata-7-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,root_squash)
 {% endfor %}
 /pv-connections/customizations        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,root_squash)
-/pv-connections/kudos-boards-minio        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,no_root_squash)
+/pv-connections/kudos-boards-minio        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,root_squash)
 {% if __nfs_docs_setup|bool %}
 {{ __docs_data_shared }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
 {{ __viewer_data_shared }}      {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(insecure,rw,async,no_root_squash)
