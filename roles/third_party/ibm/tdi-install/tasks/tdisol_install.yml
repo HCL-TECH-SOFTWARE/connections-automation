@@ -157,3 +157,8 @@
   command:               "sh {{ __tdi_sol_dest }}/TDI/populate_from_dn_file.sh"
   register:              populatefromdnfile
   failed_when:           populatefromdnfile.rc != 0
+  
+- name:                  "Cleanup Binaries directory"
+  file:
+    state:               absent
+    path:                "{{ __cnx_extraction_folder }}"

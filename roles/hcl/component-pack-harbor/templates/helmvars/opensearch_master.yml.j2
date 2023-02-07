@@ -1,11 +1,15 @@
+image:
+  repository:               {{ __docker_registry_url }}
+
 clusterName:                {{ __opensearch_cluster_name }}
 nodeGroup:                  "master"
 masterService:              "{{ __opensearch_cluster_name }}-master"
+pemkeyPass:                 {{ __opensearch_ca_password }}
+imagePullSecrets:
+  - name: {{ __credentials_name }}
 
 roles:
   - master
-
-imageTag:                   "{{ __opensearch_version }}"
 
 service:
   labels:                   {}
@@ -15,5 +19,13 @@ service:
   nodePortTransport:        ""
 
 createSecret:               false
+
+resources:
+  limits:
+    cpu:                    "1"
+    memory:                 "1024Mi"
+  requests:
+    cpu:                    "0.1"
+    memory:                 "768Mi"
 
 replicas:                   {{ __opensearch_replica_count }}

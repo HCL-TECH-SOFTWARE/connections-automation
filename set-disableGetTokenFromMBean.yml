@@ -1,0 +1,31 @@
+---
+# Note: the disableGetTokenFromMBean is set by the Connections Installer.
+# This playbook is meant to be a fixup script in case it should be set to false for Azure OIDC and the flag is reset during Connections server upgrade.
+
+  - name:                             Gather facts
+    hosts:                            dmgr
+    tasks:                            []
+
+  - name:                             Disable com.ibm.websphere.security.disableGetTokenFromMBean
+    hosts:                            dmgr
+    become:                           true
+    roles:
+      - role:                         roles/third_party/ibm/wasnd/was-dmgr-config-sec-custom-prop
+    vars:
+      __sec_custom_prop:              "com.ibm.websphere.security.disableGetTokenFromMBean"
+      __sec_custom_prop_value:        "false"
+      sec_custom_prop_append:         false
+      sec_custom_prop_always_write:   true
+
+  - name:                               Synchronize WAS nodes
+    hosts:                              dmgr
+    become:                             true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+
+  - name:                              Restart CNX Clusters
+    hosts:                             dmgr
+    become:                            true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+      - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

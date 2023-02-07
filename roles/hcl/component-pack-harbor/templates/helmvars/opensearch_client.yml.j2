@@ -1,10 +1,22 @@
+image:
+  repository:               {{ __docker_registry_url }}
+
 clusterName:                {{ __opensearch_cluster_name }}
 nodeGroup:                  "client"
 masterService:              "{{ __opensearch_cluster_name }}-master"
+pemkeyPass:                 {{ __opensearch_ca_password }}
+imagePullSecrets:
+  - name: {{ __credentials_name }}
 
 roles:
   - remote_cluster_client
 
-imageTag:                   "{{ __opensearch_version }}"
+resources:
+  limits:
+    cpu:                    "2"
+    memory:                 "2048Mi"
+  requests:
+    cpu:                    "0.1"
+    memory:                 "1536Mi"
 
 replicas:                   {{ __opensearch_replica_count }}

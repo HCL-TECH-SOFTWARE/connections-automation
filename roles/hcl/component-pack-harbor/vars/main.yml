@@ -1,4 +1,6 @@
 ---
+__kubernetes_version:                        "{{ kubernetes_version | default('1.25.1') }}"
+__python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
 __ansible_cache_charts:                      "/home/{{ __sudo_user }}/generated_charts"
@@ -85,6 +87,7 @@ __skip_configure_redis:                      "{{ skip_configure_redis | default(
 
 __nfsMasterAddress:                          "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
 __persistentVolumePath:                      "{{ persistentVolumePath | default('pv-connections') }}"
+__customizer_js_files_mount:                 "/{{ __persistentVolumePath }}/customizations"
 __customizer_huddo_extension:                "{{ __persistentVolumePath }}/customizations/boards-extensions"
 __connections_volumes:                       "{{ __ansible_cache_charts }}/connections-volumes.yml"
 
@@ -97,7 +100,6 @@ __infrastructure_env:                        "{{ __ansible_cache_charts }}/infra
 __customizer_env:                            "{{ __ansible_cache_charts }}/customizer.yml"
 __customizer_js_files:                       "{{ __support_folder }}/customizer"
 __customizer_js_files_dest:                  "{{ __nfsMasterAddress }}:/{{ __persistentVolumePath }}/customizations"
-__customizer_js_files_mount:                 "/mnt/customizations"
 __customizer_helloworld_js_files:            "files/helloWorld.user.js"
 __customizer_helloworld_js_dest:             "{{ __customizer_js_files_mount }}/helloWorld/"
 __customizer_share_msteams_js_files:         "files/connections-teams-share-extension-8.0.js"
@@ -173,7 +175,6 @@ __outlook_tenant:                            "{{ outlook_tenant | default(' ') }
 __outlook_mt_auth_url:                       "{{ outlook_mt_auth_url | default('') }}"
 
 __setup_opensearch:                          "{{ setup_opensearch | default(true) |lower }}"
-__opensearch_version:                        "{{ opensearch_version | default('1.3.0') }}"
 __opensearch_master_env:                     "{{ __ansible_cache_charts }}/opensearch_master.yml"
 __opensearch_data_env:                       "{{ __ansible_cache_charts }}/opensearch_data.yml"
 __opensearch_client_env:                     "{{ __ansible_cache_charts }}/opensearch_client.yml"

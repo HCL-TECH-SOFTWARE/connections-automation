@@ -29,12 +29,12 @@ Before you proceed, let's analyse very quickly what is important for which step.
 
 ### Setting up your inventory file
 
-To set up 6.5CR1, let's assume that we want to also install IBM WebSphere ND 8.5.5 with FixPack 21 (for HCL Connections 7 recommended version is FixPack 21).
+To set up 6.5CR1, let's assume that we want to also install IBM WebSphere ND 8.5.5 with latest supported FixPack.
 
 Please note that [files in this folder ](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/) are already set to overwrite defaults, which means it will install non default packages and we will explain here what it is doing differently:
 
 * We have our HCL Connections and HCL Connections Wizards installer living in a folder called Connections6.5, so we are setting the right paths [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L44)
-* We want, specifically, to install IBM WebSphere 8.5.5.21 which is default, and we [specify the location here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L40-L42)
+* We want, specifically, to install IBM WebSphere 8.5.5 with Fixpack, and we [specify the location here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L40-L42)
 * We need to specify that we are not installing default version 7, and we do it [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L74)
 
 * As connections kit names are different for different versions, so we need to specify [Connections install kit name](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L72) and [Connections Wizard kit name](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L73). Also specify [Connections 6.5CR1 version name](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L75) and [Connections 6.5CR1 fixes install kit name](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml#L76-L77).
@@ -59,14 +59,14 @@ So to sum it up - what is actually going to happen when you run the playbook?
 * DB2 will be set up exactly the same way as it would be for Connections 7
 * Connections Wizards would set up the databases needed for HCL Connections 6.5CR1
 * OpenLDAP would be installed, IBM TDI after that, and NFS set up by default, since HCL Connections is requiring it by default.
-* IBM WebSphere ND 8.5.5.21 would be installed using proper FixPack 21 packages (in background, base version would be always installed and then upgraded to FixPack 21)
+* IBM WebSphere ND 8.5.5 with FixPack would be installed (in background, base version would be always installed and then upgraded to the FixPack per was_fp_version in [VARIABLES.md](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md)
 * HCL Connections 6.5CR1 would be installed. Specifying proper version above would tell it to use proper response file (the only delta between response file between version 6.* and 7 is one extra app, IC360)
 
 ## Upgrading HCL Connections from 6.5CR1 to 7.0
 
 You already got the idea that all there is with the installation/upgrade is handled by manipulating variables in your inventory files.
 
-For a sake of this HowTo, let's assume that we did all the steps mentioned until now: we installed HCL Connections end to end on WAS ND 8.5.5.21, and we have currently HCL Connections 6.5CR1 running as a result on WAS ND 8.5.5.21.
+For a sake of this HowTo, let's assume that we did all the steps mentioned until now: we installed HCL Connections end to end on WAS ND 8.5.5 with Fixpack, and we have currently HCL Connections 6.5CR1 running as a result on WAS ND.
 
 To upgrade HCL Connections itself from 6.5CR1 to 7.0, we need to do again three things:
 
@@ -80,7 +80,7 @@ For this example, we will reference [this example inventory folder](https://gith
 
 If you make a simple diff between [this file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/db2/group_vars/all.yml) and [this file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml) you will see that now:
 
-* We are pointing to a folders with Connections 7 and WAS ND FP21.
+* We are pointing to a folders with Connections 7 and WAS ND with Fixpack.
 * We are not overwriting any package and file name, as by default Ansible will assume that, in this moment, default version is 7, and package names for version 7 are being used.
 
 ### Running the upgrade

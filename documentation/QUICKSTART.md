@@ -135,13 +135,13 @@ Please note that you need to either disable password login for root user in your
 Ansible needs to be installed only on the controller machine, in our example it is ansible.internal.example.com
 
 ```
-[ansible@web ~]$ sudo yum install ansible
+[ansible@ansible ~]$ sudo yum install ansible
 ```
 
 We are supporting Ansible 2.9. Once you are done with installation, check the version (note that minor version can deffer depending at when you performed the installation):
 
 ```
-[ansible@web ~]$ ansible --version
+[ansible@ansible ~]$ ansible --version
 ansible 2.9.15
   config file = /etc/ansible/ansible.cfg
   configured module search path = [u'/home/lcuser/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']

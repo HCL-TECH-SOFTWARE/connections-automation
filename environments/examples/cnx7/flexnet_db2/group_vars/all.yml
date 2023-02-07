@@ -40,9 +40,9 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP22
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP21
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP22
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
@@ -88,7 +88,7 @@ cnx_enable_invite:                               true
 
 enable_prometheus_jmx_exporter:                  True
 
-# uncomment these lines, set to the latest cFix to include it as part of the initial install 
+# uncomment these lines, set to the latest cFix to include it as part of the initial install
 # ifix_apar:                                       LO100079
 # cnx_ifix_installer:                              "updateInstaller_XXXX.zip"
 # ifix_file:                                       HCL_Connections_70_Update.jar

@@ -1,0 +1,23 @@
+---
+- name:                      Install PSP if kubernetes version < 1.25.0 and setup_psp is set to true
+  include_tasks:             setup_psp.yml
+  when:
+  - __setup_psp |bool
+  - __kubernetes_version is version_compare('1.25', '<')
+
+- name:                      Check if PSP is already deployed when kubernetes version >= 1.25.0
+  shell:                     helm ls --namespace {{ __default_namespace }} | grep k8s-psp | grep -i DEPLOYED
+  when:
+   - not __kubernetes_version is version_compare('1.25', '<')
+  changed_when:              true
+  register:                  psp_already_provisioned
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Uninstall PSP as kubernetes version >= 1.25.0
+  shell:                     helm uninstall k8s-psp --namespace {{ __default_namespace }}
+  when:
+  - not __kubernetes_version is version_compare('1.25', '<')
+  - psp_already_provisioned.rc == 0
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true

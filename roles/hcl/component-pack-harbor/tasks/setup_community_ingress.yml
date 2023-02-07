@@ -1,4 +1,4 @@
-- name:                      Add Community Helm Repo 
+- name:                      Add Community Helm Repo
   shell:                     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
@@ -103,10 +103,10 @@
    - helm_version.stdout == "v2"
    - ("api." not in cluster_flavor_check.stdout)
 
-- name: copy cnx_ingress_values.yml from local host to remote host (relative path, ./files/)
-  copy:
-    src: cnx-ingress-values.yml
-    dest: $HOME/
+- name: Render cnx_ingress_values.j2 from local host to remote host $HOME/cnx-ingress-values.yml (relative path, ./template/)
+  template:
+    src: cnx-ingress-values.j2
+    dest: $HOME/cnx-ingress-values.yml
     mode:                    '0777'
   become_user:               "{{ __sudo_user }}"
 
@@ -135,7 +135,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed helm-3
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communitying_ind_env_vanilla }} --wait
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set {{ __communitying_ind_env_vanilla }} --wait
   when:
    - helm_version.stdout != "v2"
    - prom_operator_already_provisioned_helm3.rc != 0
@@ -167,7 +167,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed helm-3
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communitying_ind_env_eks_os }} --wait
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set {{ __communitying_ind_env_eks_os }} --wait
   when:
    - helm_version.stdout != "v2"
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)

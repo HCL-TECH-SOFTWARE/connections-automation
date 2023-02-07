@@ -5,39 +5,35 @@
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
-- name:                      Create local mount point "{{ __customizer_js_files_mount }}"
-  file:
-    path:                    "{{ __customizer_js_files_mount }}"
-    state:                   directory
-    mode:                    '0755'
-  when:
-    - customizer_completed.rc != 0
-
-- name:                      Mount "{{ __customizer_js_files_dest }}" to "{{ __customizer_js_files_mount }}" first
-  mount:
-    fstype:                  nfs
-    opts:                    defaults
-    dump:                    0
-    passno:                  0
-    state:                   mounted
-    src:                     "{{ __customizer_js_files_dest }}"
-    path:                    "{{ __customizer_js_files_mount }}"
-  when:
-    - customizer_completed.rc != 0
+- name:                      Get nobody/nogroup
+  set_fact:
+    nobody:                  "{{ nfs_nobody | default('nobody') }}"
+    nogroup:                 "{{ nfs_nogroup | default('nobody') }}"
 
 - name:                      Copy HelloWorld js for customizer to "{{ __customizer_js_files_mount }}"
   copy:
     src:                     "{{ __customizer_helloworld_js_files }}"
     dest:                    "{{ __customizer_helloworld_js_dest }}"
+    owner:                   "1000"
+    group:                   "{{ nogroup }}"
+    mode:                    '0700'
+    directory_mode:          '0700'
+  delegate_to:               "{{ groups['nfs_servers'][0] }}"
+
 
 - name:                      Copy *.js stuff for customizer to "{{ __customizer_js_files_mount }}"
   copy:
     src:                     "{{ item }}"
     dest:                    "{{ __customizer_js_files_mount }}"
+    owner:                   "1000"
+    group:                   "{{ nogroup }}"
+    mode:                    '0700'
+    directory_mode:          '0700'
   with_items:
    - "files/customizer/container.css"
    - "files/customizer/containerUtils.js"
    - "files/customizer/utils.js"
+  delegate_to:               "{{ groups['nfs_servers'][0] }}"
   when:
     -  __cnx_major_version is version('7', '<=')
 
@@ -45,6 +41,11 @@
   copy:
     src:                     "files/ms-teams/customizations/ms-teams"
     dest:                    "{{ __customizer_js_files_mount }}"
+    owner:                   "1000"
+    group:                   "{{ nogroup }}"
+    mode:                    '0700'
+    directory_mode:          '0700'
+  delegate_to:               "{{ groups['nfs_servers'][0] }}"
   when:
    - __setup_teams |bool and  __cnx_major_version is version('7', '<=')
 
@@ -52,6 +53,11 @@
   copy:
     src:                     "{{ __customizer_share_msteams_js_files }}"
     dest:                    "{{ __customizer_share_msteam_js_dest }}"
+    owner:                   "1000"
+    group:                   "{{ nogroup }}"
+    mode:                    '0700'
+    directory_mode:          '0700'
+  delegate_to:               "{{ groups['nfs_servers'][0] }}"
   when:
     -  __cnx_major_version is version('7', '>')
 

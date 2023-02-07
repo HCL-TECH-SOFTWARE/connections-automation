@@ -8,7 +8,20 @@
   template:
     src:              "{{ __kubeadm_config_template }}"
     dest:             "{{ __kubeadm_config_location }}"
+  register:           kubeadm_config_template_exists
+  ignore_errors:      true
   when:               inventory_hostname == groups['k8s_masters'][0]
+
+- name:               Use default kubeadm_config_template if specified kubernetes kubeadm_config_template does not exist
+  set_fact:
+   __kubeadm_config_template: "kubeadm.config.default.j2"
+  when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists.failed
+
+- name:               Use default master config initialization file
+  template:
+    src:              "{{ __kubeadm_config_template }}"
+    dest:             "{{ __kubeadm_config_location }}"
+  when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists.failed
 
 - name:               Wait for the cluster to become healthy due to the latest restart
   pause:

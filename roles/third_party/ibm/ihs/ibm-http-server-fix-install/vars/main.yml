@@ -13,8 +13,14 @@ __rsp_file:               "{{ __logs_dir }}/ihs_plg_wct_fixes.rsp"
 __log_file:               "{{ __logs_dir }}/ihs_fixes_install.{{ __now }}.log"
 __tpl_file:               "ihs_plg_wct_fixes.rsp.j2"
 
-__ihs_fp_version_latest:  "{{ ihs_fp_version_latest | default( __ihs_fp_version_fp21 ) }}"
-__ihs_fp_files_latest:    "{{ ihs_fp_files_latest | default( __ihs_fp_files_fp21 ) }}"
+__ihs_fp_version_latest:  "{{ ihs_fp_version_latest | default( __ihs_fp_version_fp22 ) }}"
+__ihs_fp_files_latest:    "{{ ihs_fp_files_latest | default( __ihs_fp_files_fp22 ) }}"
+
+__ihs_fp_version_fp22:    "8.5.5022.20220703_1123"
+__ihs_fp_files_fp22:
+  - { file_name: 8.5.5-WS-WASSupplements-FP022-part1.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP022-part2.zip }
+  - { file_name: 8.5.5-WS-WASSupplements-FP022-part3.zip }
 
 __ihs_fp_version_fp21:    "8.5.5021.20220202_1245"
 __ihs_fp_files_fp21:
@@ -54,16 +60,13 @@ __ihs_version_id:         "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_ve
 ### WCT
 __wct_version:            "{{ wct_version | default( __wct_fp_version_latest ) }}"
 __wct_fp_files:           "{{ wct_fp_files | default( __wct_fp_files_latest ) }}"
-__wct_fp_version_latest:  "{{ wct_fp_version_latest | default( __wct_fp_version_fp21 ) }}"
-__wct_fp_files_latest:    "{{ wct_fp_files_latest | default( __wct_fp_files_fp21 ) }}"
+__wct_fp_version_latest:  "{{ wct_fp_version_latest | default( __wct_fp_version_fp22 ) }}"
+__wct_fp_files_latest:    "{{ wct_fp_files_latest | default( __wct_fp_files_fp22 ) }}"
 
-__wct_fp_version_fp21:    "8.5.5021.20220202_1245"
-__wct_fp_files_fp21:
-  - { file_name: 8.5.5-WS-WCT-FP021-part1.zip }
-  - { file_name: 8.5.5-WS-WCT-FP021-part2.zip }
-
-__wct_fp_files_fp12:
-  - { file_name: 9.0.5-WS-WCT-FP011.zip }
+__wct_fp_version_fp22:    "8.5.5022.20220703_1123"
+__wct_fp_files_fp22:
+  - { file_name: 8.5.5-WS-WCT-FP022-part1.zip }
+  - { file_name: 8.5.5-WS-WCT-FP022-part2.zip }
 
 __iim_product_id:         "\"id='com.ibm.cic.agent\""
 __ihs_product_id:         "\"id='com.ibm.websphere.IHS.v85'\""

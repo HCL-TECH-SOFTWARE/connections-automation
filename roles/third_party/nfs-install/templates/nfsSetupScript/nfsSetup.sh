@@ -17,7 +17,7 @@ IFS='\.' read -a DEC_IP <<< "$(hostname -i)"
 VOLUMES=$(cat volumes.txt)
 for VOLUME in $VOLUMES; do
  sed -i "/${VOLUME////\\/}/d" /etc/exports
- echo "$VOLUME        ${DEC_IP[0]}.${DEC_IP[1]}.0.0/255.255.0.0(rw,no_root_squash)" >> /etc/exports
+ echo "$VOLUME        ${DEC_IP[0]}.${DEC_IP[1]}.0.0/255.255.0.0(rw,root_squash)" >> /etc/exports
 done
 
 # Enable and start resources for NFS
@@ -32,9 +32,5 @@ systemctl start nfs-idmap
 
 # Restart NFS server and configure the firewall
 systemctl restart nfs-server
-set +o errexit
-firewall-cmd --permanent --zone=public --add-service=nfs
-firewall-cmd --reload
-set -o errexit
 
 echo "NFS successfully configured!"

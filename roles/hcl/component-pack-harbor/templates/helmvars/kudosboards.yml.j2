@@ -30,7 +30,6 @@ webfront:
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
-      kubernetes.io/ingress.class: nginx
     path: /boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
@@ -51,7 +50,6 @@ core:
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
-      kubernetes.io/ingress.class: nginx
     path: /api-boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break

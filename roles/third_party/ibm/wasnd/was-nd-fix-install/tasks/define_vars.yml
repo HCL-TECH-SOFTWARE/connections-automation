@@ -1,4 +1,11 @@
 ---
+- name:              Use Fix Pack 8.5.5.22?
+  set_fact:
+    __was_fixes_files:    "{{ __was_fp_files_fp22 }}"
+    __was_fp_version_check: "Updated to com.ibm.websphere.ND.v85_{{ __was_fixes_version }}"
+    __was_fp_id:    "\"id='com.ibm.websphere.ND.v85' version='{{ __was_fixes_version }}'\""
+  when:              ( __was_fixes_version == __was_fp_version_fp22 )
+
 - name:              Use Fix Pack 8.5.5.21?
   set_fact:
     __was_fixes_files:    "{{ __was_fp_files_fp21 }}"
@@ -46,7 +53,6 @@
   command:           "egrep {{ __was_fp_id }} /var/ibm/InstallationManager/installed.xml"
   register:          version_already_installed
   ignore_errors:     true
-
 - name:              WebSphere Application Server version needs Log4j fix?
   set_fact:
     __was_version_needs_log4j_fix:    True
@@ -66,3 +72,23 @@
 - debug:
     msg:             "Log4j fix is already installed"
   when:              log4j_fix_already_installed.rc == 0
+
+- name:              WebSphere Application Server version needs PH49497 To Fix Retrieve Signers?
+  set_fact:
+    __was_version_needs_PH49497_fix:    True
+  when:              "__was_fixes_version is version_compare(__was_fp_version_fp22, '=')"
+
+- debug:             var=__was_version_needs_PH49497_fix
+
+- name:              Is PH49497 fix already Installed?
+  command:           "egrep {{ __was_PH49497_fix_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          PH49497_fix_already_installed
+  ignore_errors:     true
+
+- debug:
+    msg:             "PH49497 fix not installed"
+  when:              PH49497_fix_already_installed.rc != 0
+
+- debug:
+    msg:             "PH49497 fix is already installed"
+  when:              PH49497_fix_already_installed.rc == 0
