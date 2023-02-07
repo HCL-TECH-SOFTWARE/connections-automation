@@ -1,0 +1,7 @@
+---
+- name:                    Hosts Check
+  hosts:                   all 
+  become:                  true
+  tasks:
+    - debug:  var=ansible_default_ipv4.address
+
