@@ -35,17 +35,23 @@ tinyeditors_password:                            password
 cnx_deploy_type:                                 medium
 ldap_user_mail_domain:                           "connections.example.com"
 
+connections_kit_folder:                          Connections8
 db2_download_location:                           http://{{ groups['installer'][0] }}:8001/DB2
 tdi_download_location:                           http://{{ groups['installer'][0] }}:8001/TDI
-connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections8
+connections_wizards_download_location:           "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP22
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP22
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
-cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections8
+cnx_repository_url:                              "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
+cnx_fixes_repository_url:                        "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
+
+cnx_fixes_version:                               "8.0.0.0_CR1"
+cnx_fixes_files:
+  - { file_name: "HC8.0_CR1.zip" }
 
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"

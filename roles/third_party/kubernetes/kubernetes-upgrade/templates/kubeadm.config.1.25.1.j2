@@ -1,11 +1,7 @@
-apiVersion: kubeadm.k8s.io/v1alpha3
+apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
-{% if enable_pod_security is defined %}
-  extraArgs:
-    enable-admission-plugins: PodSecurityPolicy
-{% endif %}
 {% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
   certSANS:
     - "{{ __load_balancer_dns }}"
@@ -39,14 +35,10 @@ networking:
     podSubnet: "{{ __pod_subnet }}"
 {% if inventory_hostname != hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
 ---
-apiVersion: kubeadm.k8s.io/v1alpha3
+apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
-{% if enable_pod_security is defined %}
-  extraArgs:
-    enable-admission-plugins: PodSecurityPolicy
-{% endif %}
 {% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
   certSANS:
     - "{{ __load_balancer_dns }}"
@@ -79,3 +71,7 @@ networking:
     # This CIDR is a Calico default. Substitute or remove for your CNI provider.
     podSubnet: "{{ __pod_subnet }}"
 {% endif %}
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd

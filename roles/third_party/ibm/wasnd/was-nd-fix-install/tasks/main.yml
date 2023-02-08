@@ -23,3 +23,16 @@
     - __was_major_version is version('8', '=')
     - __was_version_needs_log4j_fix is defined
     - log4j_fix_already_installed.rc != 0
+
+- name:              Install WebSphere Application Server - PH49497 Fix
+  include_tasks:     install_was_fixes.yml
+  vars:
+    __was_fixes_version:       "{{ __was_fp_version_PH49497 }}"
+    __was_fp_id:               "{{ __was_PH49497_fix_id }}"
+    __was_fixes_files:         "{{ __was_fp_files_PH49497 }}"
+    __was_fp_id_prefix:        "{{ __was_PH49497_fix_prefix }}"
+    version_already_installed: "{{ PH49497_fix_already_installed }}"
+  when:
+    - __was_major_version is version('8', '=')
+    - __was_version_needs_PH49497_fix is defined
+    - PH49497_fix_already_installed.rc != 0

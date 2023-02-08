@@ -11,7 +11,7 @@ For HCL Connections 8 dependencies this means that:
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 21. By default, FP21 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 22. By default, FP22 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
@@ -35,7 +35,7 @@ For Component Pack for HCL Connections 8 it means:
 * Haproxy will be set up configured to be the control plane for Kubernetes cluster and Component Pack.
 * NFS will be set up for Component Pack.
 * Containerd(container runtime) v1.4.12 will be installed with the optimisations required by the version of Kubernetes.
-* Kubernetes 1.24.1 will be set up.
+* Kubernetes 1.25.1 will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
 * Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using OpenSearch.
 
@@ -60,14 +60,12 @@ To be able to use this automation you will need to be able to download the packa
 
 The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as a single Ruby one liner to open web server on specific port so that automation can connect and download it.
 
+#### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details. Contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
 This is the example data folder structure we are following at HCL
 
 ```
 [root@c7lb1 packages]# ls -la *
 Connections6.5CR1:
-total 3068576
-drwxr-xr-x.  2 root       root              184 Mar  7  2022 .
-drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
 -rw-r--r--   1 root       root            82208 Nov  2  2021 65cr1-database-updates.zip
 -rw-r--r--   1 sabrinayee sabrinayee 1345343235 Mar  2  2022 CFix.65CR1.XXXX-IC6.5.0.0_CR1-Common-Fix.jar
 -r-xr-xr-x.  1 root       root       1720553596 Nov  2  2021 HC6.5_CR1.zip
@@ -75,74 +73,46 @@ drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
 -rw-r--r--   1 sabrinayee sabrinayee   37959680 Mar  2  2022 tdisol_65CR1_java8_linux_XXXX.tar
 
 Connections7:
-total 11041040
-drwxr-xr-x.  2 dmenges    orion            4096 May  9 14:53 .
-drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
 -rw-r--r--   1 sabrinayee sabrinayee 1410458423 May  9 14:48 CFix.70.XXXX-IC7.0.0.0-Common-Fix.jar
 -r-xr-xr-x.  1 root       root       2001305600 Jan 20  2021 HCL_Connections_7.0_lin.tar
 -r-xr-xr-x.  1 root       root        817807360 Oct 29  2020 HCL_Connections_7.0_wizards_lin_aix.tar
 -rw-r--r--.  1 root       root        125556954 Feb  4  2021 LO100079-IC7.0.0.0-Common-Fix.jar
 -rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections7.0_XXXXXX_vX.X.X.XX.zip
--rw-r--r--.  1 dmenges    orion             133 Jan  6  2021 current.version
 -rw-rw-r--   1 pnott      pnott        37928960 Feb 25  2022 tdisol_70_java8_linux_XXXX.tar
 -rw-rw-r--   1 pnott      pnott        31179723 Feb 25  2022 tdisol_70_java8_windows_XXXX.zip
 -rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
 
 Connections8:
-total 2895968
-drwxr-xr-x   2 root root         138 Oct  6 06:41 .
-drwxr-xr-x. 24 root orion       4096 Sep 28 14:30 ..
 -r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
 -r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
--rw-r--r--   1 root root         133 Oct  6 06:41 current.version
+-r-xr-xr-x   1 root root  1736629222 Jan 26 16:41 HC8.0_CR1.zip
 
 DB2:
-total 2067052
-drwxr-xr-x.  2 dmenges orion           96 Nov 19 11:01 .
-drwxr-xr-x. 13 root    orion          192 Nov 18 08:33 ..
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
 -rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 v11.5.6_jdbc_sqlj.tar.gz
 -rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.5.6_linuxx64_universal_fixpack.tar.gz
 
 Docs:
-total 720468
-drwxr-xr-x.  2 root orion        42 Sep 28  2021 .
-drwxr-xr-x. 24 root orion      4096 Sep 28 14:30 ..
 -r-xr-xr-x.  1 root orion 737753769 Sep  7  2020 HCL_Docs_v202.zip
 
 MSSQL:
-total 2956
-drwxr-xr-x.  2 root    root         84 Mar  1 10:02 .
-drwxr-xr-x. 17 root    orion       263 Mar  1 10:01 ..
 -rw-r--r--.  1 dmenges dmenges  838550 Mar  1 10:01 sqljdbc_4.1.8112.200_enu.tar.gz
 -rw-r--r--.  1 dmenges dmenges 2186950 Mar  1 10:01 sqljdbc_6.0.8112.200_enu.tar.gz
 
 Oracle:
-total 2998572
-drwxr-xr-x.  2 root       root               96 Feb 22 13:41 .
-drwxr-xr-x. 16 root       orion             238 Jan 27 14:26 ..
 -rwxr--r--.  1 root       root       3059705302 Jan 25 15:12 LINUX.X64_193000_db_home.zip
 -rw-r--r--.  1 sabrinayee sabrinayee    3397734 Feb 18 21:54 ojdbc7.jar
 -rw-r--r--.  1 sabrinayee sabrinayee    4036257 Feb 18 21:54 ojdbc8.jar
 
 TDI:
-total 704248
-drwxr-xr-x.  2 root orion        70 May  6  2020 .
-drwxr-xr-x. 13 root orion       192 Nov 18 08:33 ..
 -r-xr-xr-x.  1 root orion  76251327 May  6  2020 7.2.0-ISS-SDI-FP0006.zip
 -r-xr-xr-x.  1 root orion 644894720 Apr 30  2020 SDI_7.2_XLIN86_64_ML.tar
 -rw-r--r--   1 sabrinayee sabrinayee 130165047 Sep  8 19:40 ibm-java-jre-8.0-6.25-linux-x86_64.tgz
 
 cp:
-total 21720260
-drwxr-xr-x.  2 dmenges    orion            4096 Mar  7  2022 .
-drwxr-xr-x. 24 root       orion            4096 Sep 28 14:30 ..
 -rw-r--r--   1 sabrinayee sabrinayee 5550666926 Mar  7  2022 ComponentPack_7.0.0.2.zip
 
 was855:
-total 8491100
-drwxr-xr-x.  2 dmenges orion       4096 Jan  5  2022 .
-drwxr-xr-x. 24 root    orion       4096 Sep 28 14:30 ..
 -rw-r--r--.  1 dmenges orion 1025869744 Apr 23  2020 8.0.5.17-WS-IBMWASJAVA-Linux.zip
 -rw-r--r--.  1 root    root  1022054019 Oct 21  2020 8.0.6.15-WS-IBMWASJAVA-Linux.zip
 -rw-r--r--.  1 dmenges orion  135872014 Apr 23  2020 InstalMgr1.6.2_LNX_X86_64_WAS_8.5.5.zip
@@ -156,56 +126,17 @@ drwxr-xr-x. 24 root    orion       4096 Sep 28 14:30 ..
 -rw-r--r--.  1 dmenges orion  171921530 Apr 23  2020 agent.installer.linux.gtk.x86_64_1.8.9006.20190918_1303.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
-was855FP21:
-total 8396800
-drwxr-xr-x   2 root  root        4096 Feb 25  2022 .
-drwxr-xr-x. 24 root  orion       4096 Sep 28 14:30 ..
--rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WAS-FP021-part1.sha256
--rw-rw-r--   1 pnott pnott 1032048285 Feb 22  2022 8.5.5-WS-WAS-FP021-part1.zip
--rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WAS-FP021-part1.zip.sig
--rw-rw-r--   1 pnott pnott  198957251 Feb 22  2022 8.5.5-WS-WAS-FP021-part2.zip
--rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WAS-FP021-part2.zip.sig
--rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WAS-FP021-part3.sha256
--rw-rw-r--   1 pnott pnott 1954178904 Feb 22  2022 8.5.5-WS-WAS-FP021-part3.zip
--rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WAS-FP021-part3.zip.sig
--rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part1.sha256
--rw-rw-r--   1 pnott pnott  475341796 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part1.zip
--rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part1.zip.sig
--rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2(1).sha256
--rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2.sha256
--rw-rw-r--   1 pnott pnott  776696122 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2.zip
--rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part2.zip.sig
--rw-rw-r--   1 pnott pnott         65 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part3.sha256
--rw-rw-r--   1 pnott pnott 1954178904 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part3.zip
--rw-rw-r--   1 pnott pnott        256 Feb 22  2022 8.5.5-WS-WASSupplements-FP021-part3.zip.sig
--rw-rw-r--   1 pnott pnott         65 Feb 23  2022 8.5.5-WS-WCT-FP021-part1.sha256
--rw-rw-r--   1 pnott pnott  249177805 Feb 23  2022 8.5.5-WS-WCT-FP021-part1.zip
--rw-rw-r--   1 pnott pnott        256 Feb 23  2022 8.5.5-WS-WCT-FP021-part1.zip.sig
--rw-rw-r--   1 pnott pnott         65 Feb 23  2022 8.5.5-WS-WCT-FP021-part2.sha256
--rw-rw-r--   1 pnott pnott 1957651868 Feb 23  2022 8.5.5-WS-WCT-FP021-part2.zip
--rw-rw-r--   1 pnott pnott        256 Feb 23  2022 8.5.5-WS-WCT-FP021-part2.zip.sig
 
 was855FP22:
-total 8421304
-drwxr-xr-x   2 pnott pnott       4096 Sep 28 13:25 .
-drwxr-xr-x. 24 root  orion       4096 Sep 28 14:30 ..
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:21 8.5.5-WS-WAS-FP022-part1.sha256
+-rw-r--r--   1 root  root      291085 Nov 17 19:35 8.5.5.22-WS-WAS-IFPH49497.zip
 -rw-rw-r--   1 pnott pnott 1036290018 Aug 30 16:21 8.5.5-WS-WAS-FP022-part1.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:21 8.5.5-WS-WAS-FP022-part2.sha256
 -rw-rw-r--   1 pnott pnott  198986174 Aug 30 16:21 8.5.5-WS-WAS-FP022-part2.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:18 8.5.5-WS-WAS-FP022-part3.sha256
 -rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:22 8.5.5-WS-WAS-FP022-part3.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part1.sha256
 -rw-rw-r--   1 pnott pnott  475703540 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part1.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part2.sha256
 -rw-rw-r--   1 pnott pnott  778170802 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part2.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part3.sha256
 -rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:29 8.5.5-WS-WASSupplements-FP022-part3.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:33 8.5.5-WS-WCT-FP022-part1.sha256
 -rw-rw-r--   1 pnott pnott  249260151 Aug 30 16:33 8.5.5-WS-WCT-FP022-part1.zip
--rw-rw-r--   1 pnott pnott         65 Aug 30 16:33 8.5.5-WS-WCT-FP022-part2.sha256
 -rw-rw-r--   1 pnott pnott 1963965494 Aug 30 16:34 8.5.5-WS-WCT-FP022-part2.zip
-
 ```
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
@@ -450,7 +381,7 @@ cnx_shared_area: "/nfs/data/shared"
 cnx_message_store: "/nfs/data/messageStores"
 ```
 
-### Installing iFix for HCL Connections
+### Installing cFix for HCL Connections
 
 To install iFix on already installed HCL Connections, edit your connections inventory file, and append these two lines:
 
@@ -478,7 +409,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
-Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) up till the point the image is imported into containerd. This is a manual step.
+Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
 
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials as environment variables.
 
@@ -584,7 +515,7 @@ Desired kubernetes version can be set using
 kubernetes_version
 ```
 
-This set of automation will install by default 1.24.1 and should be always able to install the Kubernetes versions supported by Component Pack.
+This set of automation will install by default 1.25.1 and should be always able to install the Kubernetes versions supported by Component Pack.
 
 To install Kubernetes, execute:
 

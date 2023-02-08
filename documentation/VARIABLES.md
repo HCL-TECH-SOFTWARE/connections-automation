@@ -136,7 +136,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5021.20220202_1245 | WebSphere Fix Pack version
+was_fp_version | 8.5.5022.20220703_1123 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -150,8 +150,8 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5021.20220202_1245 | IHS Fix Pack version
-wct_version | 8.5.5021.20220202_1245 | WebSphere Toolbox Fix Pack version
+ihs_version | 8.5.5022.20220703_1123 | IHS Fix Pack version
+wct_version | 8.5.5022.20220703_1123 | WebSphere Toolbox Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -196,13 +196,13 @@ Name | Default | Description
 ---- | --------| -------------
 cnx_repository_url | *none* - required | Connections install kit download location
 connections_wizards_download_location | *none* - required | Connections Wizard install kit location to download
-cnx_package | HCL_Connections_7.0_lin.tar | Connections install kit file
-connections_wizards_package_name | HCL_Connections_7.0_wizards_lin_aix.tar | Connections Wizard kit file
+cnx_package | HCL_Connections_8.0_lin.tar | Connections install kit file
+connections_wizards_package_name | HCL_Connections_8.0_wizards_lin_aix.tar | Connections Wizard kit file
 setup_connections_wizards | true | true will run the Connections database wizard
 cnx_force_repopulation | false | true will drop the Connections databases and recreate them in `setup-connections-wizards.yml` playbook
 cnx_major_version | "8" | Connections major version to install
-cnx_fixes_version | *none* - optional | If defined (eg. 6.5.0.0_CR1) will install the CR version
-cnx_fixes_files | *none* - optional | If defined (eg. HC6.5_CR1.zip") and cnx_fixes_version is set, will download the CR install kit
+cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR1) will install the CR version
+cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR1.zip") and cnx_fixes_version is set, will download the CR install kit
 cnx_application_ingress | *none*  - required | Set as *dynamicHosts* in LotusConnections-config.xml
 connections_admin | jjones1 | User to be passed to the Connections installer as admin user
 connections_admin_password | password | password for Connections admin user
@@ -293,26 +293,27 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.4.12-3.1.el7 | Containerd version to be installed
+containerd_version | 1.6.9-3.1.el7 | Containerd version to be installed
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
 setup_docker_registry | true | true sets up docker registry
 docker_registry_url | {{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000 | Docker Registry url
+component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url, default to HCL Harbor
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.24.1 | Kubernetes version to be installed
+kubernetes_version | 1.25.1 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.11 | Calico version to be installed
+calico_version | 3.23 | Calico version to be installed
 calico_install_latest | true | true installs/Upgrades Calico to the latest version
-helm_version | 3.7.2 | Helm version to be installed
-haproxy_version | 2.5.1 | HAProxy version to be installed
+helm_version | 3.10.2 | Helm version to be installed
+haproxy_version | 2.6.6 | HAProxy version to be installed
 
 
 ### Component Pack Variables
@@ -369,13 +370,14 @@ integrations_msteams_tenant_id | changeme | Tenant ID to configure Microsoft Tea
 integrations_msteams_client_id | changeme | Client ID to configure Microsoft Teams integration
 integrations_msteams_client_secret | changeme | Kubernetes secret name for Microsoft Teams integration
 integrations_msteams_auth_schema | 0 | Auth schema to configure Microsoft Teams integration
-opensearch_version | 1.3.0 | Opensearch version
 opensearch_replicaset | 3 | Replica count to set in Helm charts for Opensearch
 opensearch_cluster_name | opensearch-cluster | Opensearch cluster name
 opensearch_default_port | 30099 | Opensearch port
 opensearch_ca_password | password | Opensearch CA password
 opensearch_key_password | password | Opensearch Key password
-
+opensearch_watermark_flood_stage | none | Controls the flood stage watermark for opensearch
+opensearch_watermark_high | none | Controls the high watermark for disk usage for opensearch. Make sure that the opensearch_watermark_flood_stage is more than or equal to opensearch_watermark_high
+opensearch_watermark_low | none | Controls the low watermark for disk usage for opensearch. Make sure that the opensearch_watermark_high is more than or equal to opensearch_watermark_low
 ### NFS Variables
 Name | Default | Description
 ---- | --------| -------------

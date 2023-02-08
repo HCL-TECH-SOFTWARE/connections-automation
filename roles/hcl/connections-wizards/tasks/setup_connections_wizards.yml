@@ -265,3 +265,11 @@
   when:
    - sharepoint_migration_result is not skipped
    - not sharepoint_migrations_already_done.stat.exists
+
+- name:                  Clean up installation folder(s)
+  file:
+    path:                "{{ __db_extraction_folder }}"
+    state:               absent
+  when:
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
+    

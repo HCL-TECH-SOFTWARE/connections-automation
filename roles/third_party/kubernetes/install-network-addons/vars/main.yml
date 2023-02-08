@@ -1,3 +1,3 @@
 ---
-__calico_version:               "{{ calico_version | default('3.21') }}"
+__calico_version:               "{{ calico_version | default('3.23') }}"
 __calico_install_latest:        "{{ calico_install_latest | default(false) }}"

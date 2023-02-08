@@ -1,0 +1,31 @@
+---
+- name:                    Start HTTP Servers
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - roles/third_party/ibm/ihs/ibm-http-server-start
+
+- name:                    Start DMGR
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start
+
+- name:                    Start WAS Nodes
+  hosts:                   was_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-nodeagent-start
+
+- name:                    Start CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Start Docs Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/docs/start_docs_clusters

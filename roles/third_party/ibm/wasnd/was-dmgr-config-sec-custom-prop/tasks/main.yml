@@ -35,4 +35,4 @@
       file:
         path:               "{{ __bin_dir }}/sec_prop_{{ __sec_custom_prop }}.success"
         state:              touch
-        
+      when:                 cout is changed

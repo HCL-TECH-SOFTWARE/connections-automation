@@ -9,7 +9,7 @@ __download_location:            "{{ tdi_download_location | default('http://c7lb
 __oracle_download_location:     "{{ oracle_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Oracle') }}"
 __package_name:                 "{{ tdi_package_name | default('SDI_7.2_XLIN86_64_ML.tar') }}"
 __jre_package_version:          "{{ jre_package_version | default('ibm-java-x86_64-80') }}"
-__jre_package_name:             "{{ jre_package_name | default('ibm-java-jre-8.0-5.30-linux-x86_64.tgz') }}"
+__jre_package_name:             "{{ jre_package_name | default('ibm-java-jre-8.0-6.25-linux-x86_64.tgz') }}"
 __java_policy_file_path:        "{{ __tdi_user_install_dir }}/jvm/jre/lib/security/java.policy"
 __upgrade_package_name:         "{{ tdi_upgrade_package_name | default('7.2.0-ISS-SDI-FP0006.zip') }}"
 __upgrade_package_bin:          "{{ tdi_upgrade_package_bin | default('SDI-7.2-FP0006.zip') }}"

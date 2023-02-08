@@ -54,7 +54,7 @@ orient-indexing-service:
   indexing:
     solr: false
     elasticsearch: {{ __setup_elasticsearch }}
-{% if  __setup_opensearch == "true" %}
+{% if  __setup_opensearch|lower == "true" %}
     opensearch: "true"
 {% else %}
     elasticsearch7: {{ __setup_elasticsearch7 }}
@@ -64,7 +64,7 @@ orient-retrieval-service:
   replicaCount: {{ __replica_count }}
   retrieval:
     elasticsearch: {{ __setup_elasticsearch }}
-{% if  __setup_opensearch == "true" %}
+{% if  __setup_opensearch|lower == "true" %}
     opensearch: "true"
 {% else %}
     elasticsearch7: {{ __setup_elasticsearch7 }}

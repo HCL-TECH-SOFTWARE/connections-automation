@@ -38,7 +38,7 @@
     apply:
       ignore_errors:     yes
   vars:
-    db_command:          "cd {{ __docs_installation_folder }}/oracle sh {{ item }}"
+    db_command:          "cd {{ __docs_installation_folder }}/oracle; sh {{ item }}"
   with_items:
    - "dropDb.sh"
   when:
@@ -54,7 +54,7 @@
   include_tasks:         ../../../third_party/oracle-install/tasks/run_db_command.yml
   register:              all_creation_result
   vars:
-    db_command:          "cd {{ __docs_installation_folder }}/oracle echo {{ __dbw_oracle_password }} | cd {{ __docs_installation_folder }}/oracle sh {{ item }} {{ __dbw_oracle_password }}"
+    db_command:          "cd {{ __docs_installation_folder }}/oracle; echo {{ __dbw_oracle_password }} | sh {{ item }}"
   with_items:
    - "createDb.sh"
    - "updateDBSchema.sh"

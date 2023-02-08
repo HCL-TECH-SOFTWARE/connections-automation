@@ -10,12 +10,22 @@ __rsp_file:                "{{ __logs_dir }}/was_nd_fixes.rsp"
 __log_file:                "{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log"
 __tpl_file:                "was_nd_fixes.rsp.j2"
 
-__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp21 ) }}"
-__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp21 ) }}"
+__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp22 ) }}"
+__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp22 ) }}"
 
 __was_fp_version_log4j:       "8.5.5011.20211215_1027"
 __was_fp_files_log4j:
     - { file_name: 8.5.5.11-ws-wasprod-ifph42762.zip }
+
+__was_fp_version_PH49497:       "8.5.5022.20220916_1309"
+__was_fp_files_PH49497:
+    - { file_name: 8.5.5.22-WS-WAS-IFPH49497.zip }
+
+__was_fp_version_fp22:     "8.5.5022.20220703_1123"
+__was_fp_files_fp22:
+  - { file_name: 8.5.5-WS-WAS-FP022-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP022-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP022-part3.zip }
 
 __was_fp_version_fp21:     "8.5.5021.20220202_1245"
 __was_fp_files_fp21:
@@ -52,9 +62,11 @@ __was_fixes_files:         "{{ was_fp_files | default( __was_fp_files_latest ) }
 __was_fp_version_check:    "Updated to {{ __was_product_id_prefix }}_{{ __was_fixes_version }}"
 __was_fp_id:               "\"id='{{ __was_product_id_prefix }}' version='{{ __was_fixes_version }}'\""
 __was_log4j_fix_id:        "\"id='{{ __was_log4j_fix_prefix }}' version='{{ __was_fp_version_log4j }}'\""
+__was_PH49497_fix_id:      "\"id='{{ __was_PH49497_fix_prefix }}' version='{{ __was_fp_version_PH49497 }}'\""
 
 __was_product_id_prefix:   "com.ibm.websphere.ND.v85"
 __was_log4j_fix_prefix:    "8.5.5.11-WS-WASProd-IFPH42762"
+__was_PH49497_fix_prefix:  "8.5.5.22-WS-WAS-IFPH49497"
 __was_fp_id_prefix:        "{{ was_fp_id_prefix | default( __was_product_id_prefix ) }}"
 
 __iim_product_id:          "\"id='com.ibm.cic.agent\""
