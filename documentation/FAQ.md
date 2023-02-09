@@ -2,45 +2,45 @@
 
 ## Table of contents
 
-[What do I see here?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#what-do-i-see-here)
+[What do I see here?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-do-i-see-here)
 
-[How can I start with this?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#how-can-i-start-with-this)
+[How can I start with this?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-can-i-start-with-this)
 
-[What if I have some issues?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#what-if-i-have-some-issues)
+[What if I have some issues?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-if-i-have-some-issues)
 
-[Flexnet package names are different then some default package names here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#flexnet-package-names-are-different-then-some-default-package-names-here)
+[Flexnet package names are different then some default package names here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#flexnet-package-names-are-different-then-some-default-package-names-here)
 
-[How can I use Flexnet package names for WebSphere?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#how-can-i-use-flexnet-package-names-for-websphere)
+[How can I use Flexnet package names for WebSphere?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-can-i-use-flexnet-package-names-for-websphere)
 
-[What are the minimum system requirements to use this automation?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#what-are-the-minimum-system-requirements-to-use-this-automation)
+[What are the minimum system requirements to use this automation?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-are-the-minimum-system-requirements-to-use-this-automation)
 
-[Can I spin up production ready environment using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#can-i-spin-up-production-ready-environment-using-those-scripts)
+[Can I spin up production ready environment using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#can-i-spin-up-production-ready-environment-using-those-scripts)
 
-[Does this works only with OpenLDAP, or can I use other LDAP servers as well?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#does-this-works-only-with-openldap-or-can-i-use-other-ldap-servers-as-well)
+[Does this works only with OpenLDAP, or can I use other LDAP servers as well?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#does-this-works-only-with-openldap-or-can-i-use-other-ldap-servers-as-well)
 
-[How do I specify HCL Connections deployment type?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#how-do-i-specify-hcl-connections-deployment-type)
+[How do I specify HCL Connections deployment type?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-do-i-specify-hcl-connections-deployment-type)
 
-[How do I specify which clusters should auto start?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#how-do-i-specify-which-clusters-should-auto-start)
+[How do I specify which clusters should auto start?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-do-i-specify-which-clusters-should-auto-start)
 
-[Can I only add Component Pack with this?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#can-i-only-add-component-pack-with-this)
+[Can I only add Component Pack with this?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#can-i-only-add-component-pack-with-this)
 
-[What if my Connections is on Windows?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#what-if-my-connections-is-on-windows)
+[What if my Connections is on Windows?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-if-my-connections-is-on-windows)
 
-[Can I upgrade HCL Connections using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#can-i-upgrade-hcl-connections-using-those-scripts)
+[Can I upgrade HCL Connections using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#can-i-upgrade-hcl-connections-using-those-scripts)
 
-[Can I install Component Pack in existing Kubernetes cluster using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#can-i-install-component-pack-in-existing-kubernetes-cluster-using-those-scripts)
+[Can I install Component Pack in existing Kubernetes cluster using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#can-i-install-component-pack-in-existing-kubernetes-cluster-using-those-scripts)
 
-[Can I upgrade Component Pack using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#can-i-upgrade-component-pack-using-those-scripts)
+[Can I upgrade Component Pack using those scripts?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#can-i-upgrade-component-pack-using-those-scripts)
 
-[Why are there many assumptions in different configuration files?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#why-are-there-many-assumptions-in-different-configuration-files)
+[Why are there many assumptions in different configuration files?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#why-are-there-many-assumptions-in-different-configuration-files)
 
-[I am using local VM(s). Can I use this automation for that?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#i-am-using-local-vms-can-i-use-this-automation-for-that)
+[I am using local VM(s). Can I use this automation for that?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#i-am-using-local-vms-can-i-use-this-automation-for-that)
 
-[Some Connections components are not installed](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#some-connections-components-are-not-installed)
+[Some Connections components are not installed](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#some-connections-components-are-not-installed)
 
-[Is the controller node required for the daily operation of HCL Connections](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#is-the-controller-node-required-for-the-daily-operation-of-hcl-connections)
+[Is the controller node required for the daily operation of HCL Connections](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#is-the-controller-node-required-for-the-daily-operation-of-hcl-connections)
 
-[Why are we using Nginx and Haproxy here?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/ansible/documentation/FAQ.md#why-are-we-using-nginx-and-haproxy-here)
+[Why are we using Nginx and Haproxy here?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#why-are-we-using-nginx-and-haproxy-here)
 
 ## What do I see here?
 
