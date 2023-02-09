@@ -608,7 +608,7 @@ If you don't want to use Haproxy (if you simply don't need it), then you can use
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-component-pack-complete-development-harbor.yml
 ```
 
-It will do exactly the same as playbooks/setup-component-pack-complete.yml but it will not setup Haproxy.
+It will do exactly the same as playbooks/setup-component-pack-complete-harbor.yml but it will not setup Haproxy.
 
 ### Running post installation tasks
 
