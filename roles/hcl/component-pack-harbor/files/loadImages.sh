@@ -67,6 +67,55 @@ if [ $l_status -ne 0 ]; then
         exit 127
 fi
 
+	if [[ ${DOCKER_REGISTRY} == *"amazonaws.com" ]]; then
+	repos=(
+               admin-portal
+               analysis-service
+               appregistry-client
+               appregistry-service
+               bootstrap
+               mongodb5-sidecar
+               connections-outlook-desktop
+               community-suggestions
+               community-template-service
+               middleware-haproxy
+               minio
+               indexing-service
+               itm-services
+               kudosboards-boards
+               kudosboards-core
+               kudosboards-boards-event
+               kudosboards-licence
+               kudosboards-notification
+               kudosboards-provider
+               kudosboards-user
+               kudosboards-webfront
+               middleware-graphql
+               middleware-jsonapi
+               middleware-mongodb5
+               middleware-mongodb5-sidecar
+               mw-proxy
+               opensearch
+               kudosboards-activity-migration
+               orient-web-client
+               people-idmapping
+               people-datamigration
+               people-relationship
+               people-scoring
+               middleware-redis-sentinel
+               middleware-redis
+               retrieval-service
+               te-creation-wizard
+               teams-share-service
+               teams-share-ui
+               teams-tab-api
+               teams-tab-ui
+               )
+	for repo in ${repos[@]} ; do
+		aws ecr describe-repositories --repository-names ${repo} --region $(echo ${DOCKER_REGISTRY} | cut -d. -f4) || aws ecr create-repository --repository-name $repo --region 		$(echo ${DOCKER_REGISTRY} | cut -d. -f4)
+        done
+	fi
+
 load_images() {
     if [ "$1" = "" ]; then
         echo "usage:  load_images imageTar"
