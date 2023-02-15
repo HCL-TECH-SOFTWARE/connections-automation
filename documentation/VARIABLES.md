@@ -299,6 +299,7 @@ docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registr
 registry_port | 5000 | The registry defaults to listening on port 5000
 setup_docker_registry | true | true sets up docker registry
 docker_registry_url | {{ hostvars[groups['docker_registry'][0]]['inventory_hostname'] }}:5000 | Docker Registry url
+component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url, default to HCL Harbor
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
