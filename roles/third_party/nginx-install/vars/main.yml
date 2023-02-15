@@ -33,3 +33,5 @@ __param_nofile_hard:            "64000"
 
 __nginx_repo_template:          "nginx.repo.j2"
 __nginx_repo_location:          "/etc/yum.repos.d/nginx.repo"
+
+__ssl_root_ca:                  "{{ ssl_root_ca | default('/C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com') }}"
