@@ -13,52 +13,24 @@
 - debug: var=cluster_flavor_check
   run_once: true
 
-- name:                      Check Helm Version
-  shell:                     helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"
-  changed_when:              true
-  register:                  helm_version
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name:                      Check if cnx-ingress is already deployed helm-2
-  shell:                     helm ls | grep cnx-ingress | grep -i DEPLOYED
-  when:
-   - helm_version.stdout == "v2"
-  changed_when:              true
-  register:                  cnx_ingress_already_provisioned_helm2
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name:                      Check if cnx-ingress is already deployed helm-3
+- name:                      Check if cnx-ingress is already deployed
   shell:                     helm ls --all-namespaces | grep cnx-ingress | grep -i DEPLOYED
-  when:
-   - helm_version.stdout != "v2"
   changed_when:              true
-  register:                  cnx_ingress_already_provisioned_helm3
+  register:                  cnx_ingress_already_provisioned
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
-- name:                      Delete cnx-ingress if already exists helm-2
-  shell:                     helm del --purge cnx-ingress
-  when:
-   - helm_version.stdout == "v2"
-   - cnx_ingress_already_provisioned_helm2.rc == 0
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name:                      Delete cnx-ingress if already exists helm-3
+- name:                      Delete cnx-ingress if already exists
   shell:                     helm uninstall cnx-ingress --namespace {{ __default_namespace }}
   when:
-   - helm_version.stdout != "v2"
-   - cnx_ingress_already_provisioned_helm3.rc == 0
+   - cnx_ingress_already_provisioned.rc == 0
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
 - name:                      Delete configmaps
   shell:                     kubectl delete configmaps ingress-controller-leader ingress-controller-leader-nginx -n {{ __default_namespace }}
   when:
-   - helm_version.stdout != "v2"
-   - cnx_ingress_already_provisioned_helm3.rc == 0
+   - cnx_ingress_already_provisioned.rc == 0
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
@@ -66,42 +38,12 @@
   pause:
     seconds:                 15
 
-- name:                      Check if prom-operator is already deployed helm-2
-  shell:                     helm ls | grep prom-operator | grep -i DEPLOYED
-  when:
-   - helm_version.stdout == "v2"
-  changed_when:              true
-  register:                  prom_operator_already_provisioned_helm2
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name:                      Check if prom-operator is already deployed helm-3
+- name:                      Check if prom-operator is already deployed
   shell:                     helm ls --all-namespaces | grep prom-operator | grep -i DEPLOYED
-  when:
-   - helm_version.stdout != "v2"
   changed_when:              true
-  register:                  prom_operator_already_provisioned_helm3
+  register:                  prom_operator_already_provisioned
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
-
-- name: Removing existing ingress-nginx file with same name for helm-2
-  file:
-    path:                    $HOME/{{ __helm2_ingress_chart }}
-    state:                   absent
-  when:
-   - helm_version.stdout == "v2"
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name: Download ingress-nginx-3.9.0.tgz if using helm2
-  become_user:               "{{ __sudo_user }}"
-  get_url:
-    url:                     http://{{ __helm2_ingress_url }}
-    dest:                    $HOME/
-    mode:                    777
-  when:
-   - helm_version.stdout == "v2"
-   - ("api." not in cluster_flavor_check.stdout)
 
 - name: Render cnx_ingress_values.j2 from local host to remote host $HOME/cnx-ingress-values.yml (relative path, ./template/)
   template:
@@ -110,89 +52,34 @@
     mode:                    '0777'
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed helm-2
-  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace {{ __default_namespace }} --set {{ __communityingress_env_vanilla }} -f $HOME/cnx-ingress-values.yml --wait
-  when:
-   - helm_version.stdout == "v2"
-   - prom_operator_already_provisioned_helm2.rc == 0
-   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed helm-3
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communityingress_env_vanilla }} -f $HOME/cnx-ingress-values.yml --wait
   when:
-   - helm_version.stdout != "v2"
-   - prom_operator_already_provisioned_helm3.rc == 0
+   - prom_operator_already_provisioned.rc == 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed helm-2
-  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace {{ __default_namespace }} --set {{ __communitying_ind_env_vanilla }} --wait
-  when:
-   - helm_version.stdout == "v2"
-   - prom_operator_already_provisioned_helm2.rc != 0
-   - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator Not already Deployed helm-3
+- name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator NOT already Deployed
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set {{ __communitying_ind_env_vanilla }} --wait
   when:
-   - helm_version.stdout != "v2"
-   - prom_operator_already_provisioned_helm3.rc != 0
+   - prom_operator_already_provisioned.rc != 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed helm-2
-  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace {{ __default_namespace }} --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml --wait
-  when:
-   - helm_version.stdout == "v2"
-   - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
-   - prom_operator_already_provisioned_helm2.rc == 0
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed helm-3
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml --wait
   when:
-   - helm_version.stdout != "v2"
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
-   - prom_operator_already_provisioned_helm3.rc == 0
+   - prom_operator_already_provisioned.rc == 0
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed helm-2
-  shell:                     helm upgrade cnx-ingress -i {{ __helm2_ingress_chart }} --namespace {{ __default_namespace }} --set {{ __communitying_ind_env_eks_os }} --wait
-  when:
-   - helm_version.stdout == "v2"
-   - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
-   - prom_operator_already_provisioned_helm2.rc != 0
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator Not already Deployed helm-3
+- name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator NOT already Deployed
   shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set {{ __communitying_ind_env_eks_os }} --wait
   when:
-   - helm_version.stdout != "v2"
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
-   - prom_operator_already_provisioned_helm3.rc != 0
+   - prom_operator_already_provisioned.rc != 0
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for ingress controller to become ready as per https://kubernetes.github.io/ingress-nginx/deploy/
   shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
   become_user:               "{{ __sudo_user }}"
-#
-#- name:                      "Render {{ __cnxingressonly_env }}"
-#  template:
-#    src:                     "helmvars/communityingress.yml.j2"
-#    dest:                    "{{ __cnxingressonly_env }}"
-#  become_user:               "{{ __sudo_user }}"
-#
-#- name:                      Get chart and version
-#  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep cnx-ingress | awk {'print $2'}"
-#  register:                  cnxingressonly_chart_version
-#  become_user:               "{{ __sudo_user }}"
-#
-#- name:                      Found cnx-ingress chart version
-#  debug:
-#    msg:                     "{{ cnxingressonly_chart_version.stdout }}"
-#
-#- name:                      Upgrade cnx-ingress
-#  command:                   "helm upgrade cnx-ingress-rule {{ __helm_repository_local_name }}/cnx-ingress -i --version {{ cnxingressonly_chart_version.stdout }} -f {{ __cnxingressonly_env }} --namespace {{ __default_namespace }} --wait"
-#  become_user:               "{{ __sudo_user }}"

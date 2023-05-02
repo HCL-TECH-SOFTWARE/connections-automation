@@ -131,3 +131,6 @@
   when:
    - __setup_ms_teams_extensions |bool
    - not __skip_connections_integration
+
+- name:                      Verify all deplyments/statefulsets are rolled out successfully
+  include_tasks:             verify_deployment_rollout_status.yml

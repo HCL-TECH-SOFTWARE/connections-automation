@@ -36,7 +36,7 @@
   file:
     path:                    "{{ __es_certs_dir_temp }}"
     state:                   directory
-  become:                    false
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Create certs folder {{ __es_certs_dir }}
   file:
@@ -83,16 +83,24 @@
 - name:                      Copy {{ __es_certs_dir_temp }}.zip to local
   fetch:
     src:                     "{{ __es_certs_dir_temp }}.zip"
-    dest:                    "{{ __es_certs_dir_temp }}.zip"
+    dest:                    "{{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip"
     flat:                    yes
   become:                    false
 
-- name:                      Copy {{ __es_certs_dir_temp }}.zip to {{ dmgr_hostname }}
+- name:                      Copy {{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip to {{ dmgr_hostname }}
   copy:
-    src:                     "{{ __es_certs_dir_temp }}.zip"
+    src:                     "{{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip"
     dest:                    "{{ __es_certs_dir_temp }}.zip"
   delegate_to:               "{{ dmgr_hostname }}"
   become:                    false
+
+- name:                      Cleanup {{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip on controller
+  local_action: 
+    module:                  file
+    state:                   absent
+    path:                    "{{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip"
+  become:                    false
+  ignore_errors:             yes
 
 - name:                      Cleanup {{ __es_certs_dir_temp }} on {{ dmgr_hostname }} if it already exists
   file:

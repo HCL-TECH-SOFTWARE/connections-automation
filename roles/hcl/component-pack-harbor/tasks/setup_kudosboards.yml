@@ -1,10 +1,19 @@
+- name:                       Delete quay credentials, to enable recreating it
+  command:                    kubectl delete secret {{ __huddoboards_credentials_name }} -n {{ __default_namespace }}
+  become_user:                "{{ __sudo_user }}"
+  ignore_errors:              true
+
+- name:                       Setup credentials for quay Repository
+  command:                    kubectl create secret docker-registry {{ __huddoboards_credentials_name }} -n {{ __default_namespace }} --docker-server={{ __huddoboards_registry_url }} --docker-username={{ __huddoboards_registry_username }} --docker-password {{ __huddoboards_registry_password }}
+  become_user:                "{{ __sudo_user }}"
+
 - name:                     "Render {{ __kudos_reg_destination }}"
   template:
     src:                    "{{ __kudos_reg_template }}"
     dest:                   "{{ __kudos_reg_destination }}"
   delegate_to:              "{{ dmgr_hostname }}"
 
-- name:                     "Register Kudosboards {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __kudos_reg_destination }}"
+- name:                     "Register huddoboards {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __kudos_reg_destination }}"
   command:
     chdir={{ __dmgr_bin_dir }}
     {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __kudos_reg_destination }}
@@ -22,22 +31,6 @@
     dest:                    "{{ __kudos_boards_destination }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Get chart and version
-  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep huddo-boards-cp | grep -v activ | awk {'print $2'}"
-  register:                  kudosboards_chart_version
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Found kudos-boards-cp chart version
-  debug:
-    msg:                     "{{ kudosboards_chart_version.stdout }}"
-
-- name:                      Record kudos-boards-cp chart version
-  local_action:
-    module:                  shell
-    cmd:                     echo "kudos-boards-cp chart = {{ kudosboards_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
-  become:                    false
-  when:                      __record_cp_versions|bool
-
 - name:                      Upgrade kudos-boards-cp
-  command:                   "helm upgrade kudos-boards-cp {{ __helm_repository_local_name }}/huddo-boards-cp -i --version {{ kudosboards_chart_version.stdout }} -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade kudos-boards-cp {{ __huddoboards_chart_location }}/{{ __huddoboards_chart_name }}  -i -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }} --recreate-pods"
   become_user:               "{{ __sudo_user }}"

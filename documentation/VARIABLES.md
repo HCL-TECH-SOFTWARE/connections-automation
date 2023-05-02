@@ -201,8 +201,8 @@ connections_wizards_package_name | HCL_Connections_8.0_wizards_lin_aix.tar | Con
 setup_connections_wizards | true | true will run the Connections database wizard
 cnx_force_repopulation | false | true will drop the Connections databases and recreate them in `setup-connections-wizards.yml` playbook
 cnx_major_version | "8" | Connections major version to install
-cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR1) will install the CR version
-cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR1.zip") and cnx_fixes_version is set, will download the CR install kit
+cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR2) will install the CR version
+cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR2.zip") and cnx_fixes_version is set, will download the CR install kit
 cnx_application_ingress | *none*  - required | Set as *dynamicHosts* in LotusConnections-config.xml
 connections_admin | jjones1 | User to be passed to the Connections installer as admin user
 connections_admin_password | password | password for Connections admin user
@@ -237,6 +237,9 @@ cnx_ifix_installer | updateInstaller.zip | updateInstaller file to download from
 cnx_ifix_backup | yes | -featureCustomizationBackedUp option to be provided to the updateInstaller
 restrict_reader_access | *none* - optional | true will set application roles to All Authenticated in Application's Realm when running the `connections-restrict-access.yml` playbook
 restrict_reader_access__trusted_realms | *none* - optional | true will set application roles to All Authenticated in Trusted Realm when running the `connections-restrict-access.yml` playbook
+sametime_host | *none* | Sametime server hostname
+sametime_ltpa_files | *none* | LTPA key file to import to WebSphere
+sametime_ltpa_key_password | *none* | Password of the LTPA key file
 
 
 ### Docs Variables
@@ -303,18 +306,19 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.25.1 | Kubernetes version to be installed
+kubernetes_version | 1.25.6 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.23 | Calico version to be installed
-calico_install_latest | true | true installs/Upgrades Calico to the latest version
+calico_version | 3.25.0 | Calico version to be installed
 helm_version | 3.10.2 | Helm version to be installed
 haproxy_version | 2.6.6 | HAProxy version to be installed
+haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
+
 
 ### Component Pack Variables
 Name | Default | Description
@@ -323,6 +327,7 @@ component_pack_download_location | http://localhost:8000 | Component Pack zip do
 component_pack_package_name | hybridcloud_latest.zip | Component Pack zip file name
 component_pack_extraction_folder | /opt/hcl-cnx-component-pack | location to extract the Component Pack zip
 enable_pod_auto_scaling | true | Scale the number of replicas based on the number of workers
+was_defer_restart | *none* | Set to true to defer interim WAS restarts
 cp_replica_count | 1 | replica count to set in Helm charts for infrastructure, Orient Me and other apps
 skip_pod_checks | true | True will check if pods are in Running state during setup_infrastructure
 skip_connections_integration | false | True will skip profiles migration for Orient Me, Activities Plus, Outlook Desktop Plugin, ES metrics and MS Teams integration
@@ -359,6 +364,13 @@ setup_sanity | false | True will deploy sanity-watcher (for Connections 7)
 setup_huddoboards | true | (replace the old setup_kudosboards var) True will deploy Activities Plus, must have a license key (defined in huddo_boards_licence) for the feature to work
 setup_huddoboards_ext | false | True will install Huddo Boards extension
 huddo_boards_licence | *none* | Activities Plus license key
+huddoboards_registry_url | quay.io/huddo | huddoboards registry url
+huddoboards_registry_username | admin | huddoboards registry user name
+huddoboards_registry_password | password | huddoboards registry password
+huddoboards_image_tag | 2023-01-24 |  huddoboards image tag in huddoboards registry
+huddoboards_chart_name | huddo-boards-cp-1.1.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
+huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
+huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials
 setup_elasticstack | false | True will setup ElasticStack
 setup_elasticstack7 | false | True will setup ElasticStack7
 setup_outlook_addin | true | True will deploy Outlook Desktop Plugin

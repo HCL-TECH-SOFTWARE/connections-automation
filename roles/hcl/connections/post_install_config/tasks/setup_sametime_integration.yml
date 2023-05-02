@@ -1,0 +1,145 @@
+---
+  - include_vars:             ../vars/main.yml
+
+  - name:                     sametime_host should be defined
+    assert:
+      that:
+      - sametime_host is defined
+      msg: "Set the value of 'sametime_host' in the inventory file."
+
+  - name:                     sametime_ltpa_files should be defined
+    assert:
+      that:
+      - sametime_ltpa_files is defined
+      msg: "Set the value of 'sametime_ltpa_files' in the inventory file."
+
+  - name:                     sametime_ltpa_key_password should be defined
+    assert:
+      that:
+      - sametime_ltpa_key_password is defined
+      msg: "Set the value of 'sametime_ltpa_key_password' in the inventory file."
+
+  # WAS admin setting
+  - name:                     Copy the LTPA key file to the DMGR /tmp dir
+    copy:
+       src:                   "{{ sametime_ltpa_files }}"
+       dest:                  "{{ __sametime_ltpa_key_dest }}"
+       mode:                  '0700'
+    delegate_to:               "{{ groups['dmgr'][0] }}"
+
+  - name:                     Import Sametime LTPA key
+    include_role:
+      name:                   roles/third_party/ibm/wasnd/was-dmgr-import-ltpa-keys
+    vars:
+      ltpa_key_password:      "{{ sametime_ltpa_key_password }}"
+
+  - name:                     "Delete {{ __sametime_ltpa_key_dest }}"
+    file:
+      path:                   "{{ __sametime_ltpa_key_dest }}"
+      state:                  absent
+    delegate_to:               "{{ groups['dmgr'][0] }}"
+
+  # LCC.xml setting
+  - name:                     Set LCC.xml sametimeProxy enabled to true
+    xml:
+      path:                   "{{ __lcc_full_path }}"
+      xpath:                  "{{ __lcc_sloc_service_sametimeproxy_xpath }}"
+      attribute:              "enabled"
+      value:                  "true"
+      namespaces:             "{{ __lcc_namespaces }}"
+
+  - name:                     Set LCC.xml sametimeProxy ssl_enabled to true
+    xml:
+      path:                   "{{ __lcc_full_path }}"
+      xpath:                  "{{ __lcc_sloc_service_sametimeproxy_xpath }}"
+      attribute:              "ssl_enabled"
+      value:                  "true"
+      namespaces:             "{{ __lcc_namespaces }}"
+
+  - name:                     Set LCC.xml sametimeProxy href
+    xml:
+      path:                   "{{ __lcc_full_path }}"
+      xpath:                  "{{ __lcc_sloc_service_sametimeproxy_href_static_xpath }}"
+      attribute:              "href"
+      value:                  "http://{{ sametime_host }}"
+      namespaces:             "{{ __lcc_namespaces }}"
+
+  - name:                     Set LCC.xml sametimeProxy ssl_href
+    xml:
+      path:                   "{{ __lcc_full_path }}"
+      xpath:                  "{{ __lcc_sloc_service_sametimeproxy_href_static_xpath }}"
+      attribute:              "ssl_href"
+      value:                  "https://{{ sametime_host }}"
+      namespaces:             "{{ __lcc_namespaces }}"
+
+  - name:                     Set LCC.xml sametimeProxy isExternal
+    xml:
+      path:                   "{{ __lcc_full_path }}"
+      xpath:                  "{{ __lcc_sloc_service_sametimeproxy_href_static_xpath }}"
+      attribute:              "isExternal"
+      value:                  "true"
+      namespaces:             "{{ __lcc_namespaces }}"
+
+  - name:                     Set LCC.xml sametimeProxy interService
+    xml:
+      path:                   "{{ __lcc_full_path }}"
+      xpath:                  "{{ __lcc_sloc_service_sametimeproxy_href_interService_xpath }}"
+      attribute:              "href"
+      value:                  "https://{{ sametime_host }}"
+      namespaces:             "{{ __lcc_namespaces }}"
+
+  # appreg setting
+  - name:                        Authentication to CNX and store the LtpaToken2 (and other cookies)
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/news/j_security_check
+      method:                    GET
+      body_format:               form-urlencoded
+      user:                      "{{ __connections_admin }}"
+      password:                  "{{ __connections_admin_password }}"
+      validate_certs:            false
+      force_basic_auth:          yes
+      status_code:               200
+      headers:
+        Content-Type:            application/x-www-form-urlencoded
+        Accept-Charset:          utf-8
+    register:                    login
+    retries:                     5
+    delay:                       30
+    until:                       login.status == 200
+
+  - name:                        Connect to appreg to get Bearer token
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/appreg/apps
+      method:                    GET
+      validate_certs:            false
+      headers:
+        Cookie :                 "{{ login.cookies_string }}"
+    register:                    bearer_token
+
+  - name:                        Get the existing appregs
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/appregistry/api/v3/applications/?detail=&state=any
+      method:                    GET
+      validate_certs:            false
+      force_basic_auth:          yes
+      return_content:            yes
+      status_code:               200
+      headers:
+          Cookie:                "{{ login.cookies_string }}"
+    register:                    get_appreg_apps
+
+  - name:                        Add the Sametime appreg if not present
+    uri:
+      url:                       https://{{ __frontend_fqdn }}/appregistry/api/v3/applications
+      method:                    POST
+      body_format:               json
+      validate_certs:            false
+      force_basic_auth:          yes
+      return_content:            yes
+      status_code:               201
+      headers:
+          Content-Type:          "application/json"
+          authorization:         "{{ bearer_token.authorization }}"
+          Cookie:                "{{ login.cookies_string }}"
+      body:                      "{{ __sametime_appreg_body }}"
+    when:                        not get_appreg_apps.content is search( __sametime_appreg_name )

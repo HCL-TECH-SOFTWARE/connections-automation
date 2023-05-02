@@ -16,23 +16,13 @@
     url:                    https://download.docker.com/linux/centos/docker-ce.repo
     dest:                   /etc/yum.repos.d/docker-ce.repo
 
-- name:                     Replace baseurl on RedHat 7
+- name:                     Replace baseurl on RedHat {{ ansible_distribution_major_version }}
   replace:
     path:                   /etc/yum.repos.d/docker-ce.repo
     regexp:                 '^baseurl.*$'
-    replace:                'baseurl=https://download.docker.com/linux/centos/7/x86_64/stable'
+    replace:                'baseurl=https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/x86_64/stable'
   when:
-    - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version == "7"
-
-- name:                     Replace baseurl on RedHat 8
-  replace:
-    path:                   /etc/yum.repos.d/docker-ce.repo
-    regexp:                 '^baseurl.*$'
-    replace:                'baseurl=https://download.docker.com/linux/centos/8/x86_64/stable'
-  when:
-    - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_os_family == "RedHat"
 
 - name:                     Enable Docker stable repo
   ini_file:
@@ -83,6 +73,13 @@
                 endpoint = ["https://{{ containerd_docker_mirror }}"]
     backup:                 yes
   when:                     containerd_docker_mirror is defined
+
+- name:                     Configure containerd to set SystemdCgroup true
+  replace:
+    path:                   "/etc/containerd/config.toml"
+    regexp:                 ".*SystemdCgroup\\ \\=\\ false"
+    replace: |2
+                      SystemdCgroup = true
 
 - name:                     Use systemd as cgroup driver
   replace:

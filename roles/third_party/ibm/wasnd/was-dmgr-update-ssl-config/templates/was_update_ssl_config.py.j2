@@ -7,4 +7,7 @@ for sslConfig in sslConfigList:
 
 #Save and Synchronise
 AdminConfig.save()
+
+{% if pool_server is not defined %}
 AdminNodeManagement.syncActiveNodes()
+{% endif %}

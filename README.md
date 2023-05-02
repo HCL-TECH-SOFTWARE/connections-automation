@@ -35,7 +35,7 @@ For Component Pack for HCL Connections 8 it means:
 * Haproxy will be set up configured to be the control plane for Kubernetes cluster and Component Pack.
 * NFS will be set up for Component Pack.
 * Containerd(container runtime) v1.4.12 will be installed with the optimisations required by the version of Kubernetes.
-* Kubernetes 1.25.1 will be set up.
+* Kubernetes 1.25.6 will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
 * Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using OpenSearch.
 
@@ -61,7 +61,7 @@ To be able to use this automation you will need to be able to download the packa
 The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as a single Ruby one liner to open web server on specific port so that automation can connect and download it.
 
 #### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details. Contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
-This is the example data folder structure we are following at HCL
+This is the example data folder structure we are following at HCL.  Please refer to FlexNet when verifying the size and timestamps of the packages.
 
 ```
 [root@c7lb1 packages]# ls -la *
@@ -79,13 +79,13 @@ Connections7:
 -rw-r--r--.  1 root       root        125556954 Feb  4  2021 LO100079-IC7.0.0.0-Common-Fix.jar
 -rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections7.0_XXXXXX_vX.X.X.XX.zip
 -rw-rw-r--   1 pnott      pnott        37928960 Feb 25  2022 tdisol_70_java8_linux_XXXX.tar
--rw-rw-r--   1 pnott      pnott        31179723 Feb 25  2022 tdisol_70_java8_windows_XXXX.zip
 -rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
 
 Connections8:
 -r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
 -r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
 -r-xr-xr-x   1 root root  1736629222 Jan 26 16:41 HC8.0_CR1.zip
+-r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR2.zip
 
 DB2:
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
@@ -119,11 +119,9 @@ was855:
 -rw-r--r--.  1 dmenges orion 1054717615 Apr 23  2020 WAS_ND_V8.5.5_1_OF_3.zip
 -rw-r--r--.  1 dmenges orion 1022550691 Apr 23  2020 WAS_ND_V8.5.5_2_OF_3.zip
 -rw-r--r--.  1 dmenges orion  902443241 Apr 23  2020 WAS_ND_V8.5.5_3_OF_3.zip
--rw-r--r--.  1 dmenges orion  112238284 Apr 23  2020 WAS_ND_v8.5.5_Liberty.zip
 -rw-r--r--.  1 dmenges orion  976299561 Apr 23  2020 WAS_V8.5.5_SUPPL_1_OF_3.zip
 -rw-r--r--.  1 dmenges orion 1056708869 Apr 23  2020 WAS_V8.5.5_SUPPL_2_OF_3.zip
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
--rw-r--r--.  1 dmenges orion  171921530 Apr 23  2020 agent.installer.linux.gtk.x86_64_1.8.9006.20190918_1303.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
 
@@ -515,7 +513,7 @@ Desired kubernetes version can be set using
 kubernetes_version
 ```
 
-This set of automation will install by default 1.25.1 and should be always able to install the Kubernetes versions supported by Component Pack.
+This set of automation will install by default 1.25.6 and should be always able to install the Kubernetes versions supported by Component Pack.
 
 To install Kubernetes, execute:
 
