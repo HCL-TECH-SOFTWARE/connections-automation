@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.25.1') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.25.6') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -49,6 +49,13 @@ __docker_registry_url:                       "{{ docker_registry_url | default('
 __docker_registry_username:                  "{{ docker_registry_username | default('admin') }}"
 __docker_registry_password:                  "{{ docker_registry_password | default('password') }}"
 
+__huddoboards_registry_url:                  "{{ huddoboards_registry_url | default('quay.io/huddo') }}"
+__huddoboards_registry_username:             "{{ huddoboards_registry_username | default('admin') }}"
+__huddoboards_registry_password:             "{{ huddoboards_registry_password | default('password') }}"
+__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-01-24') }}"
+__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.1.0.tgz') }}"
+__huddoboards_chart_location:                "{{ huddoboards_chart_location | default('https://docs.huddo.com/assets/config/kubernetes') }}"
+
 __network_host:                              "{{ network_host | default('_site_') }}"
 __download_location:                         "{{ component_pack_download_location | default('http://localhost:8000') }}"
 
@@ -62,6 +69,7 @@ __skip_pod_checks:                           "{{ skip_pod_checks | default(true)
 __setup_images_bin:                          "{{ __support_folder }}/setupImages.sh"
 
 __credentials_name:                          "{{ credentials_name | default('myregkey') }}"
+__huddoboards_credentials_name:               "{{ huddoboards_credentials_name | default('huddoboardsregkey') }}"
 __default_namespace:                         "{{ default_namespace | default('connections') }}"
 
 __ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) |lower }}"

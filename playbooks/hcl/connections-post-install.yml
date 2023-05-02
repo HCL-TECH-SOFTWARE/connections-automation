@@ -47,13 +47,15 @@
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-restart
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-restart,
+        when: pool_server is not defined }
 
 - name:                    Synchronize WAS nodes
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes,
+        when: pool_server is not defined }
 
 - name:                    Restart CNX Clusters
   hosts:                   dmgr

@@ -13,21 +13,21 @@
     __tpl_file:         "was_profile_node_unmanaged.rsp.j2"
   when:                 ( __is_standalone )
 
-- name:                 "Generate Response file {{ __rsp_file }}"
+- name:                 "Generate Response file {{ __rsp_file }} for FP20 and below"
   template:
     src:                "{{ __tpl_file }}"
     dest:               "{{ __rsp_file }}"
   when:
   - not profile_already_exists.stat.exists
-  - not ( __was_fixes_version == __was_fp_version_fp22 )
+  - not ( __was_fixes_version == __was_fp_version_fp21 or __was_fixes_version == __was_fp_version_fp22 or __was_fixes_version == __was_fp_version_fp23 ) 
 
-- name:                 "Generate Response file {{ __rsp_file }} for FP22"
+- name:                 "Generate Response file {{ __rsp_file }} for FP21 and above"
   template:
     src:                "{{ __tpl_file_no_inline_federation }}"
     dest:               "{{ __rsp_file }}"
   when:
   - not profile_already_exists.stat.exists
-  - ( __was_fixes_version == __was_fp_version_fp22 )
+  - (  __was_fixes_version == __was_fp_version_fp21 or __was_fixes_version == __was_fp_version_fp22 or __was_fixes_version == __was_fp_version_fp23 )
 
 - name:                 "Create Was Profile"
   command:              "{{ __was_install_location }}/bin/manageprofiles.sh -response {{ __rsp_file }}"
@@ -36,11 +36,11 @@
   failed_when:          ( cout.stdout.find('INSTCONFFAILED') != -1)
   when:                 not profile_already_exists.stat.exists
 
-- name:                 "Add node for the newly created profile"
+- name:                 "Add node for the newly created profile for FP21 and above"
   command:              "{{ __was_install_location }}/bin/addNode.sh {{ dmgr_hostname }} {{ __dmgr_soap_port }} -profileName {{ __profile_name }} -username {{ __was_username }} -password {{ __was_password }}"
   when:
   - not profile_already_exists.stat.exists
-  - ( __was_fixes_version == __was_fp_version_fp22 )
+  - (  __was_fixes_version == __was_fp_version_fp21 or __was_fixes_version == __was_fp_version_fp22 or __was_fixes_version == __was_fp_version_fp23 )
 
 - name:                 "Change SOAP request timeout in {{ __was_install_location }}/profiles/{{ __profile_name }}/properties/soap.client.props"
   replace:

@@ -18,6 +18,17 @@
   with_items:
    - "{{ groups['k8s_workers'] }}"
 
+- name:                      Get number of kubernetes workers for auto scalling opensearch pods
+  set_fact:
+     count_workers:          "{{ groups['k8s_workers'] | length }}"
+  when:                      __enable_pod_auto_scaling |bool
+
+- name:                      Set OpenSearch replica count to the number of kubernetes worker nodes ({{ count_workers }}) for auto scalling opensearch pods
+  set_fact:
+     opensearch_replicaset:  "{{ count_workers }}"
+     __opensearch_replica_count:    "{{ count_workers }}"
+  when:                      __enable_pod_auto_scaling |bool
+
 - name:                      "Render {{ __opensearch_master_env }}"
   template:
     src:                     "helmvars/opensearch_master.yml.j2"
@@ -37,7 +48,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Get chart and version
-  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep opensearch | grep -vE \"opensearch-\" | awk {'print $2'}"
+  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep opensearch | grep -vE \"opensearch-\" | cut -d ':' -f2"
   register:                  opensearch_chart_version
   become_user:               "{{ __sudo_user }}"
 

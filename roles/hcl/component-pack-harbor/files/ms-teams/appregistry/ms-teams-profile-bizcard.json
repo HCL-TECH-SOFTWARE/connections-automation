@@ -15,11 +15,95 @@
                 "": {
                     "TeamsBizcardChat-Connections_text": "Chat"
                 },
-                "fr": {
-                    "TeamsBizcardChat-Connections_text": "Bavarder"
-                },
                 "en": {
                     "TeamsBizcardChat-Connections_text": "Chat"
+                },
+                "fr": {
+                    "TeamsBizcardChat-Connections_text": "Discuter"
+                },
+                "fi": {
+                    "TeamsBizcardChat-Connections_text": "Keskustele"
+                },
+                "he": {
+                    "TeamsBizcardChat-Connections_text": "צ'אט"
+                },
+                "hr": {
+                    "TeamsBizcardChat-Connections_text": "Razgovor"
+                },
+                "hu": {
+                    "TeamsBizcardChat-Connections_text": "Csevegés"
+                },
+                "it": {
+                    "TeamsBizcardChat-Connections_text": "Conversa"
+                },
+                "ja": {
+                    "TeamsBizcardChat-Connections_text": "チャット"
+                },
+                "ko": {
+                    "TeamsBizcardChat-Connections_text": "대화"
+                },
+                "no": {
+                    "TeamsBizcardChat-Connections_text": "Samtale"
+                },
+                "pl": {
+                    "TeamsBizcardChat-Connections_text": "Czat"
+                },
+                "pt": {
+                    "TeamsBizcardChat-Connections_text": "Conversação"
+                },
+                "ru": {
+                    "TeamsBizcardChat-Connections_text": "Чат"
+                },
+                "sk": {
+                    "TeamsBizcardChat-Connections_text": "Rozhovor"
+                },
+                "sl": {
+                    "TeamsBizcardChat-Connections_text": "Klepet"
+                },
+                "sv": {
+                    "TeamsBizcardChat-Connections_text": "Chat"
+                },
+                "th": {
+                    "TeamsBizcardChat-Connections_text": "แชท"
+                },
+                "tr": {
+                    "TeamsBizcardChat-Connections_text": "Sohbet"
+                },
+                "zh": {
+                    "TeamsBizcardChat-Connections_text": "交谈"
+                },
+                "pt-BR": {
+                    "TeamsBizcardChat-Connections_text": "Bate-papo"
+                },
+                "zh-TW": {
+                    "TeamsBizcardChat-Connections_text": "會談"
+                },
+                "ca": {
+                    "TeamsBizcardChat-Connections_text": "Xat"
+                },
+                "cs": {
+                    "TeamsBizcardChat-Connections_text": "Konverzace"
+                },
+                "da": {
+                    "TeamsBizcardChat-Connections_text": "Chat"
+                },
+                "de": {
+                    "TeamsBizcardChat-Connections_text": "Chat"
+                },
+                "ro": {
+                    "TeamsBizcardChat-Connections_text": "Chat"
+                },
+                "bg": {
+                    "TeamsBizcardChat-Connections_text": "Чат"
+                },
+                "es": {
+                    "TeamsBizcardChat-Connections_text": "Conversación"
+                },
+                "nl": {
+                    "TeamsBizcardChat-Connections_text": "Chatten"
+                },
+                "ar": {
+                    "TeamsBizcardChat-Connections_text": "محادثة"
                 }
             },
             "type": "com.hcl.appreg.ext.templatedLink",

@@ -15,11 +15,13 @@
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-stop
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-stop,
+        when: pool_server is not defined }
 
 - name:                    Stop WAS Nodes
   hosts:                   was_servers
   serial:                  1
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-nodeagent-stop
+    - { role: roles/third_party/ibm/wasnd/was-nodeagent-stop,
+        when: pool_server is not defined }

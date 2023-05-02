@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:           "{{ upgrade_version | default('1.25.1') }}"
+__kubernetes_version:           "{{ upgrade_version | default('1.25.6') }}"
 
 __ansible_cache:                "/tmp/k8s_ansible"
 

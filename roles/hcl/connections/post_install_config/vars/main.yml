@@ -4,6 +4,9 @@ __was_cellname:              "{{ was_cellname | default('ConnectionsCell') }}"
 __app_profile_name:          "{{ app_profile_name | default('AppSrv01') }}"
 __was_install_location:      "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __bin_dir:                   "{{ __was_install_location }}/profiles/{{ __profile_name }}/bin"
+__frontend_fqdn:             "{{ frontend_fqdn | default(localhost) }}"
+__connections_admin:         "{{ connections_admin | default('jjones1') }}"
+__connections_admin_password: "{{ connections_admin_password | default('password') }}"
 
 __cnx_major_version:         "{{ cnx_major_version | default('8') }}"
 
@@ -98,3 +101,54 @@ __touchpoint_acceptinvalidsslcerts:               "{{ touchpoint_acceptinvalidss
 
 # mail session config
 __mail_smtp_port:                   "{{ mail_smtp_port | default('25') }}"
+
+# Sametime
+__lcc_sloc_service_sametimeproxy_xpath:                            "/tns:config/sloc:serviceReference[@serviceName='sametimeProxy']"
+__lcc_sloc_service_sametimeproxy_href_static_xpath:                "/tns:config/sloc:serviceReference[@serviceName='sametimeProxy']/sloc:href/sloc:static"
+__lcc_sloc_service_sametimeproxy_href_interService_xpath:          "/tns:config/sloc:serviceReference[@serviceName='sametimeProxy']/sloc:href/sloc:interService"
+__sametime_ltpa_key_dest:                                          "{{ sametime_ltpa_key_dest | default('/tmp/ltpa_key') }}"
+__sametime_appreg_name:                                            "{{ sametime_appreg_name | default('Sametime ITM Integrations') }}"
+# json is based on https://github.com/HCL-TECH-SOFTWARE/connections-samples/blob/main/customizer/samples/sametime/sametime-itm.json
+__sametime_appreg_body:   "{
+  \"name\": \"{{ __sametime_appreg_name }}\",
+  \"title\": \"{{ __sametime_appreg_name }}\",
+  \"description\": \"Sametime integration actions\",
+  \"services\": [
+      \"ImportantToMe\"
+  ],
+  \"state\": \"enabled\",
+  \"extensions\": [
+      {
+          \"name\": \"Sametime Chat Integrations\",
+          \"description\": \"Enable chat from ITM bubbles\",
+          \"translations\": {
+              \"\": {
+                  \"ImportantToMeSametimeIntegrationWebChat.label\": \"Sametime web chat\"
+              },
+              \"en\": {
+                  \"ImportantToMeSametimeIntegrationWebChat.label\": \"Sametime web chat\"
+              },
+              \"fr\": {
+                  \"ImportantToMeSametimeIntegrationWebChat.label\": \"Sametime bavarder Web\"
+              }
+          },
+          \"type\": \"com.ibm.itm.entry.person.default\",
+          \"payload\": {
+              \"actions\": [
+                  {
+                      \"type\": \"sametimeweb\",
+                      \"label\": \"%nls:ImportantToMeSametimeIntegrationWebChat.label\",
+                      \"icon\": {
+                          \"type\": \"svg\",
+                          \"data\": \"data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjU3LjQ5IDI0My45NCI+PGRlZnM+PHN0eWxlPi5jbHMtMSwuY2xzLTIsLmNscy0ze2ZpbGw6IzQxNzhiZTt9LmNscy0xe2NsaXAtcnVsZTpldmVub2RkO30uY2xzLTN7ZmlsbC1ydWxlOmV2ZW5vZGQ7fS5jbHMtNHtjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgpO30uY2xzLTV7aXNvbGF0aW9uOmlzb2xhdGU7fS5jbHMtNntjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMik7fS5jbHMtN3tjbGlwLXBhdGg6dXJsKCNjbGlwLXBhdGgtMyk7fTwvc3R5bGU+PGNsaXBQYXRoIGlkPSJjbGlwLXBhdGgiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMzLjg4IDMzLjg4KSI+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAuNjYsODEuMzFoNjcuNzZWOTQuODZINDAuNjZabTAtNDAuNjVIMTQ5LjA3VjU0LjIxSDQwLjY2Wm02NiwxMzUuNTJMOTQuODYsMTY5LjQsMTIyLDEyMmg0MC42NWExMy41NiwxMy41NiwwLDAsMCwxMy41Ni0xMy41NVYyNy4xYTEzLjU2LDEzLjU2LDAsMCwwLTEzLjU2LTEzLjU1SDI3LjFBMTMuNTUsMTMuNTUsMCwwLDAsMTMuNTUsMjcuMXY4MS4zMkExMy41NSwxMy41NSwwLDAsMCwyNy4xLDEyMmg2MXYxMy41NWgtNjFBMjcuMSwyNy4xLDAsMCwxLDAsMTA4LjQyVjI3LjFBMjcuMSwyNy4xLDAsMCwxLDI3LjEsMEgxNjIuNjJhMjcuMSwyNy4xLDAsMCwxLDI3LjExLDI3LjF2ODEuMzJhMjcuMTEsMjcuMTEsMCwwLDEtMjcuMTEsMjcuMUgxMjkuODNaIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0yIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iLTMzLjg4IiB5PSItMzMuODgiIHdpZHRoPSIyNTcuNDkiIGhlaWdodD0iMjQzLjk0Ii8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9ImNsaXAtcGF0aC0zIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMy44OCAzMy44OCkiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjE4OS43MyIgaGVpZ2h0PSIxNzYuMTgiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIj48ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyIDEiPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTQwLjY2LDgxLjMxaDY3Ljc2Vjk0Ljg2SDQwLjY2Wm0wLTQwLjY1SDE0OS4wN1Y1NC4yMUg0MC42NlptNjYsMTM1LjUyTDk0Ljg2LDE2OS40LDEyMiwxMjJoNDAuNjVhMTMuNTYsMTMuNTYsMCwwLDAsMTMuNTYtMTMuNTVWMjcuMWExMy41NiwxMy41NiwwLDAsMC0xMy41Ni0xMy41NUgyNy4xQTEzLjU1LDEzLjU1LDAsMCwwLDEzLjU1LDI3LjF2ODEuMzJBMTMuNTUsMTMuNTUsMCwwLDAsMjcuMSwxMjJoNjF2MTMuNTVoLTYxQTI3LjEsMjcuMSwwLDAsMSwwLDEwOC40MlYyNy4xQTI3LjEsMjcuMSwwLDAsMSwyNy4xLDBIMTYyLjYyYTI3LjEsMjcuMSwwLDAsMSwyNy4xMSwyNy4xdjgxLjMyYTI3LjExLDI3LjExLDAsMCwxLTI3LjExLDI3LjFIMTI5LjgzWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzMuODggMzMuODgpIi8+PGcgY2xhc3M9ImNscy00Ij48ZyBjbGFzcz0iY2xzLTUiPjxyZWN0IGNsYXNzPSJjbHMtMiIgd2lkdGg9IjI1Ny40OSIgaGVpZ2h0PSIyNDMuOTQiLz48ZyBjbGFzcz0iY2xzLTYiPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iMzMuODgiIHk9IjMzLjg4IiB3aWR0aD0iMTg5LjczIiBoZWlnaHQ9IjE3Ni4xOCIvPjxnIGNsYXNzPSJjbHMtNyI+PHJlY3QgY2xhc3M9ImNscy0yIiB3aWR0aD0iMjU3LjQ5IiBoZWlnaHQ9IjI0My45NCIvPjwvZz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg\"
+                      },
+                      \"url\": \"https://{{ sametime_host }}/chat/conversations/${dn}\",
+                      \"enabled\": true
+                  }
+              ]
+          },
+          \"path\": \"OrientMe\",
+          \"state\": \"enabled\"
+      }
+    ]
+  }"

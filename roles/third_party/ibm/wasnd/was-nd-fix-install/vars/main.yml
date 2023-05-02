@@ -21,6 +21,12 @@ __was_fp_version_PH49497:       "8.5.5022.20220916_1309"
 __was_fp_files_PH49497:
     - { file_name: 8.5.5.22-WS-WAS-IFPH49497.zip }
 
+__was_fp_version_fp23:     "8.5.5023.20230116_1145"
+__was_fp_files_fp23:
+  - { file_name: 8.5.5-WS-WAS-FP023-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP023-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP023-part3.zip }    
+
 __was_fp_version_fp22:     "8.5.5022.20220703_1123"
 __was_fp_files_fp22:
   - { file_name: 8.5.5-WS-WAS-FP022-part1.zip }

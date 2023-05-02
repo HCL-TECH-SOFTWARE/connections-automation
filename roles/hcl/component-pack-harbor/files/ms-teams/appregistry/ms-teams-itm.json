@@ -20,10 +20,150 @@
                     "ImportantToMeTeamsIntegrationChat.label": "Teams chat",
                     "ImportantToMeTeamsIntegrationWebChat.label": "Teams web chat"
                 },
+                "ca": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Trucada del Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Xat del Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Xat web del Teams"
+                },
+                "cz": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Volání Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Konverzace Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Webová konverzace Teams"
+                },
+                "da": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams kalder",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams chat",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Webchat for teams"
+                },
+                "de": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams-Anruf",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams-Chat",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Team-Webchat"
+                },
+                "fi": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams-puhelu",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams-keskustelu",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams-verkkokeskustelu"
+                },
                 "fr": {
-                    "ImportantToMeTeamsIntegrationSIP.label": "Teams appel",
-                    "ImportantToMeTeamsIntegrationChat.label": "Teams bavarder",
-                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams bavarder Web"
+                    "ImportantToMeTeamsIntegrationSIP.label": "Appel Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Discussion Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Discussion Web Teams"
+                },
+                "he": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "שיחת Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "צ'אט ב-Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "צ'אט אינטרנט ב-Teams"
+                },
+                "hr": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Poziv u aplikaciji Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Razgovor u aplikaciji Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Razgovor putem weba u aplikaciji Teams"
+                },
+                "hu": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams-hívás",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams-csevegés",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams webes csevegés"
+                },
+                "it": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Chiamata Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Chat Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Chat web Teams"
+                },
+                "ja": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams 呼び出し",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams チャット",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams web チャット"
+                },
+                "ko": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams 통화",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams 대화",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams 웹 대화"
+                },
+                "no": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Lagene ringer",
+                    "ImportantToMeTeamsIntegrationChat.label": "Lag chat",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams nettprat"
+                },
+                "pl": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Połączenie w usłudze Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Czat w usłudze Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Czat WWW w usłudze Teams"
+                },
+                "pt": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Chamada do Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Conversação do Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Web chat do Teams"
+                },
+                "ru": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Звонок в Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Чат в Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Веб-чат в Teams"
+                },
+                "sk": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Volanie Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Konverzácia Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Webová konverzácia Teams"
+                },
+                "sl": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Klic v storitvi Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Klepet v storitvi Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Spletni klepet v storitvi Teams"
+                },
+                "sv": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams-samtal",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams-chatt",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams-webbchatt"
+                },
+                "th": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "การโทรของ Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "การแชทของ Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "การแชททางเว็บของ Teams"
+                },
+                "tr": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams araması",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams sohbeti",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams web sohbeti"
+                },
+                "zh": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "团队调用",
+                    "ImportantToMeTeamsIntegrationChat.label": "团队交谈",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "团队 Web 交谈"
+                },
+                "pt-BR": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Chamada do Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Bate-papo do Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Webchat do Teams"
+                },
+                "zh-TW": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams 通話",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams 會談",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams 網路會談"
+                },
+                "ro": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Apel Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Chat Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Chat web Teams"
+                },
+                "nl": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Teams oproep",
+                    "ImportantToMeTeamsIntegrationChat.label": "Teams chat",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Teams webchat"
+                },
+                "bg": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Повикване на Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Чат на Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Уеб чат на Teams"
+                },
+                "es": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "Llamada de Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "Chat de Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "Chat web de Teams"
+                },
+                "ar": {
+                    "ImportantToMeTeamsIntegrationSIP.label": "مكالمة Teams",
+                    "ImportantToMeTeamsIntegrationChat.label": "دردشة Teams",
+                    "ImportantToMeTeamsIntegrationWebChat.label": "محادثة ويب على Teams"
                 }
             },
             "type": "com.ibm.itm.entry.person.default",

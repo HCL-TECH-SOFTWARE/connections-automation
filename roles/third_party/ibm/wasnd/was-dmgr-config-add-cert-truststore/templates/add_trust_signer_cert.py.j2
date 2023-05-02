@@ -9,13 +9,13 @@ def addCertToKeyStore():
     {% if __trust_cert_scope.lower() == 'cell' %}
            AdminTask.retrieveSignerFromPort('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
     {% else %}
-           AdminTask.retrieveSignerFromPort('[-keyStoreName NodeDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName CellDefaultSSLSettings -sslConfigScopeName (cell):ConnectionsCell ]')
+           AdminTask.retrieveSignerFromPort('[-keyStoreName NodeDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} -host {{ __trust_cert_host }} -port {{ __retrieve_cert_port }} -certificateAlias {{ __trust_cert_alias }} -sslConfigName NodeDefaultSSLSettings -sslConfigScopeName (cell):{{ __was_cellname }}:(node):{{ __nodeName }} ]')
     {% endif %}
            AdminConfig.save()
-  except ScriptingException, err:
+  except java.lang.Exception, err:
            # This could happen when the cert is in the trust store under a different alias
-           if str(err).find('Certificate already exists in key store') < 0:
-               raise ScriptingException(err)
+           if str(err).find('already exists in key store') < 0:
+               raise java.lang.Exception(err)
            else:
                print 'Certificate already exists in key store'
 
@@ -26,15 +26,17 @@ if isEnabled:
 {% if __trust_cert_scope|lower == 'cell' %}
    signercerts = AdminTask.listSignerCertificates('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} ]')
 {% else %}
-   signercerts = AdminTask.listSignerCertificates('[-keyStoreName NodeDefaultKeyStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} ]')
+   signercerts = AdminTask.listSignerCertificates('[-keyStoreName NodeDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} ]')
 {% endif %}
 
-   # add if certificate doesn't exist
-   if signercerts.find('alias {{__trust_cert_alias.lower() }}') < 0:
-      addCertToKeyStore()
-   else:
-   # delete the existing cert to add again in case the cert has changed
-      AdminTask.deleteSignerCertificate('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -certificateAlias {{ __trust_cert_alias }}]')
-      addCertToKeyStore()
+   if signercerts.find('alias {{__trust_cert_alias.lower() }}') >= 0:
+      # delete the existing cert to add again in case the cert has changed
+      {% if __trust_cert_scope|lower == 'cell' %}
+         AdminTask.deleteSignerCertificate('[-keyStoreName CellDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }} -certificateAlias {{ __trust_cert_alias }}]')
+      {% else %}
+         AdminTask.deleteSignerCertificate('[-keyStoreName NodeDefaultTrustStore -keyStoreScope (cell):{{ __was_cellname }}:(node):{{ __nodeName }} -certificateAlias {{ __trust_cert_alias }}]')
+      {% endif %}
 
-# end of if
+   # add the certificate
+   addCertToKeyStore()
+
