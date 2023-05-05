@@ -1,39 +1,13 @@
 ---
-- name:          "Is IHS Running?"
-  shell:         ps -p `cat "{{ __ihs_install_location }}/logs/httpd.pid"`
-  register:      ihs_is_running
-  ignore_errors: true
+  - name:            Stop IHS
+    include_role:    
+      name:          roles/third_party/ibm/ihs/ibm-http-server-stop
+    
+  - name:            Wait 10 seconds to start ihs
+    pause:
+      seconds:       10
+    when:            pool_server is not defined
 
-- name:          "Stop IHS"
-  command:       "{{ __ihs_install_location }}/bin/apachectl stop"
-  register:      cout
-  changed_when:  cout.rc == 0
-  when:          ihs_is_running.rc == 0
-
-- name:          Wait 10 seconds to start ihs
-  pause:
-    seconds:     10
-
-- name:          "Is IHS Running?"
-  shell:         ps -p `cat "{{ __ihs_install_location }}/logs/httpd.pid"`
-  register:      ihs_is_running
-  ignore_errors: true
-
-- name:          "Start IHS"
-  command:       "{{ __ihs_install_location }}/bin/apachectl start"
-  register:      ihs_start
-  changed_when:  ihs_start.rc == 0
-  failed_when:   ihs_start.rc != 0
-  when:          ihs_is_running.rc != 0
-  #become:        "{{ ihs_username }}"
-
-- name:          "Is IHS Running?"
-  shell:         ps -p `cat "{{ __ihs_install_location }}/logs/httpd.pid"`
-  register:      ihs_is_running
-  ignore_errors: true
-  when:          (ihs_start.rc is defined) and (ihs_start.rc == 0)
-
-- name:          Wait 10 seconds for ihs to activate
-  pause:
-    seconds:     10
-  when:          (ihs_start.rc is defined) and (ihs_start.rc == 0)
+  - name:            Start IHS
+    include_role:    
+      name:          roles/third_party/ibm/ihs/ibm-http-server-start

@@ -12,36 +12,20 @@
   register:                es_version
   become_user:             "{{ __sudo_user }}"
 
-- name:                    Scale down ES7 sts to ~ 2 number of workers
+- name:                    Scale down ES7 sts to ~ 2 number of workers when count_workers = 2
   shell:
                            kubectl scale --replicas=2  sts es-data-7 es-master-7 -n {{ __default_namespace }}
   when:                    (count_workers == "2" and "elasticsearch7" in es_version.stdout_lines)
   become_user:             "{{ __sudo_user }}"
 
-- name:                    Scale Down ES7 sts to ~ 1 number of workers
+- name:                    Scale Down ES7 sts to ~ 2 number of workers when count_workers < 2
   shell:                   |
                            kubectl scale --replicas=2  sts es-data-7 es-master-7 -n {{ __default_namespace }}
-                           sleep 90
-                           kubectl scale --replicas=1  sts es-data-7 es-master-7 -n {{ __default_namespace }}
   when:                    (count_workers < "2" and "elasticsearch7" in es_version.stdout_lines)
   become_user:             "{{ __sudo_user }}"
 
-- name:                    Check opensearch version
-  shell:                   helm ls --namespace {{ __default_namespace }}|grep opensearch-master|awk '{print $1}'
-  changed_when:            true
-  register:                opensearch_exists
-  become_user:             "{{ __sudo_user }}"
-
-- name:                    Scale down opensearch sts to ~ 2 number of workers
-  shell:
-                           kubectl scale --replicas=2  sts opensearch-cluster-client opensearch-cluster-data opensearch-cluster-master -n {{ __default_namespace }}
-  when:                    (count_workers == "2" and "opensearch-master" in opensearch_exists.stdout_lines)
-  become_user:             "{{ __sudo_user }}"
-
-- name:                    Scale Down opensearch sts to ~ 1 number of workers
-  shell:                   |
-                           kubectl scale --replicas=2  sts opensearch-cluster-client opensearch-cluster-data opensearch-cluster-master -n {{ __default_namespace }}
-                           sleep 90
-                           kubectl scale --replicas=1  sts opensearch-cluster-client opensearch-cluster-data opensearch-cluster-master -n {{ __default_namespace }}
-  when:                    (count_workers < "2" and "opensearch-master" in opensearch_exists.stdout_lines)
+- name:                    Scale Down ES7 sts to ~ 1 number of workers when count_workers < 2
+  shell:                   | 
+                           kubectl scale --replicas=1  sts es-data-7 es-master-7 -n {{ __default_namespace }}
+  when:                    (count_workers < "2" and "elasticsearch7" in es_version.stdout_lines)
   become_user:             "{{ __sudo_user }}"

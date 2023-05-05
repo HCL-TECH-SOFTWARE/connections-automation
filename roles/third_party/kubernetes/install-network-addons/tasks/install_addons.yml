@@ -1,20 +1,49 @@
-- name:               Install the Pod network add on as per documentation
-  command:            kubectl apply -f https://projectcalico.docs.tigera.io/archive/v{{ __calico_version }}/manifests/rbac/rbac-kdd-calico.yaml
+# https://docs.tigera.io/calico/3.25/getting-started/kubernetes/quickstart
+- name:               Download the Calico networking manifest for the Kubernetes API datastore
+  command:            curl https://raw.githubusercontent.com/projectcalico/calico/v{{ __calico_version }}/manifests/calico.yaml -O
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - not __calico_install_latest |bool
   become:             false
 
-- name:               Install the Pod network add on as per documentation - Calico
-  command:            kubectl apply -f https://projectcalico.docs.tigera.io/archive/v{{ __calico_version }}/manifests/calico.yaml
+- name:               Check if calico is already deployed
+  shell:              "kubectl  get deployment --all-namespaces | grep calico-kube-controllers"
+  changed_when:       true
+  register:           calico_already_provisioned
+  become:             false
+  ignore_errors:      true
+
+- name:              Upgrading an installation that uses manifests and the Kubernetes API datastore
+  command:           kubectl replace -f calico.yaml
   when:
-    - inventory_hostname == groups['k8s_masters'][0]
-    - not __calico_install_latest |bool
+   - calico_already_provisioned.rc == 0
   become:             false
 
-- name:               Install/Upgrade Calico to the latest & greatest
-  command:            kubectl apply -f https://projectcalico.docs.tigera.io/manifests/calico.yaml
+- name:               Fresh install- Apply calico.yaml manifest
+  command:            kubectl create -f calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - __calico_install_latest |bool
+    - calico_already_provisioned.rc != 0
+  become:             false
+
+- name:               Wait till all calico pods are created
+  shell:              "kubectl get po --namespace=kube-system --output=jsonpath='{.items[*].metadata.name}'"
+  register:           calico_pods_created
+  until:              item in calico_pods_created.stdout
+  become:             false
+  retries: 10
+  delay: 10
+  with_items:
+    - calico-kube-controllers
+    - calico-node
+
+- name:               Wait for calico Deployment to become ready
+  shell:              "kubectl -n kube-system rollout status deploy calico-kube-controllers --timeout=300s"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+
+- name:               Wait for calico DaemonSet to become ready
+  shell:              "kubectl -n kube-system rollout status ds calico-node --timeout=300s"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
   become:             false

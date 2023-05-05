@@ -3,7 +3,7 @@ __was_major_version:       "{{ was_major_version | default('8') }}"
 __ihs_install_location:    "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
 __now:                     "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
 
-__ihs_hostname:            "{{ inventory_hostname_short }}"
+__ihs_hostname:            "{{ ihs_hostname | default(inventory_hostname_short) }}"
 __ihs_hostname_fqdn:       "{{ inventory_hostname }}"
 
 __sharedarea :             "{{ cnx_shared_area  | default('/opt/IBM/SharedArea') }}"

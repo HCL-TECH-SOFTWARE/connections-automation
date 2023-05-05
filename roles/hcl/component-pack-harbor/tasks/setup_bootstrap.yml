@@ -1,12 +1,3 @@
-- name:                      Check Helm Version
-  shell:                     helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"
-  changed_when:              true
-  register:                  helm_version
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- debug: var=helm_version.stdout
-
 - name:                      Check if bootstrap can be deleted after all with Helm
   shell:                     "helm ls --namespace {{ __default_namespace }} | grep bootstrap"
   changed_when:              true
@@ -14,18 +5,10 @@
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
-- name:                      Delete bootstrap if already exists - Helm v2
-  command:                   helm del --purge bootstrap
-  when:
-   - bootstrap_already_provisioned.rc == 0
-   - helm_version.stdout == "v2"
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Delete bootstrap if already exists - Helm v3
+- name:                      Delete bootstrap if already exists
   command:                   "helm uninstall bootstrap --namespace {{ __default_namespace }}"
   when:
    - bootstrap_already_provisioned.rc == 0
-   - helm_version.stdout != "v2"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space after eventual cleanup
@@ -41,7 +24,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Get chart and version
-  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep bootstrap | awk {'print $2'}"
+  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep bootstrap | cut -d ':' -f2"
   register:                  bootstrap_chart_version
   become_user:               "{{ __sudo_user }}"
 

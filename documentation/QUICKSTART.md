@@ -121,7 +121,9 @@ fi
 
 export ANSIBLE_HOST_KEY_CHECKING=False
 
-eval "$(ssh-agent)"
+if shopt -q login_shell; then
+    eval "$(ssh-agent)"
+fi
 ```
 
 Environment variable that you are setting here will save you the time with typing yes every time Ansible hits new hosts. The last command will ensure that you use only key and the keychain from ansible user itself.
@@ -135,13 +137,13 @@ Please note that you need to either disable password login for root user in your
 Ansible needs to be installed only on the controller machine, in our example it is ansible.internal.example.com
 
 ```
-[ansible@ansible ~]$ sudo yum install ansible
+[ansible@web ~]$ sudo yum install ansible
 ```
 
 We are supporting Ansible 2.9. Once you are done with installation, check the version (note that minor version can deffer depending at when you performed the installation):
 
 ```
-[ansible@ansible ~]$ ansible --version
+[ansible@web ~]$ ansible --version
 ansible 2.9.15
   config file = /etc/ansible/ansible.cfg
   configured module search path = [u'/home/lcuser/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']

@@ -1,0 +1,11 @@
+  - name:                        Enable Sametime Integration
+    hosts:                       dmgr
+    become:                      true
+    tasks:
+      - include_tasks:           ../../roles/hcl/connections/post_install_config/tasks/setup_sametime_integration.yml
+
+  - name:                        Synchronize WAS nodes
+    hosts:                       dmgr
+    become:                      true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes

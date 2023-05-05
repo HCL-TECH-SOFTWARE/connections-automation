@@ -16,8 +16,6 @@
   file:
     path:                "{{ item }}"
     state:               absent
-  when:
-    - helm_repo_already_added.rc != 0
   with_items:
    - "{{ __ansible_cache_charts }}"
 
@@ -37,6 +35,8 @@
 
 - name:                  "Update Helm repos"
   shell:                 "helm repo update"
-  when:
-    - helm_repo_already_added.rc == 0
+  become_user:           "{{ __sudo_user }}"
+
+- name:                  "Write helm repo chart versions to a file"
+  shell:                 "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | awk {'print $1 \":\" $2'} >> {{ __ansible_cache_charts }}/helm_repo_version_list"
   become_user:           "{{ __sudo_user }}"

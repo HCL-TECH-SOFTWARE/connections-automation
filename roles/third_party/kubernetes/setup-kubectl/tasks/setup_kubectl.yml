@@ -1,14 +1,22 @@
+- name:                  "Get home dir of {{ __kubectl_user }}"
+  shell:                  "echo ~{{ __kubectl_user }}"
+  register:               kubectl_user_home_var
+
+- name:                  "Save home dir of {{ __kubectl_user }}"
+  set_fact:
+    __kubectl_user_home: "{{ kubectl_user_home_var.stdout }}"
+
 - name:                   Setting up kubectl for the list of users
   command: "{{ item }}"
   with_items:
-   - mkdir -p /home/{{ __kubectl_user }}/.kube
-   - cp -rf /etc/kubernetes/admin.conf /home/{{ __kubectl_user }}/.kube/config
-   - chown {{ __kubectl_user }} /home/{{ __kubectl_user }}/.kube/config
+   - mkdir -p {{ __kubectl_user_home }}/.kube
+   - cp -rf /etc/kubernetes/admin.conf {{ __kubectl_user_home }}/.kube/config
+   - chown {{ __kubectl_user }} {{ __kubectl_user_home }}/.kube/config
   when:               inventory_hostname == groups['k8s_masters'][0]
 
 - name:               Copy .kube to controller
   synchronize:
-    src:              "/home/{{ __kubectl_user }}/.kube"
+    src:              "{{ __kubectl_user_home }}/.kube"
     dest:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
     mode:             pull
   when:               inventory_hostname == groups['k8s_masters'][0]
@@ -23,9 +31,9 @@
 - name:               "Copy .kube to {{ __kubectl_user }}"
   copy:
     src:              "/tmp/.kube_{{ groups['k8s_masters'][0] }}/"
-    dest:             "/home/{{ __kubectl_user }}/"
+    dest:             "{{ __kubectl_user_home }}/"
     remote_src:       yes
-  when:               inventory_hostname != groups['docker_registry'][0]
+  when:               inventory_hostname != groups['k8s_masters'][0]
   become_user:        "{{ __kubectl_user }}"
 
 - name:               Cleanup .kube on controller
@@ -42,3 +50,17 @@
     path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
   become:             false
   ignore_errors:      yes
+
+- name:                  "Get home dir of root (pool server)"
+  set_fact:
+    root_home: "{{ lookup('env','HOME') }}"
+  become:                true
+  when:                  pool_server is defined
+
+- name:                   Setting up kubectl for root (pool server)
+  command: "{{ item }}"
+  with_items:
+   - mkdir -p {{ root_home }}/.kube
+   - cp -rf /etc/kubernetes/admin.conf {{ root_home }}/.kube/config
+   - chown {{ __kubectl_user }} {{ root_home }}/.kube/config
+  when:                   pool_server is defined
