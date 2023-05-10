@@ -12,6 +12,9 @@
   become:             false
   ignore_errors:      true
 
+- debug:
+    msg: "{{ calico_already_provisioned }}, {{ calico_already_provisioned.rc }}"
+
 - name:              Upgrading an installation that uses manifests and the Kubernetes API datastore
   command:           kubectl replace -f calico.yaml
   when:

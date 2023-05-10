@@ -10,13 +10,13 @@
     name:                   ['openldap', 'openldap-clients', 'openldap-servers', 'openldap-devel']
     state:                   present
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_os_family == "RedHat"
     - ansible_distribution_major_version != "8"
 
 - name:                     Install OpenLDAP and dependencies on RHEL8
   include_tasks:            install_symas_openldap.yml
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
 - name:                     Start slapd service
@@ -56,7 +56,7 @@
     dest:                   "{{ __db_ldif_location }}"
   when:
     - not ldap_database_already_created.stat.exists
-    - ansible_distribution == "RedHat" or ansible_distribution == "CentOS"
+    - ansible_os_family == "RedHat" or ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "8"
 
 - name:                     Create LDAP database
