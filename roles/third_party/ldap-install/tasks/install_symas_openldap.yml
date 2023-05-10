@@ -28,11 +28,6 @@
     url:                    https://repo.symas.com/configs/SOFL/rhel8/sofl.repo
     dest:                   /etc/yum.repos.d/sofl.repo
 
-- name:                     Upgrade all packages
-  yum:
-    name:                   '*'
-    state:                  latest
-
 - name:                     Install symas-openldap-clients for Linux on RHEL8
   package:
     name:                   symas-openldap-clients

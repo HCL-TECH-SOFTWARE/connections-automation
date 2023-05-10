@@ -16,7 +16,7 @@
     dist:                   "rhel"
     version:                "{{ ansible_distribution_major_version }}"
   when:
-   - ansible_distribution == "RedHat"
+   - ansible_os_family == "RedHat"
 
 - name:                     Install prerequisits for semanage
   package:
@@ -26,7 +26,7 @@
     - libselinux-python
     - libsemanage-python
   when:
-   - ansible_distribution == "RedHat"
+   - ansible_os_family == "RedHat"
    - ansible_distribution_major_version == "7"
 
 

@@ -27,7 +27,7 @@
     regexp:                 '^baseurl.*$'
     replace:                'baseurl=https://download.docker.com/linux/centos/8/x86_64/stable'
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
 
 - name:                     Enable Docker stable repo
