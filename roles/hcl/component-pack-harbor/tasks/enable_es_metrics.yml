@@ -230,7 +230,7 @@
 
 - name:                      Copy the archive from controller
   copy:
-    src:                     "/tmp/{{ groups['k8s_masters'][0] }}/{{ __es_certs_dir }}/es_certificates_signed.zip"
+    src:                     "/tmp/{{ groups['component_pack_master'][0] }}/{{ __es_certs_dir }}/es_certificates_signed.zip"
     dest:                    "/tmp"
   delegate_to:               "{{ item }}"
   with_items:                "{{ groups['was_servers'] }}"
