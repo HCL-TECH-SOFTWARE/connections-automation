@@ -39,6 +39,7 @@ See [Sample Inventories](https://github.com/HCL-TECH-SOFTWARE/connections-automa
 Name | Default | Description
 ---- | --------| -------------
 setup_fake_ldap_users | true | true creates dummy ldap users
+ldap_bind_user | cn=Admin,dc=cnx,dc=pnp-hcl,dc=com | Ldap bind user
 ldap_bind_pass | password | Password for simple authentication
 ldap_realm | dc=cnx,dc=pnp-hcl,dc=com | This directive specifies the DN suffix of queries that will be passed to this backend database
 ldap_admin_user | Admin | Ldap admin user
@@ -48,6 +49,11 @@ ldap_user_password | password | Password for the ldap users
 ldap_user_admin_password | password | Ldap user admin password
 ldap_user_mail_domain | connections.example.com | Ldap user email domain
 ldap_setup_internal | false | true sets up internal users
+ldap_repo | LDAP_PRODUCTION1 | Name of the LDAP repo in WebSphere configuration
+ldap_login_properties | mail;uid | Login properties in WebSphere configuration
+ldap_search_filter | (objectclass=inetOrgPerson) | Ldap search filter
+ldap_map_guid | entryUUID | mapping for guid property
+ldap_map_uid | uid | mapping for uid property
 
 ### Database Variables
 Name | Default | Description
