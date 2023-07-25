@@ -9,14 +9,16 @@
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-start
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-start,
+        when: pool_server is not defined }
 
 - name:                    Start WAS Nodes
   hosts:                   was_servers
   serial:                  1
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-nodeagent-start
+    - { role: roles/third_party/ibm/wasnd/was-nodeagent-start,
+        when: pool_server is not defined }
 
 - name:                    Start CNX Clusters
   hosts:                   dmgr
@@ -28,4 +30,5 @@
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/hcl/docs/start_docs_clusters
+    - { role: roles/hcl/docs/start_docs_clusters,
+        when: groups.docs_servers is defined and groups.docs_servers|length > 0 }

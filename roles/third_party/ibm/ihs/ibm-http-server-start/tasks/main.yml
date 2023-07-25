@@ -1,23 +1,26 @@
 ---
 - name:          "Is IHS Running?"
-  shell:         ps -p `cat "{{ __ihs_install_location }}/logs/httpd.pid"`
+  stat:
+    path:        "{{ __ihs_install_location }}/logs/httpd.pid"
   register:      ihs_is_running
-  ignore_errors: true
 
 - name:          "Start IHS"
   command:       "{{ __ihs_install_location }}/bin/apachectl start"
   register:      ihs_start
   changed_when:  ihs_start.rc == 0
   failed_when:   ihs_start.rc != 0
-  when:          ihs_is_running.rc != 0
+  when:          not ihs_is_running.stat.exists and pool_server is not defined
+
+- name:          "Start IHS (pool server)"
+  systemd:
+    name:        ihs
+    state:       started
+  when:          not ihs_is_running.stat.exists and pool_server is defined
 
 - name:          "Is IHS Running?"
-  shell:         ps -p `cat "{{ __ihs_install_location }}/logs/httpd.pid"`
+  stat:
+    path:        "{{ __ihs_install_location }}/logs/httpd.pid"
   register:      ihs_is_running
-  ignore_errors: true
-  when:          (ihs_start.rc is defined) and (ihs_start.rc == 0)
-
-- name:          Wait 10 seconds for ihs to activate
-  pause:
-    seconds:     10
-  when:          (ihs_start.rc is defined) and (ihs_start.rc == 0)
+  until:         ihs_is_running.stat.exists
+  retries: 3
+  delay: 3

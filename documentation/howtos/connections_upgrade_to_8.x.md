@@ -99,7 +99,7 @@ kubectl delete ingress -n connections $(kubectl get ingress -n connections | awk
 <details>
   <summary> Click to expand if you are upgrading Kubernetes to v1.25 </summary>
 
->As PodSecurityPolicy was deprecated in Kubernetes v1.21, and removed from Kubernetes in v1.25, the following charts should be uninstalled before upgrading to Kubernetes v1.25. 
+>As PodSecurityPolicy was deprecated in Kubernetes v1.21, and removed from Kubernetes in v1.25, the following charts should be uninstalled before upgrading to Kubernetes v1.25.
 >
 >```
 >k8s-psp
@@ -124,18 +124,21 @@ kubectl delete ingress -n connections $(kubectl get ingress -n connections | awk
 >Ensure you reconfigure NFS by running playbook playbooks/third_party/setup-nfs.yml.
 </details>
 
-Follow [kubernetes official document](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade kubernetes version. Kubernetes can be upgraded using below playbook. Add 'upgrade_version' variable in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml):
+Follow [Kubernetes official document](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade kubernetes version. Kubernetes can be upgraded using below playbook.  Do NOT skip MINOR versions when upgrading Kubernetes.   Add 'upgrade_version' variable in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml) to the target version:
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/kubernetes/upgrade-kubernetes.yml
 ```
 
 ### Running the Component Pack playbook
-Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials as environment variables.
+Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 
 ```
 set HARBOR_USERNAME=<<harbor username>>
 set HARBOR_USERNAME=<<Harbor password>>
+
+set QUAY_USERNAME=<<quay username>>
+set QUAY_SECRET=<<quay password>>
 ```
 
 Add Harbor variables to the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml#L85-L86)

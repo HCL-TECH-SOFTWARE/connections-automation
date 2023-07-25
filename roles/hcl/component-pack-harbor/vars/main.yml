@@ -69,6 +69,7 @@ __skip_pod_checks:                           "{{ skip_pod_checks | default(true)
 __setup_images_bin:                          "{{ __support_folder }}/setupImages.sh"
 
 __credentials_name:                          "{{ credentials_name | default('myregkey') }}"
+__huddoboards_credentials_name:               "{{ huddoboards_credentials_name | default('huddoboardsregkey') }}"
 __default_namespace:                         "{{ default_namespace | default('connections') }}"
 
 __ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) |lower }}"

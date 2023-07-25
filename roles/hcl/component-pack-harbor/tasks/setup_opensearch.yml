@@ -18,6 +18,17 @@
   with_items:
    - "{{ groups['k8s_workers'] }}"
 
+- name:                      Get number of kubernetes workers for auto scalling opensearch pods
+  set_fact:
+     count_workers:          "{{ groups['k8s_workers'] | length }}"
+  when:                      __enable_pod_auto_scaling |bool
+
+- name:                      Set OpenSearch replica count to the number of kubernetes worker nodes ({{ count_workers }}) for auto scalling opensearch pods
+  set_fact:
+     opensearch_replicaset:  "{{ count_workers }}"
+     __opensearch_replica_count:    "{{ count_workers }}"
+  when:                      __enable_pod_auto_scaling |bool
+
 - name:                      "Render {{ __opensearch_master_env }}"
   template:
     src:                     "helmvars/opensearch_master.yml.j2"

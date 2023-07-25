@@ -39,6 +39,7 @@ See [Sample Inventories](https://github.com/HCL-TECH-SOFTWARE/connections-automa
 Name | Default | Description
 ---- | --------| -------------
 setup_fake_ldap_users | true | true creates dummy ldap users
+ldap_bind_user | cn=Admin,dc=cnx,dc=pnp-hcl,dc=com | Ldap bind user
 ldap_bind_pass | password | Password for simple authentication
 ldap_realm | dc=cnx,dc=pnp-hcl,dc=com | This directive specifies the DN suffix of queries that will be passed to this backend database
 ldap_admin_user | Admin | Ldap admin user
@@ -48,6 +49,11 @@ ldap_user_password | password | Password for the ldap users
 ldap_user_admin_password | password | Ldap user admin password
 ldap_user_mail_domain | connections.example.com | Ldap user email domain
 ldap_setup_internal | false | true sets up internal users
+ldap_repo | LDAP_PRODUCTION1 | Name of the LDAP repo in WebSphere configuration
+ldap_login_properties | mail;uid | Login properties in WebSphere configuration
+ldap_search_filter | (objectclass=inetOrgPerson) | Ldap search filter
+ldap_map_guid | entryUUID | mapping for guid property
+ldap_map_uid | uid | mapping for uid property
 
 ### Database Variables
 Name | Default | Description
@@ -237,6 +243,9 @@ cnx_ifix_installer | updateInstaller.zip | updateInstaller file to download from
 cnx_ifix_backup | yes | -featureCustomizationBackedUp option to be provided to the updateInstaller
 restrict_reader_access | *none* - optional | true will set application roles to All Authenticated in Application's Realm when running the `connections-restrict-access.yml` playbook
 restrict_reader_access__trusted_realms | *none* - optional | true will set application roles to All Authenticated in Trusted Realm when running the `connections-restrict-access.yml` playbook
+sametime_host | *none* | Sametime server hostname
+sametime_ltpa_files | *none* | LTPA key file to import to WebSphere
+sametime_ltpa_key_password | *none* | Password of the LTPA key file
 
 
 ### Docs Variables
@@ -313,7 +322,9 @@ kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users li
 calico_version | 3.25.0 | Calico version to be installed
 helm_version | 3.11.3 | Helm version to be installed
 haproxy_version | 2.6.6 | HAProxy version to be installed
+haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
+
 
 ### Component Pack Variables
 Name | Default | Description
@@ -322,6 +333,7 @@ component_pack_download_location | http://localhost:8000 | Component Pack zip do
 component_pack_package_name | hybridcloud_latest.zip | Component Pack zip file name
 component_pack_extraction_folder | /opt/hcl-cnx-component-pack | location to extract the Component Pack zip
 enable_pod_auto_scaling | true | Scale the number of replicas based on the number of workers
+was_defer_restart | *none* | Set to true to defer interim WAS restarts
 cp_replica_count | 1 | replica count to set in Helm charts for infrastructure, Orient Me and other apps
 skip_pod_checks | true | True will check if pods are in Running state during setup_infrastructure
 skip_connections_integration | false | True will skip profiles migration for Orient Me, Activities Plus, Outlook Desktop Plugin, ES metrics and MS Teams integration

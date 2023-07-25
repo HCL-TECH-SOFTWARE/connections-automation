@@ -37,7 +37,7 @@
     dest:            "{{ __kubernetes_yum_repo_location }}"
   when:
    - ansible_os_family == "RedHat"
-   - ansible_distribution_major_version == "8"
+   - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
 - name:              Install prereqs for RHEL 8 / CentOS 8
   yum:

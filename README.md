@@ -79,7 +79,6 @@ Connections7:
 -rw-r--r--.  1 root       root        125556954 Feb  4  2021 LO100079-IC7.0.0.0-Common-Fix.jar
 -rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections7.0_XXXXXX_vX.X.X.XX.zip
 -rw-rw-r--   1 pnott      pnott        37928960 Feb 25  2022 tdisol_70_java8_linux_XXXX.tar
--rw-rw-r--   1 pnott      pnott        31179723 Feb 25  2022 tdisol_70_java8_windows_XXXX.zip
 -rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
 
 Connections8:
@@ -119,11 +118,9 @@ was855:
 -rw-r--r--.  1 dmenges orion 1054717615 Apr 23  2020 WAS_ND_V8.5.5_1_OF_3.zip
 -rw-r--r--.  1 dmenges orion 1022550691 Apr 23  2020 WAS_ND_V8.5.5_2_OF_3.zip
 -rw-r--r--.  1 dmenges orion  902443241 Apr 23  2020 WAS_ND_V8.5.5_3_OF_3.zip
--rw-r--r--.  1 dmenges orion  112238284 Apr 23  2020 WAS_ND_v8.5.5_Liberty.zip
 -rw-r--r--.  1 dmenges orion  976299561 Apr 23  2020 WAS_V8.5.5_SUPPL_1_OF_3.zip
 -rw-r--r--.  1 dmenges orion 1056708869 Apr 23  2020 WAS_V8.5.5_SUPPL_2_OF_3.zip
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
--rw-r--r--.  1 dmenges orion  171921530 Apr 23  2020 agent.installer.linux.gtk.x86_64_1.8.9006.20190918_1303.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
 was855FP22:

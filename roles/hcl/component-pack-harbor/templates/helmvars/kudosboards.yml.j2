@@ -2,14 +2,14 @@
 # For details of variable meanings, please see https://docs.kudosapps.com/boards/cp/
 
 global:
-  repository: {{ docker_registry_url }}
-  imagePullSecret: myregkey
+  repository: {{ __huddoboards_registry_url }}
+  imagePullSecret: {{ __huddoboards_credentials_name }} 
   env:
     APP_URI: https://{{ frontend_fqdn }}/boards
 
 minio:
   image:
-    name: kudosboards-minio
+    tag: {{ __huddoboards_image_tag }}
   nfs:
     server: {{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}
 {% if persistentVolumePath is defined %}
@@ -18,15 +18,15 @@ minio:
 
 app:
   image:
-    name: kudosboards-boards
+    tag: {{ __huddoboards_image_tag }}  
 
 notification:
   image:
-    name: kudosboards-notification
+    tag: {{ __huddoboards_image_tag }}  
 
 webfront:
   image:
-    name: kudosboards-webfront
+    tag: {{ __huddoboards_image_tag }}  
   env:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
     FORCE_POLLING: "true"
@@ -49,7 +49,7 @@ webfront:
 
 core:
   image:
-    name: kudosboards-core
+    tag: {{ __huddoboards_image_tag }}  
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
@@ -69,7 +69,7 @@ core:
 
 licence:
   image:
-    name: kudosboards-licence
+    tag: {{ __huddoboards_image_tag }}  
   env:
     # Register your Organisation and download your Free 'Activities Plus' licence key from store.kudosapps.com
     LICENCE: {{ __huddo_boards_licence }}
@@ -82,7 +82,7 @@ licence:
 
 user:
   image:
-    name: kudosboards-user
+    tag: {{ __huddoboards_image_tag }}  
   env:
     # CONNECTIONS_NAME: HCL Connections
     CONNECTIONS_CLIENT_ID: kudosboards
@@ -92,11 +92,11 @@ user:
 
 provider:
   image:
-    name: kudosboards-provider
+    tag: {{ __huddoboards_image_tag }}  
 
 events:
   image:
-    name: kudosboards-boards-event
+    tag: {{ __huddoboards_image_tag }}  
   env:
     NOTIFIER_EMAIL_HOST: smtp.example.com
     NOTIFIER_EMAIL_USERNAME: user123
@@ -106,7 +106,7 @@ events:
 
 migration:
   image:
-    name: kudosboards-activity-migration
+    tag: {{ __huddoboards_image_tag }}  
   env:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
     CONNECTIONS_ACTIVITIES_ADMIN_USERNAME: connectionsadmin

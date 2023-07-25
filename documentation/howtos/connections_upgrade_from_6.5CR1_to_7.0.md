@@ -104,3 +104,5 @@ Once this is done, log in to your HCL Connections 7 installation, just to confir
 As you probably already noticed, same playbooks can be used for both installations and upgrades, and it is designed that way. Worst case scenario that can happen is that some services will be restarted while playbooks are ensuring that everything is the way it is described.
 
 And this gives you already the idea - it is very easy, this way, to deploy if needed new build every day, or even multiple times per day, by ensuring that you are simply having a new package uploaded to the right folder, without even changing anything in Ansible itself.
+
+As for the Component Pack, upgrading from 6.5CR1 directly to the Component Pack hosted in the HCL Harbor registry is not supported.  Please follow the product documentation to upgrade to Connections v7.0 first.

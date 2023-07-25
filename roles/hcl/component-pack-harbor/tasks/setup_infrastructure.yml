@@ -1,5 +1,5 @@
 - name:                      Get chart and version
-  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep infrastructure | awk {'print $2'}"
+  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep infrastructure | cut -d ':' -f2"
   register:                  infrastructure_chart_version
   become_user:               "{{ __sudo_user }}"
 

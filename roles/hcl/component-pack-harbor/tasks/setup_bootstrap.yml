@@ -1,3 +1,4 @@
+
 ---
 - name:                      Check if bootstrap can be deleted after all with Helm
   shell:                     "helm ls --namespace {{ __default_namespace }} | grep bootstrap"
@@ -6,14 +7,7 @@
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
-- name:                      Delete bootstrap if already exists - Helm v2
-  command:                   helm del --purge bootstrap
-  when:
-   - bootstrap_already_provisioned.rc == 0
-   - helm_version.stdout == "v2"
-  become_user:               "{{ __sudo_user }}"
-
-- name:                      Delete bootstrap if already exists - Helm v3
+- name:                      Delete bootstrap if already exists
   command:                   "helm uninstall bootstrap --namespace {{ __default_namespace }}"
   when:
    - bootstrap_already_provisioned.rc == 0
@@ -44,7 +38,7 @@
    - bootstrap_template_file is defined
 
 - name:                      Get chart and version
-  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep bootstrap | awk {'print $2'}"
+  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep bootstrap | cut -d ':' -f2"
   register:                  bootstrap_chart_version
   become_user:               "{{ __sudo_user }}"
 

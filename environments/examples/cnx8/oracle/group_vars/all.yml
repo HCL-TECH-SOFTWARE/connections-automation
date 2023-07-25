@@ -108,6 +108,9 @@ docker_registry_url:                             hclcr.io/cnx
 docker_registry_username:                        "{{ lookup('env','HARBOR_USERNAME') }}"
 docker_registry_password:                        "{{ lookup('env','HARBOR_SECRET') }}"
 
+huddoboards_registry_username:                   "{{ lookup('env','QUAY_USERNAME') }}"
+huddoboards_registry_password:                   "{{ lookup('env','QUAY_SECRET') }}"
+
 enable_pod_auto_scaling:                         true
 
 # setup_installation:                             false

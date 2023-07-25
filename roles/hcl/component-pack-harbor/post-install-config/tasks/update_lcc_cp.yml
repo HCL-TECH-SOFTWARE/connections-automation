@@ -1,9 +1,15 @@
 ---
-  - name:              Set componentPackInstalled to true
-    xml:
-      path:            "{{ __lcc_full_path }}"
-      namespaces:      "{{ __lcc_namespaces }}"
-      xpath:           "{{ __lcc_componentpackinstalled_xpath }}"
-      value:           "true"
-    when:
-      -  __cnx_major_version is version('8', '>=')
+- name:              Install lxml
+  pip:
+    name:            lxml
+    state:           latest
+  when:              pool_server is defined
+
+- name:              Set componentPackInstalled to true
+  xml:
+    path:            "{{ __lcc_full_path }}"
+    namespaces:      "{{ __lcc_namespaces }}"
+    xpath:           "{{ __lcc_componentpackinstalled_xpath }}"
+    value:           "true"
+  when:
+    -  __cnx_major_version is version('8', '>=')

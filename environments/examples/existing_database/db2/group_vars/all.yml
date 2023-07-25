@@ -52,7 +52,6 @@ cnx_fixes_repository_url:                        "http://{{ groups['installer'][
 cnx_fixes_version:                               "8.0.0.0_CR3"
 cnx_fixes_files:
   - { file_name: "HC8.0_CR3.zip" }
-
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
 cnx_major_version:                               "8"
@@ -95,6 +94,9 @@ component_pack_helm_repository:                  https://hclcr.io/chartrepo/cnx
 docker_registry_url:                             hclcr.io/cnx
 docker_registry_username:                        "{{ lookup('env','HARBOR_USERNAME') }}"
 docker_registry_password:                        "{{ lookup('env','HARBOR_SECRET') }}"
+
+huddoboards_registry_username:                   "{{ lookup('env','QUAY_USERNAME') }}"
+huddoboards_registry_password:                   "{{ lookup('env','QUAY_SECRET') }}"
 
 enable_pod_auto_scaling:                         true
 

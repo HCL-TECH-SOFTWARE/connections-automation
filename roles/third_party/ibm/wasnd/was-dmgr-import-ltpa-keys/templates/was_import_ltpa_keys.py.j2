@@ -1,0 +1,6 @@
+
+AdminTask.importLTPAKeys('[-ltpaKeyFile "{{ __sametime_ltpa_key_dest }}" -password "{{ ltpa_key_password }}" ]')
+
+# Save and Synchronise
+AdminConfig.save()
+AdminNodeManagement.syncActiveNodes()

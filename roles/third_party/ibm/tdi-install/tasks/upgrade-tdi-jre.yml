@@ -75,7 +75,7 @@
     marker:                 "// {mark} Grant all permissions to all files in the SDI install dir"
     insertafter:            "// Standard extensions get all permissions by default"
     block:                  |
-                            grant codeBase "file:"{{ __tdi_user_install_dir }}"/*" {
+                            grant codeBase "file:{{ __tdi_user_install_dir }}/*" {
                                     permission java.security.AllPermission;
                             };
   when:

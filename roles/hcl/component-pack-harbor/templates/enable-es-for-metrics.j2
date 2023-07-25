@@ -1,3 +1,6 @@
 batchMode=1
+{% if pool_server is defined %}
+serviceNodeNameMetrics='{{ nodeName }}'
+{% endif %}
 execfile('metricsEventCapture.py')
 switchMetricsToElasticSearch()

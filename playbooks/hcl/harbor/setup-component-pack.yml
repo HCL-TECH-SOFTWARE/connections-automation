@@ -20,19 +20,24 @@
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes,
+        when: pool_server is not defined }
 
 - name:                    Restart WAS Nodes
   hosts:                   was_servers
   serial:                  1
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-nodeagent-stop
-    - roles/third_party/ibm/wasnd/was-nodeagent-start
+    - { role: roles/third_party/ibm/wasnd/was-nodeagent-stop,
+        when: pool_server is not defined and was_defer_restart is not defined }
+    - { role: roles/third_party/ibm/wasnd/was-nodeagent-start,
+        when: pool_server is not defined and was_defer_restart is not defined }
 
 - name:                    Restart CNX Clusters
   hosts:                   dmgr
   become:                  true
   roles:
-    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
-    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster,
+        when: was_defer_restart is not defined }
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-start-cluster,
+        when: was_defer_restart is not defined }
