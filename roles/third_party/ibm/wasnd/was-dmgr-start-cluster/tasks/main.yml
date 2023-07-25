@@ -51,3 +51,4 @@
     chdir={{ __bin_dir }}
     {{ __bin_dir }}/startServer.sh {{ __cluster_name }}
   when:                 pool_server is defined and not server_is_running.stat.exists
+  become_user:          "{{ kubectl_user }}"

@@ -161,6 +161,9 @@ LoadModule actions_module modules/mod_actions.so
 LoadModule alias_module modules/mod_alias.so
 LoadModule rewrite_module modules/mod_rewrite.so
 LoadModule deflate_module modules/mod_deflate.so
+{% if pool_server is defined %}
+LoadModule ibm_local_redirect_module modules/mod_ibm_local_redirect.so
+{% endif %}
 
 #
 # ExtendedStatus controls whether the web server will generate "full"
@@ -268,7 +271,11 @@ DocumentRoot "/opt/IBM/HTTPServer/htdocs"
 # http://publib.boulder.ibm.com/httpserv/manual70/mod/core.html#options
 # for more information.
 #
+{% if pool_server is defined %}
+    Options FollowSymLinks Indexes
+{% else %}
     Options FollowSymLinks
+{% endif %}
 
 #
 # AllowOverride controls what directives may be placed in .htaccess files.
@@ -899,6 +906,13 @@ TrackModules On
 # mod_whatkilledus.
 EnableExceptionHook On
 
+{% if pool_server is defined %}
+# mod_backtrace will record a backtrace of the crashing thread to the
+# error log at the time of a crash.  This is important information for
+# diagnosing the cause of the crash.
+LoadModule backtrace_module modules/debug/mod_backtrace.so
+{% endif %}
+
 # mod_whatkilledus will record information about the current request
 # and connection to the error log at the time of a crash.  This is
 # important information for diagnosing the cause of the crash.
@@ -938,6 +952,11 @@ ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregi
 {% if not __setup_huddoboards_ext |bool %}
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 {% endif %}
+
+# If used in CNX8, don't allow loading of CNX7 header
+RewriteCond %{HTTP_REFERER} /boards/
+RewriteRule ^/homepage/web/pageHeader - [L,F]
+
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
@@ -1020,6 +1039,11 @@ ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregi
 {% if not __setup_huddoboards_ext |bool %}
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 {% endif %}
+
+# If used in CNX8, don't allow loading of CNX7 header
+RewriteCond %{HTTP_REFERER} /boards/
+RewriteRule ^/homepage/web/pageHeader - [L,F]
+
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
@@ -1071,6 +1095,33 @@ SSLProtocolDisable SSLv2 SSLv3 TLSv10 TLSv11
 </VirtualHost>
 </IfModule>
 SSLDisable
+
+{% if pool_server is defined %}
+# configuration for HCL Connections file downloads
+alias /files_content /data/Connections/files/upload
+<Directory "/data/Connections/files/upload">
+ Order Deny,Allow
+ Deny from all
+ Allow from env=REDIRECT_FILES_CONTENT
+</Directory>
+
+<Location /files>
+    IBMLocalRedirect On
+    IBMLocalRedirectKeepHeaders X-LConn-Auth,Cache-Control,Content-Type,Content-Disposition,Last-Modified,ETag,Content-Language,Set-Cookie,Title,X-UA-Compatible
+    SetEnv FILES_CONTENT true
+</Location>
+
+<IfModule mod_ibm_upload.c>
+    <Location /ihs/files>
+        IBMUploadHandler On
+        SetHandler ibm_upload_handler
+        IBMUploadBaseStore /data/Connections/files/upload/files
+        IBMUploadMethods POST,PUT
+        IBMUploadURLPrefix /ihs
+    </Location>
+</IfModule>
+{% endif %}
+
 Keyfile "/opt/IBM/HTTPServer/{{ __ihs_hostname }}-key.kdb"
 SSLStashFile "/opt/IBM/HTTPServer/{{ __ihs_hostname }}-key.sth"
 

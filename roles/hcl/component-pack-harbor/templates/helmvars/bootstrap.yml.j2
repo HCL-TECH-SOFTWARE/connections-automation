@@ -11,6 +11,7 @@ env:
   skip_configure_redis: {{ __skip_configure_redis }}
   set_opensearch_ca_password: {{ __opensearch_ca_password }}
   set_opensearch_key_password: {{ __opensearch_key_password }}
+  force_regenerate: {{ __force_regenerate_certs }}
 image:
   repository: {{ __docker_registry_url }}
 replicaCount: {{ __replica_count }}

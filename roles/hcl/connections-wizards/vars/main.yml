@@ -1,7 +1,4 @@
 ---
-db2_wizards_download_locaiton:  "{{ connections_wizards_download_location }}"
-db2_wizards_package_name:       "{{ connections_wizards_package_name }}"
-
 __cnx_fixes_version:            "{{ cnx_fixes_version }}"
 __cnx_db_updates_url:           "{{ cnx_db_updates_url }}"
 __cnx_db_update_file:           "{{ cnx_db_update_file | default('65cr1-database-updates.zip') }}"

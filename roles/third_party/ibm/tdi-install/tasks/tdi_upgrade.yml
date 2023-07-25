@@ -3,10 +3,32 @@
     path:                "{{ __tdi_installed_success_file }}"
   register:              tdi_already_installed
 
-- name:                  "Verify if TDI is already upgraded"
+- name:                  "Get the target FP version to upgrade"
+  set_fact:
+    upgrade_version:     "{{ __upgrade_package_bin.split('.zip')[0] }}"
+
+- name:                  "Get installed version"
+  shell:                 "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh -queryreg"
+  register:              installed_version_check
+
+- name:                  "Set var if {{ upgrade_version }} is already upgraded"
+  set_fact:
+     tdi_already_upgraded:  "true"
+  when:                  "upgrade_version in installed_version_check.stdout"
+
+- name:                  "Verify if updateLog4j.sh is already run (for FP8/FP9)"
   stat:
-    path:                "{{ __tdi_upgrade_success_file }}"
-  register:              tdi_already_upgraded
+    path:                "{{ __tdi_user_install_dir }}/updateLog4j.success"
+  register:              updateLog4j_already_run
+  when:
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+
+- name:                  "Verify if removeAMC.sh is already run (for FP8/FP9)"
+  stat:
+    path:                "{{ __tdi_user_install_dir }}/removeAMC.success"
+  register:              removeAMC_already_run
+  when:
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
 
 - name:                  Clean up upgrade folder(s)
   file:
@@ -14,24 +36,31 @@
     state:               absent
   when:
     - tdi_already_installed.stat.exists |bool
-    - not tdi_already_upgraded.stat.exists
+    - tdi_already_upgraded is not defined
+
+# FP9 zip doesn't have a folder
+- name:                  "Set the FP kit extract location (for FP9)"
+  set_fact:
+    fp_extracted_folder:   "{{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}"
+  when:
+    - upgrade_version is search("FP0009")
 
 - name:                  Create upgrade folder
   file:
-    path:                "{{ __tdi_upgrade_folder }}"
+    path:                "{{ fp_extracted_folder | default( __tdi_upgrade_folder ) }}"
     state:               directory
   when:
     - tdi_already_installed.stat.exists |bool
-    - not tdi_already_upgraded.stat.exists
+    - tdi_already_upgraded is not defined
 
 - name:                  Download and unzip upgrade {{ __upgrade_package_name }} to the {{ __extraction_folder }}
   unarchive:
     src:                 "{{ __download_location }}/{{ __upgrade_package_name }}"
-    dest:                "{{ __tdi_upgrade_folder }}"
+    dest:                "{{ fp_extracted_folder | default( __tdi_upgrade_folder ) }}"
     remote_src:          yes
   when:
     - tdi_already_installed.stat.exists |bool
-    - not tdi_already_upgraded.stat.exists
+    - tdi_already_upgraded is not defined
 
 - name:                  Ensure {{ __tdi_user_install_dir }}/maintenance/UpdateInstaller.jar is absent
   file:
@@ -39,7 +68,7 @@
     state:               absent
   when:
     - tdi_already_installed.stat.exists |bool
-    - not tdi_already_upgraded.stat.exists
+    - tdi_already_upgraded is not defined
 
 - name:                  Copy {{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/UpdateInstaller.jar to {{ __tdi_user_install_dir }}/maintenance/
   copy:
@@ -48,17 +77,83 @@
     remote_src:          yes
   when:
     - tdi_already_installed.stat.exists |bool
-    - not tdi_already_upgraded.stat.exists
+    - tdi_already_upgraded is not defined
 
-- name:                  Upgrade TDI
+- name:                  "Upgrade TDI"
   shell:                 "{{ __tdi_upgrade_bin }} -update {{ __tdi_upgrade_folder }}/{{ __upgrade_package_folder_name }}/{{ __upgrade_package_bin }}"
   register:              tdi_upgrade
   failed_when:           ( tdi_upgrade.rc not in [0] )
   when:
     - tdi_already_installed.stat.exists |bool
-    - not tdi_already_upgraded.stat.exists
+    - tdi_already_upgraded is not defined
 
-- name:                  "Create {{ __tdi_upgrade_success_file }} file"
+- name:                  "Verify FP upgrade"
+  shell:                 "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh -queryreg"
+  register:              fp_upgrade_check
+  when:                  tdi_upgrade is changed
+
+- name:                  "Check queryreg stdout to confirm {{ upgrade_version }} is installed"
+  debug:
+    var:                 fp_upgrade_check.stdout_lines
+  when:                  tdi_upgrade is changed
+  failed_when:           upgrade_version not in fp_upgrade_check.stdout
+
+- name:                  "Create {{ __tdi_user_install_dir }}/{{ upgrade_version }}.success file"
   file:
-    path:                "{{ __tdi_upgrade_success_file }}"
+    path:                "{{ __tdi_user_install_dir }}/{{ upgrade_version }}.success"
     state:               touch
+  when:                  tdi_upgrade is changed
+
+# Additional scripts for FP8, FP9
+- name:                  Add +x to additional upgrade scripts
+  file:
+    dest:                "{{ __tdi_user_install_dir }}/bin/{{ item }}"
+    mode:                a+x
+  with_items:
+    - updateLog4j.sh
+    - removeAMC.sh
+  when:
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - not updateLog4j_already_run.stat.exists |bool or not removeAMC_already_run.stat.exists |bool
+
+- name:                  Run updateLog4j.sh
+  shell:                 "{{ __tdi_user_install_dir }}/bin/updateLog4j.sh"
+  register:              run_updateLog4j
+  failed_when:           run_updateLog4j.rc != 0
+  when:
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - not updateLog4j_already_run.stat.exists |bool
+
+- name:                  "Create {{ __tdi_user_install_dir }}/updateLog4j.success file"
+  file:
+    path:                "{{ __tdi_user_install_dir }}/updateLog4j.success"
+    state:               touch
+  when:                  run_updateLog4j is changed
+
+- name:                  Run removeAMC.sh
+  shell:                 "{{ __tdi_user_install_dir }}/bin/removeAMC.sh"
+  register:              run_removeAMC
+  failed_when:           run_removeAMC.rc != 0
+  when:
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - not removeAMC_already_run.stat.exists |bool
+
+- name:                  "Create {{ __tdi_user_install_dir }}/removeAMC.success file"
+  file:
+    path:                "{{ __tdi_user_install_dir }}/removeAMC.success"
+    state:               touch
+  when:                  run_removeAMC is changed
+
+  # Connections specific KB0104118 for FP9 (there is also a part in tdisol_install.yml)
+- name:                  "Check if {{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ exists"
+  stat:
+    path:                "{{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ"
+  register:              activemq_folder_exists
+  when:
+    - upgrade_version is search("FP0009")
+
+- name:                  Move ActiveMQ folder if exists
+  shell:                 "mv {{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ {{ __tdi_user_install_dir }}/maintenance/BACKUP/{{ upgrade_version }}/"
+  when:
+    - upgrade_version is search("FP0009")
+    - activemq_folder_exists.stat.exists |bool

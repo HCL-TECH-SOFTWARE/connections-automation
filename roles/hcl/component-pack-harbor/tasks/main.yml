@@ -96,6 +96,7 @@
   when:
    - __setup_orientme |bool
    - not __skip_connections_integration
+   - pool_server is not defined
 
 - name:                      Setup Activities Plus
   include_tasks:             setup_kudosboards.yml

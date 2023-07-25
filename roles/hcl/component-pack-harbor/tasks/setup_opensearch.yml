@@ -48,7 +48,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Get chart and version
-  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep opensearch | grep -vE \"opensearch-\" | cut -d ':' -f2"
+  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep opensearch | grep -vE \"opensearch-\" | grep -vE opensearchstack | cut -d ':' -f2"
   register:                  opensearch_chart_version
   become_user:               "{{ __sudo_user }}"
 

@@ -5,7 +5,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Get chart and version
-  shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep opensearchstack | awk {'print $2'}"
+  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep opensearchstack | cut -d ':' -f2"
   register:                  opensearchstack_chart_version
   become_user:               "{{ __sudo_user }}"
 
@@ -24,28 +24,21 @@
   command:                   "helm upgrade opensearchstack {{ __helm_repository_local_name }}/opensearchstack -i --version {{ opensearchstack_chart_version.stdout }} -f {{ __opensearchstack_env }} --namespace {{ __default_namespace }} --wait"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Wait for OpenSearch Dashboard, OpenSearch Filebeat and OpenSearch Logstash to come up
-  pause:
-    seconds:                 60
-
-- name:                      Check if OpenSearch Logstash is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i opensearch-logstash | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
+- name:                      Check if opensearch-dashboards deployment is ready
+  shell:                     "kubectl -n {{ __default_namespace }} rollout status deploy $(kubectl -n {{ __default_namespace }} get deploy | grep opensearch-dashboards | grep -vE NAME | awk '{print $1}') --timeout=300s"
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Check if Opensearch Dashboard is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i opensearch-kibana | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
+- name:                      Check if filebeat daemonSet is ready
+  shell:                     "kubectl -n {{ __default_namespace }} rollout status ds $(kubectl -n {{ __default_namespace }} get ds | grep filebeat | grep -vE NAME | awk '{print $1}') --timeout=300s"
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Check if OpenSearch Filebeat is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i opensearch-filebeat | grep -i Running
-  changed_when:              true
-  when:                      not __skip_pod_checks
+- name:                      Check if logstash statefulset is ready
+  shell:                     "kubectl -n {{ __default_namespace }} rollout status sts $(kubectl -n {{ __default_namespace }} get sts | grep logstash | grep -vE NAME | awk '{print $1}') --timeout=300s"
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Finding OpensSearch-Dashboard link
   debug:
-    msg:                     "You can reach your opensearch-dashboard instance here: https://{{ __frontend_fqdn }}/opensearch-dashboard"
+    msg:                     "You can reach your opensearch-dashboard instance here: https://{{ __frontend_fqdn }}/dashboards"

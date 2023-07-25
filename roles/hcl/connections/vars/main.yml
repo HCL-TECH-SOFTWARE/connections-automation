@@ -73,8 +73,8 @@ __cnx_files_names:
 
 _cnx_files:                   "{{ cnx_files | default(__cnx_files_names)  }}"
 
-__cnx_fixes_version:         "{{ cnx_fixes_version | default( __cnx_fixes_version_latest ) }}"
-__cnx_fixes_files:           "{{ cnx_fixes_files | default( __cnx_fixes_files_latest ) }}"
+__cnx_fixes_version:         "{{ cnx_fixes_version | default( '' ) }}"
+__cnx_fixes_files:           "{{ cnx_fixes_files | default( '' ) }}"
 
 __cnx_deploy_type:           "{{ cnx_deploy_type | default('small') }}"
 

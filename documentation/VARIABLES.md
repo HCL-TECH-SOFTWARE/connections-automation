@@ -183,9 +183,9 @@ tdi_download_location | *none* - required | SDI install kit download location
 tdi_package_name | SDI_7.2_XLIN86_64_ML.tar | SDI install kit file
 tdi_user_install_dir | /opt/IBM/TDI/V7.20 | SDI program folder
 tdi_upgrade_enable | true | Enable SDI FP install
-tdi_upgrade_package_name | 7.2.0-ISS-SDI-FP0006.zip | SDI FP install kit file
-tdi_upgrade_package_bin | SDI-7.2-FP0006.zip | SDI FP file to provide to installer
-tdi_upgrade_package_folder_name | 7.2.0-ISS-SDI-FP0006 | Folder that stores tdi_upgrade_package_bin
+tdi_upgrade_package_name | 7.2.0-ISS-SDI-FP0009.zip | SDI FP install kit file
+tdi_upgrade_package_bin | SDI-7.2-FP0009.zip | SDI FP file to provide to installer
+tdi_upgrade_package_folder_name | 7.2.0-ISS-SDI-FP0009 | Folder that stores tdi_upgrade_package_bin
 tdi_cs_port | 1527 | SDI Derby server port
 cnx_updates_enabled | false | true will download `{{ cnx_package }}` (i.e. Connections install kit) again to get the tdisol from there
 upgrade_tdi_jre | false | Enable upgrade to SDI JRE 8 (need a separate 6.5CR1 or 7.0 tdisol kit)
@@ -207,8 +207,8 @@ connections_wizards_package_name | HCL_Connections_8.0_wizards_lin_aix.tar | Con
 setup_connections_wizards | true | true will run the Connections database wizard
 cnx_force_repopulation | false | true will drop the Connections databases and recreate them in `setup-connections-wizards.yml` playbook
 cnx_major_version | "8" | Connections major version to install
-cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR2) will install the CR version
-cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR2.zip") and cnx_fixes_version is set, will download the CR install kit
+cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR3) will install the CR version
+cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR3.zip") and cnx_fixes_version is set, will download the CR install kit
 cnx_application_ingress | *none*  - required | Set as *dynamicHosts* in LotusConnections-config.xml
 connections_admin | jjones1 | User to be passed to the Connections installer as admin user
 connections_admin_password | password | password for Connections admin user
@@ -219,7 +219,7 @@ cnx_shared_area_nfs | /nfs/data/shared | Connections shared data NFS share
 cnx_message_store | /opt/HCL/MessageStore | Connections bus SIB location mount point
 cnx_message_store_nfs | /nfs/data/messageStores | Connections bus SIB NFS share
 cnx_enable_invite | false | true will configure selfregistration-config.xml for Invite
-cnx_enable_moderation | false | true will install and configure Moderation
+cnx_enable_moderation | false | true will configure and enable Moderation
 global_moderator | *none* - optional | Global moderator user
 cnx_enable_full_icec | false | true will configure full CEC
 cnx_enable_lang_selector | false | true will enable and add additional languages to the language selector
@@ -302,7 +302,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.6.9-3.1.el7 | Containerd version to be installed
+containerd_version | 1.6.20-3.1.el7 | Containerd version to be installed
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -312,7 +312,7 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.25.6 | Kubernetes version to be installed
+kubernetes_version | 1.27.0 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
@@ -320,7 +320,7 @@ load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
 calico_version | 3.25.0 | Calico version to be installed
-helm_version | 3.10.2 | Helm version to be installed
+helm_version | 3.11.3 | Helm version to be installed
 haproxy_version | 2.6.6 | HAProxy version to be installed
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
@@ -344,6 +344,7 @@ es_ca_password | password | Elasticsearch CA password
 redis_secret | password |  Redis secret used in bootstrap
 search_secret | password | search secret used in bootstrap
 solr_secret | password | Solr secret used in bootstrap
+force_regenerate_certs | false | When true, bootstrap installation overwrites existing certs/secrets
 default_namespace | connections | Kubernetes namespace
 nfsMasterAddress | hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] | NFS master IP
 persistentVolumePath | pv-connections | Persistent volume location to be created
@@ -373,7 +374,7 @@ huddo_boards_licence | *none* | Activities Plus license key
 huddoboards_registry_url | quay.io/huddo | huddoboards registry url
 huddoboards_registry_username | admin | huddoboards registry user name
 huddoboards_registry_password | password | huddoboards registry password
-huddoboards_image_tag | 2023-01-24 |  huddoboards image tag in huddoboards registry
+huddoboards_image_tag | 2023-05-12 |  huddoboards image tag in huddoboards registry
 huddoboards_chart_name | huddo-boards-cp-1.1.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials

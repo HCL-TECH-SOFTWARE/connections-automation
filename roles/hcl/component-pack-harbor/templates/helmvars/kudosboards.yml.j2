@@ -11,7 +11,10 @@ minio:
   image:
     tag: {{ __huddoboards_image_tag }}
   nfs:
-    server: {{ hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] }}
+    server: {{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}
+{% if persistentVolumePath is defined %}
+  persistentVolumePath: {{ persistentVolumePath }}
+{% endif %}
 
 app:
   image:

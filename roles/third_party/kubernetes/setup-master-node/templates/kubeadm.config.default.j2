@@ -1,4 +1,8 @@
+{% if __kubernetes_version is defined and __kubernetes_version is version('1.27.0', '>=') %}
+apiVersion: kubeadm.k8s.io/v1beta3
+{% else %}
 apiVersion: kubeadm.k8s.io/v1beta2
+{% endif %}
 kind: ClusterConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
@@ -35,7 +39,11 @@ networking:
     podSubnet: "{{ __pod_subnet }}"
 {% if inventory_hostname != hostvars[groups['k8s_masters'][0]]['inventory_hostname'] %}
 ---
+{% if __kubernetes_version is defined and __kubernetes_version is version('1.27.0', '>=') %}
+apiVersion: kubeadm.k8s.io/v1beta3
+{% else %}
 apiVersion: kubeadm.k8s.io/v1beta2
+{% endif %}
 kind: InitConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:

@@ -16,6 +16,7 @@
   command:           kubectl replace -f calico.yaml
   when:
    - calico_already_provisioned.rc == 0
+   - inventory_hostname == groups['k8s_masters'][0]   
   become:             false
 
 - name:               Fresh install- Apply calico.yaml manifest

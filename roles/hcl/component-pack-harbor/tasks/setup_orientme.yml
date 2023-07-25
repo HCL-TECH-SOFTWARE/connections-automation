@@ -32,5 +32,5 @@
 
 - name:                      Check if orientme is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i orient | grep -i Running
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"

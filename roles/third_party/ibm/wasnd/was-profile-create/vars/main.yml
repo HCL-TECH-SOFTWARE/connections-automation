@@ -1,5 +1,5 @@
 ---
-__was_major_version:    "{{ was_major_version | default('8') }}"  
+__was_major_version:    "{{ was_major_version | default('8') }}"
 __profile_name:         "{{ profile_name | default('AppSrv01') }}"
 __was_install_location: "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __default_nodename:      "{{ inventory_hostname_short }}-node"
@@ -20,5 +20,5 @@ __was_fp_version_fp20:  "8.5.5020.20210708_1826"
 __was_fp_version_fp21:  "8.5.5021.20220202_1245"
 __was_fp_version_fp22:  "8.5.5022.20220703_1123"
 __was_fp_version_fp23:  "8.5.5023.20230116_1145"
-__was_fp_version_latest: "{{ was_fp_version_latest | default( __was_fp_version_fp22 ) }}"
+__was_fp_version_latest: "{{ was_fp_version_latest | default( __was_fp_version_fp23 ) }}"
 __was_fixes_version:    "{{ was_fp_version | default( __was_fp_version_latest ) }}"

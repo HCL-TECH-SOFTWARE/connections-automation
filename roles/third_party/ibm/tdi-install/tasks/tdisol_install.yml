@@ -148,6 +148,15 @@
     - "'mssql_servers' in groups"
     - "'1.8' in jre_version_stat.stdout"
 
+# Connections specific KB0104118
+- name:                 Update api.on to true in solution.properties (for SDI FP8/FP9)
+  replace:
+    path:               "{{ __tdi_sol_dest }}/TDI/solution.properties"
+    regexp:             "^(#?)api.on ?=(.*)$"
+    replace:            "api.on=true"
+  when:
+    - __upgrade_package_bin is search("FP0009")
+
 - name:                  "Run collect_dns.sh"
   command:               "sh {{ __tdi_sol_dest }}/TDI/collect_dns.sh"
   register:              collectdns
@@ -157,7 +166,7 @@
   command:               "sh {{ __tdi_sol_dest }}/TDI/populate_from_dn_file.sh"
   register:              populatefromdnfile
   failed_when:           populatefromdnfile.rc != 0
-  
+
 - name:                  "Cleanup Binaries directory"
   file:
     state:               absent

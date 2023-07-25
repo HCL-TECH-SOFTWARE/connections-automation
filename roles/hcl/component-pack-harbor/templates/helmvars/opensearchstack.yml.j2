@@ -1,10 +1,11 @@
 opensearch-dashboards:
-  username: kibanaserver
-  password: kibanaserver
-  keypassphrase: password
-opensearch-logstash :
-  keystorePassword: "password"
-openseach-kibana :
-  keyPassphrase: "password"
-
+  namespace: {{ __default_namespace }}
+  username: {{ __opensearch_dashboard_username }}
+  password: {{ __opensearch_dashboard_password }}
+  keypassphrase: {{ __opensearch_key_password }}
+opensearch-logstash:
+  namespace: {{ __default_namespace }}
+  keystorePassword: {{ __opensearch_key_password }}
+filebeat-8:
+  namespace: {{ __default_namespace }}
 namespace: {{ __default_namespace }}

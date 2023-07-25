@@ -10,7 +10,7 @@
 
 - name:          Install pre-requisites Yum on RHEL 8
   yum:
-    name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
+    name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl', 'unzip']
     state:       present
   when:
     - ansible_os_family == "RedHat"

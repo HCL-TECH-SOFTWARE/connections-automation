@@ -11,7 +11,7 @@ For HCL Connections 8 dependencies this means that:
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 22. By default, FP22 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 23. By default, FP23 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
@@ -22,7 +22,7 @@ For HCL Connections 8 itself it means:
 * HCL Connections 8 will be downloaded and installed. Any type of layout is supported and customizable.
 * In LotusConnections-config.xml dynamicHost will be updated.
 * Optionaly, Prometheus JMX exported will be enabled for all HCL Connections clusters.
-* Optionally, Moderation can be enabled as well.
+* Moderation will be installed and optionally it can be enabled as well.
 * In case of upgrades, it will clean up temp folders to prevent possible issues with UI post upgrade.
 * All or some (or none) clusters will be started automatically.
 * IBM HTTP Server plugins will get generated and propagated
@@ -35,7 +35,7 @@ For Component Pack for HCL Connections 8 it means:
 * Haproxy will be set up configured to be the control plane for Kubernetes cluster and Component Pack.
 * NFS will be set up for Component Pack.
 * Containerd(container runtime) v1.4.12 will be installed with the optimisations required by the version of Kubernetes.
-* Kubernetes 1.25.6 will be set up.
+* Kubernetes 1.27.0 will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
 * Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using OpenSearch.
 
@@ -60,7 +60,7 @@ To be able to use this automation you will need to be able to download the packa
 
 The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as a single Ruby one liner to open web server on specific port so that automation can connect and download it.
 
-#### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details. Contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
+#### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details.  The problem is fixed in Fixpack 23.  If Fixpack 22 is needed, contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
 This is the example data folder structure we are following at HCL.  Please refer to FlexNet when verifying the size and timestamps of the packages.
 
 ```
@@ -84,8 +84,7 @@ Connections7:
 Connections8:
 -r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
 -r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
--r-xr-xr-x   1 root root  1736629222 Jan 26 16:41 HC8.0_CR1.zip
--r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR2.zip
+-r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR3.zip
 
 DB2:
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
@@ -124,7 +123,6 @@ was855:
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
-
 was855FP22:
 -rw-r--r--   1 root  root      291085 Nov 17 19:35 8.5.5.22-WS-WAS-IFPH49497.zip
 -rw-rw-r--   1 pnott pnott 1036290018 Aug 30 16:21 8.5.5-WS-WAS-FP022-part1.zip
@@ -135,6 +133,16 @@ was855FP22:
 -rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:29 8.5.5-WS-WASSupplements-FP022-part3.zip
 -rw-rw-r--   1 pnott pnott  249260151 Aug 30 16:33 8.5.5-WS-WCT-FP022-part1.zip
 -rw-rw-r--   1 pnott pnott 1963965494 Aug 30 16:34 8.5.5-WS-WCT-FP022-part2.zip
+
+was855FP23:
+-rw-rw-r-- 1 pnott pnott 1043662686 Mar 31 10:50 8.5.5-WS-WAS-FP023-part1.zip
+-rw-rw-r-- 1 pnott pnott  198696280 Mar 31 10:52 8.5.5-WS-WAS-FP023-part2.zip
+-rw-rw-r-- 1 pnott pnott 1966668297 Mar 31 11:12 8.5.5-WS-WAS-FP023-part3.zip
+-rw-rw-r-- 1 pnott pnott  482766367 Mar 31 11:21 8.5.5-WS-WASSupplements-FP023-part1.zip
+-rw-rw-r-- 1 pnott pnott  778868291 Mar 31 11:25 8.5.5-WS-WASSupplements-FP023-part2.zip
+-rw-rw-r-- 1 pnott pnott 1966668297 Mar 31 11:38 8.5.5-WS-WASSupplements-FP023-part3.zip
+-rw-rw-r-- 1 pnott pnott  255537504 Mar 31 11:46 8.5.5-WS-WCT-FP023-part1.zip
+-rw-rw-r-- 1 pnott pnott 1970142229 Mar 31 12:01 8.5.5-WS-WCT-FP023-part2.zip
 ```
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
@@ -513,7 +521,7 @@ Desired kubernetes version can be set using
 kubernetes_version
 ```
 
-This set of automation will install by default 1.25.6 and should be always able to install the Kubernetes versions supported by Component Pack.
+This set of automation will install by default 1.27.0 and should be always able to install the Kubernetes versions supported by Component Pack.
 
 To install Kubernetes, execute:
 

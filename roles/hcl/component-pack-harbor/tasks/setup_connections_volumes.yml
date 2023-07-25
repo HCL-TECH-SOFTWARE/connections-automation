@@ -26,5 +26,5 @@
 
 - name:                    Check if connections-volumes pv are bound
   shell:                   kubectl get pv -n {{ __default_namespace }} | grep -i connections | grep -i Bound
-  when:                    not __skip_pod_checks
+  when:                    not __skip_pod_checks|bool
   become_user:             "{{ __sudo_user }}"

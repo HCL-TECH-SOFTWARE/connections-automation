@@ -26,5 +26,5 @@
 
 - name:                      Check if connections-env configmap is created
   shell:                     kubectl get configmap -n {{ __default_namespace }} | grep -i connections-env
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"

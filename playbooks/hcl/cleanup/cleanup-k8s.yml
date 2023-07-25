@@ -4,6 +4,13 @@
   hosts:                       nfs_servers
   tasks:                       []
 
+# Cleanup Calico step is needed for k8s cleanup for k8s v1.26+ to handle error - 'Failed to "KillPodSandbox" due to calico connection is unauthorized'
+- name:                        Cleanup Calico
+  hosts:                       k8s_masters
+  become:                      true
+  roles:
+    - roles/hcl/cleanup/cleanup-calico
+
 - name:                        Cleanup Kubernetes
   hosts:                       k8s_masters, k8s_workers
   become:                      true

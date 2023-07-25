@@ -1,5 +1,5 @@
 ---
-__containerd_default_version:                          "1.6.9-3.1.el{{ ansible_distribution_major_version }}"
+__containerd_default_version:                          "1.6.20-3.1.el{{ ansible_distribution_major_version }}"
 __containerd_version:                                  "{{ containerd_version | default( __containerd_default_version ) }}"
 
 __modules_containerd_conf_template:                    "containerd.conf.j2"

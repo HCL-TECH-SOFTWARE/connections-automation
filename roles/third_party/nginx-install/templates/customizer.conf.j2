@@ -61,6 +61,16 @@ server {
                     rewrite ^/kibana7/(.*)$ /$1 break;
                 }
 
+                location /dashboards/ {
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_cache_bypass $http_upgrade;
+                    proxy_pass https://{{ groups['k8s_workers'][0] }}:32601/;
+                    rewrite ^/dashboards/(.*)$ /$1 break;
+                }
+
                 proxy_pass https://{{ ic_internal }};
         }
 }

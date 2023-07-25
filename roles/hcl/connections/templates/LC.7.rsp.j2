@@ -149,9 +149,9 @@
   <install>
     <!-- IBM Connections 7.0.0.1 -->
     {% if cnx_updates_enabled is not defined %}
-    <offering profile='HCL Connections' id='com.ibm.connections' version='{{ __this_version }}' features='main,common,files,homepage,news,pushNotification,search,rte,widgetContainer,activities,blogs,dogear,communities,forums,metrics,mobile,profiles,wikis,icec,ic360{% if ccm_install is defined %},ccm{% endif %}{% if __cnx_enable_moderation|bool %},moderation{% endif %}'/>
+    <offering profile='HCL Connections' id='com.ibm.connections' version='{{ __this_version }}' features='main,common,files,homepage,news,pushNotification,search,rte,widgetContainer,activities,blogs,dogear,communities,forums,metrics,mobile,moderation,profiles,wikis,icec,ic360{% if ccm_install is defined %},ccm{% endif %}'/>
     {% else %}
-    <offering profile='HCL Connections' id='com.ibm.connections' version='{{ cnx_upgrade_version.stdout }}' features='main,common,files,homepage,news,pushNotification,search,rte,widgetContainer,activities,blogs,dogear,communities,forums,metrics,mobile,profiles,wikis,icec,ic360{% if ccm_install is defined %},ccm{% endif %}{% if __cnx_enable_moderation|bool %},moderation{% endif %}'/>
+    <offering profile='HCL Connections' id='com.ibm.connections' version='{{ cnx_upgrade_version.stdout }}' features='main,common,files,homepage,news,pushNotification,search,rte,widgetContainer,activities,blogs,dogear,communities,forums,metrics,mobile,moderation,profiles,wikis,icec,ic360{% if ccm_install is defined %},ccm{% endif %}'/>
     {% endif %}
   </install>
   <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${sharedLocation}'/>

@@ -1,3 +1,5 @@
+
+---
 - name:                      Check if bootstrap can be deleted after all with Helm
   shell:                     "helm ls --namespace {{ __default_namespace }} | grep bootstrap"
   changed_when:              true
@@ -9,12 +11,14 @@
   command:                   "helm uninstall bootstrap --namespace {{ __default_namespace }}"
   when:
    - bootstrap_already_provisioned.rc == 0
+   - bootstrap_template_file is not defined
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space after eventual cleanup
   pause:
     seconds:                 5
   when:
+   - bootstrap_template_file is not defined
    - bootstrap_already_provisioned.rc == 0
 
 - name:                      "Render {{ __bootstrap_install_env }}"
@@ -22,6 +26,16 @@
     src:                     "helmvars/bootstrap.yml.j2"
     dest:                    "{{ __bootstrap_install_env }}"
   become_user:               "{{ __sudo_user }}"
+  when:
+   - bootstrap_template_file is not defined
+
+- name:                      "Render {{ __bootstrap_install_env }} for pool servers deployments"
+  template:
+    src:                     "{{ bootstrap_template_file }}"
+    dest:                    "{{ __bootstrap_install_env }}"
+  become_user:               "{{ __sudo_user }}"
+  when:
+   - bootstrap_template_file is defined
 
 - name:                      Get chart and version
   shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep bootstrap | cut -d ':' -f2"
