@@ -71,16 +71,27 @@
 - name:                     Configure containerd
   shell:                    containerd config default > /etc/containerd/config.toml
 
-- name:                     Configure docker.io mirror
+- name:                     Create registry host directory to configure docker.io mirror
+  file:                     path=/etc/containerd/certs.d/docker.io state=directory mode=0644
+  when:                     containerd_docker_mirror is defined
+
+- name:                     "Add {{ containerd_docker_mirror }} as docker mirror to hosts.toml"
+  copy:
+    dest:                   /etc/containerd/certs.d/docker.io/hosts.toml
+    content: |
+          server = "https://docker.io"
+
+          [host."https://{{ containerd_docker_mirror }}"]
+            capabilities = ["pull", "resolve"]
+  when:                     containerd_docker_mirror is defined
+
+- name:                     Configure mirror file in config.toml
   replace:
     path:                   "/etc/containerd/config.toml"
-    regexp:                 ".*registry\\.mirrors\\](\n|.)*?registry-1\\.docker\\.io\"\\]"
-    replace: |2
-            [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-              [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ containerd_docker_mirror }}"]
-                endpoint = ["https://{{ containerd_docker_mirror }}"]
-              [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-                endpoint = ["https://{{ containerd_docker_mirror }}"]
+    regexp:                 '\[plugins\."io\.containerd\.grpc\.v1\.cri"\.registry\][^\n]*\n\s*config_path = ""'
+    replace: |
+      [plugins."io.containerd.grpc.v1.cri".registry]
+        config_path = "/etc/containerd/certs.d"
     backup:                 yes
   when:                     containerd_docker_mirror is defined
 

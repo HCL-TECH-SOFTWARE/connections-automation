@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.25.1') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.27.0') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -13,7 +13,7 @@ __enable_pod_auto_scaling:                   "{{ enable_pod_auto_scaling | defau
 __skip_connections_integration:              "{{ skip_connections_integration | default(false) }}"
 
 __helm_repository:                           "{{ component_pack_helm_repository | default('https://hclcr.io/chartrepo/cnx') }}"
-__helm_repository_local_name:                "v-connections-helm"
+__helm_repository_local_name:                "{{ helm_repository_local_name | default('v-connections-helm' ) }}"
 __helm_repo_username:                        "{{ docker_registry_username | default('icdeploy') }}"
 __helm_repo_password:                        "{{ docker_registry_password | default('sometoken') }}"
 __helm_repo_flag:                            "--devel"
@@ -48,6 +48,13 @@ __replica_count:                             "{{ cp_replica_count | default(1) }
 __docker_registry_url:                       "{{ docker_registry_url | default('hclcr.io/cnx') }}"
 __docker_registry_username:                  "{{ docker_registry_username | default('admin') }}"
 __docker_registry_password:                  "{{ docker_registry_password | default('password') }}"
+
+__huddoboards_registry_url:                  "{{ huddoboards_registry_url | default('quay.io/huddo') }}"
+__huddoboards_registry_username:             "{{ huddoboards_registry_username | default('admin') }}"
+__huddoboards_registry_password:             "{{ huddoboards_registry_password | default('password') }}"
+__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-05-12') }}"
+__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.1.0.tgz') }}"
+__huddoboards_chart_location:                "{{ huddoboards_chart_location | default('https://docs.huddo.com/assets/config/kubernetes') }}"
 
 __network_host:                              "{{ network_host | default('_site_') }}"
 __download_location:                         "{{ component_pack_download_location | default('http://localhost:8000') }}"
@@ -84,6 +91,7 @@ __redis_secret:                              "{{ redis_secret | default('passwor
 __search_secret:                             "{{ search_secret | default('password') }}"
 __solr_secret:                               "{{ solr_secret | default('password') }}"
 __skip_configure_redis:                      "{{ skip_configure_redis | default('false') }}"
+__force_regenerate_certs:                    "{{ force_regenerate_certs | default('false') }}"
 
 __nfsMasterAddress:                          "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
 __persistentVolumePath:                      "{{ persistentVolumePath | default('pv-connections') }}"
@@ -186,3 +194,5 @@ __opensearch_key_password:                   "{{ opensearch_key_password | defau
 __opensearch_merge_template:                 "merge-opensearch-certificates-to-keystore.j2"
 __opensearchstack_env:                       "{{ __ansible_cache_charts }}/opensearchstack.yml"
 __setup_opensearchstack:                     "{{ setup_opensearchstack | default(false) |lower }}"
+__opensearch_dashboard_username:             "{{ opensearch_dashboard_username | default('admin') }}"
+__opensearch_dashboard_password:             "{{ opensearch_dashboard_password | default('password') }}"

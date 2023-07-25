@@ -31,35 +31,35 @@
 - name:                      Check if appregistry-client is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-client | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if appregistry-service is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-service | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if haproxy is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i haproxy | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if mongo5 is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mongo5 | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if redis-sentinel is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i redis-sentinel | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if redis-server is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i redis-server | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks
+  when:                      not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"

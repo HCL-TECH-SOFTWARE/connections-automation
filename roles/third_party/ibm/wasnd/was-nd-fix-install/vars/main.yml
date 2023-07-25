@@ -10,8 +10,8 @@ __rsp_file:                "{{ __logs_dir }}/was_nd_fixes.rsp"
 __log_file:                "{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log"
 __tpl_file:                "was_nd_fixes.rsp.j2"
 
-__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp22 ) }}"
-__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp22 ) }}"
+__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp23 ) }}"
+__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp23 ) }}"
 
 __was_fp_version_log4j:       "8.5.5011.20211215_1027"
 __was_fp_files_log4j:

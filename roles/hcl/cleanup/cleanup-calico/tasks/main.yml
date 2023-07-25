@@ -1,0 +1,48 @@
+- name:               Check if calico is already deployed
+  shell:              "kubectl  get deployment --all-namespaces | grep calico-kube-controllers"
+  changed_when:       true
+  register:           calico_already_provisioned
+  become:             false
+  ignore_errors:      true
+  tags:               always
+
+- name:               Restart calico-node daemonset
+  shell:              "kubectl -n kube-system rollout restart ds calico-node"
+  when:               calico_already_provisioned.rc == 0 and inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+  tags:               always
+
+- name:               Restart calico-kube-controllers deployment
+  shell:              "kubectl -n kube-system rollout restart deploy calico-kube-controllers"
+  when:               calico_already_provisioned.rc == 0 and inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+  tags:               always
+
+- name:               Download the Calico networking manifest for the Kubernetes API datastore
+  command:            curl https://raw.githubusercontent.com/projectcalico/calico/v{{ __calico_version }}/manifests/calico.yaml -O
+  when:               calico_already_provisioned.rc == 0 and inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+  tags:               always
+
+- name:               Uninstall calico- Delete calico.yaml manifest
+  command:            kubectl delete -f calico.yaml
+  when:               calico_already_provisioned.rc == 0 and inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+  tags:               always
+
+- name:               Get all file names inside dir /etc/cni/net.d
+  find:
+    paths:            /etc/cni/net.d
+    file_type:        file
+    patterns:         "*"
+  register:           files_to_delete
+  tags:               always
+
+- name:               Delete all files in /etc/cni/net.d/
+  file:
+    path:             "{{ item }}"
+    state:            absent
+    force:            yes
+  ignore_errors:      true
+  with_items:         "{{ files_to_delete.files  | map(attribute='path') | list }}"
+  tags:               always

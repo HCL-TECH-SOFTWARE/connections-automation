@@ -113,6 +113,13 @@
     path:                "{{ __success_file }}"
   register:              migrations_already_done
 
+- name:                  Restart DB
+  include_role:
+    name:                roles/third_party/ibm/db2-install/db2-restart
+  when:
+    - not migrations_already_done.stat.exists
+
+
 - name:                  Creating Connections databases (except ICEC)
   include_tasks:         ../../../third_party/ibm/db2-install/tasks/run_db_command.yml
   register:              all_migrations_result

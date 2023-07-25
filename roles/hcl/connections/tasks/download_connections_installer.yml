@@ -1,0 +1,44 @@
+---
+- name:              Get Source Installer File
+  uri:
+    url:             "{{ cnx_repository_url }}/{{ __cnx_package }}"
+    method:          HEAD
+    return_content:  no
+  register:          response
+
+- name:              Display Source Installer File Size
+  debug:
+    msg:             "Source file size: {{ response.content_length | int }} B"
+
+- name: Retry block to download installer file
+  block:
+    - name: Set the retry count
+      set_fact:
+        retry_count: "{{ 0 if retry_count is undefined else retry_count|int + 1 }}"
+
+    - name:              Download Installer
+      get_url:
+        url:             "{{ cnx_repository_url }}/{{ __cnx_package }}"
+        dest:            "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
+        mode:            0755
+        timeout:         300
+
+    - name:              Get Downloaded Installer File
+      stat:
+        path:            "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
+      register:          file_stats
+
+    - name:              Display downloaded Installer file size and fail this task if size is not equal to Source installer file size 
+      debug:
+        msg:             "Downloaded file size: {{ file_stats.stat.size | int }} B"
+      failed_when:       file_stats.stat.size |int != response.content_length |int
+
+  rescue:
+    - fail:
+        msg: Ended after 3 retries
+      when: retry_count|int == 3
+    
+    - debug:
+        msg: "Failed to download file. Retrying..."
+
+    - include_tasks: download_connections_installer.yml 

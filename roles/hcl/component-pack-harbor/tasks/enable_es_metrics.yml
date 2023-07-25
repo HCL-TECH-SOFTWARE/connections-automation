@@ -143,6 +143,7 @@
       delegate_to:          "{{ dmgr_hostname }}"
       become:               true
       ignore_errors:        yes
+  when:                     pool_server is not defined and was_defer_restart is not defined
 
 - name:                     Start CNX cluster
   include_role:
@@ -151,6 +152,7 @@
       delegate_to:          "{{ dmgr_hostname }}"
       become:               true
       ignore_errors:        yes
+  when:                     pool_server is not defined and was_defer_restart is not defined
 
 - name:                     "Render {{ __es_metrics_enable_template }} to {{ __es_metrics_enable_destination }} on {{ dmgr_hostname }}"
   template:

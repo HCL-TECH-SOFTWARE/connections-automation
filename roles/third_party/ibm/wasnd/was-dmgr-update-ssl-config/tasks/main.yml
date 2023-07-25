@@ -22,4 +22,4 @@
   changed_when:         cout.rc == 0
   retries:              5
   delay:                5
-  until:                cout is not search("ConnectorNotAvailableException")
+  until:                cout is not search("ConnectorNotAvailableException") and cout is not search("ConnectException")

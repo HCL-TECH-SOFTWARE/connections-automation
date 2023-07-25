@@ -5,8 +5,22 @@
     - not __calico_install_latest |bool
   become:             false
 
-- name:               Install the Pod network add on as per documentation - Calico
-  command:            kubectl apply -f https://projectcalico.docs.tigera.io/archive/v{{ __calico_version }}/manifests/calico.yaml
+- name:               Check if calico is already deployed
+  shell:              "kubectl  get deployment --all-namespaces | grep calico-kube-controllers"
+  changed_when:       true
+  register:           calico_already_provisioned
+  become:             false
+  ignore_errors:      true
+
+- name:              Upgrading an installation that uses manifests and the Kubernetes API datastore
+  command:           kubectl replace -f calico.yaml
+  when:
+   - calico_already_provisioned.rc == 0
+   - inventory_hostname == groups['k8s_masters'][0]
+  become:             false
+
+- name:               Fresh install- Apply calico.yaml manifest
+  command:            kubectl create -f calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - not __calico_install_latest |bool

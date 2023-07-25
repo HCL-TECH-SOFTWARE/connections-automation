@@ -41,4 +41,17 @@
   retries: 3
   delay: 30
   until: cout is not search("is already in progress")
-  #changed_when:         ( cout.stdout.find('INSTCONFSUCCESS') != -1)
+  when:                 pool_server is not defined
+
+- name:                 Verify if server is running (pool server)
+  shell:                "fuser 2809/tcp"
+  register:             server_is_running
+  ignore_errors:        true
+  when:                 pool_server is defined
+
+- name:                 "Executing {{ __bin_dir }}/stopServer.sh {{ __cluster_name }} (pool server)"
+  command:
+    chdir={{ __bin_dir }}
+    {{ __bin_dir }}/stopServer.sh {{ __cluster_name }} -username {{ __was_username }} -password {{ __was_password }}
+  when:                 pool_server is defined and server_is_running.rc == 0
+  become_user:          "{{ kubectl_user }}"

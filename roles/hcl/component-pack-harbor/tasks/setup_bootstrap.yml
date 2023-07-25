@@ -1,12 +1,4 @@
-- name:                      Check Helm Version
-  shell:                     helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"
-  changed_when:              true
-  register:                  helm_version
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- debug: var=helm_version.stdout
-
+---
 - name:                      Check if bootstrap can be deleted after all with Helm
   shell:                     "helm ls --namespace {{ __default_namespace }} | grep bootstrap"
   changed_when:              true
@@ -25,13 +17,14 @@
   command:                   "helm uninstall bootstrap --namespace {{ __default_namespace }}"
   when:
    - bootstrap_already_provisioned.rc == 0
-   - helm_version.stdout != "v2"
+   - bootstrap_template_file is not defined
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Give it some space after eventual cleanup
   pause:
     seconds:                 5
   when:
+   - bootstrap_template_file is not defined
    - bootstrap_already_provisioned.rc == 0
 
 - name:                      "Render {{ __bootstrap_install_env }}"
@@ -39,6 +32,16 @@
     src:                     "helmvars/bootstrap.yml.j2"
     dest:                    "{{ __bootstrap_install_env }}"
   become_user:               "{{ __sudo_user }}"
+  when:
+   - bootstrap_template_file is not defined
+
+- name:                      "Render {{ __bootstrap_install_env }} for pool servers deployments"
+  template:
+    src:                     "{{ bootstrap_template_file }}"
+    dest:                    "{{ __bootstrap_install_env }}"
+  become_user:               "{{ __sudo_user }}"
+  when:
+   - bootstrap_template_file is defined
 
 - name:                      Get chart and version
   shell:                     "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep bootstrap | awk {'print $2'}"
