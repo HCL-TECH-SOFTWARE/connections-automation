@@ -25,7 +25,7 @@ __upgrade_success_message_2:               "Upgrade successfully"
 #
 __was_install_location:              "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __dmgr_profile_name:                 "{{ profile_name | default('Dmgr01') }}"
-__profile_name:                      "{{ was_profile_name | default('AppSrv01') }}"
+__app_profile_name:                  "{{ app_profile_name | default('AppSrv01') }}"
 __was_cellname:                      "{{ was_cellname | default('ConnectionsCell') }}"
 #
 __cnx_deploy_type:                   "{{ cnx_deploy_type | default('small') }}"
@@ -63,7 +63,7 @@ __docs_shared_storage_remote_path_r:      "{{ __docs_data_remote_path }}"
 __viewer_shared_storage_local_path_r:     "{{  __viewer_data_local_path }}"
 __viewer_shared_storage_remote_server_r:  "{{ __nfsMasterAddress }}"
 __viewer_shared_storage_remote_path_r:    "{{ __viewer_data_remote_path }}"
-__was_install_root_r:                     "{{ __was_install_location }}/profiles/{{ __profile_name }}"
+__was_install_root_r:                     "{{ __was_install_location }}/profiles/{{ __app_profile_name }}"
 __scope_r:                                "Cluster"
 __scope_name_r:                           "{{ __conversion_cluster_name }}"
 __non_job_mgr_mode_r:                     "True"
@@ -90,7 +90,7 @@ __db_docs_jdbc_file:                      "{{ db_docs_jdbc_file | default( __db2
 __db_jdbc_driver_path_r:                  "{{ __db_docs_jdbc_file }}"
 __conversion_url_r:                       "https://{{ docs_url }}/conversion"
 __integrate_with_lc_r:                    "true"
-__lc_config_xml_path_r:                   "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/LotusConnections-config.xml"
+__lc_config_xml_path_r:                   "{{ __was_install_location }}/profiles/{{ __app_profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/LotusConnections-config.xml"
 __files_url_r:                            "https://{{ cnx_application_ingress }}/files"
 __email_url_r:                            "https://{{ cnx_application_ingress }}/connections"
 
@@ -108,7 +108,7 @@ __docs_url_r:                             "https://{{ docs_url }}/docs"
 
 # Docs Editor Proxy install config
 __editor_proxy_cfg_prop_location:         "{{ __extraction_folder }}/{{ __proxy_install_folder }}/installer"
-__was_proxy_profile_root_r:               "{{ __was_install_location }}/profiles/{{ __profile_name }}"
+__was_proxy_profile_root_r:               "{{ __was_install_location }}/profiles/{{ __app_profile_name }}"
 __proxy_scope_name_r:                     "{{ __docs_proxy_cluster_name }}"
 __docs_scope_name_r:                      "{{ __editor_cluster_name }}"
 
