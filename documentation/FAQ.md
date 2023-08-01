@@ -100,7 +100,7 @@ All the steps that would be otherwise done by Ansible on your Windows side would
 
 ## Can I upgrade HCL Connections using those scripts?
 
-Yes, with a proper customization, and running the playbooks in specific order, you can. [See our small howto](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/connections_upgrade.md) about how we are doing it daily in Connections Development team.
+Yes, with a proper customization, and running the playbooks in specific order, you can. [See our small howto](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/connections_upgrade_to_8.x.md) about how we are doing it daily in Connections Development team.
 
 ## Can I install Component Pack in existing Kubernetes cluster using those scripts?
 
