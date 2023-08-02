@@ -54,6 +54,7 @@ ldap_login_properties | mail;uid | Login properties in WebSphere configuration
 ldap_search_filter | (objectclass=inetOrgPerson) | Ldap search filter
 ldap_map_guid | entryUUID | mapping for guid property
 ldap_map_uid | uid | mapping for uid property
+ldap_server_type | CUSTOM | LDAP Server type (e.g. AD, DOMINO, CUSTOM, IDS) of LDAP repo in WebSphere configuration 
 
 ### Database Variables
 Name | Default | Description
