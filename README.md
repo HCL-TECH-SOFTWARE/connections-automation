@@ -1,5 +1,7 @@
 # HCL Connections and Component Pack Automation Scripts
 
+**The Connections infrastructure squad appreciates the feedback given by the end users on using and improving the Ansible scripts. Our goal is to provide a set of Ansible playbooks that are flexible and can be tailored to a customer's deployments by providing the Ansible playbooks that the HCL Connections team uses for internal deployments. The goal was to reduce the overhead of deploying a connections environment for our customers to help them bootstrap their deployments. Keeping the public repros in sync with our internal ones has proven to be very difficult and time-consuming. Thank you for the discussion but the team may not always be able to respond to each post however the Ansible public repro will be periodically monitored by the squad for critical issues.**
+
 This set of scripts is able to spin up end-to-end HCL Connections 8 with Component Pack and all the dependencies. They can be used as whole and set up end to end environment, including the set of fake users for a sake of quickly being able to log in and see how the application works, or they can can be used autonomously from each other.
 
 Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md).
