@@ -8,6 +8,14 @@
     __sso_domainnames:  ".{{ ansible_domain }};.{{ __sso_external }}"
   when:
     - ansible_domain != __sso_external
+    - ansible_domain != ""
+
+- name:                 Single domain SSO (empty ansible_domain)
+  set_fact:
+    __sso_domainnames:  ".{{ __sso_external }}"
+  when:
+    - ansible_domain != __sso_external
+    - ansible_domain == ""
 
 - debug: var=__sso_domainnames
   run_once: true
