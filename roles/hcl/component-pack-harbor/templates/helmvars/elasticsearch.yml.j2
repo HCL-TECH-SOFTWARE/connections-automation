@@ -1,3 +1,9 @@
+client:
+  replicas: {{ __elasticsearch_replica_count }}
+data:
+  replicas: {{ __elasticsearch_replica_count }}
+master:
+  replicas: {{ __elasticsearch_replica_count }}
 image:
   repository: {{ __docker_registry_url }}
 common:

@@ -108,6 +108,35 @@
   when:
   - (opensearch_watermark_low is defined) or (opensearch_watermark_high is defined) or (opensearch_watermark_low is defined)
 
+- name:                       Creating a shell script file to update opensearch cluster settings to automatically add replica shards based on the number of data nodes
+  copy:
+    dest:                     "~/os-auto-expand-replicas.sh"
+    content: |
+        kubectl exec {{ __opensearch_cluster_name }}-master-0 -n "{{ __default_namespace }}" -- bash -c "/usr/share/opensearch/probe/sendRequest.sh PUT '/_settings' -H 'Content-Type: application/json' -d '{\"settings\" : {\"index.auto_expand_replicas\" : \"{{ opensearch_auto_expand_replicas | default('0-all') }}\"}}'"
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - opensearch_auto_expand_replicas is defined
+
+- name:                      Changing permission of "~/os-auto-expand-replicas.sh", adding "+x"
+  file:                      dest=~/os-auto-expand-replicas.sh mode=a+x
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - opensearch_auto_expand_replicas is defined
+
+- name:                      Execute the script to change opensearch auto expand replicas settings
+  command:                   sh ~/os-auto-expand-replicas.sh
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - opensearch_auto_expand_replicas is defined
+
+- name:                      Delete opensearch auto expand replicas settings shell script file
+  file:
+    path:                    "~/os-auto-expand-replicas.sh"
+    state:                   absent
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - opensearch_auto_expand_replicas is defined
+
 - name:                      Upgrade opensearch client
   command:                   "helm upgrade opensearch-client {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_client_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
   become_user:               "{{ __sudo_user }}"

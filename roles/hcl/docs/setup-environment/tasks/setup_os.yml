@@ -6,22 +6,22 @@
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "7"
 
-- name:          Install epel-release on RHEL 8
+- name:          Install epel-release on RHEL
   yum:
-    name:        https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    name:        https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
     state:       present
     disable_gpg_check:  true
   when:
     - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
-- name:          Install pre-requisites Yum on RHEL 8
+- name:          Install pre-requisites Yum on RHEL
   yum:
     name:        ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'unzip', 'vim', 'python3-pip', 'python3-passlib.noarch']
     state:       present
   when:
     - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
 - name:          Install pre-requisites Yum for Conversion service
   yum:
@@ -37,3 +37,10 @@
     limit_type:  '-'
     limit_item:  nofile
     value:       '64000'
+
+- name:          Install  pexpect
+  pip:
+    name:        pexpect
+    state:       latest
+  when:
+    - ansible_distribution == "RedHat"

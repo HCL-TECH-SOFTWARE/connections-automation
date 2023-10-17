@@ -7,6 +7,8 @@
   register: download_and_unpack_haproxy
   until: download_and_unpack_haproxy is succeeded
   retries: 3
+  when:
+    - ansible_distribution != "RedHat"
 
 - name:                   Build Haproxy target with params
   make:
@@ -18,8 +20,26 @@
       ARCH:               x86_64
       PCRE_LIB:           /usr/lib64
       SSL_LIB:            /usr/lib64
-
+  when:
+    - ansible_distribution != "RedHat"    
+  
 - name:                   Install Haproxy
   make:
     chdir:                "{{ __haproxy_download_dir }}"
     target:               install
+  when:
+    - ansible_distribution != "RedHat"
+
+- name:                   Update all packages
+  yum:
+    name:                 '*'
+    state:                latest
+  when:
+    - ansible_distribution == "RedHat"
+
+- name:                   Install HAProxy package
+  yum:
+    name:                 haproxy
+    state:                present
+  when:
+    - ansible_distribution == "RedHat"

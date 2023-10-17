@@ -54,7 +54,7 @@ ldap_login_properties | mail;uid | Login properties in WebSphere configuration
 ldap_search_filter | (objectclass=inetOrgPerson) | Ldap search filter
 ldap_map_guid | entryUUID | mapping for guid property
 ldap_map_uid | uid | mapping for uid property
-ldap_server_type | CUSTOM | LDAP Server type (e.g. AD, DOMINO, CUSTOM, IDS) of LDAP repo in WebSphere configuration 
+ldap_server_type | CUSTOM | LDAP Server type of LDAP repo in WebSphere configuration
 
 ### Database Variables
 Name | Default | Description
@@ -210,6 +210,7 @@ cnx_force_repopulation | false | true will drop the Connections databases and re
 cnx_major_version | "8" | Connections major version to install
 cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR3) will install the CR version
 cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR3.zip") and cnx_fixes_version is set, will download the CR install kit
+cnx_uninstall_version |  *none* - optional | Installed package version string to provide if version error reported by the uninstaller
 cnx_application_ingress | *none*  - required | Set as *dynamicHosts* in LotusConnections-config.xml
 connections_admin | jjones1 | User to be passed to the Connections installer as admin user
 connections_admin_password | password | password for Connections admin user
@@ -303,7 +304,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.6.20-3.1.el7 | Containerd version to be installed
+containerd_version | 1.6.21-3.1.el7 | Containerd version to be installed
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -361,6 +362,8 @@ setup_infrastructure | true | True will setup infrastructure for Orient Me and o
 setup_customizer | true | True will deploy mw-proxy and setup customizations
 elasticsearch_default_version | 7 | Default ElasticSearch version
 elasticsearch_default_port | 30098 | ElasticSearch port
+elasticsearch_replica_count | 3 | Replica count to set in Helm charts for Elasticsearch
+elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 setup_elasticsearch | false | True will deploy ElasticSearch 5 (for Connections 6.5CR1)
 setup_elasticsearch7 | false | True will deploy ElasticSearch 7 (for Connections 7)
 setup_opensearch | True | True will deploy OpenSearch
@@ -375,12 +378,13 @@ huddo_boards_licence | *none* | Activities Plus license key
 huddoboards_registry_url | quay.io/huddo | huddoboards registry url
 huddoboards_registry_username | admin | huddoboards registry user name
 huddoboards_registry_password | password | huddoboards registry password
-huddoboards_image_tag | 2023-05-12 |  huddoboards image tag in huddoboards registry
+huddoboards_image_tag | 2023-07-04 |  huddoboards image tag in huddoboards registry
 huddoboards_chart_name | huddo-boards-cp-1.1.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials
 setup_elasticstack | false | True will setup ElasticStack
 setup_elasticstack7 | false | True will setup ElasticStack7
+setup_opensearchstack | false | True will setup OpenSearch Stack
 setup_outlook_addin | true | True will deploy Outlook Desktop Plugin
 enable_es_metrics | true | True will configure ElasticSearch
 enable_gk_flags | true | True will configure Tailored Experience features for communities (for Connections 7 onwards)
@@ -396,8 +400,10 @@ opensearch_default_port | 30099 | Opensearch port
 opensearch_ca_password | password | Opensearch CA password
 opensearch_key_password | password | Opensearch Key password
 opensearch_watermark_flood_stage | none | Controls the flood stage watermark for opensearch
-opensearch_watermark_high | none | Controls the high watermark for disk usage for opensearch. Make sure that the opensearch_watermark_flood_stage is more than or equal to opensearch_watermark_high
-opensearch_watermark_low | none | Controls the low watermark for disk usage for opensearch. Make sure that the opensearch_watermark_high is more than or equal to opensearch_watermark_low
+opensearch_watermark_high | *none* | Controls the high watermark for disk usage for opensearch. Make sure that the opensearch_watermark_flood_stage is more than or equal to opensearch_watermark_high
+opensearch_watermark_low | *none* | Controls the low watermark for disk usage for opensearch. Make sure that the opensearch_watermark_high is more than or equal to opensearch_watermark_low
+opensearch_auto_expand_replicas | *none* | Whether the OpenSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
+
 ### NFS Variables
 Name | Default | Description
 ---- | --------| -------------

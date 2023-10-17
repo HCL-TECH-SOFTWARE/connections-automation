@@ -1,0 +1,61 @@
+---
+- name:                   "Loop over the tasks until checksum matches"
+  block:
+    - name:               Set the retry count
+      set_fact:
+        retry_count:      "{{ 0 if retry_count is undefined else retry_count|int + 1 }}"
+
+    - name:               "Clean up { __cnx_package_name }}"
+      file:
+        path:             "{{ __cnx_extraction_folder }}/{{ __cnx_package_name }}"
+        state: absent
+
+    - name:               "Clean up { __cnx_package_name }}.sha256"
+      file:
+        path:             "{{ __cnx_extraction_folder }}/{{ __cnx_package_name }}.sha256"
+        state: absent
+
+    - name:                  "Check if checksum file exists at {{ __cnx_download_location }}/{{ __cnx_package_name }}.sha256"
+      uri:
+        url:                 "{{ __cnx_download_location }}/{{ __cnx_package_name }}.sha256"
+        method:              HEAD
+      register: checksum_file_exists
+      ignore_errors: yes
+
+    - name:                  "Download checksum file if it exists to the {{ __cnx_extraction_folder }}/{{ __cnx_package_name }}.sha256"
+      get_url:
+        url:                 "{{ __cnx_download_location }}/{{ __cnx_package_name }}.sha256"
+        dest:                "{{ __cnx_extraction_folder }}"
+      when: checksum_file_exists.status == 200
+
+    - name:                  "Read checksum from file from {{ __cnx_package_name }}.sha256 file"
+      shell:                 cat "{{ __cnx_extraction_folder }}"/"{{ __cnx_package_name }}".sha256
+      register: checksum_value
+      when: checksum_file_exists.status == 200
+
+    - name:               "Download installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}"
+      get_url:
+        url:              "{{ __cnx_download_location }}/{{ __cnx_package_name }}"
+        dest:             "{{ __cnx_extraction_folder }}"
+        timeout:          300 
+
+    - name:               "Calculate checksum of {{ __cnx_extraction_folder }}/{{ __cnx_package_name }}"
+      shell:              sha256sum "{{ __cnx_extraction_folder }}"/"{{ __cnx_package_name }}" | cut -d' ' -f1
+      register:           calculated_checksum
+      when: checksum_file_exists.status == 200
+
+    - name:               "Fail step if checksum values of {{ __cnx_package_name }} and {{ __cnx_package_name }}.sha256 are NOT matching"
+      debug:
+        msg:              "Downloaded file checksum is {{ calculated_checksum.stdout }} and .sha256 file content is {{ checksum_value.stdout }}"
+      failed_when:        calculated_checksum.stdout != checksum_value.stdout
+      when:               checksum_file_exists.status == 200
+
+  rescue:
+    - fail:
+        msg: Ended after 5 retries
+      when: retry_count|int == 5
+
+    - debug:
+        msg:              "Failed to download file {{ __cnx_extraction_folder }}/{{ __cnx_package_name }}. Retrying..."
+    
+    - include_tasks:      download_unzip_tdisol.yml

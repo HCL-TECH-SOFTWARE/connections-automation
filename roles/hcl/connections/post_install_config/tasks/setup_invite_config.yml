@@ -24,6 +24,24 @@
     xpath:                                  "{{ __selfreg_displayname_field_xpath }}"
     value:                                  "false"
 
+- name:                                     Remove Invite-user-type attributes 
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_invite_usertype_xpath }}"
+    state:                                  "absent"
+  when:
+    - __cnx_major_version is version('7', '>=')
+
+- name:                                     Add Invite-user-type after path-of-userdata-file
+  xml:
+    path:                                   "{{ __selfreg_full_path }}"
+    xpath:                                  "{{ __selfreg_userdata_file_xpath }}"
+    insertafter:                            "yes"
+    add_children:
+      - invite-user-type:
+  when:
+    - __cnx_major_version is version('7', '>=')                   
+
 - name:                                     Set Invite user type
   xml:
     path:                                   "{{ __selfreg_full_path }}"

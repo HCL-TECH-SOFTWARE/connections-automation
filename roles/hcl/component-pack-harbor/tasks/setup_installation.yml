@@ -27,10 +27,14 @@
    - "{{ __ansible_cache_charts }}"
   become_user:           "{{ __sudo_user }}"
 
+- name:                  "Delete existing Helm repository {{ __helm_repository }}"
+  shell:                 "helm repo remove {{ __helm_repository_local_name }}"
+  when:
+    - helm_repo_already_added.rc == 0
+  become_user:           "{{ __sudo_user }}"
+
 - name:                  "Add Helm repository {{ __helm_repository }}"
   shell:                 "helm repo add {{ __helm_repository_local_name }} {{ __helm_repository }} --username {{ __helm_repo_username }} --password {{ __helm_repo_password }} --pass-credentials"
-  when:
-    - helm_repo_already_added.rc != 0
   become_user:           "{{ __sudo_user }}"
 
 - name:                  "Update Helm repos"
@@ -38,5 +42,5 @@
   become_user:           "{{ __sudo_user }}"
 
 - name:                  "Write helm repo chart versions to a file"
-  shell:                 "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | awk {'print $1 \":\" $2'} >> {{ __ansible_cache_charts }}/helm_repo_version_list"
+  shell:                 "helm search repo {{ __helm_repository_local_name }} {{ __helm_repo_flag }} | grep \"^{{ __helm_repository_local_name }}/\" | awk {'print $1 \":\" $2'} >> {{ __ansible_cache_charts }}/helm_repo_version_list"
   become_user:           "{{ __sudo_user }}"

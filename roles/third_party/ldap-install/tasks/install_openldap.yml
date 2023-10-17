@@ -1,3 +1,10 @@
+
+- name:                     Provide absolute path for ldap modify cmd
+  set_fact:
+    __ldap_modify_cmd:      "{{ __symas_bin_path }}{{ __ldap_modify_cmd }}"
+  when:
+    - ansible_distribution == "RedHat"
+
 - name:                     Install OpenLDAP and dependencies on CentOS
   yum:
     name:                   ['openldap', 'compat-openldap', 'openldap-clients', 'openldap-servers', 'openldap-servers-sql', 'openldap-devel']
@@ -5,19 +12,10 @@
   when:
     - ansible_distribution == "CentOS"
 
-- name:                     Install OpenLDAP and dependencies on RHEL version 7 and below
-  yum:
-    name:                   ['openldap', 'openldap-clients', 'openldap-servers', 'openldap-devel']
-    state:                   present
-  when:
-    - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version != "8"
-
-- name:                     Install OpenLDAP and dependencies on RHEL8
+- name:                     Install OpenLDAP and dependencies on RHEL
   include_tasks:            install_symas_openldap.yml
   when:
     - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version == "8"
 
 - name:                     Start slapd service
   service:
@@ -26,13 +24,30 @@
     enabled:                yes
     daemon_reload:          yes
 
+- name:                     Enable the slapd service to be started at boot time
+  command:                  "chkconfig slapd on"
+  when:
+    - ansible_distribution == "RedHat"
+
 - name:                     "Verify if database is already created"
   stat:
     path:                   "{{ __db_ldif_success_file }}"
   register:                 ldap_database_already_created
 
-- name:                     Get me the slappasswd
-  command:                  "/sbin/slappasswd -h {SSHA} -s {{ __ldap_slappasswd }}"
+- name:                     Create get slappasswd command for Non-RedHat distribution
+  set_fact:
+    slappasswd_command:     "/sbin/slappasswd -h {SSHA} -s {{ __ldap_slappasswd }}"
+  when:
+    - ansible_distribution != "RedHat" and not ldap_database_already_created.stat.exists
+
+- name:                     Create get slappasswd command for RedHat distribution
+  set_fact:
+    slappasswd_command:     "{{ __symas_sbin_path }}slappasswd -h {SSHA} -s {{ __ldap_slappasswd }}"
+  when:
+    - ansible_distribution == "RedHat" and not ldap_database_already_created.stat.exists
+
+- name:                     Run get slappasswd command
+  command:                  "{{ slappasswd_command }}"
   register:                 slappasswd_output
   when:
     - not ldap_database_already_created.stat.exists
@@ -50,14 +65,14 @@
   when:
     - not ldap_database_already_created.stat.exists
 
-- name:                     "Render {{ __db_ldif_location }} for RHEL8/CentOS8"
+- name:                     "Render {{ __db_ldif_location }} for RHEL/CentOS >= v8 "
   template:
     src:                    "{{ __db_mdb_ldif_template }}"
     dest:                   "{{ __db_ldif_location }}"
   when:
     - not ldap_database_already_created.stat.exists
     - ansible_distribution == "RedHat" or ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "8"
+    - ansible_distribution_major_version >= "8"
 
 - name:                     Create LDAP database
   command:                  "{{ __ldap_modify_cmd }} {{ __db_ldif_location }}"

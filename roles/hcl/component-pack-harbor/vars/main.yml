@@ -52,7 +52,7 @@ __docker_registry_password:                  "{{ docker_registry_password | defa
 __huddoboards_registry_url:                  "{{ huddoboards_registry_url | default('quay.io/huddo') }}"
 __huddoboards_registry_username:             "{{ huddoboards_registry_username | default('admin') }}"
 __huddoboards_registry_password:             "{{ huddoboards_registry_password | default('password') }}"
-__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-05-12') }}"
+__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-07-04') }}"
 __huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.1.0.tgz') }}"
 __huddoboards_chart_location:                "{{ huddoboards_chart_location | default('https://docs.huddo.com/assets/config/kubernetes') }}"
 
@@ -160,7 +160,7 @@ __controller_https_node_port:                "{{ controller_https_node_port | de
 __communityingress_env_vanilla:              "controller.stats.enabled=true,--enable-metrics=true,prometheus.create=true,prometheus.port=9913,-enable-prometheus-metrics=true,controller.service.type=NodePort,controller.service.nodePorts.http={{ __controller_http_node_port }},controller.service.nodePorts.https={{ __controller_https_node_port }},--metrics_per_host={{ __ingress_metrics_per_host }}"
 __communityingress_env_eks_os:               "controller.stats.enabled=true,--enable-metrics=true,prometheus.create=true,prometheus.port=9913,-enable-prometheus-metrics=true,controller.service.nodePorts.http={{ __controller_http_node_port }},controller.service.nodePorts.https={{ __controller_https_node_port }},--metrics_per_host={{ __ingress_metrics_per_host }}"
 __communitying_ind_env_vanilla:              "controller.service.type=NodePort,controller.service.nodePorts.http={{ __controller_http_node_port }},controller.service.nodePorts.https={{ __controller_https_node_port }},defaultBackend.enabled=true,controller.healthStatus=true,controller.healthCheckPath=\"/healthz\",controller.livenessProbe.timeoutSeconds=60,controller.readinessProbe.timeoutSeconds=60"
-__communitying_ind_env_eks_os:               "controller.service.nodePorts.http={{ __controller_http_node_port }},controller.service.nodePorts.https={{ __controller_https_node_port }},defaultBackend.enabled=true,controller.healthStatus=true,controller.healthCheckPath=\"/healthz\",controller.livenessProbe.timeoutSeconds=60,controller.readinessProbe.timeoutSeconds=60"
+__communitying_ind_env_eks_os:               "controller.service.type=NodePort,controller.service.nodePorts.http={{ __controller_http_node_port }},controller.service.nodePorts.https={{ __controller_https_node_port }},defaultBackend.enabled=true,controller.healthStatus=true,controller.healthCheckPath=\"/healthz\",controller.livenessProbe.timeoutSeconds=60,controller.readinessProbe.timeoutSeconds=60"
 
 __config_blue_metrics_file:                  "{{ config_blue_metrics_file | default('config_blue_metrics.py') }}"
 __config_blue_metrics_bin:                   "/tmp/config_blue_metrics.py"
@@ -172,7 +172,8 @@ __es_certs_dir:                              "/opt/IBM/certs"
 __es_merge_template:                         "merge-es-certificates-to-keystore.j2"
 __es_merge_destination:                      "{{ __dmgr_bin_dir }}/merge_es_certificates_to_keystore"
 __es_metrics_enable_template:                "enable-es-for-metrics.j2"
-__es_metrics_enable_destination:              "{{ __dmgr_bin_dir }}/enable_es_for_metrics"
+__es_metrics_enable_destination:             "{{ __dmgr_bin_dir }}/enable_es_for_metrics"
+__elasticsearch_replica_count:               "{{ elasticsearch_replicaset | default('3') }}"
 
 __connections_admin:                         "{{ connections_admin | default('jjones1') }}"
 __connections_admin_password:                "{{ connections_admin_password | default('password') }}"

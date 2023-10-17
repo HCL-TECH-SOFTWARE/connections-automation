@@ -26,7 +26,7 @@
   when:
     - ldap_database_already_created.stat.exists |bool
     - not ldap_schema_already_created.stat.exists
-
+    
 - name:                     Add the cosine and nis LDAP schemas
   command:                  "{{ __ldap_add_cmd }} {{ item }}"
   register:                 result
@@ -38,6 +38,20 @@
   when:
     - ldap_database_already_created.stat.exists |bool
     - not ldap_schema_already_created.stat.exists
+    - ansible_distribution != "RedHat"
+
+- name:                     Add the cosine and nis LDAP schemas
+  command:                  "{{ __symas_bin_path }}{{ __ldap_add_cmd }} {{ item }}"
+  register:                 result
+  failed_when:              ( result.rc not in [0] )
+  with_items:
+   - "/opt/symas/etc/openldap/schema/cosine.ldif"
+   - "/opt/symas/etc/openldap/schema/nis.ldif"
+   - "/opt/symas/etc/openldap/schema/inetorgperson.ldif"
+  when:
+    - ldap_database_already_created.stat.exists |bool
+    - not ldap_schema_already_created.stat.exists
+    - ansible_distribution == "RedHat"
 
 - name:                     "Create {{ __schema_ldif_success_file }} file"
   file:

@@ -17,17 +17,20 @@
 - name:              Create Logs directory
   file:              path={{ __logs_dir }} state=directory mode=0755
 
-- name:              Download Connections Files
+- name:              Download and unzip installation {{ __cnx_package }} to the {{ __tmp_dir }}/cnx
   include_tasks:     download_connections_installer.yml
 
-- name:              Extract Installer
+- name:              "Extract {{ __tmp_dir }}/cnx/{{ __cnx_package }} to {{ __tmp_dir }}/cnx"
   unarchive:
     src:             "{{ __tmp_dir }}/cnx/{{ __cnx_package }}"
-    dest:            "{{ __tmp_dir }}/cnx/"
-    copy:            no
-  register: download_and_unpack_connections
-  until: download_and_unpack_connections is succeeded
-  retries: 3
+    dest:            "{{ __tmp_dir }}/cnx"
+    remote_src: yes
+  when: checksum_file_exists.status != 200 or calculated_checksum.stdout == checksum_value.stdout
+
+- name:              "Clean up {{ __cnx_package }}.sha256"
+  file:
+    path:            "{{ __tmp_dir }}/cnx/{{ __cnx_package }}.sha256"
+    state: absent
 
 - name:              Download Installer CCM
   get_url:

@@ -22,7 +22,7 @@
   when:
     - oracle_already_running.rc != 0
     - not oracle_prereqs_already_ran.stat.exists
-    - ansible_distribution == "RedHat"
+    - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8"
   ignore_errors:         yes
 

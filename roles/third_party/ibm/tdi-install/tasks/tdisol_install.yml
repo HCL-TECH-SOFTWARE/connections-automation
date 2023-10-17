@@ -23,16 +23,22 @@
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
 
 - name:                  Download and unzip installation {{ __cnx_package_name }} to the {{ __cnx_extraction_folder }}
-  unarchive:
-    src:                 "{{ __cnx_download_location }}/{{ __cnx_package_name }}"
-    dest:                "{{ __cnx_extraction_folder }}"
-    remote_src:          yes
+  include_tasks:         download_unzip_tdisol.yml
   when:
     - __cnx_updates_enabled  |bool
     - tdi_sol_location is not defined
-  register: download_and_unpack_tdisol_cnx
-  until: download_and_unpack_tdisol_cnx is succeeded
-  retries: 3
+
+- name:                   "Extract {{ __cnx_extraction_folder }}/{{ __cnx_package_name }} to {{ __cnx_extraction_folder }}"
+  unarchive:
+    src:                  "{{ __cnx_extraction_folder }}/{{ __cnx_package_name }}"
+    dest:                 "{{ __cnx_extraction_folder }}"
+    remote_src: yes
+  when: checksum_file_exists.status != 200 or calculated_checksum.stdout == checksum_value.stdout
+
+- name:                   "Clean up {{ __cnx_package_name }}.sha256"
+  file:
+    path:                 "{{ __cnx_extraction_folder }}/{{ __cnx_package_name }}.sha256"
+    state: absent
 
 - name:                  Clean up tdisol installation folder(s)
   file:

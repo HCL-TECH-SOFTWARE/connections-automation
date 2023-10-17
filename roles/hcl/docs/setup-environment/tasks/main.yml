@@ -1,12 +1,12 @@
 ---
 - name:                    Check Vars
   include_tasks:           check_vars.yml
-    
+
 - name:                    Setup Operating System
   include_tasks:           setup_os.yml
   when:
     - __setup_environment|bool
-    - inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"] or inventory_hostname in groups["proxy_servers"]  or inventory_hostname in groups["dmgr"]
+    - inventory_hostname in groups["docs_servers"] or inventory_hostname in groups["conversion_servers"] or inventory_hostname in groups["viewer_servers"] or inventory_hostname in groups["proxy_servers"] or inventory_hostname in groups["dmgr"]
 
 - name:                    Create docs user to setup job target
   include_tasks:           create_docs_user.yml

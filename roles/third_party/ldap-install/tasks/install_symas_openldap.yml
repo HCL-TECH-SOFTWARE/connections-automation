@@ -13,32 +13,91 @@
 
 - name:                     Remove openldap-clients if already installed
   yum:
-    name:                   openldap-clients
+    name:                   symas-openldap-clients
     state:                  absent
   ignore_errors:            true
 
 - name:                     Remove openldap-servers if already installed
   yum:
-    name:                   openldap-servers
+    name:                   symas-openldap-servers
     state:                  absent
   ignore_errors:            true
 
-- name:                     Download Symas OpenLDAP for Linux on RHEL8
+- name:                     Download Symas OpenLDAP for Linux on RHEL{{ ansible_distribution_major_version }}
   get_url:
-    url:                    https://repo.symas.com/configs/SOFL/rhel8/sofl.repo
-    dest:                   /etc/yum.repos.d/sofl.repo
+    url:                    https://repo.symas.com/configs/SOLDAP/rhel{{ ansible_distribution_major_version }}/release26.repo
+    dest:                   /etc/yum.repos.d/soldap-release26.repo
 
 - name:                     Upgrade all packages
   yum:
     name:                   '*'
     state:                  latest
 
-- name:                     Install symas-openldap-clients for Linux on RHEL8
-  package:
-    name:                   symas-openldap-clients
+- name:                     Install symas OpenLDAP and dependencies on RHEL{{ ansible_distribution_major_version }}
+  yum:
+    name:                   ['symas-openldap-libs', 'symas-openssl-libs', 'symas-libargon2-libs', 'symas-heimdal-libs', 'symas-openldap-clients', 'symas-openldap-servers','symas-cyrus-sasl-libs']
+    state:                   present
+
+- name:                     Create {{ __slapd_folder_location }} directory
+  file:
+    path:                   "{{ __slapd_folder_location }}"
+    state:                  directory
+    mode:                   '0740'
+
+- name:                     Run restorecon command
+  command:                  "restorecon -RvF {{ __slapd_folder_location }}"
+
+- name:                     Copy slapd.ldif file from files to {{ __dest_slapd_config_file }}
+  copy:
+    src:                    "{{ __src_slapd_config_file }}"
+    dest:                   "{{ __dest_slapd_config_file }}"
+
+- name:                     Run slapadd command
+  command:                  "{{ __symas_sbin_path }}slapadd -n 0 -F {{ __slapd_folder_location }} -l {{ __dest_slapd_config_file }}"
+
+- name:                     "Copy template {{ __symas_openldap_template }} to {{ __symas_openldap_location }}"
+  template:
+    src:                    "{{ __symas_openldap_template }}"
+    dest:                   "{{ __symas_openldap_location }}"
+
+- name:                     "Verify if {{ __openldap_servers_folder_location }} is already created"
+  stat:
+    path:                   "{{ __openldap_servers_folder_location }}"
+  register:                 openldap_servers_folder_already_created
+
+- name:                     "Create {{ __openldap_servers_folder_location }} directory"
+  file:
+    path:                   "{{ __openldap_servers_folder_location }}"
+    state:                  directory
+    mode:                   '0740'
+  when:
+    - not openldap_servers_folder_already_created.stat.exists
+
+- name:                     "Verify if {{ __ldap_folder_location }} is already created"
+  stat:
+    path:                   "{{ __ldap_folder_location }}"
+  register:                 ldap_folder_already_created
+
+- name:                     Create {{ __ldap_folder_location }} directory
+  file:
+    path:                   "{{ __ldap_folder_location }}"
+    state:                  directory
+    mode:                   '0740'
+  when:
+    - not ldap_folder_already_created.stat.exists
+
+- name:                     "Copy template {{ __db_config_template }} to {{ __openldap_servers_folder_location }}"
+  template:
+    src:                    "{{ __db_config_template }}"
+    dest:                   "{{ __openldap_servers_folder_location }}"
+
+- name:                     Create ldap group
+  group:
+    name:                   ldap
     state:                  present
 
-- name:                     Install symas-openldap-servers for Linux on RHEL8
-  package:
-    name:                   symas-openldap-servers
+- name:                     Create ldap user
+  user:
+    name:                   ldap
+    group:                  ldap
     state:                  present
