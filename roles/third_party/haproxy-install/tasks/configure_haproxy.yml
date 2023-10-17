@@ -9,6 +9,8 @@
     dest:                    "{{ __haproxy_exec_dest }}"
     owner:                   "{{ __haproxy_user }}"
     state:                   link
+  when:
+    - ansible_distribution != "RedHat"
 
 - name:                      Copy init file to /etc/init.d/
   copy:
@@ -16,6 +18,8 @@
     dest:                    "{{ __haproxy_init_dest }}"
     mode:                    '0755'
     remote_src:              yes
+  when:
+    - ansible_distribution != "RedHat"
 
 - name:                      Reload systemd
   systemd:

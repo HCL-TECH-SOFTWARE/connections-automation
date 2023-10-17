@@ -22,8 +22,8 @@
 # of the server's control files begin with "/" (or "drive:/" for Win32), the
 # server will use that explicit path.  If the filenames do *not* begin
 # with "/", the value of ServerRoot is prepended -- so "logs/foo.log"
-# with ServerRoot set to "/opt/IBM/HTTPServer" will be interpreted by the
-# server as "/opt/IBM/HTTPServer/logs/foo.log".
+# with ServerRoot set to "{{ __ihs_install_location }}" will be interpreted by the
+# server as "{{ __ihs_install_location }}/logs/foo.log".
 #
 
 ### Section 1: Global Environment
@@ -39,7 +39,7 @@
 #
 # Do NOT add a slash at the end of the directory path.
 #
-ServerRoot "/opt/IBM/HTTPServer"
+ServerRoot {{ __ihs_install_location }}
 
 #
 # The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
@@ -231,7 +231,7 @@ UseCanonicalName Off
 # documents. By default, all requests are taken from this directory, but
 # symbolic links and aliases may be used to point to other locations.
 #
-DocumentRoot "/opt/IBM/HTTPServer/htdocs"
+DocumentRoot "{{ __ihs_install_location }}/htdocs"
 
 #
 # Each directory to which the web server has access can be configured
@@ -257,7 +257,7 @@ DocumentRoot "/opt/IBM/HTTPServer/htdocs"
 #
 # This should be changed to whatever you set DocumentRoot to.
 #
-<Directory "/opt/IBM/HTTPServer/htdocs">
+<Directory "{{ __ihs_install_location }}/htdocs">
 
 #
 # Possible values for the Options directive are "None", "All",
@@ -446,7 +446,7 @@ LogFormat "%{User-agent}i" agent
 # (Combined Logfile Format) you can use the following directive.
 #
 #CustomLog logs/access_log combined
-CustomLog "|/opt/IBM/HTTPServer/bin/rotatelogs /opt/IBM/HTTPServer/logs/access_log.%Y-%m-%d-%H_%M_%S 86400" combined
+CustomLog "|{{ __ihs_install_location }}/bin/rotatelogs {{ __ihs_install_location }}/logs/access_log.%Y-%m-%d-%H_%M_%S 86400" combined
 
 #
 # AddServerHeader
@@ -479,7 +479,7 @@ ServerTokens Prod
 # Set to "EMail" to also include a mailto: link to the ServerAdmin.
 # Set to one of:  On | Off | EMail
 #
-ServerSignature On
+ServerSignature {{ __server_signature }}
 
 #
 # Aliases: Add here as many aliases as you need (with no limit). The format is
@@ -494,9 +494,9 @@ ServerSignature On
 # We include the /icons/ alias for FancyIndexed directory listings.  If you
 # do not use FancyIndexing, you may comment this out.
 #
-Alias /icons/ "/opt/IBM/HTTPServer/icons/"
+Alias /icons/ "{{ __ihs_install_location }}/icons/"
 
-<Directory "/opt/IBM/HTTPServer/icons">
+<Directory "{{ __ihs_install_location }}/icons">
     Options MultiViews
     AllowOverride None
     Order allow,deny
@@ -511,7 +511,7 @@ Alias /icons/ "/opt/IBM/HTTPServer/icons/"
 # The same rules about trailing "/" apply to ScriptAlias directives as to
 # Alias.
 #
-ScriptAlias /cgi-bin/ "/opt/IBM/HTTPServer/cgi-bin/"
+ScriptAlias /cgi-bin/ "{{ __ihs_install_location }}/cgi-bin/"
 
 <IfModule mod_cgid.c>
 #
@@ -522,10 +522,10 @@ ScriptAlias /cgi-bin/ "/opt/IBM/HTTPServer/cgi-bin/"
 </IfModule>
 
 #
-# "/opt/IBM/HTTPServer/cgi-bin" should be changed to whatever your ScriptAliased
+# "{{ __ihs_install_location }}/cgi-bin" should be changed to whatever your ScriptAliased
 # CGI directory exists, if you have that configured.
 #
-<Directory "/opt/IBM/HTTPServer/cgi-bin">
+<Directory "{{ __ihs_install_location }}/cgi-bin">
     AllowOverride None
     Options None
     Order allow,deny
@@ -696,7 +696,7 @@ AddType image/x-icon .ico
 #   Alias /error/include/ "/your/include/path/"
 #
 # which allows you to create your own set of files by starting with the
-# /opt/IBM/HTTPServer/error/include/ files and copying them to /your/include/path/,
+# {{ __ihs_install_location }}/error/include/ files and copying them to /your/include/path/,
 # even on a per-VirtualHost basis.  The default include files will display
 # your IBM HTTP Server version number and your ServerAdmin email address
 # regardless of the setting of ServerSignature.
@@ -704,9 +704,9 @@ AddType image/x-icon .ico
 # The internationalized error documents require mod_alias, mod_include
 # and mod_negotiation.  To activate them, uncomment the following 30 lines.
 
-#    Alias /error/ "/opt/IBM/HTTPServer/error/"
+#    Alias /error/ "{{ __ihs_install_location }}/error/"
 #
-#    <Directory "/opt/IBM/HTTPServer/error">
+#    <Directory "{{ __ihs_install_location }}/error">
 #        AllowOverride None
 #        Options IncludesNoExec
 #        AddOutputFilter Includes html
@@ -868,7 +868,7 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 #<VirtualHost *:443>
 #SSLEnable
 #</VirtualHost>
-#KeyFile /opt/IBM/HTTPServer/ihsserverkey.kdb
+#KeyFile {{ __ihs_install_location }}/ihsserverkey.kdb
 #SSLDisable
 # End of example SSL configuration
 
@@ -1122,8 +1122,8 @@ alias /files_content /data/Connections/files/upload
 </IfModule>
 {% endif %}
 
-Keyfile "/opt/IBM/HTTPServer/{{ __ihs_hostname }}-key.kdb"
-SSLStashFile "/opt/IBM/HTTPServer/{{ __ihs_hostname }}-key.sth"
+Keyfile "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.kdb"
+SSLStashFile "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.sth"
 
 
 
@@ -1162,9 +1162,9 @@ Header append Vary User-Agent env=!dont-vary
 
 SetEnvIf Request_URI ^/acce(.*) no-gzip dont-vary
 
-LoadModule was_ap22_module /opt/IBM/WebSphere/Plugins/bin/64bits/mod_was_ap22_http.so
-#WebSpherePluginConfig "/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml"
-WebSpherePluginConfig "/opt/IBM/WebSphere/Plugins/config/{{ __ihs_hostname }}/plugin-cfg.xml"
+LoadModule was_ap22_module {{ __plg_install_location }}/bin/64bits/mod_was_ap22_http.so
+#WebSpherePluginConfig "{{ __was_install_location  }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml"
+WebSpherePluginConfig "{{ __plg_install_location }}/config/{{ __ihs_hostname }}/plugin-cfg.xml"
 
 <IfModule mod_rewrite.c>
 RewriteEngine On

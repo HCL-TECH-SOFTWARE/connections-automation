@@ -10,6 +10,22 @@
   become:             true
   when:
     - editor_proxy_already_installed.stat.exists |bool
+    - ansible_distribution != "RedHat"
+  register:           update_webserver_performed
+
+- name:               Run the IHS Plugins updates script bundled in the Docs Editor Proxy installer
+  expect:
+    chdir:            "{{ __docs_editor_install_location }}/proxy/installer"
+    command:          "./update_webserver.sh -wasadminID {{ was_username }} -wasadminPW {{ was_password }} -acceptLicense"
+    responses:
+      (.*)If this host is already registered as a job manager target(.*): ""
+    timeout:           300
+  async:               300
+  poll:                5
+  become:             true
+  when:
+    - editor_proxy_already_installed.stat.exists |bool
+    - ansible_distribution == "RedHat"
   register:           update_webserver_performed
 
 - name:               Search for success message in install log

@@ -1,3 +1,14 @@
+- name:                      Get number of kubernetes workers for auto scalling elasticsearch pods
+  set_fact:
+     count_workers:          "{{ groups['k8s_workers'] | length }}"
+  when:                      __enable_pod_auto_scaling |bool
+
+- name:                      Set elasticsearch replica count to the number of kubernetes worker nodes ({{ count_workers }}) for auto scalling elasticsearch pods
+  set_fact:
+     elasticsearch_replicaset:  "{{ count_workers }}"
+     __elasticsearch_replica_count:    "{{ count_workers }}"
+  when:                      __enable_pod_auto_scaling |bool
+
 - name:                      "Render {{ __elasticsearch_env }}"
   template:
     src:                     "helmvars/elasticsearch.yml.j2"
@@ -39,6 +50,34 @@
   when:                      not __skip_pod_checks
   become_user:               "{{ __sudo_user }}"
 
+- name:                       Creating a shell script file to update elasticsearch cluster settings to automatically add replica shards based on the number of data nodes
+  copy:
+    dest:                     "~/es-auto-expand-replicas.sh"
+    content: |
+        kubectl -n connections   exec es-master-7-0 -- bash -c "probe/sendRequest.sh PUT '/_index_template/my_auto_expand_template' -H 'Content-Type: application/json' -d '{ \"index_patterns\": [\"*\"], \"priority\": 1, \"template\": { \"settings\": { \"index.auto_expand_replicas\": \"{{ elasticsearch_auto_expand_replicas | default('0-all') }}\" }} }'"
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - elasticsearch_auto_expand_replicas is defined
+
+- name:                      Changing permission of "~/es-auto-expand-replicas.sh", adding "+x"
+  file:                      dest=~/es-auto-expand-replicas.sh mode=a+x
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - elasticsearch_auto_expand_replicas is defined
+
+- name:                      Execute the script to change elasticsearch auto expand replicas settings
+  command:                   sh ~/es-auto-expand-replicas.sh
+  become_user:               "{{ __sudo_user }}"
+  when:
+  - elasticsearch_auto_expand_replicas is defined
+
+- name:                      Delete elasticsearch auto expand replicas settings shell script file
+  file:
+    path:                    "~/es-auto-expand-replicas.sh"
+    state:                   absent
+  become_user:               "{{ __sudo_user }}"
+
 - name:                      Remove Master eligible nodes using voting configuration to support scaling down
   shell:                     kubectl exec es-master-7-0 -n "{{ __default_namespace }}" -- bash -c "probe/sendRequest.sh --to-master POST /_cluster/voting_config_exclusions?node_names=es-master-7-2,es-master-7-1"
   become_user:               "{{ __sudo_user }}"
+  when:                       __elasticsearch_replica_count == 1

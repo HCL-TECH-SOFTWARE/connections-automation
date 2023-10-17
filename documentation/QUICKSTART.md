@@ -1,4 +1,4 @@
-# Quick start for setting up HCL Connections and Component Pack using Ansible automation
+# Quick start for setting up HCL Connections and Component Pack Deployment Automation Framework
 
 This is just an example of setting up your first HCL Connections and Component Pack environment including Customizer configured.
 

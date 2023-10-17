@@ -35,3 +35,6 @@ __load_balancer_fqdn:      "{{ cnx_component_pack_ingress | default( inventory_h
 __setup_kudosboards:       "{{ setup_kudosboards | default(true) |lower }}"
 __setup_huddoboards:       "{{ setup_huddoboards | default(__setup_kudosboards) }}"
 __setup_huddoboards_ext:   "{{ setup_huddoboards_ext | default(false) |lower }}"
+__plg_install_location:    "{{ plg_install_location  | default('/opt/IBM/WebSphere/Plugins') }}"
+__server_signature:        "{{ server_signature | default('Off') }}"
+__was_install_location:    "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"

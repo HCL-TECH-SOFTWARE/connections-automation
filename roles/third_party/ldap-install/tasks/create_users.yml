@@ -1,4 +1,10 @@
 ---
+- name:                     Provide absolute path for ldap add users cmd
+  set_fact:
+    __ldap_add_users:      "{{ __symas_bin_path }}{{ __ldap_add_users }}"
+  when:
+    - ansible_distribution == "RedHat"
+
 - name:                     "Verify if users are already created"
   stat:
     path:                   "{{ __users_ldif_success_file }}"

@@ -1,0 +1,54 @@
+---
+- name:                   "Copy Docs user key to /tmp"
+  command:                "{{ item }}"
+  with_items:
+    - cp "/home/{{ docs_username }}/.ssh/id_rsa" /tmp/id_rsa
+    - chmod 644 /tmp/id_rsa
+
+- name:                   Synchronize key to Dmgr to setup job target
+  synchronize:
+    src:                  "/tmp/id_rsa"
+    dest:                 "/tmp/{{ inventory_hostname_short }}_key/"
+    mode:                 pull
+    rsync_opts:           "--chmod=F600"
+  delegate_to:            "{{ dmgr_hostname }}"
+  become:                 false
+
+- name:                   Create keys folder
+  file:
+    path:                 "{{ __was_install_location }}/keys"
+    state:                directory
+  delegate_to:            "{{ dmgr_hostname }}"
+
+- name:                   Copy key to Dmgr folder
+  copy:
+    src:                  "/tmp/{{ inventory_hostname_short }}_key"
+    dest:                 "{{ __was_install_location }}/keys/"
+    remote_src:           yes
+  delegate_to:            "{{ dmgr_hostname }}"
+
+- name:                   Remove key in Dmgr /tmp folder
+  file:
+    path:                 "/tmp/{{ inventory_hostname_short }}_key"
+    state:                absent
+  delegate_to:            "{{ dmgr_hostname }}"
+
+- name:                   Remove key in current host /tmp folder
+  file:
+    path:                 "/tmp/id_rsa"
+    state:                absent
+
+- name:                    Create Job Targets
+  include_role:
+    name:                  roles/third_party/ibm/wasnd/was-dmgr-config-job-target
+  vars:
+    __job_hostname:        "{{ item }}"
+    __job_admin:           "{{ docs_username }}"
+    __job_admin_pwd:       "{{ docs_password }}"
+    __user_key:            "{{ __was_install_location }}/keys/{{ hostvars[item]['inventory_hostname_short'] }}_key/id_rsa"
+  with_items:
+    - "{{ groups['dmgr'] }}"
+    - "{{ groups['docs_servers'] }}"
+    - "{{ groups['conversion_servers'] }}"
+    - "{{ groups['ihs_servers'] }}"
+  when:                    inventory_hostname in groups["dmgr"]

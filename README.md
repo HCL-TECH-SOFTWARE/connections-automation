@@ -1,8 +1,8 @@
-# HCL Connections and Component Pack Automation Scripts
+# HCL Connections and Component Pack Deployment Automation Framework
 
-**The Connections infrastructure squad appreciates the feedback given by the end users on using and improving the Ansible scripts. Our goal is to provide a set of Ansible playbooks that are flexible and can be tailored to a customer's deployments by providing the Ansible playbooks that the HCL Connections team uses for internal deployments. The goal was to reduce the overhead of deploying a connections environment for our customers to help them bootstrap their deployments. Keeping the public repros in sync with our internal ones has proven to be very difficult and time-consuming. Thank you for the discussion but the team may not always be able to respond to each post however the Ansible public repro will be periodically monitored by the squad for critical issues.**
+The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
 
-This set of scripts is able to spin up end-to-end HCL Connections 8 with Component Pack and all the dependencies. They can be used as whole and set up end to end environment, including the set of fake users for a sake of quickly being able to log in and see how the application works, or they can can be used autonomously from each other.
+Connections development is committed to ensuring its ongoing maintenance and periodic updates of this repository, which are typically synchronized with each new CR release.  Additionally, we aim to maintain a consistent review schedule for pull requests (PRs) in alignment with these update cycles.
 
 Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md).
 
@@ -52,9 +52,9 @@ To learn more about how to install Ansible on your local machine or Ansible cont
 Supported OSs:
 
 * CentOS 7+
-* RHEL 8+
+* RHEL 9
 
-NOTE: Recommended OS for this automation is CentOS 7.9/RHEL 8.6. All HCL Connections, Docs and Component Pack builds are done on CentOS 7.9/RHEL 8.6. While it is being tested, in different scenarios, using version 8+ on CentOS you may hit different issues that are eventually not being tested.
+NOTE: Recommended OS for this automation is CentOS 7.9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on CentOS 7.9/RHEL 9. While it is being tested, in different scenarios, using version 8+ on CentOS you may hit different issues that are eventually not being tested.
 
 ### Have files ready for download
 
@@ -84,9 +84,11 @@ Connections7:
 -rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
 
 Connections8:
--r-xr-xr-x   1 root root  2117918720 Oct  6 06:40 HCL_Connections_8.0_lin.tar
--r-xr-xr-x   1 root root   661811200 Oct  6 06:41 HCL_Connections_8.0_wizards_lin_aix.tar
--r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR3.zip
+-r-xr-xr-x   1 root root  2172108800 Aug 22 05:20 HCL_Connections_8.0_lin.tar
+-r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_lin.tar.sha256
+-r-xr-xr-x   1 root root   661821440 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar
+-r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar.sha256
+-r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR4.zip
 
 DB2:
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
@@ -419,11 +421,14 @@ To set up Component Pack, you should have the WebSphere-side of Connections alre
 
 Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
 
-Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials as environment variables.
+Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 
 ```
-set HARBOR_USERNAME=<<harbor username>>
-set HARBOR_USERNAME=<<Harbor password>>
+export HARBOR_USERNAME=<<Harbor username>>
+export HARBOR_SECRET=<<Harbor password>>
+
+export QUAY_USERNAME=<<Quay username>>
+export QUAY_SECRET=<<Quay password>>
 ```
 
 Then add Harbor variables to the inventory files as below
@@ -618,4 +623,4 @@ This project is licensed under Apache 2.0 license.
 
 ## Disclaimer
 
-This product is not officially supported, and can be used as is. This product is only proof of concept, and HCL Technologies Limited would welcome any feedback. HCL Technologies Limited does not make any warranty about the completeness, reliability and accuracy of this code. Any action you take by using this code is strictly at your own risk, and HCL Technologies Limited will not be liable for any losses and damages in connection with the use of this code.
+The code listed here is not officially supported and is solely intended to be used as-is. It serves as an accelerator for customers wishing to automate their own HCL Connections deployments and HCL Technologies Ltd would welcome any feedback. HCL Technologies Ltd does not make any warranty about the completeness, reliability and accuracy of this code. Any action you take by using this code is strictly at your own risk, and HCL Technologies Ltd will not be liable for any losses and damages in connection with the use of this code.

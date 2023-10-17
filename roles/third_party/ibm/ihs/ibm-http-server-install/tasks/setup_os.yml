@@ -1,10 +1,10 @@
 ---
-- name:          Disable SELinux
+- name:          Disable SELinux on RHEL8/RHEL9
   selinux:
     state:       disabled
   when:
     - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
   ignore_errors: true
   notify:        reboot
 
@@ -22,10 +22,10 @@
   when:
     - ansible_os_family == "RedHat"
 
-- name:          Install pre-requisites Yum on RHEL 8
+- name:          Install pre-requisites Yum on RHEL8/RHEL9
   yum:
     name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
     state:       present
   when:
     - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
