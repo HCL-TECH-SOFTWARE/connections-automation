@@ -2,15 +2,18 @@ ephox {
 allowed-origins {
 origins = [
 
-"http://{{ dmgr_hostname }}",
-"https://{{ dmgr_hostname }}",
-"http://{{ dmgr_hostname }}:9081",
-"https://{{ dmgr_hostname }}:9444"
+"http://{{ cnx_application_ingress }}",
+"https://{{ cnx_application_ingress }}",
+"http://{{ cnx_component_pack_ingress }}",
+"https://{{ cnx_component_pack_ingress }}",
+"http://{{ ic_internal }}",
+"https://{{ ic_internal }}"
+"http://{{ ic_internal }}:9081",
+"https://{{ ic_internal }}:9444"
 
 ]
 }
 http {
-websphere.use-ssl-config = false
-trust-all-cert = true
+websphere.use-ssl-config = true
 }
 }
