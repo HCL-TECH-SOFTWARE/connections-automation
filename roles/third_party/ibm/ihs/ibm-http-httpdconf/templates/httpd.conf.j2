@@ -1040,10 +1040,6 @@ ProxyPassReverse "/appregistry" "http://{{ __load_balancer_fqdn }}:32080/appregi
 RewriteRule ^/activities/service/html/(.*)$ /boards/activities/service/html/$1 [R]
 {% endif %}
 
-# If used in CNX8, don't allow loading of CNX7 header
-RewriteCond %{HTTP_REFERER} /boards/
-RewriteRule ^/homepage/web/pageHeader - [L,F]
-
 ProxyPass "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPassReverse "/boards" "http://{{ __load_balancer_fqdn }}:32080/boards"
 ProxyPass "/api-boards" "http://{{ __load_balancer_fqdn }}:32080/api-boards"
