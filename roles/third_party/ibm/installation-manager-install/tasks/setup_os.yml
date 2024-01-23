@@ -16,4 +16,4 @@
     name: ['unzip', 'tar', 'wget', 'apr-util']
     state: present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"

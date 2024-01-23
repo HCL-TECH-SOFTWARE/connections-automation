@@ -3,7 +3,7 @@
   selinux:
     state:       disabled
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
   ignore_errors: true
   notify:        reboot
@@ -20,12 +20,12 @@
     name: ['glibc.i686', 'libgcc.i686']
     state: present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
 
 - name:          Install pre-requisites Yum on RHEL8/RHEL9
   yum:
     name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
     state:       present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"

@@ -12,6 +12,20 @@
   when:
     - ansible_distribution == "CentOS"
 
+- name:                     Install EPEL Release on Almalinux
+  yum:
+    name:                   epel-release
+    state:                  present
+  when:
+    - ansible_os_family ==  "AlmaLinux"
+
+- name:                     Install OpenLDAP and dependencies on Almalinux
+  yum:
+    name:                   ['openldap', 'openldap-clients', 'openldap-servers', 'openldap-devel']
+    state:                   present
+  when:
+    - ansible_distribution == "AlmaLinux"
+
 - name:                     Install OpenLDAP and dependencies on RHEL
   include_tasks:            install_symas_openldap.yml
   when:
@@ -71,7 +85,7 @@
     dest:                   "{{ __db_ldif_location }}"
   when:
     - not ldap_database_already_created.stat.exists
-    - ansible_distribution == "RedHat" or ansible_distribution == "CentOS"
+    - ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "AlmaLinux"
     - ansible_distribution_major_version >= "8"
 
 - name:                     Create LDAP database

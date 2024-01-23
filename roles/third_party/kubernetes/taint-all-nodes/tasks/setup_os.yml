@@ -1,0 +1,11 @@
+- name:                     Install pre-requisites Yum
+  package:
+    name:                   ['python3-pip']
+    state:                  present
+  when:
+    - ansible_os_family ==  "RedHat"
+
+- name:                     Install JMESPath Python library
+  pip:
+    name:                   jmespath
+    state:                  present

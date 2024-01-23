@@ -1,12 +1,13 @@
-- name:                   Run kubectl version
-  command:                "kubectl version --client --short"
+- name:                   Get Kubernetes version
+  command:                "kubectl version --output=json"
   register:               kubectl_version_output
-  ignore_errors:          True
+  ignore_errors:          true
+  become:                 false
 
-- name:                   Get kubectl version
+- name:                   Extract Kubernetes version
   set_fact:
-    kubectl_version:        "{{ kubectl_version_output.stdout | regex_search('Client Version:\\sv(.*)', '\\1') | first }}"
-  when:                   kubectl_version_output.rc == 0
+    kubectl_version:      "{{ kubectl_version_output.stdout | from_json | json_query('serverVersion.gitVersion') | replace('v', '') }}"
+  when:                   kubectl_version_output.stdout is defined
 
 - name:                   "[Single Node] Allow pods to run on master for kubernetes < v1.24"
   command:                kubectl taint nodes --all node-role.kubernetes.io/master- --overwrite
@@ -21,7 +22,7 @@
   when:
    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
    - inventory_hostname == groups['k8s_masters'][0]
-   - kubectl_version is version('1.24', '>=')
+   - kubectl_version is version('1.24.0', '>=')
   become:                 false
   ignore_errors:          true
 

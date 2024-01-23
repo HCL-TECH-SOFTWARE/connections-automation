@@ -10,7 +10,7 @@
     owner:                   "{{ __haproxy_user }}"
     state:                   link
   when:
-    - ansible_distribution != "RedHat"
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']
 
 - name:                      Copy init file to /etc/init.d/
   copy:
@@ -19,7 +19,7 @@
     mode:                    '0755'
     remote_src:              yes
   when:
-    - ansible_distribution != "RedHat"
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']
 
 - name:                      Reload systemd
   systemd:

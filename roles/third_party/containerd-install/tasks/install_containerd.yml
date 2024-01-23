@@ -16,13 +16,13 @@
     url:                    https://download.docker.com/linux/centos/docker-ce.repo
     dest:                   /etc/yum.repos.d/docker-ce.repo
 
-- name:                     Replace baseurl on RedHat {{ ansible_distribution_major_version }}
+- name:                     Replace baseurl on RedHat/Almalinux {{ ansible_distribution_major_version }}
   replace:
     path:                   /etc/yum.repos.d/docker-ce.repo
     regexp:                 '^baseurl.*$'
     replace:                'baseurl=https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/x86_64/stable'
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
 
 - name:                     Enable Docker stable repo
   ini_file:
@@ -51,7 +51,7 @@
     state:                  present
     allow_downgrade:        yes
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
 
 - name:                     Create containerd folders
   file:

@@ -1,0 +1,33 @@
+---
+- name:                    Backup the sharedlib directory
+  ansible.builtin.copy:
+    src:                   "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/sharedlib"
+    dest:                  "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/sharedlib_backup"
+    remote_src:            yes
+
+
+- name:                    Remove the existing sharedlib folder
+  ansible.builtin.file:
+    path:                  "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/sharedlib"
+    state:                 absent
+  ignore_errors:           yes
+
+- name:                    Download the sharedlib.zip file from {{ cnx_repository_url }}/sharedlib.zip
+  get_url:
+    url:                   "{{ cnx_repository_url }}/sharedlib.zip"
+    dest:                  "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/sharedlib.zip"
+
+- name:                    Extract the sharedlib file
+  become:                  yes
+  unarchive:
+    src:                   "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/sharedlib.zip"
+    dest:                  "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/"
+    copy:                  no
+  register:                unpack_sharedlib
+  until:                   unpack_sharedlib is succeeded
+  retries:                 3
+
+- name:                    Remove the sharedlib.zip file
+  file:
+    path:                  "{{ __cell_location }}/clusters/{{ __cnx_ic360_cluster }}/autodeploy/sharedlib/DU-ic360-configuration/sharedlib.zip"
+    state:                 absent

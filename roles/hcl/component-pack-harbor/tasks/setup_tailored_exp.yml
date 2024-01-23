@@ -4,8 +4,8 @@
     dest:                    "{{ __tailored_exp_env }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Get chart and version
-  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep tailored-exp | cut -d ':' -f2"
+- name:                      Get chart and version harbor OCI
+  shell:                     "helm show all {{ __oci_helm_repository }}/tailored-exp --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                  tailored_exp_chart_version
   become_user:               "{{ __sudo_user }}"
 

@@ -10,3 +10,7 @@ __profile_name:                    "{{ profile_name | default('Dmgr01') }}"
 
 __product_id:                      "\"id='com.ibm.connections'\""
 __tmp_dir:                         "{{ tmp_dir | default('/opt/IBM/Binaries') }}"
+__was_cellname:                    "{{ was_cellname | default('ConnectionsCell') }}"
+__cell_location:                   "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}"
+__cnx_major_version:               "{{ cnx_major_version | default('8') }}"
+__cnx_ic360_cluster:               "{{ cnx_ic360_cluster | default('Apps') }}"
