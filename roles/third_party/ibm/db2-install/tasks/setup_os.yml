@@ -58,14 +58,22 @@
     name:            ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel.i686', 'numactl-libs.i686', 'numactl-libs.x86_64', 'unzip']
     state:           present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
 
 - name:              Install pre-requisites Yum
   yum:
     name:            ['pam.i686']
     state:           present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
+
+- name:                     Install EPEL Release on Almalinux
+  yum:
+    name:                   epel-release
+    state:                  present
+  when:
+    - ansible_os_family ==  "AlmaLinux"
+
 
 - name:              Install pre-requisites Yum for RHEL 8/9
   yum:

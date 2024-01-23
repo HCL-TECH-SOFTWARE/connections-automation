@@ -3,7 +3,7 @@
     name:              ['unzip']
     state:             present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
 
 - name:                "Create {{ __jdbc_installation_folder }}"
   file:

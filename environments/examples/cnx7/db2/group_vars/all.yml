@@ -40,9 +40,9 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP23
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP23
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp

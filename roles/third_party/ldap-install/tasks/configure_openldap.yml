@@ -8,6 +8,13 @@
     path:                   "{{ __schema_ldif_success_file }}"
   register:                 ldap_schema_already_created
 
+- name:                     "Copy template {{ __db_config_template }} to {{ __openldap_servers_folder_location }}"
+  template:
+    src:                    "{{ __db_config_template }}"
+    dest:                   "{{ __openldap_servers_folder_location }}"
+  when:
+    - ansible_os_family == "AlmaLinux" or "RedHat"
+
 - name:                     Copy DB_CONFIG
   copy:
     src:                    "/usr/share/openldap-servers/DB_CONFIG.example"

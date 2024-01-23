@@ -2,4 +2,4 @@
 - name:                      create job targets
   include_tasks:             create_job_targets.yml
   when:
-    - ansible_distribution != "RedHat"
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']

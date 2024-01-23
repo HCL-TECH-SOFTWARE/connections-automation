@@ -3,7 +3,7 @@
     name:               ['gcc', 'pcre-devel', 'openssl-devel']
     state:              present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
 
 - name:                 Install Development Tools group
   yum:

@@ -86,11 +86,6 @@
   when:
     - not ldap_folder_already_created.stat.exists
 
-- name:                     "Copy template {{ __db_config_template }} to {{ __openldap_servers_folder_location }}"
-  template:
-    src:                    "{{ __db_config_template }}"
-    dest:                   "{{ __openldap_servers_folder_location }}"
-
 - name:                     Create ldap group
   group:
     name:                   ldap

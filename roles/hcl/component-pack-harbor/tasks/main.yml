@@ -10,6 +10,10 @@
   include_tasks:             configure_credentials.yml
   when:                      __setup_credentials |bool
 
+- name:                      Set __helm_repository_local_name for harbor OCI
+  set_fact:
+    __helm_repository_local_name: "{{ __oci_helm_repository }}"
+
 - name:                      Configure PSP
   include_tasks:             configure_psp.yml
 

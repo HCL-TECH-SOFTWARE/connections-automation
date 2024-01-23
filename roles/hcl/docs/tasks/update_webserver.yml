@@ -10,7 +10,7 @@
   become:             true
   when:
     - editor_proxy_already_installed.stat.exists |bool
-    - ansible_distribution != "RedHat"
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']
   register:           update_webserver_performed
 
 - name:               Run the IHS Plugins updates script bundled in the Docs Editor Proxy installer
@@ -25,7 +25,7 @@
   become:             true
   when:
     - editor_proxy_already_installed.stat.exists |bool
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
   register:           update_webserver_performed
 
 - name:               Search for success message in install log

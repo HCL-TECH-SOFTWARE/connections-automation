@@ -23,6 +23,14 @@
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
+- name:          Install pre-requisites Yum on AlmaLinux
+  yum:
+    name:        ['python3-pip']
+    state:       present
+  when:
+    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version == "9"
+
 - name:          Install pre-requisites Yum for Conversion service
   yum:
     name:        ['ImageMagick', 'libSM.i686']
@@ -43,4 +51,4 @@
     name:        pexpect
     state:       latest
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"

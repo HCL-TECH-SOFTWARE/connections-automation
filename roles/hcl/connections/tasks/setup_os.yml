@@ -36,7 +36,7 @@
     name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python3-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts']
     state: present
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
   delegate_to:   "{{ item }}"
   with_items:    "{{ groups['was_servers'] }}"
@@ -87,7 +87,7 @@
     state:             present
     disable_gpg_check: yes
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
     - ansible_distribution_major_version == "9"
 
 - name:                Install wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm from RPM on WAS servers
@@ -96,7 +96,7 @@
     state:             present
     disable_gpg_check: yes
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"
     - ansible_distribution_major_version == "9"
   delegate_to:         "{{ item }}"
   with_items:          "{{ groups['was_servers'] }}"
