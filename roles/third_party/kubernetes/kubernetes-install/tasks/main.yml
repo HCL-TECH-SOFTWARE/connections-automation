@@ -4,3 +4,8 @@
 
 - name:          Install Kubernetes
   include_tasks: install_kubernetes.yml
+  when:          __kubernetes_version is version_compare('1.24', '>=')
+
+- name:          Install Kubernetes Legacy
+  include_tasks: install_kubernetes_legacy.yml
+  when:          __kubernetes_version is version_compare('1.24', '<')

@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.27.0') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.28.4') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -13,6 +13,7 @@ __enable_pod_auto_scaling:                   "{{ enable_pod_auto_scaling | defau
 __skip_connections_integration:              "{{ skip_connections_integration | default(false) }}"
 
 __helm_repository:                           "{{ component_pack_helm_repository | default('https://hclcr.io/chartrepo/cnx') }}"
+__oci_helm_repository:                       "oci://{{ __docker_registry_url }}"
 __helm_repository_local_name:                "{{ helm_repository_local_name | default('v-connections-helm' ) }}"
 __helm_repo_username:                        "{{ docker_registry_username | default('icdeploy') }}"
 __helm_repo_password:                        "{{ docker_registry_password | default('sometoken') }}"
@@ -52,8 +53,8 @@ __docker_registry_password:                  "{{ docker_registry_password | defa
 __huddoboards_registry_url:                  "{{ huddoboards_registry_url | default('quay.io/huddo') }}"
 __huddoboards_registry_username:             "{{ huddoboards_registry_username | default('admin') }}"
 __huddoboards_registry_password:             "{{ huddoboards_registry_password | default('password') }}"
-__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-07-04') }}"
-__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.1.0.tgz') }}"
+__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-12-18') }}"
+__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.2.0.tgz') }}"
 __huddoboards_chart_location:                "{{ huddoboards_chart_location | default('https://docs.huddo.com/assets/config/kubernetes') }}"
 
 __network_host:                              "{{ network_host | default('_site_') }}"
@@ -77,7 +78,7 @@ __ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | 
 __msteams_tenant_id:                         "{{ integrations_msteams_tenant_id | default('changeme') }}"
 __msteams_client_id:                         "{{ integrations_msteams_client_id | default('changeme') }}"
 __msteams_client_secret:                     "{{ integrations_msteams_client_secret | default('changeme') }}"
-__msteams_auth_schema:                       "{{ integrations_msteams_auth_schema | default('0') }}"
+__msteams_auth_schema:                       "{{ integrations_msteams_auth_schema | default('3') }}"
 __msteams_auth_sso_url:                      "{{ integrations_msteams_auth_sso_url | default('changeme.tokenexchangeurl') }}"
 __msteams_auth_sso_reloginTimerMins:         "{{ integrations_msteams_auth_sso_reloginTimerMins | default('110') }}"
 

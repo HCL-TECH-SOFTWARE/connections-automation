@@ -143,7 +143,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5022.20220703_1123 | WebSphere Fix Pack
+was_fp_version | 8.5.5024.20230628_1659 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -157,8 +157,8 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5022.20220703_1123 | IHS Fix Pack version
-wct_version | 8.5.5022.20220703_1123 | WebSphere Toolbox Fix Pack version
+ihs_version | 8.5.5024.20230628_1659 | IHS Fix Pack version
+wct_version | 8.5.5024.20230628_1659 | WebSphere Toolbox Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -248,6 +248,7 @@ restrict_reader_access__trusted_realms | *none* - optional | true will set appli
 sametime_host | *none* | Sametime server hostname
 sametime_ltpa_files | *none* | LTPA key file to import to WebSphere
 sametime_ltpa_key_password | *none* | Password of the LTPA key file
+cnx_ic360_cluster | Apps | Cluster running IC360
 
 
 ### Docs Variables
@@ -304,7 +305,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.6.21-3.1.el7 | Containerd version to be installed
+containerd_version | 1.6.24-3.1.el7 | Containerd version to be installed
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -314,7 +315,7 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.27.0 | Kubernetes version to be installed
+kubernetes_version | 1.28.4 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
@@ -378,8 +379,8 @@ huddo_boards_licence | *none* | Activities Plus license key
 huddoboards_registry_url | quay.io/huddo | huddoboards registry url
 huddoboards_registry_username | admin | huddoboards registry user name
 huddoboards_registry_password | password | huddoboards registry password
-huddoboards_image_tag | 2023-07-04 |  huddoboards image tag in huddoboards registry
-huddoboards_chart_name | huddo-boards-cp-1.1.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
+huddoboards_image_tag | 2023-12-18 |  huddoboards image tag in huddoboards registry
+huddoboards_chart_name | huddo-boards-cp-1.2.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials
 setup_elasticstack | false | True will setup ElasticStack

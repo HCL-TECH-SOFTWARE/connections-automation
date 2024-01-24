@@ -20,6 +20,12 @@
   when:
     - inventory_hostname in groups["dmgr"]
 
+- name:                    Delete and replace sharedlib with sharedlib containing Spring v5.2.19 dependencies
+  include_tasks:           replace_sharedlib.yml
+  when:
+    - inventory_hostname in groups["dmgr"]
+    - __cnx_major_version is version('7', '=')     
+
 - name:                    Shutdown WAS Nodes
   include_role:
     name:                  roles/third_party/ibm/wasnd/was-nodeagent-stop

@@ -51,16 +51,25 @@
   become:             false
   ignore_errors:      yes
 
-- name:                  "Get home dir of root (pool server)"
+- name:               "Get home dir of root (pool server)"
   set_fact:
-    root_home: "{{ lookup('env','HOME') }}"
-  become:                true
-  when:                  pool_server is defined
+    root_home:        "{{ lookup('env','HOME') }}"
+  become:             true
+  when:               pool_server is defined
 
-- name:                   Setting up kubectl for root (pool server)
+- name:               Setting up kubectl for root (pool server)
   command: "{{ item }}"
   with_items:
    - mkdir -p {{ root_home }}/.kube
    - cp -rf /etc/kubernetes/admin.conf {{ root_home }}/.kube/config
    - chown {{ __kubectl_user }} {{ root_home }}/.kube/config
-  when:                   pool_server is defined
+  when:               pool_server is defined
+
+- name:               Restart containerd and kubelet
+  systemd:
+    name:             "{{ item }}"
+    state:            restarted
+  with_items:
+    - containerd
+    - kubelet
+  ignore_errors:      yes

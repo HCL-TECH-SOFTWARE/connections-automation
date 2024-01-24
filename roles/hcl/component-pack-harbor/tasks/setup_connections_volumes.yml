@@ -1,5 +1,5 @@
-- name:                    Get chart and version
-  shell:                   "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep connections-persistent-st | cut -d ':' -f2"
+- name:                    Get chart and version harbor OCI
+  shell:                   "helm show all {{ __oci_helm_repository }}/connections-persistent-storage-nfs --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                connections_vol_chart_version
   become_user:             "{{ __sudo_user }}"
 

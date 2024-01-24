@@ -1,5 +1,5 @@
 ---
-- name:                    Systemd daemon reload
+- name:                    Reload systemd
   systemd:
     daemon-reload:         yes
 
@@ -21,23 +21,10 @@
       exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
     dest: /etc/yum.repos.d/kubernetes.repo
 
-- name:                    Clean YUM cache. This step is needed to cleanup old kubernetes from yum if any.
+- name:                    Clean YUM cache
   command:                 "{{ item }}"
   become:                  yes
   with_items:
      - "yum clean all"
      - "yum makecache"
      - "yum clean expire-cache"
-  ignore_errors:           yes
-
-- name:                    Install kubelet, kubeadm, and kubectl
-  yum:
-    name:                  "kubelet-{{ __kubernetes_version }},kubeadm-{{ __kubernetes_version }},kubectl-{{ __kubernetes_version }}"
-    state:                 present
-    disable_excludes:      kubernetes
-
-- name:                    Enable and start kubelet service
-  systemd:
-    name:                  kubelet
-    enabled:               yes
-    state:                 started
