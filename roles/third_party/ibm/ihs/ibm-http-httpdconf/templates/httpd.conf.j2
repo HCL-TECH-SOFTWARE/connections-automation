@@ -1117,18 +1117,6 @@ alias /files_content /data/Connections/files/upload
 Keyfile "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.kdb"
 SSLStashFile "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.sth"
 
-
-
-
-RewriteCond %{HTTPS} !=on
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
-
-# Redirect to homepage when no context is specified
-RewriteCond %{REQUEST_URI} ^/$ [OR]
-RewriteCond %{REQUEST_URI} ^$
-RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
-
-
 #Only the specified MIME types will be compressed.
 
 AddOutputFilterByType DEFLATE application/atom+xml
