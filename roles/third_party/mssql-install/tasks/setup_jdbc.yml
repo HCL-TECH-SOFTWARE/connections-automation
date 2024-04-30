@@ -9,12 +9,14 @@
     src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __jdbc_installation_folder }}"
     remote_src:          yes
+    validate_certs:      false
 
 - name:                  Download and unzip legacy drivers to the {{ __jdbc_installation_folder }} for TDI JRE 7
   unarchive:
     src:                 "{{ __download_location }}/{{ item }}"
     dest:                "{{ __jdbc_installation_folder }}"
     remote_src:          yes
+    validate_certs:      false
   with_items:
     - "{{ __package_name_legacy }}"
 #    - "{{ __package_name_legacy_40 }}"

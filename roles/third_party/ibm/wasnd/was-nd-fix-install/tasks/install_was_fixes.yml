@@ -17,6 +17,7 @@
     src:             "{{ was_fixes_repository_url }}/{{ item.file_name }}"
     dest:            "{{ __tmp_dir }}/"
     remote_src:      yes
+    validate_certs:  false
   with_items:        "{{ __was_fixes_files }}"
   when:              version_already_installed.rc != 0
 

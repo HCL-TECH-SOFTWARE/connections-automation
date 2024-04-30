@@ -13,6 +13,7 @@
 - name:                   Build Haproxy target with params
   make:
     chdir:                "{{ __haproxy_download_dir }}"
+    target:               all
     params:
       TARGET:             linux_glibc
       USE_PCRE:           1

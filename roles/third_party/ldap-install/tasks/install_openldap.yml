@@ -26,10 +26,15 @@
   when:
     - ansible_distribution == "AlmaLinux"
 
+- name:                     "Verify if database is already created"
+  stat:
+    path:                   "{{ __db_ldif_success_file }}"
+  register:                 ldap_database_already_created
+
 - name:                     Install OpenLDAP and dependencies on RHEL
   include_tasks:            install_symas_openldap.yml
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" and not ldap_database_already_created.stat.exists
 
 - name:                     Start slapd service
   service:
@@ -42,11 +47,6 @@
   command:                  "chkconfig slapd on"
   when:
     - ansible_distribution == "RedHat"
-
-- name:                     "Verify if database is already created"
-  stat:
-    path:                   "{{ __db_ldif_success_file }}"
-  register:                 ldap_database_already_created
 
 - name:                     Create get slappasswd command for Non-RedHat distribution
   set_fact:

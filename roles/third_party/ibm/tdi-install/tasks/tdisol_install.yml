@@ -61,6 +61,7 @@
     src:                 "{{ __tdi_sol_location }}"
     dest:                "{{ __tdi_sol_dest }}"
     remote_src:          yes
+    validate_certs:      false
   when:
     - __cnx_updates_enabled  |bool or tdi_sol_location is defined
   register: download_and_unpack_tdisol
@@ -117,6 +118,7 @@
     url:                 "{{ __oracle_download_location }}/{{ item }}"
     dest:                "{{ __jdbc_destination }}"
     mode:                0755
+    validate_certs:      false
   with_items:
    - "ojdbc7.jar"
   when:
@@ -128,6 +130,7 @@
     url:                 "{{ __oracle_download_location }}/{{ item }}"
     dest:                "{{ __jdbc_destination }}"
     mode:                0755
+    validate_certs:      false
   with_items:
    - "ojdbc8.jar"
   when:

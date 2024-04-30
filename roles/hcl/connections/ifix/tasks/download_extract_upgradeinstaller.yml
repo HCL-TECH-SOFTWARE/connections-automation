@@ -16,12 +16,14 @@
     url:                   "{{ cnx_repository_url }}/{{ __cnx_ifix_installer }}"
     dest:                  "{{ __tmp_dir }}/cnx-ifix/{{ __cnx_ifix_installer }}"
     mode:                  0755
+    validate_certs:        false
 
 - name:                    Extract the updateInstaller
   unarchive:
     src:                   "{{ __tmp_dir }}/cnx-ifix/{{ __cnx_ifix_installer }}"
     dest:                  "{{ __cnx_install_location }}/updateInstaller"
     copy:                  no
+    validate_certs:        false
   register:                download_and_unpack_connections_upgradeinstaller
   until:                   download_and_unpack_connections_upgradeinstaller is succeeded
   retries: 3
@@ -47,3 +49,4 @@
     url:                   "{{ cnx_repository_url }}/{{ ifix_file }}"
     dest:                  "{{ __cnx_install_location }}/updateInstaller/fixes"
     mode:                  0755
+    validate_certs:        false

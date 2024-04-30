@@ -18,6 +18,7 @@
     src:         "{{ __repository_url }}/{{ item.file_name }}"
     dest:        "{{ __tmp_dir }}/wassup_fixes"
     remote_src:  yes
+    validate_certs:  false
   with_items:    "{{ __ihs_fp_files }}"
 
 - name:          Extract WAS WCT FP Files
@@ -25,6 +26,7 @@
     src:         "{{ __repository_url }}/{{ item.file_name }}"
     dest:        "{{ __tmp_dir }}/wctfixes"
     remote_src:  yes
+    validate_certs:  false
   with_items:    "{{ __wct_fp_files }}"
 
 - name:          Generate Response file

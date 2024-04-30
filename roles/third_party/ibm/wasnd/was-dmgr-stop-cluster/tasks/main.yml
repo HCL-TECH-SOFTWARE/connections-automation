@@ -39,6 +39,13 @@
   until: cout is not search("is already in progress")
   when:                 pool_server is not defined
 
+- name:                 "Kill process in pid file if the cluster is not shutdown after three attempts"
+  shell:                "kill -9 $(cat '{{ __was_install_location }}/profiles/{{ __app_profile_name }}/logs/{{ item }}-{{ inventory_hostname_short }}/{{ item }}-{{ inventory_hostname_short }}.pid')"
+  register:             cout
+  ignore_errors:        true
+  loop:                 "{{ __cluster_name.split(' ') }}"
+  when:                 pool_server is not defined
+
 - name:                 Verify if server is running (pool server)
   shell:                "fuser 2809/tcp"
   register:             server_is_running

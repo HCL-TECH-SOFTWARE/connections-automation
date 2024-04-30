@@ -1,6 +1,6 @@
-user nginx;
+user {{ __nginx_user }};
 worker_processes auto;
-error_log /var/log/nginx/error.log;
+error_log {{ __nginx_logs_dir }}/error.log;
 pid /run/nginx.pid;
 
 events {
@@ -12,7 +12,7 @@ http {
                       '$status $body_bytes_sent "$http_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for"';
 
-    access_log  /var/log/nginx/access.log  main;
+    access_log {{ __nginx_logs_dir }}/access.log  main;
 
     sendfile            on;
     tcp_nopush          on;
@@ -20,8 +20,8 @@ http {
     keepalive_timeout   65;
     types_hash_max_size 2048;
 
-    include             /etc/nginx/mime.types;
+    include             {{ __nginx_install_dir }}/mime.types;
     default_type        application/octet-stream;
 
-    include /etc/nginx/conf.d/*.conf;
+    include {{ __nginx_install_dir }}/conf.d/*.conf;
 }
