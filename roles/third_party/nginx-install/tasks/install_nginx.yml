@@ -3,13 +3,18 @@
     name:                   nginx
     state:                  latest
     allow_downgrade:        yes
+  when:                     not __build_nginx|bool
+
+- name:                     Build and Install nginx
+  include_tasks:            download_and_build_nginx.yml
+  when:                     __build_nginx|bool
 
 - name:                     Create Nginx folders
   file:
     path:                   "{{ item }}"
     state:                  directory
   with_items:
-   - "/etc/nginx/ssl"
+   - "{{ __nginx_install_dir }}/ssl"
 
 - name:                     Apply nginx.conf
   template:

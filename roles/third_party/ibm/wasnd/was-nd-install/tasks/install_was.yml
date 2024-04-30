@@ -15,6 +15,7 @@
     url:         "{{ was_repository_url }}/{{ item.file_name }}"
     dest:        "{{ __tmp_dir }}/{{ item.file_name }}"
     mode:        0755
+    validate_certs:  false
   with_items:    "{{ __was_files }}"
 
 - name:          Extract WAS ND V8.5.5 Files
@@ -22,6 +23,7 @@
     src:         "{{ __tmp_dir }}/{{ item.file_name }}"
     dest:        "{{ __tmp_dir }}/"
     copy:        no
+    validate_certs:  false
   with_items:    "{{ __was_files }}"
 
 - name:          Generate WAS Response file

@@ -249,6 +249,8 @@ sametime_host | *none* | Sametime server hostname
 sametime_ltpa_files | *none* | LTPA key file to import to WebSphere
 sametime_ltpa_key_password | *none* | Password of the LTPA key file
 cnx_ic360_cluster | Apps | Cluster running IC360
+sharepoint_client_id | *none* - optional | If defined, will configure Sharepoint widget
+sharepoint_tenant_id | *none* - optional | If defined, will configure Sharepoint widget
 
 
 ### Docs Variables
@@ -305,7 +307,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.6.24-3.1.el7 | Containerd version to be installed
+containerd_version | 1.6.26-3.1.el7 | Containerd version to be installed
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -315,7 +317,7 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.28.4 | Kubernetes version to be installed
+kubernetes_version | 1.29.0 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
@@ -327,7 +329,12 @@ helm_version | 3.11.3 | Helm version to be installed
 haproxy_version | 2.6.6 | HAProxy version to be installed
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
-
+build_nginx | true | true will build and install NGINX with headers-more-nginx-module to allow removal of Server information from header
+nginx_install_dir | /etc/nginx | NGINX install location
+nginx_logs_dir | /var/log/nginx | NGINX logs location
+nginx_pid_loc | /run/nginx.pid | Used when build_nginx=true, NGINX pid file location
+nginx_exec_path | /usr/sbin/nginx | Used when build_nginx=true, NGINX executable location
+nginx_user | nginx | User to run the NGINX process
 
 ### Component Pack Variables
 Name | Default | Description
@@ -364,7 +371,6 @@ setup_customizer | true | True will deploy mw-proxy and setup customizations
 elasticsearch_default_version | 7 | Default ElasticSearch version
 elasticsearch_default_port | 30098 | ElasticSearch port
 elasticsearch_replica_count | 3 | Replica count to set in Helm charts for Elasticsearch
-elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 setup_elasticsearch | false | True will deploy ElasticSearch 5 (for Connections 6.5CR1)
 setup_elasticsearch7 | false | True will deploy ElasticSearch 7 (for Connections 7)
 setup_opensearch | True | True will deploy OpenSearch
@@ -404,6 +410,7 @@ opensearch_watermark_flood_stage | none | Controls the flood stage watermark for
 opensearch_watermark_high | *none* | Controls the high watermark for disk usage for opensearch. Make sure that the opensearch_watermark_flood_stage is more than or equal to opensearch_watermark_high
 opensearch_watermark_low | *none* | Controls the low watermark for disk usage for opensearch. Make sure that the opensearch_watermark_high is more than or equal to opensearch_watermark_low
 opensearch_auto_expand_replicas | *none* | Whether the OpenSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
+elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 
 ### NFS Variables
 Name | Default | Description

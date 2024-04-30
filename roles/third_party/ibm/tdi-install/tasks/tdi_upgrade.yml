@@ -58,6 +58,7 @@
     src:                 "{{ __download_location }}/{{ __upgrade_package_name }}"
     dest:                "{{ fp_extracted_folder | default( __tdi_upgrade_folder ) }}"
     remote_src:          yes
+    validate_certs:      false
   when:
     - tdi_already_installed.stat.exists |bool
     - tdi_already_upgraded is not defined

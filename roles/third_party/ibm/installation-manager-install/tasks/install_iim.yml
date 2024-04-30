@@ -10,6 +10,7 @@
     url:         "{{ iim_repository_url }}/{{ __bin_file }}"
     dest:        "{{ __tmp_dir }}/{{ __bin_file }}"
     mode:        0755
+    validate_certs: false
 
 - name:          Extract IBM Installation Manager
   unarchive:

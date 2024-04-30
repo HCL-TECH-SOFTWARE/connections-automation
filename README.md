@@ -89,7 +89,7 @@ Connections8:
 -r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_lin.tar.sha256
 -r-xr-xr-x   1 root root   661821440 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar
 -r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar.sha256
--r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR5.zip
+-r-xr-xr-x   1 root root             Apr 10 16:41 HC8.0_CR6.zip
 
 DB2:
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip

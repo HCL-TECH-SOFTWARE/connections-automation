@@ -3,7 +3,7 @@
     path:                   "{{ __tdi_installed_success_file }}"
   register:                 tdi_already_installed
 
-- name:                     Checking existing dir for jre 
+- name:                     Checking existing dir for jre
   stat:                     path="{{ __tdi_user_install_dir }}/jvm/jre"
   register:                 jre_stat
   when:
@@ -34,6 +34,7 @@
     dest:                   "{{ __tmp_extraction_folder }}"
     remote_src:             yes
     mode:                   0755
+    validate_certs:         false
   when:
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists

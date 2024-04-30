@@ -41,7 +41,8 @@
       get_url:
         url:              "{{ cnx_repository_url }}/{{ __cnx_package }}"
         dest:             "{{ __tmp_dir }}/cnx"
-        timeout:          300 
+        timeout:          300
+        validate_certs:   false 
 
     - name:               "Calculate checksum of {{ __tmp_dir }}/cnx/{{ __cnx_package }}"
       shell:              sha256sum "{{ __tmp_dir }}/cnx"/"{{ __cnx_package }}" | cut -d' ' -f1

@@ -20,8 +20,7 @@
 
 - name:              Mount everything if something is missing
   command:           mount -a
-  args:
-    warn:            no
+  
 
 - name:              Enable Kubernetes repository
   template:

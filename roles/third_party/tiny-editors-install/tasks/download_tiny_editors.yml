@@ -13,6 +13,7 @@
     src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __extraction_folder }}"
     remote_src:          yes
+    validate_certs:      false
   register: download_and_unpack_tinyeditors
   until: download_and_unpack_tinyeditors is succeeded
   retries: 3

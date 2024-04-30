@@ -125,7 +125,7 @@ kubectl delete ingress -n connections $(kubectl get ingress -n connections | awk
 >Ensure you reconfigure NFS by running playbook playbooks/third_party/setup-nfs.yml.
 </details>
 
-Follow [Kubernetes official document](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade kubernetes version. Kubernetes can be upgraded to the next minor version using below playbook.  Do NOT skip MINOR versions when upgrading Kubernetes.   For example, if you are upgrading from 1.26 -> 1.28, it needs to be upgraded from 1.26 -> 1.27 -> 1.28.  Add 'upgrade_version' variable in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml) to the target version and adjust before running the playbook each time:
+Follow [Kubernetes official document](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade kubernetes version. Kubernetes can be upgraded to the next minor version using below playbook.  Do NOT skip MINOR versions when upgrading Kubernetes.   For example, if you are upgrading from 1.27 -> 1.29, it needs to be upgraded from 1.27 -> 1.28 -> 1.29.  Add 'upgrade_version' variable in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml) to the target version and adjust before running the playbook each time:
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/kubernetes/upgrade-kubernetes.yml

@@ -1,0 +1,84 @@
+---
+  - name:                   Check if NGINX is running
+    shell:
+      cmd:                  "nginx -t"
+    register:               nginx_test_output
+    ignore_errors: true
+
+  - name:                   Is NGINX already installed?
+    debug:                  var=nginx_test_output.stderr
+
+  - name:                   Download NGINX
+    unarchive:
+      src:                  "{{ __nginx_url }}"
+      dest:                 "/tmp"
+      remote_src:           yes
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Download headers-more-nginx-module
+    unarchive:
+      src:                  "{{ __nginx_headers_more_url }}"
+      dest:                 "/tmp"
+      remote_src:           yes
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Create logs folder
+    file:
+      path:                  "{{ __nginx_logs_dir }}"
+      state:                directory
+      mode:                 '0755'
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Create user to run NGINX if not exists
+    user:
+      name:                 nginx
+      state:                present
+      system:               yes
+    when:                   nginx_test_output.rc != 0
+    
+  - name:                   Add the headers-more-nginx-module module
+    shell:
+      chdir:                "{{ __nginx_download_dir }}"
+      cmd:                  "./configure --conf-path={{ __nginx_conf_location }} --with-http_ssl_module --with-http_stub_status_module --prefix={{ __nginx_install_dir }} --sbin-path={{ __nginx_exec_path }} --with-cc-opt=\"-I /usr/include/pcre\" --add-module={{ __nginx_headers_more_version_download_dir }}"
+    register:               nginx_configure_output
+    become:                 true
+    failed_when:            nginx_configure_output.rc != 0
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Compile NGINX from source
+    shell:
+      chdir:                "{{ __nginx_download_dir }}"
+      cmd:                  make
+    register:               nginx_make_output
+    failed_when:            nginx_make_output.rc != 0
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Install NGINX
+    shell:
+      chdir:                "{{ __nginx_download_dir }}"
+      cmd:                  make install
+    register:               nginx_make_install_output
+    become:                 true
+    failed_when:            nginx_make_install_output.rc != 0
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   "Render {{ __nginx_service_location }}"
+    template:
+      src:                  "{{ __nginx_service_template }}"
+      dest:                 "{{ __nginx_service_location }}"
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Enable and start nginx service
+    systemd:
+      name:                 nginx
+      enabled:              yes
+    when:                   nginx_test_output.rc != 0
+
+  - name:                   Clean up installation folder
+    file:
+      path:                 "{{ item }}"
+      state:                absent
+    with_items:
+      - "{{ __nginx_download_dir }}"
+      - "{{ __nginx_headers_more_version_download_dir }}"
+    when:                   nginx_test_output.rc != 0

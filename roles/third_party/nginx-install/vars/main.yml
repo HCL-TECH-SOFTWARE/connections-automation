@@ -1,8 +1,29 @@
 ---
-__conf_d_location:              "/etc/nginx/conf.d"
+# build nginx params
+__nginx_install_dir:            "{{ nginx_install_dir | default('/etc/nginx') }}"
+__nginx_logs_dir:               "{{ nginx_logs_dir | default('/var/log/nginx') }}"
+__nginx_pid_loc:                "{{ nginx_pid_loc | default('/run/nginx.pid') }}"
+__nginx_exec_path:              "{{ nginx_exec_path | default('/usr/sbin/nginx') }}"
+__nginx_user:                   "{{ nginx_user | default('nginx') }}"
+
+__build_nginx:                  "{{ build_nginx | default(true) }}"
+__nginx_version:                "1.24.0"
+__nginx_url:                    "http://nginx.org/download/nginx-{{ __nginx_version }}.tar.gz"
+__nginx_download_dir:           "/tmp/nginx-{{ __nginx_version }}"
+
+__nginx_headers_more_version:   "0.37"
+__nginx_headers_more_url:       "https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v{{ __nginx_headers_more_version }}.tar.gz"
+__nginx_headers_more_version_download_dir:           "/tmp/headers-more-nginx-module-{{ __nginx_headers_more_version }}"
+
+__nginx_service_template:       "nginx.service.j2"
+__nginx_service_location:       "{{ nginx_service_location | default('/etc/systemd/system/nginx.service') }}"
+
+
+# common nginx params
+__conf_d_location:              "{{ __nginx_install_dir }}/conf.d"
 
 __nginx_conf_template:          "nginx.conf.j2"
-__nginx_conf_location:          "/etc/nginx/nginx.conf"
+__nginx_conf_location:          "{{ __nginx_install_dir }}/nginx.conf"
 
 __nginx_certbot_production:     "{{ nginx_certbot_production | default(false) }}"
 
@@ -17,9 +38,9 @@ __packages_location:            "{{ packages_location | default('/data/packages'
 __setup_file_server:            "{{ setup_file_server | default('false') }}"
 __setup_customizer:             "{{ setup_customizer | default('true') }}"
 
-__nginx_crt_file:               "/etc/nginx/ssl/{{ inventory_hostname }}.crt"
-__nginx_key_file:               "/etc/nginx/ssl/{{ inventory_hostname }}.key"
-__nginx_cnf_location:           "/etc/nginx/ssl/{{ inventory_hostname }}.cnf"
+__nginx_crt_file:               "{{ __nginx_install_dir }}/ssl/{{ inventory_hostname }}.crt"
+__nginx_key_file:               "{{ __nginx_install_dir }}/ssl/{{ inventory_hostname }}.key"
+__nginx_cnf_location:           "{{ __nginx_install_dir }}/ssl/{{ inventory_hostname }}.cnf"
 __nginx_cnf_template:           "cert.cnf.j2"
 
 __mw_proxy_address:             "{{ load_balancer_dns | default('localhost') }}"

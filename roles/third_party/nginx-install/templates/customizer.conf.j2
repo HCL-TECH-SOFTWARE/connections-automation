@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 proxy_redirect          off;
 proxy_set_header        Host            $host;
 proxy_set_header        X-Real-IP       $remote_addr;
@@ -26,6 +27,11 @@ server {
 
         proxy_ssl_session_reuse on;
         proxy_ssl_protocols TLSv1.2;
+
+        server_tokens off;
+        {% if __build_nginx | bool %}
+        more_clear_headers Server;
+        {% endif %}
 
         rewrite_log on;
 
@@ -83,6 +89,11 @@ server {
     proxy_cache_bypass $http_cache_control;
     proxy_ignore_headers "Set-Cookie";
     add_header X-Proxy-Cache $upstream_cache_status;
+
+    server_tokens off;
+    {% if __build_nginx | bool %}
+    more_clear_headers Server;
+    {% endif %}
 
     location /basic_status {
         stub_status;
