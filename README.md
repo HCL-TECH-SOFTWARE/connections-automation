@@ -51,10 +51,10 @@ To learn more about how to install Ansible on your local machine or Ansible cont
 
 Supported OSs:
 
-* CentOS 7+
+* AlmaLinux 9
 * RHEL 9
 
-NOTE: Recommended OS for this automation is CentOS 7.9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on CentOS 7.9/RHEL 9. While it is being tested, in different scenarios, using version 8+ on CentOS you may hit different issues that are eventually not being tested.
+NOTE: Recommended OS for this automation is AlmaLinux 9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on AlmaLinux 9/RHEL 9.  Since CentOS 7 is officially end of life, automation support for it will eventually be dropped.
 
 ### Have files ready for download
 
@@ -89,7 +89,7 @@ Connections8:
 -r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_lin.tar.sha256
 -r-xr-xr-x   1 root root   661821440 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar
 -r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar.sha256
--r-xr-xr-x   1 root root             Apr 10 16:41 HC8.0_CR6.zip
+-r-xr-xr-x   1 root root             Apr 10 16:41 HC8.0_CR7.zip
 
 DB2:
 -rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
@@ -411,7 +411,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
-Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
+Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/v8-cr7/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
 
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 

@@ -42,11 +42,13 @@
 
 [Why are we using Nginx and Haproxy here?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#why-are-we-using-nginx-and-haproxy-here)
 
+[Docs thumbnails stop working after upgrading Connections. How to fix that?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#docs-thumbnails-stop-working-after-upgrading-connections-how-to-fix-that)
+
 ## What do I see here?
 
 This is the end to end automation used by HCL Connections development team(s) to test different features for HCL Connections, Component Pack for HCL Connections and HCL Connections Docs.
 
-Everything on main branch can be considered tested by HCL Connections development teams in at least single node, multiple single nodes (like, for example, one node for HCL Connections and another for Component Pack) or fully distributed environment. 
+Everything on main branch can be considered tested by HCL Connections development teams in at least single node, multiple single nodes (like, for example, one node for HCL Connections and another for Component Pack) or fully distributed environment.
 
 ## How can I start with this?
 
@@ -54,7 +56,7 @@ If you never used Ansible before, please start with this [quick start guide](htt
 
 ## What if I have some issues?
 
-The easiest way is just to open the issue/start the discussion here in Github. If you are using HCL Connections you can go through the official support channels as well, but this is the fastest and the most straight forward way to get in touch directly with the developers who are maintaining the upstream. 
+The easiest way is just to open the issue/start the discussion here in Github. If you are using HCL Connections you can go through the official support channels as well, but this is the fastest and the most straight forward way to get in touch directly with the developers who are maintaining the upstream.
 
 ## Flexnet package names are different then some default package names here
 
@@ -70,7 +72,7 @@ For WebSphere, for example, this is how you overwrite default IBM names with tho
 
 ## What are the minimum system requirements to use this automation?
 
-To spin up demo ready HCL Connections with Component Pack (including Customizer enabled), we (HCL Connections Development Team) use two nodes environments equivalent to AWS m5a.xlarge instance for DB2, OpenLDAP, IBM SDI, HCL Connections and equivalent of AWS m5a.4xlarge for Nginx, Docker (and Docker Registry), NFS server, Kubernetes and Component Pack with all the features currently automated enabled. 
+To spin up demo ready HCL Connections with Component Pack (including Customizer enabled), we (HCL Connections Development Team) use two nodes environments equivalent to AWS m5a.xlarge instance for DB2, OpenLDAP, IBM SDI, HCL Connections and equivalent of AWS m5a.4xlarge for Nginx, Docker (and Docker Registry), NFS server, Kubernetes and Component Pack with all the features currently automated enabled.
 
 If you want to use Docs as well, be sure to increase the first instance to at least m5a.2xlarge equivalent.
 
@@ -88,15 +90,15 @@ These scripts will spin up OpenLDAP only, but even if you are using other LDAP i
 
 ## How do I specify which clusters should auto start?
 
-[This line](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/c04747109398a2e34945d8893334aca165ea8255/environments/examples/cnx7/connections_7_without_component_pack/connections#L173) lists all the clusters that should start automatically. The reason why not all clusters are started or stopped automatically is simply that in some cases you don't want some clusters running at all (one of the first examples being Push cluster). 
+[This line](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/c04747109398a2e34945d8893334aca165ea8255/environments/examples/cnx7/connections_7_without_component_pack/connections#L173) lists all the clusters that should start automatically. The reason why not all clusters are started or stopped automatically is simply that in some cases you don't want some clusters running at all (one of the first examples being Push cluster).
 
 ## Can I only add Component Pack with this?
 
-Yes, this automation is flexible enough that you can install everything or just a part of it, in this case Component Pack only (yes, also on already running HCL Connections environment). 
+Yes, this automation is flexible enough that you can install everything or just a part of it, in this case Component Pack only (yes, also on already running HCL Connections environment).
 
 ## What if my Connections is on Windows?
 
-All the steps that would be otherwise done by Ansible on your Windows side would have to be executed manually. 
+All the steps that would be otherwise done by Ansible on your Windows side would have to be executed manually.
 
 ## Can I upgrade HCL Connections using those scripts?
 
@@ -108,7 +110,7 @@ Yes. The scripts are written in a way that you can spin up everything end to end
 
 ## Can I upgrade Component Pack using those scripts?
 
-Yes, you can upgrade or recreate Component Pack with those scripts. 
+Yes, you can upgrade or recreate Component Pack with those scripts.
 
 ## Why are there many assumptions in different configuration files?
 
@@ -133,3 +135,7 @@ No, it's not. However, any node can be controller node (if you are using Linux o
 Nginx is used just as a reverse proxy example. You can use whatever web server you are used to use.
 
 Haproxy is definitely not mandatory, but if you are creating a Kubernetes cluster specifically with more then one master, you do need some load balancer in front of it. Also, if you are using Amazon EKS or RedHat OpenShift for your Component Pack installation, this Haproxy solves potential CORS issues for you. But no, Haproxy is not mandatory either.
+
+## Docs thumbnails stop working after upgrading Connections. How to fix that?
+
+Under certain circumstances, the references to Connections Docs shared libraries will be removed during the Connections upgrade.  To add them back, go to the WebSphere Integrated Solutions Console, navigate to All applications -> News.  Select "Shared library references" then "Reference shared libraries" to add DocsDaemonLib and ViewerDaemonLib to the News application, click OK.

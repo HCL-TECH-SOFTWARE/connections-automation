@@ -17,7 +17,7 @@
     name:                   epel-release
     state:                  present
   when:
-    - ansible_os_family ==  "AlmaLinux"
+    - ansible_distribution ==  "AlmaLinux"
 
 - name:                     Install OpenLDAP and dependencies on Almalinux
   yum:

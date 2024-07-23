@@ -25,7 +25,7 @@ Please note that if needed user can overwrite defaults using [files in this fold
 
 ### Choosing operating system version
 
-Use CentOS 7 Or RHEL 9 (the later CentOS 7 Or RHEL 9 the better). For this scenario, let's say you are using CentOS 7.9. Be always sure, as whenever installing any of the components mentioned here, using automation or manually, to configure machine properly and just to be on the safe side run yum update before you start.
+Use AlmaLinux 9 or RHEL 9 (the later the better). For this scenario, let's say you are using AlmaLinux 9. Be always sure, as whenever installing any of the components mentioned here, using automation or manually, to configure machine properly and just to be on the safe side run yum update before you start.
 
 
 ## Upgrading HCL Connections to v8
@@ -171,6 +171,11 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 ```
 
 Once this is done, log in to your HCL Connections 8 installation, just to confirm that all is fine.
+
+
+### Thumbnail fix for Connections Docs after upgrade
+Thumbnails may not be generated after Connections is upgraded.  If `com.ibm.connections.spi.events.EventHandlerInitException` exceptions are found in the WebSphere server log, follow the fix in the [FAQ](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#docs-thumbnails-stop-working-after-upgrading-connections-how-to-fix-that).
+
 
 
 ## Final words
