@@ -15,7 +15,7 @@
     path:                "{{ __db_extraction_folder }}"
     state:               directory
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool ) or (__cnx_docs_force_repopulation | bool)
 
 
 - name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __db_extraction_folder }}
@@ -25,7 +25,7 @@
     remote_src:          yes
     validate_certs:      false
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
+    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool) or (__cnx_docs_force_repopulation | bool)
   retries:               3
 
 - name:                  Stop CNX cluster for database cleanup

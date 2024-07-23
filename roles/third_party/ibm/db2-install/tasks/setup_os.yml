@@ -72,7 +72,7 @@
     name:                   epel-release
     state:                  present
   when:
-    - ansible_os_family ==  "AlmaLinux"
+    - ansible_distribution ==  "AlmaLinux"
 
 
 - name:              Install pre-requisites Yum for RHEL 8/9

@@ -159,7 +159,7 @@ ic360_db={ 'name': 'LSCONN', 'server': 'db1.internal.example.com', 'user': 'ESSU
 
 ## Using Microsoft SQL Server 2019 as a database backend for HCL Connections 8
 
-This was, obviously, implemented and tested on Linux (CentOS 7.9 to be more specific).
+This was implemented on Linux and no longer tested.
 
 It follows the same logic that DB2 and Oracle are following, but note that in case of MSSQL you need to use strong password, otherwise it will simply not work:
 

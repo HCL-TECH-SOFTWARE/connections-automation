@@ -2,7 +2,7 @@
 
 This is just an example of setting up your first HCL Connections and Component Pack environment including Customizer configured.
 
-To set this up, you will need at least four machines (for this example, let us say we use CentOS 7):
+To set this up, you will need at least four machines (for this example, let us say we use AlmaLinux 9):
 
 - ansible.internal.example.com is going to run Ansible commands (i.e. Ansible controller).  Typical laptop grade environment should be suffice.
 - web.internal.example.com is going to host, in this example, only Nginx and Haproxy. This is needed here only for the Customizer. At least 1CPU and 2G of RAM are preferable.
