@@ -42,7 +42,7 @@
 
 - name: Create tmp folder
   ansible.builtin.file:
-    path: "{{ __tdi_temp_folder }}"
+    path: "{{ __tdi_temp_dir }}"
     state: directory
     mode: '0755'
   when:
@@ -61,7 +61,7 @@
 
 - name: Delete temp folder
   ansible.builtin.file:
-    path: "{{ __tdi_temp_folder }}"
+    path: "{{ __tdi_temp_dir }}"
     state: absent
   when:
     - not tdi_already_installed.stat.exists

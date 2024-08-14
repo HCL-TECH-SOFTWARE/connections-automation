@@ -77,5 +77,5 @@ __db_hostname:                  "{{ db_hostname | default( __db_hostname_default
 __db_port:                      "{{ db_port | default('50000') }}"
 __db_username:                  "{{ db_username | default('LCUSER') }}"
 __db_password:                  "{{ db_password | default('password') }}"
-__tdi_temp_folder: "{{ tdi_temp_folder | default('/tmp/ansible-tdi-ldap') }}"
+__tdi_temp_dir: "{{ tdi_temp_dir | default('/tmp/ansible-tdi-ldap') }}"
 __tdi_keystore_password: "{{ tdi_keystore_password | default('password') }}"
