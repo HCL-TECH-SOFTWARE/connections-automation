@@ -80,7 +80,7 @@
       javax.net.ssl.keyStore=ldapcerts.jks
       {protect}-javax.net.ssl.keyStorePassword={{ __tdi_keystore_password }}
       javax.net.ssl.keyStoreType=jks
-    backup: yes
+    backup: true
   when:
     - __ldap_ssl_enabled |bool
 
