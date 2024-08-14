@@ -40,6 +40,50 @@
   when:
     - not tdi_already_installed.stat.exists
 
+- name: Create tmp folder
+  ansible.builtin.file:
+    path: "{{ __tdi_temp_folder }}"
+    state: directory
+    mode: '0755'
+  when:
+    - not tdi_already_installed.stat.exists
+    - __ldap_ssl_enabled |bool
+
+- name: Create keystore for LDAPS
+  ansible.builtin.shell: |
+    openssl s_client -showcerts -connect {{ __ldap_server }} < /dev/null > {{ __tdi_temp_dir }}/temp-key.out
+    openssl x509 -outform DER < {{ __tdi_temp_dir }}/temp-key.out > {{ __tdi_temp_dir }}/temp-key.der
+    openssl x509 -inform der -in {{ __tdi_temp_dir }}/temp-key.der -out {{ __tdi_temp_dir }}/temp-key.pem
+    {{ __tdi_user_install_dir }}/jvm/jre/bin/keytool -import -alias ldap-certificate -noprompt -keystore {{ __tdi_sol_dest }}/TDI/ldapcerts.jks -storepass {{ __tdi_keystore_password }} -file {{ __tdi_temp_dir }}/temp-key.pem
+  when:
+    - not tdi_already_installed.stat.exists
+    - __ldap_ssl_enabled |bool
+
+- name: Delete temp folder
+  ansible.builtin.file:
+    path: "{{ __tdi_temp_folder }}"
+    state: absent
+  when:
+    - not tdi_already_installed.stat.exists
+    - __ldap_ssl_enabled |bool
+
+- name: Enable keystore in solution.properties
+  ansible.builtin.blockinfile:
+    dest: "{{ __tdi_sol_dest }}/TDI/solution.properties"
+    block: |
+      # Truststore
+      javax.net.ssl.trustStore=ldapcerts.jks
+      {protect}-javax.net.ssl.trustStorePassword={{ __tdi_keystore_password }}
+      javax.net.ssl.trustStoreType=jks
+
+      # KeyStore (can use the same key store as the trustStore!)
+      javax.net.ssl.keyStore=ldapcerts.jks
+      {protect}-javax.net.ssl.keyStorePassword={{ __tdi_keystore_password }}
+      javax.net.ssl.keyStoreType=jks
+    backup: yes
+  when:
+    - __ldap_ssl_enabled |bool
+
 - name:                  "Create {{ __tdi_installed_success_file }} file"
   file:
     path:                "{{ __tdi_installed_success_file }}"
