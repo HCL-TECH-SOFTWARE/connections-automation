@@ -20,3 +20,5 @@ __ldap_server:               "{{ ldap_server | default( __ldap_server_default ) 
 __ldap_bind_user:            "{{ ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com') }}"
 __ldap_bind_pass:            "{{ ldap_bind_pass | default('password') }}"
 __ldap_server_type:          "{{ ldap_server_type | default('CUSTOM') }}"
+__ldap_ssl_enabled: "{{ ldap_ssl_enabled | default('false') }}"
+__ldap_server_port: "{{ ldap_server_port | default('389') }}"

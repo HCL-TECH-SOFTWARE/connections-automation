@@ -16,7 +16,7 @@
 # The five properties below specify the LDAP branch.  Technically, the first two determine the branch
 # and the third is a filter.  The fourth and fifth supply credentials if authentication is needed.
 
-source_ldap_url=ldap://{{ __ldap_server }}:389
+source_ldap_url=ldap://{{ __ldap_server }}:{{ __ldap_server_port }}
 source_ldap_search_base={{ __ldap_realm }}
 source_ldap_search_filter={{ __ldap_search_filter }}
 source_ldap_user_login={{ __ldap_bind_user }}
@@ -50,7 +50,7 @@ source_ldap_url_visitor_confirm=
 source_ldap_search_base_visitor_confirm=
 source_ldap_search_filter_visitor_confirm=
 
-source_ldap_use_ssl=false
+source_ldap_use_ssl={{ __ldap_ssl_enabled }}
 source_ldap_authentication_method=Simple
 source_ldap_time_limit_seconds=0
 source_ldap_required_dn_regex=
