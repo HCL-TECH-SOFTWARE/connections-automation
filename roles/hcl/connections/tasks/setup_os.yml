@@ -1,7 +1,7 @@
 ---
 - name:          Install pre-requisites Zypper
   zypper:
-    name: ['glibc-32bit','libgtk-2_0-0-32bit']
+    name: ['glibc-32bit','libgtk-2_0-0-32bit', 'xorg-x11-fonts', 'xorg-x11-fonts-converted', 'xorg-x11-fonts-core', 'xorg-x11-fonts-legacy']
     state: present
   when: ansible_os_family == "Suse"
 
@@ -33,13 +33,31 @@
 
 - name:          Install pre-requisites Yum on app servers RHEL8/RHEL9
   yum:
-    name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python3-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts']
+    name: ['nfs-utils', 'gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'glibc.i686', 'gtk2.i686', 'libXtst.i686', 'libXft.i686', 'python3-lxml.x86_64', 'xorg-x11-fonts-75dpi', 'xorg-x11-fonts-Type1', 'dejavu-sans-fonts', 'google-noto-sans-cjk-ttc-fonts']
     state: present
   when:
     - ansible_os_family == "RedHat" or "AlmaLinux"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
   delegate_to:   "{{ item }}"
   with_items:    "{{ groups['was_servers'] }}"
+
+- name:                Install wkhtmltox-0.12.6-1.opensuse.leap15.x86_64.rpm from RPM
+  zypper:
+    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.opensuse.leap15.x86_64.rpm
+    state:             present
+    disable_gpg_check: yes
+  when:
+    - ansible_os_family == "Suse"
+
+- name:                Install wkhtmltox-0.12.6-1.opensuse.leap15.x86_64.rpm from RPM on WAS servers
+  zypper:
+    name:              https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.opensuse.leap15.x86_64.rpm
+    state:             present
+    disable_gpg_check: yes
+  when:
+    - ansible_os_family == "Suse"
+  delegate_to:         "{{ item }}"
+  with_items:          "{{ groups['was_servers'] }}"
 
 - name:                Install wkhtmltox-0.12.6-1.centos7.x86_64.rpm from RPM
   yum:

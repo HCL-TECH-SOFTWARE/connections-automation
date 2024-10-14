@@ -1,0 +1,10 @@
+---
+- name:                    Gather facts
+  hosts:                   dmgr
+  tasks:                   []
+  
+- name:                    Setup an extended user
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/hcl/connections/setup_extended_user

@@ -8,6 +8,16 @@
     path:                  /etc/yum.repos.d/kubernetes.repo
     state:                 absent
   ignore_errors:           yes
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Remove existing Kubernetes repository file if it exists on SUSE
+  file:
+    path:                  /etc/zypp/repos.d/kubernetes.repo
+    state:                 absent
+  ignore_errors:           yes
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                    Create Kubernetes repository file at /etc/yum.repos.d
   copy:
@@ -20,6 +30,22 @@
       gpgkey=https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/repodata/repomd.xml.key
       exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
     dest: /etc/yum.repos.d/kubernetes.repo
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Create Kubernetes repository file at /etc/zypp/repos.d on SUSE
+  copy:
+    content: |
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/repodata/repomd.xml.key
+      exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+    dest: /etc/zypp/repos.d/kubernetes.repo
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                    Clean YUM cache. This step is needed to cleanup old kubernetes from yum if any.
   command:                 "{{ item }}"
@@ -29,12 +55,62 @@
      - "yum makecache"
      - "yum clean expire-cache"
   ignore_errors:           yes
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Clean Zypper cache. This step is needed to cleanup old kubernetes from Zypper if any.
+  command:                 "{{ item }}"
+  become:                  yes
+  with_items:
+     - "zypper clean --all"
+     - "zypper update -y"
+     - "zypper refresh"
+  ignore_errors:           yes
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                    Install conntrack-tools for SUSE
+  become:                  yes
+  zypper:
+    name:                  conntrack-tools
+    state:                 present
+  when: 
+    - ansible_distribution == "SLES"
 
 - name:                    Install kubelet, kubeadm, and kubectl
   yum:
     name:                  "kubelet-{{ __kubernetes_version }},kubeadm-{{ __kubernetes_version }},kubectl-{{ __kubernetes_version }}"
     state:                 present
     disable_excludes:      kubernetes
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Download latest kubernetes on SUSE
+  command: 
+    cmd:                   /usr/bin/curl -LO https://dl.k8s.io/release/v{{ __kubernetes_version }}/bin/linux/amd64/kubectl
+  become:                  yes
+  when: 
+    - ansible_distribution == "SLES"
+
+- name:                    Download the kubectl checksum file on SUSE
+  command: 
+    cmd:                   /usr/bin/curl -LO https://dl.k8s.io/release/v{{ __kubernetes_version }}/bin/linux/amd64/kubectl.sha256
+  when: 
+    - ansible_distribution == "SLES"
+
+- name:                    Install kubectl on SUSE
+  command:                 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  become:                  yes
+  when: 
+    - ansible_distribution == "SLES"
+
+- name:                    Create /tmp/k8s_ansible directory on SUSE
+  file:
+    path:                  /tmp/k8s_ansible
+    state:                 directory
+    mode:                  '0755'
+  when: 
+    - ansible_distribution == "SLES"
 
 - name:                    Enable and start kubelet service
   systemd:

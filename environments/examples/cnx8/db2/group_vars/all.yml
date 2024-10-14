@@ -49,9 +49,9 @@ cnx_repository_url:                              "http://{{ groups['installer'][
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 cnx_fixes_repository_url:                        "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 
-cnx_fixes_version:                               "8.0.0.0_CR7"
+cnx_fixes_version:                               "8.0.0.0_CR8"
 cnx_fixes_files:
-  - { file_name: "HC8.0_CR7.zip" }
+  - { file_name: "HC8.0_CR8.zip" }
 
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
@@ -85,8 +85,14 @@ enable_prometheus_jmx_exporter:                  True
 
 # uncomment to install CFix, update these for the latest fix and updateInstaller
 # ifix_apar:                                       CFix.70.2110
-# cnx_ifix_installer:                              "updateInstaller_2104.zip"
 # ifix_file:                                       CFix.70.2110-IC7.0.0.0-Common-Fix.jar
+# cnx_ifix_installer:                              "updateInstaller_2104.zip"
+#
+# to install multiple fixes
+# ifix_apar:                                       "KBXXXXXX KBYYYYYY"
+# ifix_file:
+#  - { file_name: 8.0.0.0_CRX-XXXX-KBXXXXXX.jar }
+#  - { file_name: 8.0.0.0_CRX-YYYY-KBYYYYYY.jar }
 
 component_pack_helm_repository:                  https://hclcr.io/chartrepo/cnx
 docker_registry_url:                             hclcr.io/cnx

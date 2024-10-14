@@ -15,7 +15,12 @@
     path:                "{{ __docs_extraction_folder }}"
     state:               absent
   when:
-    - not docs_database_already_created.stat.exists
+    - not docs_database_already_created.stat.exists and __keep_db_extraction_folder == false
+
+- name:                  Check if installation folder exists
+  stat:
+    path:                "{{ __docs_installation_folder }}"
+  register:              docs_installation_folder  
 
 - name:                  Create installation folder
   file:
@@ -31,7 +36,7 @@
     remote_src:          yes
     validate_certs:      false
   when:
-    - not docs_database_already_created.stat.exists
+    - not docs_database_already_created.stat.exists and not docs_installation_folder.stat.exists
 
 - name:                  Cleanup Docs database
   shell:                 "chdir={{ __docs_installation_folder }}/db2 sh {{ item }}"
@@ -99,3 +104,10 @@
     path:                "{{ __docs_success_file }}"
     state:               touch
   when:                  docs_database_created is not skipped
+
+- name:                  Clean up installation folder(s)
+  file:
+    path:                "{{ __docs_extraction_folder }}"
+    state:               absent
+  when:
+    - not __keep_db_extraction_folder

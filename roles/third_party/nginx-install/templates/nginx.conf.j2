@@ -1,4 +1,4 @@
-user {{ __nginx_user }};
+user {{ __nginx_user }}{% if ansible_os_family == "Suse" %} {{ __nginx_group }}{% endif %};
 worker_processes auto;
 error_log {{ __nginx_logs_dir }}/error.log;
 pid /run/nginx.pid;

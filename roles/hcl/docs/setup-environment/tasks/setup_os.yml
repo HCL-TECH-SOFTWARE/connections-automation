@@ -39,6 +39,21 @@
     - ansible_os_family == "RedHat"
     - inventory_hostname in groups["conversion_servers"]
 
+- name:          Install pre-requisites Zypper for SUSE
+  zypper:
+    name:        ['nfs-client', 'gtk2', 'libXtst', 'xorg-x11-fonts', 'psmisc', 'glibc-32bit', 'gtk2-32bit', 'libXtst-32bit', 'libXft-32bit', 'unzip', 'vim', 'python3-pip', 'python-passlib']
+    state:       present
+  when:
+    - ansible_distribution == "SLES"
+
+- name:          Install pre-requisites Zypper for Conversion service
+  zypper:
+    name:        ['ImageMagick', 'libSM7']
+    state:       present
+  when:
+    - ansible_distribution == "SLES"
+    - inventory_hostname in groups["conversion_servers"]
+
 - name:          Set file descriptors limits
   pam_limits:
     domain:      '*'

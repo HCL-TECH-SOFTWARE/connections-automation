@@ -45,11 +45,11 @@
 
 - name:                       "Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }} and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}"
   set_fact:
-    __default_package_name:        "v11.5.6_linuxx64_universal_fixpack.tar.gz"
+    __default_package_name:        "v11.5.9_linuxx64_universal_fixpack.tar.gz"
     __default_license_file:        "DB2_ESE_AUSI_Activation_11.5.zip"
     __db2_default_install_path:    "/opt/IBM/db2/V11.5"
     __default_jdbc_install_folder: "/opt/IBM/db2/V11.5/java"
-    __default_jdbc_package_name:   "v11.5.6_jdbc_sqlj.tar.gz"
+    __default_jdbc_package_name:   "v11.5.9_jdbc_sqlj.tar.gz"
   delegate_to: "{{ item }}"
   with_items: "{{ play_hosts }}"
   run_once: yes

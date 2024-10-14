@@ -177,6 +177,7 @@
   delegate_to:              "{{ dmgr_hostname }}"
   ignore_errors:            yes
   retries:                  3
+  until:                    es_certs_enabled.rc == 0
   delay:                    10
 
 - name:                     Remove {{ __es_certs_dir }}/es_certs/ca-chain.pem on {{ dmgr_hostname }}

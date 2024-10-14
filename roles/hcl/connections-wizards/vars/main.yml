@@ -9,6 +9,7 @@ __download_location:            "{{ connections_wizards_download_location | defa
 __package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_8.0_wizards_lin_aix.tar') }}"
 __db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
 __installation_folder:          "{{ __db_extraction_folder }}/Wizards"
+__keep_db_extraction_folder:    "{{ keep_db_extraction_folder | default(false)|bool }}"
 
 __docs_download_location:       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
 __docs_package_name:            "{{ cnx_docs_package_name | default('HCL_Docs_v202.zip') }}"

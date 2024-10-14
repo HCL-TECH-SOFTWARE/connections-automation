@@ -4,6 +4,9 @@
 {% for counter in range(0, __mongo5_replicaset | int ) %}
 /pv-connections/mongo5-node-{{ counter }}/data/db        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,root_squash)
 {% endfor %}
+{% for counter in range(0, __mongo7_replicaset | int ) %}
+/pv-connections/mongo7-node-{{ counter }}/data/db        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,root_squash)
+{% endfor %}
 {% for counter in range(0, __solr_replicaset | int ) %}
 /pv-connections/solr-data-solr-{{ counter }}        {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ __nfs_export_netmask }}(rw,root_squash)
 {% endfor %}

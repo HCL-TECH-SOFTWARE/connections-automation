@@ -3,7 +3,7 @@
   set_fact:
     __ldap_add_users:      "{{ __symas_bin_path }}{{ __ldap_add_users }}"
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "SLES"
 
 - name:                     "Verify if users are already created"
   stat:

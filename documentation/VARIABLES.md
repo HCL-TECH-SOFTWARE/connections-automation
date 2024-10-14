@@ -143,7 +143,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5024.20230628_1659 | WebSphere Fix Pack
+was_fp_version | 8.5.5026.20240702_1024 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -157,8 +157,8 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5024.20230628_1659 | IHS Fix Pack version
-wct_version | 8.5.5024.20230628_1659 | WebSphere Toolbox Fix Pack version
+ihs_version | 8.5.5026.20240702_1024 | IHS Fix Pack version
+wct_version | 8.5.5026.20240702_1024 | WebSphere Toolbox Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -207,6 +207,7 @@ cnx_package | HCL_Connections_8.0_lin.tar | Connections install kit file
 connections_wizards_package_name | HCL_Connections_8.0_wizards_lin_aix.tar | Connections Wizard kit file
 setup_connections_wizards | true | true will run the Connections database wizard
 cnx_force_repopulation | false | true will drop the Connections databases and recreate them in `setup-connections-wizards.yml` playbook
+keep_db_extraction_folder | false | true will keep the database wizard installation kit for reuse
 cnx_major_version | "8" | Connections major version to install
 cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR3) will install the CR version
 cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR3.zip") and cnx_fixes_version is set, will download the CR install kit
@@ -223,6 +224,7 @@ cnx_message_store_nfs | /nfs/data/messageStores | Connections bus SIB NFS share
 cnx_enable_invite | false | true will configure selfregistration-config.xml for Invite
 cnx_enable_moderation | false | true will configure and enable Moderation
 global_moderator | *none* - optional | Global moderator user
+connections_extended_user | *none* - optional | User to have EMPLOYEE_EXTENDED role for external collaboration
 cnx_enable_full_icec | false | true will configure full CEC
 cnx_enable_lang_selector | false | true will enable and add additional languages to the language selector
 enable_homepage_switcher | true | set `com.ibm.orient.isHomepageSwitcherEnabled` in LotusConnections-config.xml
@@ -307,7 +309,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.6.26-3.1.el7 | Containerd version to be installed
+containerd_version | 1.7.19-3.1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -317,18 +319,19 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.29.0 | Kubernetes version to be installed
+kubernetes_version | 1.30.3 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
 kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.25.0 | Calico version to be installed
-helm_version | 3.11.3 | Helm version to be installed
-haproxy_version | 2.6.6 | HAProxy version to be installed
+calico_version | 3.28.0 | Calico version to be installed
+helm_version | 3.15.3 | Helm version to be installed
+haproxy_version | 3.0.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
+nginx_version | 1.26.1 | nginx version to be installed
 build_nginx | true | true will build and install NGINX with headers-more-nginx-module to allow removal of Server information from header
 nginx_install_dir | /etc/nginx | NGINX install location
 nginx_logs_dir | /var/log/nginx | NGINX logs location

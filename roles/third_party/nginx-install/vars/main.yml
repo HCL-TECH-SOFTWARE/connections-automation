@@ -5,9 +5,10 @@ __nginx_logs_dir:               "{{ nginx_logs_dir | default('/var/log/nginx') }
 __nginx_pid_loc:                "{{ nginx_pid_loc | default('/run/nginx.pid') }}"
 __nginx_exec_path:              "{{ nginx_exec_path | default('/usr/sbin/nginx') }}"
 __nginx_user:                   "{{ nginx_user | default('nginx') }}"
+__nginx_group:                  "{{ nginx_group | default('users') }}"
 
 __build_nginx:                  "{{ build_nginx | default(true) }}"
-__nginx_version:                "1.24.0"
+__nginx_version:                "{{ nginx_version | default('1.26.1') }}"
 __nginx_url:                    "http://nginx.org/download/nginx-{{ __nginx_version }}.tar.gz"
 __nginx_download_dir:           "/tmp/nginx-{{ __nginx_version }}"
 
@@ -54,5 +55,6 @@ __param_nofile_hard:            "64000"
 
 __nginx_repo_template:          "nginx.repo.j2"
 __nginx_repo_location:          "/etc/yum.repos.d/nginx.repo"
+__nginx_repo_location_suse:     "/etc/zypp/repos.d/nginx.repo"
 
 __ssl_root_ca:                  "{{ ssl_root_ca | default('/C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com') }}"

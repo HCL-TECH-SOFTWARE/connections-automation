@@ -63,3 +63,6 @@
   roles:
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+- name:                    Configure an extended user to enable the creation of an External Community
+  import_playbook:         setup-extended-user.yml

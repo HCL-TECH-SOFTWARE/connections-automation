@@ -8,6 +8,13 @@
     path:                   "{{ __schema_ldif_success_file }}"
   register:                 ldap_schema_already_created
 
+- name:                     Ensure openldap-servers directory exists
+  file:
+    path:                   /usr/share/openldap-servers
+    state:                  directory
+  when: 
+    - ansible_distribution == "SLES"
+
 - name:                     "Copy template {{ __db_config_template }} to {{ __openldap_servers_folder_location }}"
   template:
     src:                    "{{ __db_config_template }}"
@@ -45,7 +52,7 @@
   when:
     - ldap_database_already_created.stat.exists |bool
     - not ldap_schema_already_created.stat.exists
-    - ansible_distribution != "RedHat"
+    - ansible_facts['distribution'] not in ['RedHat', 'SLES']
 
 - name:                     Add the cosine and nis LDAP schemas
   command:                  "{{ __symas_bin_path }}{{ __ldap_add_cmd }} {{ item }}"
@@ -58,7 +65,7 @@
   when:
     - ldap_database_already_created.stat.exists |bool
     - not ldap_schema_already_created.stat.exists
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "SLES"
 
 - name:                     "Create {{ __schema_ldif_success_file }} file"
   file:

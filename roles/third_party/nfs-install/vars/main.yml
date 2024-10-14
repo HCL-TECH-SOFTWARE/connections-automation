@@ -15,6 +15,7 @@ __viewer_data_shared:                "{{ viewer_data_remote_path | default('/nfs
 
 __mongo_replicaset:                  "{{ mongo_replicaset | default('0') }}"
 __mongo5_replicaset:                 "{{ mongo5_replicaset | default('3') }}"
+__mongo7_replicaset:                 "{{ mongo7_replicaset | default('0') }}"
 __es_replicaset:                     "{{ es_replicaset | default('0') }}"
 __es7_replicaset:                    "{{ es7_replicaset | default('0') }}"
 __solr_replicaset:                   "{{ solr_replicaset | default('0') }}"

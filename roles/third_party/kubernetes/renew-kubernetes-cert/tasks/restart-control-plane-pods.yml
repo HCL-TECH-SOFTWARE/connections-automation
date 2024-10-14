@@ -1,0 +1,15 @@
+---
+  - name:                  Restart {{ item }} pod
+    command:               kubectl delete pod -n kube-system -l component={{ item }}
+    become:                true
+    become_user:           "{{ __kubectl_user }}"
+    when:                  inventory_hostname == groups['k8s_masters'][0]
+    async:                 90
+    poll:                  0
+    register:              delete_apiserver
+
+  - name:                  Wait for {{ item }} pod to be ready again
+    command:               kubectl wait --for=condition=Ready pod -n kube-system -l component={{ item }} --timeout=60s
+    become:                true
+    become_user:           "{{ __kubectl_user }}"
+    when:                  delete_apiserver is success and inventory_hostname == groups['k8s_masters'][0]

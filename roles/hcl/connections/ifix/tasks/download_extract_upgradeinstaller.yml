@@ -44,9 +44,19 @@
     dest:                  "{{ __cnx_install_location }}/updateInstaller/updateSilent.sh"
     mode:                  "740"
 
-- name:                    Download the iFixes {{ ifix_file }}
+- name:                    Download the iFix {{ ifix_file }}
   get_url:
     url:                   "{{ cnx_repository_url }}/{{ ifix_file }}"
     dest:                  "{{ __cnx_install_location }}/updateInstaller/fixes"
     mode:                  0755
     validate_certs:        false
+  when:                    ifix_file is string
+
+- name:                    Download the iFixes {{ ifix_file }}
+  get_url:
+    url:                   "{{ cnx_repository_url }}/{{ item.file_name }}"
+    dest:                  "{{ __cnx_install_location }}/updateInstaller/fixes"
+    mode:                  0755
+    validate_certs:        false
+  with_items:              "{{ ifix_file }}"
+  when:                    ifix_file is not string and ifix_file is iterable

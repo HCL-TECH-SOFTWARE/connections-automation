@@ -1,0 +1,11 @@
+# Renew self generated kubeadm-managed certificates
+---
+  - name:                  Gather facts
+    hosts:                 k8s_masters
+    tasks:                 []
+
+  - name:                  Renew Kubernetes cert on each control plane nodes
+    hosts:                 k8s_masters
+    become:                true
+    roles:
+      - roles/third_party/kubernetes/renew-kubernetes-cert

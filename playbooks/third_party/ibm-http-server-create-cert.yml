@@ -1,0 +1,6 @@
+---
+  - name:                     Configure SSL for IBM HTTP Server
+    hosts:                    ihs_servers
+    become:                   true
+    roles:
+      - roles/third_party/ibm/ihs/ibm-http-gen-cert

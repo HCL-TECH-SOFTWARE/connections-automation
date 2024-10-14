@@ -1,0 +1,24 @@
+---
+- name:                     "Check if 'connections_extended_user' is defined in the inventory file"
+  assert:
+    that:                   connections_extended_user|length > 0
+    msg:                    "Set the value of 'connections_extended_user' in the inventory file."
+  ignore_errors:            true
+
+- name:                     "Render {{ __cnx_extend_user_destination }}"
+  template:
+    src:                    "{{ __cnx_extend_user_template }}"
+    dest:                   "{{ __cnx_extend_user_destination }}"
+  delegate_to:              "{{ dmgr_hostname }}"
+  when:                     connections_extended_user is defined and connections_extended_user is not none
+
+- name:                     "Register extended user {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __cnx_extend_user_destination }}"
+  command:                  "{{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __cnx_extend_user_destination }}"
+  args:
+    chdir:                  "{{ __dmgr_bin_dir }}"
+  delegate_to:              "{{ dmgr_hostname }}"
+  register:                 result
+  when:                     connections_extended_user is defined and connections_extended_user is not none
+  retries: 10
+  delay: 10
+  until: result is succeeded
