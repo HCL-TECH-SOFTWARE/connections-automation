@@ -8,7 +8,7 @@
   until: download_and_unpack_haproxy is succeeded
   retries: 3
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'SLES']
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
 
 - name:                   Build Haproxy target with params
   make:
@@ -22,14 +22,14 @@
       PCRE_LIB:           /usr/lib64
       SSL_LIB:            /usr/lib64
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'SLES']
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
 
 - name:                   Install Haproxy
   make:
     chdir:                "{{ __haproxy_download_dir }}"
     target:               install
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'SLES']
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
 
 - name:                   Update all packages
   yum:
@@ -59,4 +59,4 @@
     name:                 haproxy
     state:                present
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
