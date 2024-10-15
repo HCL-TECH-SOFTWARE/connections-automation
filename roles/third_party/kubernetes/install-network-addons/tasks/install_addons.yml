@@ -1,4 +1,4 @@
-# https://docs.tigera.io/calico/3.25/getting-started/kubernetes/quickstart
+---
 - name:               Download the Calico networking manifest for the Kubernetes API datastore
   command:            curl https://raw.githubusercontent.com/projectcalico/calico/v{{ __calico_version }}/manifests/calico.yaml -O
   when:
@@ -12,8 +12,15 @@
   become:             false
   ignore_errors:      true
 
+- name:              Uninstall old version of calico
+  command:           kubectl delete -f calico.yaml --ignore-not-found=true
+  when:
+   - calico_already_provisioned.rc == 0
+   - inventory_hostname == groups['k8s_masters'][0]   
+  become:             false
+
 - name:              Upgrading an installation that uses manifests and the Kubernetes API datastore
-  command:           kubectl replace -f calico.yaml
+  command:           kubectl apply -f calico.yaml
   when:
    - calico_already_provisioned.rc == 0
    - inventory_hostname == groups['k8s_masters'][0]   

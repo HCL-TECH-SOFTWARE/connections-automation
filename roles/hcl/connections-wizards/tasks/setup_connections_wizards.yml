@@ -8,16 +8,19 @@
     path:                "{{ __db_extraction_folder }}"
     state:               absent
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
+    - (not __keep_db_extraction_folder)
+
+- name:                  Check if installation folder exists
+  stat:
+    path:                "{{ __installation_folder }}"
+  register:              installation_folder
 
 - name:                  Create installation folder
   file:
     path:                "{{ __db_extraction_folder }}"
     state:               directory
-  when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool ) or (__cnx_docs_force_repopulation | bool)
 
-
+# Wizard is needed to do runstats.sql regularly
 - name:                  Download and unzip installation "{{ __download_location}}/{{ __package_name }}" to the {{ __db_extraction_folder }}
   unarchive:
     src:                 "{{ __download_location }}/{{ __package_name }}"
@@ -25,7 +28,7 @@
     remote_src:          yes
     validate_certs:      false
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool) or (__cnx_docs_force_repopulation | bool)
+    - not installation_folder.stat.exists
   retries:               3
 
 - name:                  Stop CNX cluster for database cleanup
@@ -279,5 +282,5 @@
     path:                "{{ __db_extraction_folder }}"
     state:               absent
   when:
-    - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool )
+    -  not __keep_db_extraction_folder
     

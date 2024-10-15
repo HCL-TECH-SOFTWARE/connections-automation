@@ -38,6 +38,16 @@
    - ansible_os_family == "RedHat" or ansible_os_family == "AlmaLinux"
    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
+- name:              Remove existing Kubernetes repository from SUSE
+  command:           zypper removerepo kubernetes
+  when: 
+    - ansible_distribution == "SLES"
+
+- name:              Enable Kubernetes repository on SUSE
+  command:           zypper ar -f https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/ kubernetes
+  when: 
+    - ansible_distribution == "SLES"
+
 - name:              Install prereqs for RHEL 8 / CentOS 8
   yum:
     name:            ['iproute-tc']
@@ -46,6 +56,13 @@
    - ansible_os_family == "RedHat"
    - ansible_distribution_major_version == "8"
 
+- name:              Install prereqs for SUSE
+  zypper:
+    name:            ['iproute2']
+    state:           present
+  when: 
+    - ansible_distribution == "SLES"
+    
 - name:              "Load br_netfilter as per https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#letting-iptables-see-bridged-traffic"
   modprobe:
     name:            br_netfilter

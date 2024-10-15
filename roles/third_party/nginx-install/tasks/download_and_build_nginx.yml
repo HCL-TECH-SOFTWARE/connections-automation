@@ -1,40 +1,54 @@
 ---
-  - name:                   Check if NGINX is running
+  - name:                   Check if NGINX is installed and get version
     shell:
-      cmd:                  "nginx -t"
-    register:               nginx_test_output
-    ignore_errors: true
+      cmd:                  "nginx -v 2>&1 | awk -F '/' '{print $2}'"
+    register:               nginx_version_output
+    ignore_errors:          true
 
-  - name:                   Is NGINX already installed?
-    debug:                  var=nginx_test_output.stderr
+  - name:                   Set default NGINX version
+    set_fact:
+      installed_nginx_version: "{{ nginx_version_output.stdout | default('') }}"
+
+  - name:                   Debug installed NGINX version
+    debug:
+      msg:                  "Installed NGINX version is {{ installed_nginx_version }}"
+
+  - name:                   Check if NGINX is installed and version matches
+    set_fact:
+      nginx_version_matches: "{{ installed_nginx_version == __nginx_version }}"
+    when:                   installed_nginx_version != ''
+
+  - name:                   Check if NGINX is not installed or version does not match
+    set_fact:
+      nginx_needs_update:   "{{ not installed_nginx_version or not nginx_version_matches }}"
 
   - name:                   Download NGINX
     unarchive:
       src:                  "{{ __nginx_url }}"
       dest:                 "/tmp"
       remote_src:           yes
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   Download headers-more-nginx-module
     unarchive:
       src:                  "{{ __nginx_headers_more_url }}"
       dest:                 "/tmp"
       remote_src:           yes
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   Create logs folder
     file:
       path:                  "{{ __nginx_logs_dir }}"
       state:                directory
       mode:                 '0755'
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   Create user to run NGINX if not exists
     user:
       name:                 nginx
       state:                present
       system:               yes
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
     
   - name:                   Add the headers-more-nginx-module module
     shell:
@@ -43,15 +57,23 @@
     register:               nginx_configure_output
     become:                 true
     failed_when:            nginx_configure_output.rc != 0
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
+  - name:                   Install make on SUSE
+    become: yes
+    zypper:
+      name:                 make
+      state:                present
+    when:
+      - ansible_distribution == "SLES"
+      
   - name:                   Compile NGINX from source
     shell:
       chdir:                "{{ __nginx_download_dir }}"
       cmd:                  make
     register:               nginx_make_output
     failed_when:            nginx_make_output.rc != 0
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   Install NGINX
     shell:
@@ -60,19 +82,19 @@
     register:               nginx_make_install_output
     become:                 true
     failed_when:            nginx_make_install_output.rc != 0
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   "Render {{ __nginx_service_location }}"
     template:
       src:                  "{{ __nginx_service_template }}"
       dest:                 "{{ __nginx_service_location }}"
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   Enable and start nginx service
     systemd:
       name:                 nginx
       enabled:              yes
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update
 
   - name:                   Clean up installation folder
     file:
@@ -81,4 +103,4 @@
     with_items:
       - "{{ __nginx_download_dir }}"
       - "{{ __nginx_headers_more_version_download_dir }}"
-    when:                   nginx_test_output.rc != 0
+    when:                   nginx_needs_update

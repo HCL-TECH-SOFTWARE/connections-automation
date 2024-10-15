@@ -1178,6 +1178,6 @@ Header edit Set-Cookie ^(.*)$ "$1; SameSite=None;Secure"
 Header set X-content-Type-Options "nosniff"
 Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
-# Apply CSP to all requests to prevent clickjacking. Include exceptions for teams addin and outlook addin
+# Apply CSP to all requests to prevent clickjacking but leave it open for Teams addin and Outlook addin
 Header unset Content-Security-Policy
 Header always set Content-Security-Policy "frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.office365.com"

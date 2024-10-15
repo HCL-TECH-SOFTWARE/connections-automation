@@ -1,3 +1,22 @@
+- name:                     Check if Nginx is installed
+  shell:                    "nginx -V"
+  register:                 nginx_check
+  ignore_errors:            true
+
+- name:                     Check if more_clear_headers module is installed
+  shell:                    "nginx -V 2>&1 | grep headers-more"
+  register:                 nginx_headers_more_module_check
+  when:                     nginx_check.rc == 0
+  ignore_errors:            true
+
+- name:                     Override __build_nginx if Nginx is installed but no more_clear_headers module
+  set_fact:
+    __build_nginx:          false
+  when:                     nginx_check.rc == 0 and nginx_headers_more_module_check.rc != 0
+
+- name:                     Show me __build_nginx
+  debug:                    var=__build_nginx
+
 - name:                     Apply repository for CentOS
   template:
     src:                    "{{ __nginx_repo_template }}"
@@ -18,6 +37,16 @@
   when:
    - ansible_facts['distribution'] in ['RedHat', 'AlmaLinux', 'Rocky'] and not __build_nginx|bool
 
+- name:                     Apply repository for SUSE
+  template:
+    src:                    "{{ __nginx_repo_template }}"
+    dest:                   "{{ __nginx_repo_location_suse }}"
+  vars:
+    dist:                   "sles"
+    version:                "{{ ansible_distribution_major_version }}"
+  when:
+   - ansible_distribution == "SLES" and not __build_nginx|bool
+
 - name:                     Install prerequisites if building NGINX
   package:
     name:                   ['gcc', "pcre-devel", "openssl-devel", "zlib-devel"]
@@ -35,13 +64,31 @@
   when:
    - ansible_os_family == "RedHat"
    - ansible_distribution_major_version == "7"
+   - ansible_distribution != "SLES"
 
+- name:                     Install prerequisites for semanage on SUSE
+  package:
+    name:                   "{{ item }}"
+    state:                  present
+  with_items:
+    - selinux-tools
+  when:
+   - ansible_distribution == "SLES"
 
 - name:                     Disable SELinux
   selinux:
     state:                  disabled
   ignore_errors:            true
   notify:                   reboot
+
+- name:                     Disable AppArmor
+  shell:
+    cmd:                    systemctl stop apparmor && systemctl disable apparmor
+  become:                   true
+  ignore_errors:            true
+  notify:                   reboot
+  when:
+   - ansible_distribution == "SLES"
 
 - name:                     Set httpd_can_network_connect flag on and keep it persistent across reboots
   seboolean:
@@ -63,3 +110,9 @@
     limit_type:             hard
     limit_item:             nofile
     value:                  "{{ __param_nofile_hard }}"
+
+- name:                     Truncate Nginx access.log to retain the last 500MB
+  shell:
+    cmd:                    tail -c 500M /var/log/nginx/access.log > /var/log/nginx/access.log.tmp && mv /var/log/nginx/access.log.tmp /var/log/nginx/access.log
+  become:                   true
+  ignore_errors:            true

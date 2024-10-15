@@ -15,6 +15,15 @@
   get_url:
     url:                    https://download.docker.com/linux/centos/docker-ce.repo
     dest:                   /etc/yum.repos.d/docker-ce.repo
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Add Docker repo on SUSE
+  get_url:
+    url:                    https://download.docker.com/linux/sles/docker-ce.repo
+    dest:                   /etc/zypp/repos.d/docker-ce.repo
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Replace baseurl on RedHat/Almalinux {{ ansible_distribution_major_version }}
   replace:
@@ -22,7 +31,15 @@
     regexp:                 '^baseurl.*$'
     replace:                'baseurl=https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/x86_64/stable'
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+
+- name:                     Replace baseurl on SUSE {{ ansible_distribution_major_version }}
+  replace:
+    path:                   /etc/zypp/repos.d/docker-ce.repo
+    regexp:                 '^baseurl.*$'
+    replace:                'baseurl=https://download.docker.com/linux/sles/{{ ansible_distribution_major_version }}/s390x/stable'
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Enable Docker stable repo
   ini_file:
@@ -30,6 +47,17 @@
     section:                'docker-ce-stable'
     option:                 enabled
     value:                  1
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Enable Docker stable repo on SUSE
+  ini_file:
+    dest:                   /etc/zypp/repos.d/docker-ce.repo
+    section:                'docker-ce-stable'
+    option:                 enabled
+    value:                  1
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Disable Docker Edge repo
   ini_file:
@@ -37,6 +65,17 @@
     section:                'docker-ce-edge'
     option:                 enabled
     value:                  0
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Disable Docker Edge repo on SUSE
+  ini_file:
+    dest:                   /etc/zypp/repos.d/docker-ce.repo
+    section:                'docker-ce-edge'
+    option:                 enabled
+    value:                  0
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Disable Docker Test repo
   ini_file:
@@ -44,6 +83,17 @@
     section:                'docker-ce-test'
     option:                 enabled
     value:                  0
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Disable Docker Test repo on SUSE
+  ini_file:
+    dest:                   /etc/zypp/repos.d/docker-ce.repo
+    section:                'docker-ce-test'
+    option:                 enabled
+    value:                  0
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Install containerd.io {{ __containerd_version }}
   package:
@@ -51,7 +101,7 @@
     state:                  present
     allow_downgrade:        yes
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
 
 - name:                     Create containerd folders
   file:

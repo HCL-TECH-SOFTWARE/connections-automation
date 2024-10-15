@@ -3,14 +3,14 @@
   selinux:
     state:       disabled
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
   ignore_errors: true
   notify:        reboot
 
 - name:          Install pre-requisites Zypper
   zypper:
-    name: ['glibc-32bit','libgcc_s1-32bit']
+    name: ['glibc-32bit','libgcc_s1-32bit', 'libnsl1']
     state: present
   when: ansible_os_family == "Suse"
 
@@ -20,12 +20,12 @@
     name: ['glibc.i686', 'libgcc.i686']
     state: present
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
 
 - name:          Install pre-requisites Yum on RHEL8/RHEL9
   yum:
     name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
     state:       present
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"

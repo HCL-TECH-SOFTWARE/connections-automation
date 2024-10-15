@@ -1,4 +1,12 @@
 ---
+- name:                       Install acl package on SUSE
+  become:                     yes
+  zypper:
+    name:                     acl
+    state:                    present
+  when:
+    - ansible_distribution == "SLES"
+
 - name:                       Register current db2 version
   shell:                      runuser -l "{{ __db2_user }}" -c 'db2level' | grep "DB2 v" | cut -d'"' -f 2
   register:                   db2_installed_version

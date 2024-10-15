@@ -8,7 +8,7 @@
   until: download_and_unpack_haproxy is succeeded
   retries: 3
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
 
 - name:                   Build Haproxy target with params
   make:
@@ -22,14 +22,14 @@
       PCRE_LIB:           /usr/lib64
       SSL_LIB:            /usr/lib64
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
 
 - name:                   Install Haproxy
   make:
     chdir:                "{{ __haproxy_download_dir }}"
     target:               install
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux']
+    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
 
 - name:                   Update all packages
   yum:
@@ -37,6 +37,22 @@
     state:                latest
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+
+- name:                   Add HAProxy repository for SUSE
+  command:                zypper addrepo https://download.opensuse.org/repositories/server:http/{{ ansible_distribution_version }}/server:http.repo
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                   Refresh all zypper repositories on SUSE
+  command:                zypper --non-interactive --gpg-auto-import-keys refresh
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                   Install HAProxy package for SUSE
+  command:                zypper install -y haproxy
+  when:
+    - ansible_distribution == "SLES"
+
 
 - name:                   Install HAProxy package
   yum:

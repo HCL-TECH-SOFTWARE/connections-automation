@@ -1,6 +1,6 @@
 ---
-__containerd_default_version:                          "1.6.26-3.1.el{{ ansible_distribution_major_version }}"
-__containerd_version:                                  "{{ containerd_version | default( __containerd_default_version ) }}"
+__containerd_install_version:                          "{{ containerd_version | default('1.7.19-3.1') }}"
+__containerd_version:                                  "{{ __containerd_install_version }}.el{{ ansible_distribution_major_version }}"
 
 __modules_containerd_conf_template:                    "containerd.conf.j2"
 __modules_containerd_conf_location:                    "/etc/modules-load.d/containerd.conf"

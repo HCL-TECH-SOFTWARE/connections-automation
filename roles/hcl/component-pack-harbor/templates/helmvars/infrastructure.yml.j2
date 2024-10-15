@@ -16,10 +16,16 @@ mongodb:
   createSecret: false
   replicaCount: {{ __replica_count }}
 mongo5:
-  clusterDomain: cluster.local
+  clusterDomain: {{ __default_clusterDomain }}
   namespace: {{ __default_namespace }}
   createSecret: false
   replicaCount: {{ __replica_count }}
+mongo7:
+  clusterDomain: {{ __default_clusterDomain }}
+  namespace: {{ __default_namespace }}
+  createSecret: false
+  replicaCount: {{ __replica_count }}
+  enabled: {{ __setup_mongo7 }}
 appregistry-client:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}

@@ -47,7 +47,8 @@ backend masters_mwproxy
     mode http
     balance roundrobin
     option forwardfor
-    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    http-check send meth HEAD uri / ver HTTP/1.1
+    http-check send hdr Host localhost
     {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:30301 check
     {% endfor %}

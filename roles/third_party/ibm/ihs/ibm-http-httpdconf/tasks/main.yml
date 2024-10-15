@@ -4,27 +4,9 @@
   ignore_errors:        true
   when:                 __was_major_version is version('8', '=')
 
-- name:                 Clean up old certificates
-  command:              "rm -rf {{ item }}"
-  with_items:
-   - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.crl }}"
-   - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.rdb }}"
-   - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.sth }}"
-   - "{{ __ihs_kdb_filename }}"
-  when:                 __was_major_version is version('8', '=')
-
-- name:                 Generate key DB
-  shell:                "{{ __ihs_install_location }}/bin/gskcapicmd -keydb -create -db {{__ihs_kdb_filename }} -type cms -pw {{ __ihs_kdb_password }} -stash"
-  args:
-    chdir:              "{{ __ihs_bin_directory }}"
-    creates:            "{{ __ihs_kdb_filename }}"
-  when:                 __was_major_version is version('8', '=')
-
 - name:                 Generate self signed certificate
-  shell:                "{{ __ihs_gsk_api }} -cert -create -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -sigalg SHA256WithRSA -size 4096 -dn \"{{ __ihs_cert_dn }}\" -san_dnsname {{ __ihs_hostname_fqdn }} -label {{ __ihs_hostname_fqdn }} -default_cert yes"
-  args:
-    chdir:              "{{ __ihs_bin_directory }}"
-  when:                 __was_major_version is version('8', '=')
+  include_role:
+    name:               roles/third_party/ibm/ihs/ibm-http-gen-cert
 
 - name:                 "Am I going to enable ActivitiesPlus?"
   debug:

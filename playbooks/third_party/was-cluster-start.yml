@@ -1,0 +1,13 @@
+---
+  - name:                    Start CNX Clusters
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+
+  - name:                    Start Docs Clusters
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - { role: roles/hcl/docs/start_docs_clusters,
+          when: groups.docs_servers is defined and groups.docs_servers|length > 0 }

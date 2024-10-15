@@ -3,6 +3,15 @@
   yum:
     name:                   ['wget']
     state:                  present
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Install pre-requisites symas on SUSE
+  zypper:
+    name:                   ['wget']
+    state:                  present
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Stop slapd service
   service:
@@ -16,27 +25,86 @@
     name:                   symas-openldap-clients
     state:                  absent
   ignore_errors:            true
+  when:
+    - ansible_distribution != "SLES"
 
 - name:                     Remove openldap-servers if already installed
   yum:
     name:                   symas-openldap-servers
     state:                  absent
   ignore_errors:            true
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Remove openldap-clients if already installed on SUSE
+  zypper:
+    name:                   symas-openldap-clients
+    state:                  absent
+  ignore_errors:            true
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                     Remove openldap-servers if already installed on SUSE
+  zypper:
+    name:                   symas-openldap-servers
+    state:                  absent
+  ignore_errors:            true
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Download Symas OpenLDAP for Linux on RHEL{{ ansible_distribution_major_version }}
   get_url:
     url:                    https://repo.symas.com/configs/SOLDAP/rhel{{ ansible_distribution_major_version }}/release26.repo
     dest:                   /etc/yum.repos.d/soldap-release26.repo
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Download Symas OpenLDAP for SUSE
+  get_url:
+    url:                    https://repo.symas.com/configs/SOLDAP/sles153/release25.repo
+    dest:                   /etc/zypp/repos.d/soldap-release25.repo
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Upgrade all packages
   yum:
     name:                   '*'
     state:                  latest
+  when:
+    - ansible_distribution != "SLES"
 
 - name:                     Install symas OpenLDAP and dependencies on RHEL{{ ansible_distribution_major_version }}
   yum:
     name:                   ['symas-openldap-libs', 'symas-openssl-libs', 'symas-libargon2-libs', 'symas-heimdal-libs', 'symas-openldap-clients', 'symas-openldap-servers','symas-cyrus-sasl-libs']
     state:                   present
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                     Update all packages using zypper on SUSE
+  become:                   yes
+  command:                  zypper --non-interactive --gpg-auto-import-keys update
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                     Install Symas OpenLDAP and dependencies on SUSE-clients
+  become:                   yes
+  command:                  zypper install -y symas-openldap-clients
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                     Install Symas OpenLDAP and dependencies on SUSE-servers
+  become:                   yes
+  command:                  zypper install -y symas-openldap-servers
+  when:
+    - ansible_distribution == "SLES"
+
+- name:                     Install policycoreutils on SUSE
+  become:                   yes
+  zypper:
+    name:                   policycoreutils
+    state:                  present
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                     Create {{ __slapd_folder_location }} directory
   file:

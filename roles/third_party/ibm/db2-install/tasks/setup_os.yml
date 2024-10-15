@@ -46,6 +46,27 @@
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
 
+- name:              Install EPEL release
+  dnf:
+    name:            epel-release
+    state:           present
+  when:
+    - ansible_distribution == "AlmaLinux"
+
+- name:              Update all packages
+  dnf:
+    name:            '*'
+    state:           latest
+  when:
+    - ansible_distribution == "AlmaLinux"
+
+- name:              Install ksh
+  dnf:
+    name:            ksh
+    state:           present
+  when:
+    - ansible_distribution == "AlmaLinux"
+
 - name:              Install Development Tools group
   yum:
     name:            "@Development tools"
@@ -58,14 +79,14 @@
     name:            ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel.i686', 'numactl-libs.i686', 'numactl-libs.x86_64', 'unzip']
     state:           present
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
 
 - name:              Install pre-requisites Yum
   yum:
     name:            ['pam.i686']
     state:           present
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
 
 - name:                     Install EPEL Release on Almalinux
   yum:
@@ -73,7 +94,6 @@
     state:                  present
   when:
     - ansible_distribution ==  "AlmaLinux"
-
 
 - name:              Install pre-requisites Yum for RHEL 8/9
   yum:

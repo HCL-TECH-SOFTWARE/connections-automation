@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.29.0') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.30.3') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -43,6 +43,7 @@ __setup_outlook_addin:                       "{{ setup_outlook_addin | default(t
 __enable_es_metrics:                         "{{ enable_es_metrics | default(true) |lower }}"
 __enable_gk_flags:                           "{{ enable_gk_flags | default(true) |lower }}"
 __setup_ms_teams_extensions:                 "{{ setup_ms_teams_extensions | default(true) |lower }}"
+__setup_mongo7:                              "{{ setup_mongo7 | default(false) |lower }}"
 
 __replica_count:                             "{{ cp_replica_count | default(1) }}"
 
@@ -70,8 +71,9 @@ __skip_pod_checks:                           "{{ skip_pod_checks | default(true)
 __setup_images_bin:                          "{{ __support_folder }}/setupImages.sh"
 
 __credentials_name:                          "{{ credentials_name | default('myregkey') }}"
-__huddoboards_credentials_name:               "{{ huddoboards_credentials_name | default('huddoboardsregkey') }}"
+__huddoboards_credentials_name:              "{{ huddoboards_credentials_name | default('huddoboardsregkey') }}"
 __default_namespace:                         "{{ default_namespace | default('connections') }}"
+__default_clusterDomain:                     "{{ default_clusterDomain | default('cluster.local') }}"
 
 __ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) |lower }}"
 
@@ -201,3 +203,5 @@ __opensearchstack_env:                       "{{ __ansible_cache_charts }}/opens
 __setup_opensearchstack:                     "{{ setup_opensearchstack | default(false) |lower }}"
 __opensearch_dashboard_username:             "{{ opensearch_dashboard_username | default('admin') }}"
 __opensearch_dashboard_password:             "{{ opensearch_dashboard_password | default('password') }}"
+
+__people_migrate_timeout:                    "{{ people_migrate_timeout | default('300') | int }}"

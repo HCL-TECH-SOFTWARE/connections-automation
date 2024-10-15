@@ -169,7 +169,7 @@
     - __upgrade_package_bin is search("FP0009")
 
 - name: Create tmp folder
-  ansible.builtin.file:
+  file:
     path: "{{ __tdi_temp_dir }}"
     state: directory
     mode: '0755'
@@ -178,7 +178,7 @@
     - __ldap_ssl_enabled |bool
 
 - name: Create keystore for LDAPS
-  ansible.builtin.shell: |
+  shell: |
     openssl s_client -showcerts -connect {{ __ldap_server }}:{{ __ldap_server_port }} < /dev/null > {{ __tdi_temp_dir }}/temp-key.out
     openssl x509 -outform DER < {{ __tdi_temp_dir }}/temp-key.out > {{ __tdi_temp_dir }}/temp-key.der
     openssl x509 -inform der -in {{ __tdi_temp_dir }}/temp-key.der -out {{ __tdi_temp_dir }}/temp-key.pem
@@ -188,7 +188,7 @@
     - __ldap_ssl_enabled |bool
 
 - name: Delete temp folder
-  ansible.builtin.file:
+  file:
     path: "{{ __tdi_temp_dir }}"
     state: absent
   when:
@@ -196,7 +196,7 @@
     - __ldap_ssl_enabled |bool
 
 - name: Enable keystore in solution.properties
-  ansible.builtin.blockinfile:
+  blockinfile:
     dest: "{{ __tdi_sol_dest }}/TDI/solution.properties"
     block: |
       # Truststore

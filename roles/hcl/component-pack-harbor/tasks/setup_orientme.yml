@@ -27,7 +27,7 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for people-migrate pod to become ready
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=300s
+  shell:                     "kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout={{ __people_migrate_timeout }}s"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if orientme is up and running

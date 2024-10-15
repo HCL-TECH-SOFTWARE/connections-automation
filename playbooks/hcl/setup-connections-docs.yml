@@ -22,6 +22,8 @@
 - name:                    Setup Docs database
   hosts:                   db2_servers, oracle_servers, mssql_servers
   become:                  true
+  vars:
+    setup_connections_wizards: false
   roles:
     - roles/hcl/connections-wizards
 

@@ -1,0 +1,4 @@
+---
+  __kube_config_dir:              "{{ kube_config_dir | default('/etc/kubernetes') }}"
+  __kubectl_user:                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
+  __now:                          "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"

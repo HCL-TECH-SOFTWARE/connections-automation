@@ -13,3 +13,6 @@
 /pv-connections/opensearchclient-1
 /pv-connections/opensearchclient-2
 /pv-connections/kudos-boards-minio
+/pv-connections/mongo7-node-0/data/db
+/pv-connections/mongo7-node-1/data/db
+/pv-connections/mongo7-node-2/data/db

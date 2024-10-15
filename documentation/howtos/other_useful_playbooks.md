@@ -14,7 +14,7 @@ restrict_reader_access__trusted_realms:  true
 ```
 then run this playbook:
 ```
-ansible-playbook -i environments/examples/cnx7/connections playbooks/hcl/connections-restrict-access.yml
+ansible-playbook -i <your inventory.ini> playbooks/hcl/connections-restrict-access.yml
 ```
 
 ## Set global moderator
@@ -24,7 +24,7 @@ global_moderator:  jjones2
 ```
 then run this playbook:
 ```
-ansible-playbook -i environments/examples/cnx7/connections playbooks/hcl/connections-set-global-moderator.yml
+ansible-playbook -i <your inventory.ini> playbooks/hcl/connections-set-global-moderator.yml
 ```
 
 ## Install Tiny Editors
@@ -36,5 +36,17 @@ tinyeditors_password: << Tiny Editors password. This field is required >>
 ```
 then run this playbook:
 ```
-ansible-playbook -i environments/examples/cnx7/connections playbooks/third_party/setup-tiny-editors.yml
+ansible-playbook -i <your inventory.ini> playbooks/third_party/setup-tiny-editors.yml
+```
+
+## Regenerate IHS SSL Certificate
+This playbook is useful when the IHS SSL certificate in your test environment has expired and needs another self-signed certificate.
+```
+ansible-playbook -i <your inventory.ini> playbooks/third_party/ibm-http-server-create-cert.yml
+```
+
+## Renew Kubernetes self generated kubeadm-managed certificates
+This playbook is useful for renewing Kubernetes self-generated, kubeadm-managed certificates that are close to expiration.
+```
+ansible-playbook -i <your inventory.ini> playbooks/third_party/kubernetes/renew-kubernetes-cert.yml
 ```

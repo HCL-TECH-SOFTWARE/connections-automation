@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:           "{{ upgrade_version | default('1.29.0') }}"
+__kubernetes_version:           "{{ upgrade_version | default('1.30.3') }}"
 __kubernetes_major_minor_version: "{{ __kubernetes_version.split('.')[0:2] | join('.') }}"
 
 __ansible_cache:                "/tmp/k8s_ansible"

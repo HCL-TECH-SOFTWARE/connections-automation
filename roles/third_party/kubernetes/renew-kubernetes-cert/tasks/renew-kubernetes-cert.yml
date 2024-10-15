@@ -1,0 +1,41 @@
+---
+  - name:                   Print current certificates expiration date
+    command:                kubeadm certs check-expiration
+    become:                 true
+    register:               current_certs
+
+  - name:                   Show me the current certs
+    debug:                  var=current_certs.stdout_lines
+
+  - name:                   Check if the Kubernetes configuration directory {{ __kube_config_dir }} exists
+    stat:
+      path:                 "{{ __kube_config_dir }}"
+    register:               etc_kube_exists
+    failed_when:            not etc_kube_exists.stat.exists
+
+  - name:                   Create a backup folder {{ __kube_config_dir }}/../kubernetes_backup
+    file:
+      path:                 "{{ __kube_config_dir }}/../kubernetes_backup"
+      state:                directory
+    become:                 true
+
+  - name:                   Back up the {{ __kube_config_dir }} folder
+    archive:
+      path:                 "{{ __kube_config_dir }}"
+      dest:                 "{{ __kube_config_dir }}/../kubernetes_backup/kubernetes_{{ __now }}.tar"
+      format:               tar
+    become:                 true
+
+  - name:                   Renew certifcates using kubeadm
+    command:                kubeadm certs renew all
+    become:                 true
+    register:               renew_certs
+    failed_when:            renew_certs.rc != 0
+
+  - name:                   Print new certificates expiration date
+    command:                kubeadm certs check-expiration
+    become:                 true
+    register:               new_certs
+
+  - name:                   Show me the new certs
+    debug:                  var=new_certs.stdout_lines

@@ -13,7 +13,7 @@ For HCL Connections 8 dependencies this means that:
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 24. By default, FP24 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 26. By default, FP26 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
@@ -92,9 +92,9 @@ Connections8:
 -r-xr-xr-x   1 root root             Apr 10 16:41 HC8.0_CR7.zip
 
 DB2:
--rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
--rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 v11.5.6_jdbc_sqlj.tar.gz
--rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.5.6_linuxx64_universal_fixpack.tar.gz
+-rw-r--r--. 1 root            root               1389624 Aug 13  2021 DB2_ESE_AUSI_Activation_11.5.zip
+-rw-rw-r--  1 ajaykumar-patel ajaykumar-patel    8707627 Aug 28 06:53 v11.5.9_jdbc_sqlj.tar.gz
+-rw-r--r--  1 root            root            1966221224 Apr  8 18:09 v11.5.9_linuxx64_universal_fixpack.tar.gz
 
 Docs:
 -r-xr-xr-x.  1 root orion 737753769 Sep  7  2020 HCL_Docs_v202.zip
@@ -128,15 +128,15 @@ was855:
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
-was855FP24:
--rw-r--r-- 1 sabrinayee sabrinayee 1091490712 Oct 24 11:35 8.5.5-WS-WAS-FP024-part1.zip
--rw-r--r-- 1 sabrinayee sabrinayee  198883257 Oct 24 11:35 8.5.5-WS-WAS-FP024-part2.zip
--rw-r--r-- 1 sabrinayee sabrinayee 1975961319 Oct 24 11:35 8.5.5-WS-WAS-FP024-part3.zip
--rw-r--r-- 1 sabrinayee sabrinayee  528827632 Oct 24 11:35 8.5.5-WS-WASSupplements-FP024-part1.zip
--rw-r--r-- 1 sabrinayee sabrinayee  783773739 Oct 24 11:36 8.5.5-WS-WASSupplements-FP024-part2.zip
--rw-r--r-- 1 sabrinayee sabrinayee 1975961319 Oct 24 11:36 8.5.5-WS-WASSupplements-FP024-part3.zip
--rw-r--r-- 1 sabrinayee sabrinayee  301473547 Oct 24 11:36 8.5.5-WS-WCT-FP024-part1.zip
--rw-r--r-- 1 sabrinayee sabrinayee 1979434838 Oct 24 11:37 8.5.5-WS-WCT-FP024-part2.zip
+was855FP26:
+-rw-rw-r--   1 pnott pnott 1100773571 Jul 29 17:53 8.5.5-WS-WAS-FP026-part1.zip
+-rw-rw-r--   1 pnott pnott  198936058 Jul 29 17:51 8.5.5-WS-WAS-FP026-part2.zip
+-rw-rw-r--   1 pnott pnott 2006973467 Jul 29 17:53 8.5.5-WS-WAS-FP026-part3.zip
+-rw-rw-r--   1 pnott pnott  533279156 Jul 29 17:52 8.5.5-WS-WASSupplements-FP026-part1.zip
+-rw-rw-r--   1 pnott pnott  783934148 Jul 29 17:52 8.5.5-WS-WASSupplements-FP026-part2.zip
+-rw-rw-r--   1 pnott pnott 2006973467 Jul 29 17:53 8.5.5-WS-WASSupplements-FP026-part3.zip
+-rw-rw-r--   1 pnott pnott  302048768 Jul 29 17:51 8.5.5-WS-WCT-FP026-part1.zip
+-rw-rw-r--   1 pnott pnott 2010447111 Jul 29 19:38 8.5.5-WS-WCT-FP026-part2.zip
 ```
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.

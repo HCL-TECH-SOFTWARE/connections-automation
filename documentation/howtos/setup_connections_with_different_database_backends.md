@@ -19,9 +19,9 @@ By default, they are set to false, which means that if you don specifically say 
 
 This applies only for HCL Connections.
 
-## Defaults and IBM DB2 11.5.6
+## Defaults and IBM DB2 11.5.9
 
-First supported database with this automation was IBM DB2 v11.5.6
+First supported database with this automation was IBM DB2 v11.5.9
 
 To install Connections by using DB2 as a backend, all you need is this:
 
