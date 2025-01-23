@@ -63,7 +63,7 @@
   become:                  yes
   with_items:
      - "zypper clean --all"
-     - "zypper update -y"
+     - "zypper --gpg-auto-import-keys update -y"
      - "zypper refresh"
   ignore_errors:           yes
   when:
@@ -85,23 +85,14 @@
   when:
     - ansible_distribution != "SLES"
 
-- name:                    Download latest kubernetes on SUSE
-  command: 
-    cmd:                   /usr/bin/curl -LO https://dl.k8s.io/release/v{{ __kubernetes_version }}/bin/linux/amd64/kubectl
+- name:                    Install kubelet, kubeadm, and kubectl on SUSE
+  shell:                   "zypper install -y {{ item }}"
   become:                  yes
-  when: 
-    - ansible_distribution == "SLES"
-
-- name:                    Download the kubectl checksum file on SUSE
-  command: 
-    cmd:                   /usr/bin/curl -LO https://dl.k8s.io/release/v{{ __kubernetes_version }}/bin/linux/amd64/kubectl.sha256
-  when: 
-    - ansible_distribution == "SLES"
-
-- name:                    Install kubectl on SUSE
-  command:                 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-  become:                  yes
-  when: 
+  with_items:
+    - "kubelet-{{ __kubernetes_version }}"
+    - "kubeadm-{{ __kubernetes_version }}"
+    - "kubectl-{{ __kubernetes_version }}"
+  when:
     - ansible_distribution == "SLES"
 
 - name:                    Create /tmp/k8s_ansible directory on SUSE

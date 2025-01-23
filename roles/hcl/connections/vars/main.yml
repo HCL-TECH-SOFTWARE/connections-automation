@@ -85,7 +85,7 @@ __smtp_port:                 "{{ smtp_port  | default('25') }}"
 __db_username:               "{{ db_username  | default('LCUSER') }}"
 __db_password:               "{{ db_password }}"
 __db_hostname:               "{{ db_hostname }}"
-__db_port:                   "{{ db_port  | default('50000') }}"
+__db_port:                   "{{ db_port  | default('50001' if ansible_distribution == 'SLES' else '50000') }}"
 
 __install_latest_db2:        "{{ install_latest_db2 | default(true) }}"
 __db2_default_jdbc_file:     "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"

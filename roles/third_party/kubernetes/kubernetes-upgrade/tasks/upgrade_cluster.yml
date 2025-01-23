@@ -29,7 +29,7 @@
 
 - name:               "Upgrade Kubernetes control plane - {{ inventory_hostname }}"
   command:            "{{ item }}"
-  with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config={{ __kubeadm_config_location }} -f"
+  with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config={{ __kubeadm_config_location }} -y"
   when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
 
 - name:               "Upgrade Kubernetes {{ inventory_hostname }} - self contained environment"

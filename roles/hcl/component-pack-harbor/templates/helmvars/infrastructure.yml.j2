@@ -26,6 +26,10 @@ mongo7:
   createSecret: false
   replicaCount: {{ __replica_count }}
   enabled: {{ __setup_mongo7 }}
+{% if mongo_image_tag is defined %}
+  image:
+    tag: {{ mongo_image_tag }}
+{% endif %}
 appregistry-client:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
@@ -75,4 +79,3 @@ middleware-jsonapi:
     name: cnx-ingress-jsonapi
     tls: []
 replicaCount: {{ __replica_count }}
-

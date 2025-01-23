@@ -24,7 +24,7 @@
   include_tasks:           replace_sharedlib.yml
   when:
     - inventory_hostname in groups["dmgr"]
-    - __cnx_major_version is version('7', '=')     
+    - __cnx_major_version is version('7', '=') 
 
 - name:                    Shutdown WAS Nodes
   include_role:

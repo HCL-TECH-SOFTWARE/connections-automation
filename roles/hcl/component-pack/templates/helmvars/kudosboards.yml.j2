@@ -115,7 +115,11 @@ migration:
 
     # -------- DB2 variables ------------
     CONNECTIONS_DB_TYPE: db2
+    {% if ansible_distribution == "SLES" %}
+    CONNECTIONS_DB_PORT: 50001
+    {% else %}
     CONNECTIONS_DB_PORT: 50000
+    {% endif %}
     # Connection string is built from other variables:
     # CONNECTIONS_DB_CONNECT_STRING: HOSTNAME=${host};PORT=${port};PROTOCOL=TCPIP;UID=${user};PWD=${password};CHARSET=UTF8;
 

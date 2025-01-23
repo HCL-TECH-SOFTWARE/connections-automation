@@ -1,5 +1,5 @@
 - name:                 Label worker nodes as type=infrastructure
-  command:              "kubectl label nodes {{ item }} type=infrastructure --overwrite"
+  command:              "kubectl label nodes {{ item.split('.')[0]|lower if ansible_distribution == 'SLES' else item|lower }} type=infrastructure --overwrite"
   with_items:
    - "{{ groups['k8s_workers_infra'] }}"
   when:
@@ -8,7 +8,7 @@
   become:               false
 
 - name:                 Disable scheduling pods on infra worker nodes
-  command:              "kubectl taint nodes {{ item }} dedicated=infrastructure:NoSchedule --overwrite"
+  command:              "kubectl taint nodes {{ item.split('.')[0]|lower if ansible_distribution == 'SLES' else item|lower }} dedicated=infrastructure:NoSchedule --overwrite"
   with_items:
    - "{{ groups['k8s_workers_infra'] }}"
   when:

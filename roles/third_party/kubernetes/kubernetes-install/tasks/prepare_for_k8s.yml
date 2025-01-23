@@ -38,6 +38,14 @@
    - ansible_os_family == "RedHat" or ansible_os_family == "AlmaLinux"
    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
+- name:                     Remove Docker repository file
+  file:
+    path:                   /etc/zypp/repos.d/docker-ce.repo
+    state:                  absent
+  become:                   yes
+  when:
+    - ansible_distribution == "SLES"
+
 - name:              Remove existing Kubernetes repository from SUSE
   command:           zypper removerepo kubernetes
   when: 

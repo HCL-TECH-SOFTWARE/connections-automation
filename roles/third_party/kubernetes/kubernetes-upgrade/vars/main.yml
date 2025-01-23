@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:           "{{ upgrade_version | default('1.30.3') }}"
+__kubernetes_version:           "{{ upgrade_version | default('1.31.2') }}"
 __kubernetes_major_minor_version: "{{ __kubernetes_version.split('.')[0:2] | join('.') }}"
 
 __ansible_cache:                "/tmp/k8s_ansible"
@@ -11,4 +11,4 @@ __load_balancer_dns:            "{{ load_balancer_dns | default('localhost') }}"
 __pod_subnet:                   "{{ pod_subnet | default('192.168.0.0/16') }}"
 
 __kube_binaries_install_dir:    "{{ kube_binaries_install_dir | default('/usr/bin') }}"
-__kube_binaries_download_url:   "{{ kube_binaries_download_url | default('https://storage.googleapis.com/kubernetes-release/release') }}"
+__kube_binaries_download_url:   "{{ kube_binaries_download_url | default('https://cdn.dl.k8s.io/release') }}"

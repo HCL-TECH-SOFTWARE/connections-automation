@@ -1,137 +1,98 @@
-# Upgrading HCL Connections using Ansible automation
+# Upgrading HCL Connections v8 CR using Ansible automation
 
-This automation is used to upgrade HCL Connections and Component Pack upgrades to v8.0x.
+This automation is used to upgrade HCL Connections and Component Pack v8.0 to the latest CR.
 
 For this example, we will show:
 
-* How to use the ansible automation to upgrade to HCL Connection 8.0x. This includes migrating data from MongoDB v3 to MongoDB v5 and ElasticSearch7 to OpenSearch manually if upgrading from Component Pack v7.
-
+* How to use this Ansible automation to upgrade to the latest v8.0 CR from a prior CR running MongoDB v5 or above and OpenSearch.
 * What is the logic behind it.
 
-NOTE: If this is the very first document you are landing on, please ensure that you read already our [README.md](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/README.md) and our [Quick Start Guide](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/QUICKSTART.md), specially if you never used Ansible and/or this automation before.
+NOTE: If this is the very first document you are landing on, please ensure that you have read our [README.md](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/README.md) and [Quick Start Guide](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/QUICKSTART.md), especially if you are new to Ansible and/or this automation.
 
-Before you proceed, let's analyse very quickly few what is important points.
+Before you proceed, let's analyse very quickly a few important points.
 
 ### Setting up your inventory file
 
-Please note that if needed user can overwrite defaults using [files in this folder ](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/). We will explain here what it is doing:
+If necessary, users can override the default settings by using our sample inventory [in this folder](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/environments/examples/cnx8/db2). Here is an explanation of what these files do:
 
-* We have our HCL Connections Wizards and HCL Connections installer living in a folder called Connections8, so we are setting the right paths here [#1](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml#L40) and [#2](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml#L47)
-* Check default supported version of IBM WebSphere [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#was_fp_version:~:text=WebSphere%20Base%20version-,was_fp_version).
-
-#### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details.  The problem is fixed in Fixpack 23.  If Fixpack 22 is needed, contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
-* As connections kit names are different for different versions, so we can explicitly specify [Connections install kit name](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml#L50) and [Connections Wizard package name](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml#L51). Check out default values here [#1](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#:~:text=location%20to%20download-,cnx_package) and [#2](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#:~:text=connections_wizards_package_name)
-* Desired version of docker, helm, kubernetes can be set using variables docker_version, kubernetes_version, helm_version respectively set in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml). [Click here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md) to see more details and supported default versions of these software.
+* We have our HCL Connections Wizards and HCL Connections installers reside in a folder called Connections8, so we are setting the right paths in variables `connections_wizards_download_location`, `cnx_repository_url` and `cnx_fixes_repository_url` [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml).
+* We explicitly specify the Connections CR install version and file name in variables `cnx_fixes_version` and `cnx_fixes_files` [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml).
+* Check the default supported version of IBM WebSphere in the `was_fp_version` variable [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#websphere-variables).
+* Desired version of Helm, containerd and Kubernetes can be set using variables `helm_version`, `containerd_version` and `kubernetes_version` respectively. For more details about the default supported versions of these software, click [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#component-pack-infra-variables).
 
 ### Choosing operating system version
 
-Use AlmaLinux 9 or RHEL 9 (the later the better). For this scenario, let's say you are using AlmaLinux 9. Be always sure, as whenever installing any of the components mentioned here, using automation or manually, to configure machine properly and just to be on the safe side run yum update before you start.
+Use AlmaLinux 9 or RHEL 9 is recommended. For this scenario, we will use AlmaLinux 9. Ensure that the machine is properly configured when installing any of the components mentioned in this document, whether using automation or manually. To be on the safe side, run `dnf update` before you start.
 
-
-## Upgrading HCL Connections to v8
+## Upgrading HCL Connections to the latest v8 CR
 
 ### Prerequisite
 
-At this step we assume that we have a running Connections 7 or above with the Component Pack installed.
+At this step we assume that we have a running Connections 8 with the latest Component Pack installed.
 
 ### Setting up your inventory file
 
 You already got the idea that all there is with the installation/upgrade is handled by manipulating variables in your inventory files.
-For this example, we will reference [this example inventory folder](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/environments/examples/cnx8/db2).
+For this example, we will continue to use [this sample inventory folder](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/environments/examples/cnx8/db2).
 
-If you make a simple diff between [this file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml) and [this file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/db2/group_vars/all.yml) you will see that now:
+You will see that now:
 
-* We are pointing to a folders with Connections 8 and WAS ND to the [default supported version](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#was_fp_version:~:text=WebSphere%20Base%20version-,was_fp_version).
-* We are not overwriting any package and file name, as by default Ansible will assume that, in this moment, default version is 8, and package names for version 8 are being used.
+* We are pointing to the WebSphere install folder that aligns with the [default supported version](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#websphere-variables).
+* We are overriding the CR version and install kit file name in `cnx_fixes_version` and `cnx_fixes_files` to install the latest CR.
 
 ### Running the upgrade
 
-Run below playbook. This will add/remove new IHS configurations if any:
+Run below playbook. This will upgrade WebSphere to the default supported fixpack and add/remove new IHS configurations if any:
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-webspherend.yml
 ```
 
-And as a next step, let's upgrade HCL Connections to v8:
+And as a next step, let's upgrade HCL Connections to the latest CR:
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/setup-connections-only.yml
 ```
 
-## Upgrading HCL Component Pack to v8
+## Upgrading to the latest HCL Connections Component Pack
 
-Run below playbooks to upgrade and configure nginx and haproxy for the HCL Connections v8
+Run the playbooks below to upgrade and configure NGINX and HAProxy for the Component Pack
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-nginx.yml
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-haproxy.yml
 ```
 
-Run below playbook to configure NFS. This playbook will also create and configure OpenSearch and MongoDB 5 folders and setup PV export folders permission for v8.
+Run the playbook below to configure NFS. This playbook will also create and configure the MongoDB 7 folders and setup PV export folders permissions.
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-nfs.yml
 ```
 
-Run below playbook to install containerd (container runtime).
+Run the playbook below to upgrade containerd (container runtime).
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/setup-containerd.yml
 ```
 
-To deploy Component Pack 8, we use HCL Software’s Harbor container registry. Also we strongly recommend that you [install container runtime](https://opensource.hcltechsw.com/connections-doc/admin/install/upgrade_considerations.html#section_sqh_ktx_bvb) (containerd installation playbook is already mentioned in the previous step), Follow the steps in [migrating from Docker to containerd](https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/change-runtime-containerd/), [upgrade helm to version 3.7.2](https://opensource.hcltechsw.com/connections-doc/admin/install/upgrade_considerations.html#section_bqv_2vx_bvb) and [upgrade kubernetes](https://opensource.hcltechsw.com/connections-doc/admin/install/upgrade_considerations.html#section_avm_v5x_bvb) before moving to Component pack 8.
-
-
-### Preparation if upgrading from Component Pack v7
-If upgrading from Component Pack v7, for v8 we need to upgrade MongoDB from v3 to v5 and OpenSearch replaces ElasticSearch7. So we need to backup data. This is a manual step. Please refer below links:
-
-[Backup mongo3 data](https://opensource.hcltechsw.com/connections-doc/admin/install/cp_install_services_tasks.html#backup_mongo3)
-
-[Backup ElasticSearch 7 data](https://opensource.hcltechsw.com/connections-doc/admin/install/cp_install_services_tasks.html#backup_es7)
-
-Also, remove ingresses before upgrading from Component Pack v7, otherwise the infrastructure will fail:
-
-```
-kubectl delete ingress -n connections $(kubectl get ingress -n connections | awk '{print $1}' | grep -vE "NAME")
-```
+To deploy the latest Component Pack, we use the HCL Harbor repository.  Before upgrading the Component Pack, we strongly recommend that you upgrade Kubernetes to the latest supported version as specified in variable `kubernetes_version` [here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/VARIABLES.md#component-pack-infra-variables).
 
 ### Upgrading Kubernetes
-#### Preparation if upgrading from Kubernetes <1.25
-<details>
-  <summary> Click to expand if you are upgrading Kubernetes from a version lower than 1.25 </summary>
 
->As PodSecurityPolicy was deprecated in Kubernetes v1.21, and removed from Kubernetes in v1.25, the following charts should be uninstalled before upgrading to Kubernetes v1.25.
->
->```
->k8s-psp
->infrastructure
->opensearch-master
->opensearch-data
->opensearch-client
->kudos-boards-cp
->```
->
->First, check if the chart is already deployed:
->```
->helm ls --namespace connections | grep <chart name> | grep -i DEPLOYED
->```
->
->If found, delete the chart using below command:
->```
->helm uninstall <chart name> --namespace connections
->```
->For more details see [PodSecurityPolicy is removed](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.25.md#podsecuritypolicy-is-removed-pod-security-admission-graduates-to-stable).
->
->Ensure you reconfigure NFS by running playbook playbooks/third_party/setup-nfs.yml.
-</details>
-
-Follow [Kubernetes official document](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade kubernetes version. Kubernetes can be upgraded to the next minor version using below playbook.  Do NOT skip MINOR versions when upgrading Kubernetes.   For example, if you are upgrading from 1.28 -> 1.30, it needs to be upgraded from 1.28 -> 1.29 -> 1.30.  Add 'upgrade_version' variable in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml) to the target version and adjust before running the playbook each time:
+Follow the [official Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/) on how to upgrade Kubernetes version. Kubernetes can be upgraded to the next minor version using below playbook.  Do NOT skip MINOR versions when upgrading Kubernetes.   For example, if you are upgrading from 1.29 -> 1.31, it needs to be upgraded from 1.29 -> 1.30 -> 1.31.
+Add variable `upgrade_version` to the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml) set it to the target version and adjust to the next minor version before running the playbook each time:
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third_party/kubernetes/upgrade-kubernetes.yml
 ```
 
-### Running the Component Pack playbook
+### Preparation if upgrading from MongoDB 5
+
+If upgrading from Connections v8 CR8 or below, MongoDB needs to be upgraded from v5 to v7.  Follow the steps in [Installing MongoDB 7 for Component Pack](https://opensource.hcltechsw.com/connections-doc/v8-cr9/admin/install/installing_mongodb_7_for_component_pack_8.html) till the point the image is imported into containerd and MongoDB5 is shut down.
+In `all.yml`, set `mongo_image_tag` to the image tag defined when building the MongoDB 7 image to enable the infrastructure chart to use this image.
+
+### Upgrading the Component Pack
+
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 
 ```
@@ -142,28 +103,20 @@ export QUAY_USERNAME=<<Quay username>>
 export QUAY_SECRET=<<Quay password>>
 ```
 
-Add Harbor variables to the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml#L85-L86)
+Add Harbor variables `docker_registry_username`, `docker_registry_password` and Quay variables `huddoboards_registry_username` and `huddoboards_registry_password` if necessary as shown in the [inventory file](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx8/db2/group_vars/all.yml).
 
 Then execute
 
 ```
-ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-component-pack-complete-harbor.yml
+ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/harbor/setup-component-pack.yml
 ```
 
-Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
+### Data migration if upgrading from MongoDB 5
 
-### Data migration if upgrading from Component Pack v7
-If upgrading from Component Pack v7, to migrate data from MongoDB 3 to MongoDB 5, [perform these steps](https://opensource.hcltechsw.com/connections-doc/admin/install/migrating_data_mongodb_v3_v5.html). This is a manual step.
-
-To migrate data from Elasticsearch 7 to OpenSearch, [perform these steps](https://opensource.hcltechsw.com/connections-doc/admin/install/cp_migrate_data_from_es7_to_opensearch.html). This is a manual step.
-
-After this we will delete all the pods using below command on the kubernetes master node. This command will restart all the CP pods.
-
-```
-kubectl delete pods -n connections $(kubectl get pods -n connections | awk '{print $1}' | grep -vE "NAME|bootstrap")
-```
+If upgrading from Connections v8 CR8 or below, [follow this topic](https://opensource.hcltechsw.com/connections-doc/v8-cr9/admin/install/v8-cr8/admin/install/mongo7-migration-script.md) to migrate data from MongoDB 5 to MongoDB 7.
 
 ### Running post install playbook
+
 Now run post installation tasks.  Once your Component Pack installation is done, run this playbook to set up some post installation:
 
 ```
@@ -172,14 +125,10 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 Once this is done, log in to your HCL Connections 8 installation, just to confirm that all is fine.
 
-
 ### Thumbnail fix for Connections Docs after upgrade
+
 Thumbnails may not be generated after Connections is upgraded.  If `com.ibm.connections.spi.events.EventHandlerInitException` exceptions are found in the WebSphere server log, follow the fix in the [FAQ](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#docs-thumbnails-stop-working-after-upgrading-connections-how-to-fix-that).
-
-
 
 ## Final words
 
-As you probably already noticed, same playbooks can be used for both installations and upgrades, and it is designed that way. Worst case scenario that can happen is that some services will be restarted while playbooks are ensuring that everything is the way it is described.
-
-And this gives you already the idea - it is very easy, this way, to deploy if needed new build every day, or even multiple times per day, by ensuring that you are simply having a new package uploaded to the right folder, without even changing anything in Ansible itself.
+As you probably already noticed, same playbooks can be used for both fresh installations and upgrades, and it is designed that way.
