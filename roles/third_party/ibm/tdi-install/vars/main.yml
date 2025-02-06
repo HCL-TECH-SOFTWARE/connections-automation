@@ -74,7 +74,7 @@ __ldap_server_port:             "{{ ldap_server_port | default('389') }}"
 
 __db_hostname_default:          "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
 __db_hostname:                  "{{ db_hostname | default( __db_hostname_default ) }}"
-__db_port:                      "{{ db_port | default('50000') }}"
+__db_port:                      "{{ db_port | default('50001' if ansible_distribution == 'SLES' else '50000') }}"
 __db_username:                  "{{ db_username | default('LCUSER') }}"
 __db_password:                  "{{ db_password | default('password') }}"
 __tdi_temp_dir:                 "{{ tdi_temp_dir | default('/tmp/ansible-tdi-ldap') }}"

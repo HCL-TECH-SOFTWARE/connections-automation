@@ -27,7 +27,9 @@
   ignore_errors:          true
 
 - name:                 "[Single Node] Label worker nodes as infrastructure for single node environment"
-  command:              "kubectl label nodes {{ inventory_hostname|lower }} type=infrastructure --overwrite"
+  vars:
+    node_name:          "{{ inventory_hostname.split('.')[0]|lower if ansible_distribution == 'SLES' else inventory_hostname|lower }}"
+  command:              "kubectl label nodes {{ node_name }} type=infrastructure --overwrite"
   when:
     - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
   become:               false

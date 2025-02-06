@@ -26,12 +26,13 @@
 
 - name:                      Wait for mongo5 to come up
   shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=role=mongo5 --timeout=300s
+  when:                      __setup_mongo5|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for mongo7 to come up
   shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=role=mongo7 --timeout=300s
   when:                      __setup_mongo7|bool
-  become_user:               "{{ __sudo_user }}"  
+  become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if appregistry-client is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i appregistry-client | grep -i Running
@@ -54,7 +55,7 @@
 - name:                      Check if mongo5 is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mongo5 | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks|bool
+  when:                      not __skip_pod_checks|bool and __setup_mongo5|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if mongo7 is up and running

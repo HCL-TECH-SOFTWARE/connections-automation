@@ -1,5 +1,5 @@
 - name:                 Label worker nodes as infrastructure for HA
-  command:              "kubectl label nodes {{ item }} type=infrastructure --overwrite"
+  command:              "kubectl label nodes {{ item.split('.')[0]|lower if ansible_distribution == 'SLES' else item|lower }} type=infrastructure --overwrite"
   with_items:
    - "{{ groups['k8s_workers'] }}"
   when:

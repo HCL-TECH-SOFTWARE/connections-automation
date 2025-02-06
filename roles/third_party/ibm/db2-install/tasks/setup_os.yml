@@ -1,6 +1,6 @@
 - name:              Install pre-requisites Zypper
   zypper:
-    name:            ['python3', 'libselinux-devel', 'selinux-tools', 'libselinux1', 'python3-selinux', 'kernel-default', 'libnuma1', 'libaio1', 'libstdc++6', 'unzip']
+    name:            ['python3', 'libselinux-devel', 'selinux-tools', 'libselinux1', 'python3-selinux', 'kernel-default', 'libnuma1', 'libaio1', 'libstdc++6', 'unzip', 'acl']
     state:           present
   when:
     - ansible_distribution == "SLES"
@@ -49,6 +49,13 @@
 - name:              Install EPEL release
   dnf:
     name:            epel-release
+    state:           present
+  when:
+    - ansible_distribution == "AlmaLinux"
+
+- name:              Install libxcrypt-compat package
+  dnf:
+    name:            libxcrypt-compat
     state:           present
   when:
     - ansible_distribution == "AlmaLinux"

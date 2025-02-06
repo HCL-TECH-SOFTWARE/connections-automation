@@ -24,6 +24,7 @@
   become:                  true
   vars:
     setup_connections_wizards: false
+    setup_connections_docs: true
   roles:
     - roles/hcl/connections-wizards
 

@@ -53,7 +53,6 @@
   when:
     - ansible_distribution == "SLES"
 
-
 - name:                   Install HAProxy package
   yum:
     name:                 haproxy

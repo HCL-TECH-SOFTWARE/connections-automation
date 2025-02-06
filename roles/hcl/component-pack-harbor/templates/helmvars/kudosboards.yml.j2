@@ -33,6 +33,7 @@ webfront:
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
+    pathType: ImplementationSpecific
     path: /boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
@@ -53,6 +54,7 @@ core:
   ingress:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /$1
+    pathType: ImplementationSpecific
     path: /api-boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
@@ -117,7 +119,11 @@ migration:
 
     # -------- DB2 variables ------------
     CONNECTIONS_DB_TYPE: db2
+{% if ansible_distribution == "SLES" %}
+    CONNECTIONS_DB_PORT: 50001
+{% else %}
     CONNECTIONS_DB_PORT: 50000
+{% endif %}
     # Connection string is built from other variables:
     # CONNECTIONS_DB_CONNECT_STRING: HOSTNAME=${host};PORT=${port};PROTOCOL=TCPIP;UID=${user};PWD=${password};CHARSET=UTF8;
 

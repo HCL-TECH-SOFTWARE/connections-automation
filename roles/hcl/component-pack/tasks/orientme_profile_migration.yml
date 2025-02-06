@@ -1,3 +1,4 @@
 - name:                      Run profile migrations for Orientme
-  shell:                     kubectl exec -n {{ __default_namespace }} -it $(kubectl get pods -n {{ __default_namespace }} | grep people-migrate | awk '{print $1}') -- sh -c "npm run start migrate"
+  shell: |
+    kubectl exec -n {{ __default_namespace }} -it $(kubectl get pods -n {{ __default_namespace }} | grep people-migrate | awk '{print $1}') -- sh -c "npm run start migrate > /tmp/migrate.log 2>&1"
   become_user:               "{{ __sudo_user }}"

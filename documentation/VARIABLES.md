@@ -62,7 +62,7 @@ Name | Default | Description
 db_type | DB2 | Database type to be passed to the Connections installer
 db_username | LCUSER | Database user to be passed to the Connections installer
 db_password | password | Database user password to be passed to the Connections installer
-db_port | 50000 | TCP/IP service port
+db_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE, else the default port will be 50000
 db_hostname | *none* - required | Database hostname
 db_jdbc_file | /opt/IBM/db2/V11.1/java | Database JDBC driver path
 
@@ -81,7 +81,7 @@ db2_instance_type | ese | DB2 instance type
 db2_instance_group | db2group | DB2 instance group
 db2_instance_autostat | YES |  True will enable the DB2 database instance for automatically start
 db2_instance_svcname | db2c_db2inst1 | DB2 instance service name
-db2_instance_port | 50000 | TCP/IP service port
+db2_instance_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE; otherwise, the default port will be 50000
 db2_instance_fcm_port | 60000 | port used by the Fast Communications Manager
 db2_instance_max_lnodes | 6 | Maximum node counts
 db2_instance_text_search | NO | Yes configures integrated Db2 Text Search server
@@ -89,7 +89,7 @@ db2_instance_fenced_user | db2fenc1 | Fenced user to run user defined functions 
 db2_instance_fenced_group | db2group | Fenced user group
 db2_instance_fenced_homedir | /home/db2fenc1 | Fenced user home directory
 db2_instance_default_lang | EN | DB2 instance default language
-install_latest_db2 | true | true will install IBM DB2 v11.5.6. false will install IBM DB2 v11.1
+install_latest_db2 | true | true will install IBM DB2 v11.5.9. false will install IBM DB2 v11.1
 force_check_db2_version_mismatch | false | true terminates the script if already installed version (if any) on the system is different than the version that user expects
 
 ### Oracle Variables
@@ -239,7 +239,7 @@ cnx_db_update_file | 65cr1-database-updates.zip | File name to download for data
 db_type | DB2 | Database type to be passed to the Connections installer
 db_username | LCUSER | Database user to be passed to the Connections installer
 db_password | password | Database user password to be passed to the Connections installer
-db_port | 50000 | Database user password to be passed to the Connections installer
+db_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE, else the default port will be 50000
 smtp_hostname | *none* - required | <for future use, you can set it to *localhost*>
 ifix_apar | *none* - required when install Connections fix | APAR number of fix
 ifix_file | *none* - required when install Connections fix | fix file name from `{{ cnx_repository_url }}`
@@ -319,9 +319,9 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.30.3 | Kubernetes version to be installed
-kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
-kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
+kubernetes_version | 1.31.2 | Kubernetes version to be installed
+kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
+kube_binaries_download_url | https://cdn.dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
@@ -371,6 +371,7 @@ setup_bootstrap | true | True will run bootstrap to creates secrets and certific
 setup_connections_env | true | True will setup connections-env configmap
 setup_infrastructure | true | True will setup infrastructure for Orient Me and other apps
 setup_customizer | true | True will deploy mw-proxy and setup customizations
+mongo_image_tag | *none* | If defined, will set the image.tag for the middleware-mongodb image
 elasticsearch_default_version | 7 | Default ElasticSearch version
 elasticsearch_default_port | 30098 | ElasticSearch port
 elasticsearch_replica_count | 3 | Replica count to set in Helm charts for Elasticsearch

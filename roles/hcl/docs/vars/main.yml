@@ -83,7 +83,7 @@ __db_hostname_r:                          "{{ __db_hostname_default }}"
 __db_type_prop_value:                     "{{ __db_type }}"
 __db_name:                                "{{ db_name | default('CONCORD') }}"
 __db_name_prop_value:                     "{{ __db_name }}"
-__db_port_default:                        "{{ db_port | default('50000') }}"
+__db_port_default:                        "{{ db_port | default('50001' if ansible_distribution == 'SLES' else '50000') }}"
 __db_port_r:                              "{{ __db_port_default }}"
 
 __db2_default_docs_jdbc_file:             "{{ '/opt/IBM/db2/V11.5/java' if __install_latest_db2 else '/opt/IBM/db2/V11.1/java' }}"

@@ -41,17 +41,17 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP26
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP26
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 cnx_fixes_repository_url:                        "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 
-cnx_fixes_version:                               "8.0.0.0_CR8"
+cnx_fixes_version:                               "8.0.0.0_CR9"
 cnx_fixes_files:
-  - { file_name: "HC8.0_CR8.zip" }
+  - { file_name: "HC8.0_CR9.zip" }
 
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
@@ -100,6 +100,8 @@ huddoboards_registry_username:                   "{{ lookup('env','QUAY_USERNAME
 huddoboards_registry_password:                   "{{ lookup('env','QUAY_SECRET') }}"
 
 enable_pod_auto_scaling:                         true
+mongo_image_tag:                                 "PASTE_YOUR_MONGO_IMAGE_TAG_HERE"
+kudos_boards_licence:                            "PASTE_YOUR_LICENCE_KEY_HERE"
 
 # setup_installation:                             false
 # setup_credentials:                              false
@@ -120,8 +122,6 @@ enable_pod_auto_scaling:                         true
 # enable_gk_flags:                                false
 # setup_ms_teams_extensions:                      false
 # skip_configure_redis:                           True
-
-kudos_boards_licence:                            "PASTE_YOUR_LICENCE_KEY_HERE"
 
 load_balancer_dns:                               "{{ hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname'] }}"
 ic_internal:                                     "{{ hostvars[groups['ihs_servers'][0]]['inventory_hostname'] }}"

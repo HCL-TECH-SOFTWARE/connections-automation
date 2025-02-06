@@ -11,27 +11,28 @@
   debug:
     msg:                    "{{ ansible_distribution_version }}"
 
-- name:                     Add Docker repo
+- name:                     Add Docker repo (RHEL)
+  get_url:
+    url:                    https://download.docker.com/linux/rhel/docker-ce.repo
+    dest:                   /etc/yum.repos.d/docker-ce.repo
+    validate_certs:  false
+  when:
+    - ansible_distribution == "RedHat"
+
+- name:                     Add Docker repo (AlmaLinux)
   get_url:
     url:                    https://download.docker.com/linux/centos/docker-ce.repo
     dest:                   /etc/yum.repos.d/docker-ce.repo
+    validate_certs:  false
   when:
-    - ansible_distribution != "SLES"
+    - ansible_distribution == "AlmaLinux"
 
 - name:                     Add Docker repo on SUSE
   get_url:
     url:                    https://download.docker.com/linux/sles/docker-ce.repo
     dest:                   /etc/zypp/repos.d/docker-ce.repo
   when:
-    - ansible_distribution == "SLES"
-
-- name:                     Replace baseurl on RedHat/Almalinux {{ ansible_distribution_major_version }}
-  replace:
-    path:                   /etc/yum.repos.d/docker-ce.repo
-    regexp:                 '^baseurl.*$'
-    replace:                'baseurl=https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/x86_64/stable'
-  when:
-    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+    - ansible_distribution == "SLES"    
 
 - name:                     Replace baseurl on SUSE {{ ansible_distribution_major_version }}
   replace:
@@ -39,7 +40,7 @@
     regexp:                 '^baseurl.*$'
     replace:                'baseurl=https://download.docker.com/linux/sles/{{ ansible_distribution_major_version }}/s390x/stable'
   when:
-    - ansible_distribution == "SLES"
+    - ansible_distribution == "SLES"    
 
 - name:                     Enable Docker stable repo
   ini_file:
@@ -57,7 +58,7 @@
     option:                 enabled
     value:                  1
   when:
-    - ansible_distribution == "SLES"
+    - ansible_distribution == "SLES"    
 
 - name:                     Disable Docker Edge repo
   ini_file:
@@ -75,8 +76,8 @@
     option:                 enabled
     value:                  0
   when:
-    - ansible_distribution == "SLES"
-
+    - ansible_distribution == "SLES"    
+    
 - name:                     Disable Docker Test repo
   ini_file:
     dest:                   /etc/yum.repos.d/docker-ce.repo
@@ -93,8 +94,8 @@
     option:                 enabled
     value:                  0
   when:
-    - ansible_distribution == "SLES"
-
+    - ansible_distribution == "SLES"    
+    
 - name:                     Install containerd.io {{ __containerd_version }}
   package:
     name:                   containerd.io-{{ __containerd_version }}
