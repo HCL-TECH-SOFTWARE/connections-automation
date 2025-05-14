@@ -1,6 +1,6 @@
 ---
 - name:                    Install Tiny Editors
-  hosts:                   dmgr
+  hosts:                   dmgr, cnx_was_servers
   become:                  true
   vars:
     uninstall_tinyeditors: false
@@ -23,6 +23,6 @@
 - name:                    Wait for Connections is up
   hosts:                   dmgr
   tasks:
-    - include:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
+    - include_tasks:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
       vars:
         __cnx_url:         "{{ cnx_application_ingress }}"

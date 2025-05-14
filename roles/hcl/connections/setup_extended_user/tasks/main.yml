@@ -19,6 +19,6 @@
   delegate_to:              "{{ dmgr_hostname }}"
   register:                 result
   when:                     connections_extended_user is defined and connections_extended_user is not none
-  retries: 10
+  retries: 20
   delay: 10
   until: result is succeeded

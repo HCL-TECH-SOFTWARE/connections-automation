@@ -1,43 +1,48 @@
 ---
+- name:               Delete /tmp/calico.yaml if it already exists
+  file:
+    path:             /tmp/calico.yaml
+    state:            absent
+
 - name:               Download the Calico networking manifest for the Kubernetes API datastore
-  command:            curl https://raw.githubusercontent.com/projectcalico/calico/v{{ __calico_version }}/manifests/calico.yaml -O
+  command:            curl https://raw.githubusercontent.com/projectcalico/calico/v{{ __calico_version }}/manifests/calico.yaml -o /tmp/calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-  become:             false
+  become_user:        "{{ __kubectl_user }}"
 
 - name:               Check if calico is already deployed
-  shell:              "kubectl  get deployment --all-namespaces | grep calico-kube-controllers"
+  shell:              "kubectl get deployment --all-namespaces | grep calico-kube-controllers"
   changed_when:       true
   register:           calico_already_provisioned
-  become:             false
+  become_user:        "{{ __kubectl_user }}"
   ignore_errors:      true
 
 - name:              Uninstall old version of calico
-  command:           kubectl delete -f calico.yaml --ignore-not-found=true
+  command:           kubectl delete -f /tmp/calico.yaml --ignore-not-found=true
   when:
    - calico_already_provisioned.rc == 0
-   - inventory_hostname == groups['k8s_masters'][0]   
-  become:             false
+   - inventory_hostname == groups['k8s_masters'][0]
+  become_user:        "{{ __kubectl_user }}"
 
 - name:              Upgrading an installation that uses manifests and the Kubernetes API datastore
-  command:           kubectl apply -f calico.yaml
+  command:           kubectl apply -f /tmp/calico.yaml
   when:
    - calico_already_provisioned.rc == 0
-   - inventory_hostname == groups['k8s_masters'][0]   
-  become:             false
+   - inventory_hostname == groups['k8s_masters'][0]
+  become_user:        "{{ __kubectl_user }}"
 
 - name:               Fresh install- Apply calico.yaml manifest
-  command:            kubectl create -f calico.yaml
+  command:            kubectl create -f /tmp/calico.yaml
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - calico_already_provisioned.rc != 0
-  become:             false
+  become_user:        "{{ __kubectl_user }}"
 
 - name:               Wait till all calico pods are created
   shell:              "kubectl get po --namespace=kube-system --output=jsonpath='{.items[*].metadata.name}'"
   register:           calico_pods_created
   until:              item in calico_pods_created.stdout
-  become:             false
+  become_user:        "{{ __kubectl_user }}"
   retries: 10
   delay: 10
   with_items:
@@ -48,10 +53,15 @@
   shell:              "kubectl -n kube-system rollout status deploy calico-kube-controllers --timeout=300s"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-  become:             false
+  become_user:        "{{ __kubectl_user }}"
 
 - name:               Wait for calico DaemonSet to become ready
   shell:              "kubectl -n kube-system rollout status ds calico-node --timeout=300s"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-  become:             false
+  become_user:        "{{ __kubectl_user }}"
+
+- name:               Clean up /tmp/calico.yaml
+  file:
+    path:             /tmp/calico.yaml
+    state:            absent

@@ -11,6 +11,15 @@
   tags:                    k8s_cleanup
   when:
    - __force_destroy_kubernetes == true
+   - ansible_distribution != "SLES"
+  
+- name:                    Cleanup K8S on SUSE
+  command:                 zypper remove -y kubeadm kubectl kubelet kubernetes-cni kube*
+  ignore_errors:           true
+  tags:                    k8s_cleanup
+  when:
+   - __force_destroy_kubernetes == true
+   - ansible_distribution == "SLES"
 
 - name:                    Find kubectl
   shell:                   "whereis kubectl | awk '{ print $2 }'"

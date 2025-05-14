@@ -23,6 +23,6 @@
 - name:                    Wait for Connections is up
   hosts:                   dmgr
   tasks:
-    - include:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
+    - include_tasks:             ../../roles/hcl/connections/tasks/wait_for_connections.yml
       vars:
         __cnx_url:         "{{ cnx_application_ingress }}"

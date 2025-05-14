@@ -6,7 +6,11 @@ nodeGroup:                  "data"
 masterService:              "{{ __opensearch_cluster_name }}-master"
 pemkeyPass:                 {{ __opensearch_ca_password }}
 imagePullSecrets:
+{% if __credentials_name != "" %}
   - name: {{ __credentials_name }}
+{% else %}
+  {}
+{% endif %}
 
 roles:
   - ingest

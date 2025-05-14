@@ -8,7 +8,7 @@ Before you start, please be sure to check out [Frequently Asked Questions](https
 
 For HCL Connections 8 dependencies this means that:
 
-* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from FlexNet, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
+* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from My HCLSoftware, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
 * HCL Connections Wizard will populate the database with needed schemas and grants.
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
@@ -63,7 +63,7 @@ To be able to use this automation you will need to be able to download the packa
 The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as a single Ruby one liner to open web server on specific port so that automation can connect and download it.
 
 #### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details.  The problem is fixed in Fixpack 23.  If Fixpack 22 is needed, contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
-This is the example data folder structure we are following at HCL.  Please refer to FlexNet when verifying the size and timestamps of the packages.
+This is the example data folder structure we are following at HCL.  Please refer to My HCLSoftware when verifying the size and timestamps of the packages.
 
 ```
 [root@c7lb1 packages]# ls -la *
@@ -79,7 +79,7 @@ Connections7:
 -r-xr-xr-x.  1 root       root       2001305600 Jan 20  2021 HCL_Connections_7.0_lin.tar
 -r-xr-xr-x.  1 root       root        817807360 Oct 29  2020 HCL_Connections_7.0_wizards_lin_aix.tar
 -rw-r--r--.  1 root       root        125556954 Feb  4  2021 LO100079-IC7.0.0.0-Common-Fix.jar
--rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections7.0_XXXXXX_vX.X.X.XX.zip
+-rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections8.0_XXXXXX_vX.X.X.XX.zip
 -rw-rw-r--   1 pnott      pnott        37928960 Feb 25  2022 tdisol_70_java8_linux_XXXX.tar
 -rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
 -rw-rw-r--   1 pnott      pnott        10834989 Aug  4  2022 sharedlib.zip
@@ -141,7 +141,7 @@ was855FP26:
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
 
-Refer to this [inventory](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml) how to override the default WebSphere installation file names.
+Refer to this [inventory](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml) how to override the default WebSphere installation file names.
 
 ### Inventory files
 
@@ -411,7 +411,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
-Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/v8-cr7/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
+Follow the steps in [Installing MongoDB 7 for Component Pack](https://help.hcl-software.com/connections/v8-cr10/admin/install/installing_mongodb_7_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
 
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 

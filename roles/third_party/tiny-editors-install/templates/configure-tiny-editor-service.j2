@@ -1,0 +1,185 @@
+import sys
+import time
+import re
+
+# Read command-line arguments
+ear_file_path = sys.argv[0]  # Path to the EAR file
+node_name_original = sys.argv[1]  # WebSphere node name
+app_name = sys.argv[2]  # Application name
+cell_name = sys.argv[3]  # WebSphere cell name
+
+# Retrieve running servers
+running_servers = AdminControl.queryNames("type=Server,*").splitlines()
+
+server_list = []
+for server in running_servers:
+    server_name = AdminControl.invoke(server, "getName")
+    node_name = AdminControl.invoke(server, "getNodeName")
+    server_list.append((node_name, server_name))
+
+# Retrieve all cluster names dynamically
+clusters_raw = AdminConfig.list("ServerCluster")
+clusters = clusters_raw.splitlines()
+
+# Define timeout parameters
+max_wait_time = 300  # Maximum wait time in seconds (5 minutes)
+check_interval = 15  # Interval to check readiness (15 seconds)
+elapsed_time = 0
+
+# Explicitly define True and False for Jython
+try:
+    False
+except NameError:
+    False = 0
+    True = 1
+
+# Construct the installation command
+install_command = (
+    "AdminApp.install('%s', '[ "
+    "-nopreCompileJSPs -distributeApp -nouseMetaDataFromBinary -nodeployejb "
+    "-appname %s "
+    "-createMBeansForResources -noreloadEnabled -nodeployws -validateinstall warn "
+    "-processEmbeddedConfig "
+    "-filepermission .*\\.dll=755#.*\\.so=755#.*\\.a=755#.*\\.sl=755 "
+    "-noallowDispatchRemoteInclude -noallowServiceRemoteInclude "
+    "-asyncRequestDispatchType DISABLED -nouseAutoLink -noenableClientModule "
+    "-clientMode isolated -novalidateSchema "
+    "-MapWebModToVH [[ tiny-spelling.war tiny-spelling.war,WEB-INF/web.xml default_host ] "
+    "[ tiny-hyperlinking.war tiny-hyperlinking.war,WEB-INF/web.xml default_host ]]]' )"
+    % (ear_file_path, app_name)
+)
+
+# Execute the installation command
+exec(install_command)
+
+# Save the WebSphere configuration
+AdminConfig.save()
+
+# Retrieve installed modules
+print("Retrieving Installed Modules...")
+modules = AdminApp.listModules(app_name).splitlines()
+
+map_modules_to_servers = "-MapModulesToServers ["
+
+# Iterate through modules
+for mod in modules:
+    mod_name = mod.split("#")[1]  # Extract module base name
+    war_name = mod_name.split("+")[0]
+
+    # Collect all clusters associated with this module
+    cluster_list = []
+    for cluster in clusters:
+        cluster_nodes = AdminConfig.list("ClusterMember", cluster).splitlines()
+        for cluster_node in cluster_nodes:
+            cluster_node_name = AdminConfig.showAttribute(cluster_node, "nodeName")
+
+            # Check if this cluster's node is in server_list
+            node_found = False
+            for node_name, server_name in server_list:
+                if node_name == cluster_node_name:
+                    cluster_list.append(AdminConfig.showAttribute(cluster, "name"))
+                    node_found = True
+                    break  # Stop checking further nodes
+            if node_found:
+                break  # Move to the next cluster
+
+    # Construct cluster mapping string
+    cluster_mapping = ""
+    for c in cluster_list:
+        if cluster_mapping:
+            cluster_mapping += "+"
+        cluster_mapping += "WebSphere:cell=%s,cluster=%s" % (cell_name, c)
+
+
+    # Use the first valid node and server
+    first_node = None
+    first_server = None
+    for node_name, server_name in server_list:
+        if "-" in server_name:  # Ensure it's a clustered server
+            first_node = node_name
+            first_server = server_name.split("-")[1]
+            break
+
+    # Ensure we have a valid node and server before adding the entry
+    if first_node and first_server:
+        map_modules_to_servers += (
+            "[ %s %s,WEB-INF/web.xml %s+WebSphere:cell=%s,node=%s-node,server=%s ]"
+            % (war_name, war_name, cluster_mapping, cell_name, node_name_original, node_name_original)
+        )
+
+map_modules_to_servers += "]"
+
+# Apply module-to-server mappings
+print("Applying Module to Server Mappings...")
+AdminApp.edit(app_name, "[ " + map_modules_to_servers + " ]")
+AdminConfig.save()
+
+# Wait for the application to be ready
+result = AdminApp.isAppReady('%s' % app_name)
+while result == "false" and elapsed_time < max_wait_time:
+    time.sleep(check_interval)
+    elapsed_time += check_interval
+    print('Application %s is not ready... (%d seconds elapsed)' % (app_name, elapsed_time))
+    result = AdminApp.isAppReady('%s' % app_name)
+
+# Check final readiness status
+if result == "true":
+    print('Application %s is ready.' % app_name)
+    AdminConfig.save()
+else:
+    print('Timeout reached: Application %s is still not ready after %d seconds.' % (app_name, max_wait_time))
+
+# Get all nodes in the WebSphere cell
+nodes = AdminConfig.list("Node").splitlines()
+
+filtered_processes = []  # List to store filtered processes
+
+for node in nodes:
+
+    # Get all servers for the current node
+    servers = AdminConfig.list("Server", node).splitlines()
+
+    for server in servers:
+        serverName = AdminConfig.showAttribute(server, "name")
+
+        # Filter servers that contain a hyphen (-)
+        if "-" in serverName:
+            filtered_processes.append(serverName)
+
+# Print final list of filtered processes
+print("Filtered processes:", filtered_processes)
+
+# Query for server MBeans to get the version
+serverMBeans = AdminControl.queryNames('type=Server,cell=' + cell_name + ',*')
+if serverMBeans:
+    versionOutput = AdminControl.invoke(serverMBeans.split("\n")[0], 'getServerVersion')
+
+    # Extract version using regex
+    match = re.search(r'Version\s+([\d.]+)', versionOutput)
+    if match:
+        version = match.group(1)
+        print("Detected WebSphere Version:", version)
+    else:
+        raise Exception("Version not found in the output.")
+else:
+    raise Exception("Unable to fetch server version. No server MBeans found.")
+
+for process in filtered_processes:
+    node = process.split('-')[1] + "-node"
+    print("Starting process : " + process)
+    command = (
+        "WebSphere:name=ApplicationManager,process=" + process +
+        ",platform=proxy,node=" + node +
+        ",version=" + version + ",type=ApplicationManager,mbeanIdentifier=ApplicationManager,"
+        "cell=" + cell_name + ",spec=1.0"
+    )
+    try:
+        AdminControl.invoke(command, "startApplication", "[" + app_name + "]")
+    except:
+        error_type, error_value, _ = sys.exc_info()
+        print("Failed to start application " + app_name + " on process " + process + ". Error: " + str(error_value))
+        print("SKIPPING this exception.....")
+
+print('Saving the final configuration')
+# Save the final configuration
+AdminConfig.save()

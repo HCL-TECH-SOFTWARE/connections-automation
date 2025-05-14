@@ -21,7 +21,7 @@
   with_items:
    - "{{ groups['db2_servers'] }}"
 
-- name:                       "Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }} and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}"
+- name:                       "Reset DB2 variables to fallback to v11.1 instead of the target version {{ __install_version_db2 }}"
   set_fact:
     __db2_default_docs_jdbc_file: "/opt/IBM/db2/V11.1/java"
     __db2_default_install_path:   "/opt/IBM/db2/V11.1"
@@ -29,16 +29,27 @@
   with_items: "{{ play_hosts }}"
   run_once: yes
   when:
-    - db2_version_match.results[0].stdout == "false"
-    - db2_installed_version is search("11.1")
+    - not db2_version_match.results[0].stdout|bool
+    - db2_installed_version.results[0].stdout_lines is search("11\\.1")
 
-- name:                       "Reset DB2 variables as execution skips expected DB2 {{ __install_version_db2 }} and continue with the already installed {{ db2_installed_version.results[0].stdout_lines }}"
+- name:                       "Reset DB2 variables to fallback to v11.5 instead of the target version {{ __install_version_db2 }}"
   set_fact:
-    __db2_default_docs_jdbc_file: "/opt/IBM/db2/V11.1/java"
-    __db2_default_install_path:   "/opt/IBM/db2/V11.1"
+    __db2_default_docs_jdbc_file: "/opt/IBM/db2/V11.5/java"
+    __db2_default_install_path:   "/opt/IBM/db2/V11.5"
   delegate_to: "{{ item }}"
   with_items: "{{ play_hosts }}"
   run_once: yes
   when:
-    - db2_version_match.results[0].stdout == "false"
-    - db2_installed_version is search("11.5")
+    - not db2_version_match.results[0].stdout|bool
+    - db2_installed_version.results[0].stdout_lines is search("11\\.5")
+
+- name:                       "Reset DB2 variables to fallback to v12.1 instead of the target version {{ __install_version_db2 }}"
+  set_fact:
+    __db2_default_docs_jdbc_file: "/opt/IBM/db2/V12.1/java"
+    __db2_default_install_path:   "/opt/IBM/db2/V12.1"
+  delegate_to: "{{ item }}"
+  with_items: "{{ play_hosts }}"
+  run_once: yes
+  when:
+    - not db2_version_match.results[0].stdout|bool
+    - db2_installed_version.results[0].stdout_lines is search("12\\.1")

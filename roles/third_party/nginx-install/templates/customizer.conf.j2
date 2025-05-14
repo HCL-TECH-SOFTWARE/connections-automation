@@ -12,6 +12,7 @@ proxy_busy_buffers_size 256k;
 large_client_header_buffers  8 64k;
 client_header_buffer_size    64k;
 client_max_body_size    1024m;
+proxy_http_version      1.1;
 
 server {
         listen          443 ssl;

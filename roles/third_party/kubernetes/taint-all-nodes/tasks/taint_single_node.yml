@@ -2,7 +2,7 @@
   command:                "kubectl version --output=json"
   register:               kubectl_version_output
   ignore_errors:          true
-  become:                 false
+  become_user:            "{{ __kubectl_user }}"
 
 - name:                   Extract Kubernetes version
   set_fact:
@@ -14,7 +14,7 @@
   when:
    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
    - inventory_hostname == groups['k8s_masters'][0]
-  become:                 false
+  become_user:            "{{ __kubectl_user }}"
   ignore_errors:          true
 
 - name:                   "[Single Node] Allow pods to run on master for kubernetes v1.24 and above"
@@ -23,7 +23,7 @@
    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
    - inventory_hostname == groups['k8s_masters'][0]
    - kubectl_version is version('1.24.0', '>=')
-  become:                 false
+  become_user:            "{{ __kubectl_user }}"
   ignore_errors:          true
 
 - name:                 "[Single Node] Label worker nodes as infrastructure for single node environment"
@@ -32,4 +32,4 @@
   command:              "kubectl label nodes {{ node_name }} type=infrastructure --overwrite"
   when:
     - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
-  become:               false
+  become_user:          "{{ __kubectl_user }}"

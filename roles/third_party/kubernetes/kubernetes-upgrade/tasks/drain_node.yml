@@ -14,15 +14,19 @@
   when:                  kubectl_version_output.rc == 0 and kubectl_version_output.stdout is defined
 
 - name:                  Drain the node
+  vars:
+    node_name:           "{{ inventory_hostname.split('.')[0] if ansible_distribution == 'SLES' else inventory_hostname }}"
   command:               "{{ item }}"
   with_items:
-   - "kubectl drain {{ inventory_hostname }} --delete-emptydir-data --ignore-daemonsets"
+   - "kubectl drain {{ node_name }} --delete-emptydir-data --ignore-daemonsets"
   become:                false
   when:                  kubectl_version is version('1.20', '>=')
 
 - name:                  Drain the node (< v1.20)
+  vars:
+    node_name:           "{{ inventory_hostname.split('.')[0] if ansible_distribution == 'SLES' else inventory_hostname }}"
   command:               "{{ item }}"
   with_items:
-   - "kubectl drain {{ inventory_hostname }} --delete-local-data --ignore-daemonsets"
+   - "kubectl drain {{ node_name }} --delete-local-data --ignore-daemonsets"
   become:                false
   when:                  kubectl_version is version('1.20', '<')
