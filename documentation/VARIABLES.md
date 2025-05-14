@@ -89,7 +89,7 @@ db2_instance_fenced_user | db2fenc1 | Fenced user to run user defined functions 
 db2_instance_fenced_group | db2group | Fenced user group
 db2_instance_fenced_homedir | /home/db2fenc1 | Fenced user home directory
 db2_instance_default_lang | EN | DB2 instance default language
-install_latest_db2 | true | true will install IBM DB2 v11.5.9. false will install IBM DB2 v11.1
+install_latest_db2 | true | true will install IBM DB2 v11.5.9, false will install IBM DB2 v11.1
 force_check_db2_version_mismatch | false | true terminates the script if already installed version (if any) on the system is different than the version that user expects
 
 ### Oracle Variables
@@ -309,7 +309,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.7.19-3.1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
+containerd_version | 1.7.24-3.1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -319,7 +319,7 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.31.2 | Kubernetes version to be installed
+kubernetes_version | 1.32.1 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
 kube_binaries_download_url | https://cdn.dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
@@ -328,7 +328,7 @@ pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
 calico_version | 3.28.0 | Calico version to be installed
 helm_version | 3.15.3 | Helm version to be installed
-haproxy_version | 3.0.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
+haproxy_version | 3.1.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
 nginx_version | 1.26.1 | nginx version to be installed
@@ -389,7 +389,7 @@ huddo_boards_licence | *none* | Activities Plus license key
 huddoboards_registry_url | quay.io/huddo | huddoboards registry url
 huddoboards_registry_username | admin | huddoboards registry user name
 huddoboards_registry_password | password | huddoboards registry password
-huddoboards_image_tag | 2023-12-18 |  huddoboards image tag in huddoboards registry
+huddoboards_image_tag | 2025-04-28 |  huddoboards image tag in huddoboards registry
 huddoboards_chart_name | huddo-boards-cp-1.2.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials
@@ -415,6 +415,7 @@ opensearch_watermark_high | *none* | Controls the high watermark for disk usage 
 opensearch_watermark_low | *none* | Controls the low watermark for disk usage for opensearch. Make sure that the opensearch_watermark_high is more than or equal to opensearch_watermark_low
 opensearch_auto_expand_replicas | *none* | Whether the OpenSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
+mongoTerminationGracePeriodSeconds | 90 | The amount of time (in seconds) Kubernetes will wait for mongo7 pod to gracefully shut down before forcibly terminating it.
 
 ### NFS Variables
 Name | Default | Description

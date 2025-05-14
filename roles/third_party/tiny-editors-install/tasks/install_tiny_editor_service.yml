@@ -1,0 +1,45 @@
+---
+- name:                      Check if /tmp/install_app.py already exists
+  stat:
+    path:                    "/tmp/install_app.py"
+  register:                  install_app_status
+
+- name:                      Delete existing install_app.py
+  file:
+    path:                    "/tmp/install_app.py"
+    state:                   absent
+  when:                      install_app_status.stat.exists
+
+- name:                      Copy install_app.py template to /tmp folder
+  template:
+    src:                     "{{ __tinyeditorservice_template }}"
+    dest:                    "/tmp/install_app.py"
+    mode:                    '0755'
+    
+- name:                      "Run wsadmin.sh install to install TinyEditor service for spell check"
+  shell: |
+          {{ __was_install_location }}/profiles/{{ __profile_name }}/bin/wsadmin.sh -conntype SOAP \
+          -host {{ __was_hostname }} -port {{ __dmgr_soap_port }} \
+          -user {{ __was_username }} -password {{ __was_password }} \
+          -lang jython -f /tmp/install_app.py \
+          "{{ __ear_file_path }}" "{{ inventory_hostname_short }}" "TinyEditorsServices" "{{ __was_cellname }}"
+  register:                  wsadmin_output
+  ignore_errors:             yes
+  no_log:                    true
+
+- name:                      Print TinyEditor service for spell check stdout
+  debug:
+    var:                     wsadmin_output.stdout_lines
+
+- name:                      Check if wsadmin output contains any errors related to 'Application is already installed on the machine'
+  debug:
+    msg:                     "Application is already installed on the machine"
+  when: 
+    - wsadmin_output.stdout is search("Context root .* is already bound") or wsadmin_output.stdout is search("An application with name .* already exists")
+
+- name:                      Fail TinyEditor service installation if wsadmin.sh has errors other than already installed application error
+  fail:
+    msg:                     "Application installation failed with error: {{ wsadmin_output.stderr }}"
+  when: 
+    - wsadmin_output.rc != 0
+    - wsadmin_output.stdout is not search("Context root .* is already bound") and wsadmin_output.stdout is not search("An application with name .* already exists")

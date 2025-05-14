@@ -26,6 +26,7 @@ mongo7:
   createSecret: false
   replicaCount: {{ __replica_count }}
   enabled: {{ __setup_mongo7 }}
+  terminationGracePeriodSeconds: {{ __mongoTerminationGracePeriodSeconds }}
 {% if mongo_image_tag is defined %}
   image:
     tag: {{ mongo_image_tag }}

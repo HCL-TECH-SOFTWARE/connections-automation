@@ -1,5 +1,7 @@
 - name:                     Uncordon done
+  vars:
+    node_name:              "{{ inventory_hostname.split('.')[0] if ansible_distribution == 'SLES' else inventory_hostname }}"
   command:                  "{{ item }}"
   with_items:
-   - "kubectl uncordon {{ inventory_hostname }}"
+   - "kubectl uncordon {{ node_name }}"
   become:                   false

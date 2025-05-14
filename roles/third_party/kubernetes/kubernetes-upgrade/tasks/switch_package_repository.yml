@@ -8,6 +8,16 @@
     path:                  /etc/yum.repos.d/kubernetes.repo
     state:                 absent
   ignore_errors:           yes
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Remove existing Kubernetes repository file if it exists on SUSE
+  file:
+    path:                  /etc/zypp/repos.d/kubernetes.repo
+    state:                 absent
+  ignore_errors:           yes
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                    Create Kubernetes repository file at /etc/yum.repos.d
   copy:
@@ -20,6 +30,22 @@
       gpgkey=https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/repodata/repomd.xml.key
       exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
     dest: /etc/yum.repos.d/kubernetes.repo
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Create Kubernetes repository file at /etc/zypp/repos.d on SUSE
+  copy:
+    content: |
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/repodata/repomd.xml.key
+      exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+    dest: /etc/zypp/repos.d/kubernetes.repo
+  when:
+    - ansible_distribution == "SLES"
 
 - name:                    Clean YUM cache
   command:                 "{{ item }}"
@@ -28,3 +54,15 @@
      - "yum clean all"
      - "yum makecache"
      - "yum clean expire-cache"
+  when:
+    - ansible_distribution != "SLES"
+
+- name:                    Clean Zypper cache. This step is needed to cleanup old kubernetes from Zypper if any.
+  command:                 "{{ item }}"
+  become:                  yes
+  with_items:
+     - "zypper clean --all"
+     - "zypper --gpg-auto-import-keys update -y"
+     - "zypper refresh"
+  when:
+    - ansible_distribution == "SLES"

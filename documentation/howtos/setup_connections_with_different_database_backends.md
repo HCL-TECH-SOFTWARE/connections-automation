@@ -1,6 +1,6 @@
 # Using different database backends with HCL Connections' automation
 
-Automated and tested database backends by HCL are IBM DB2 11.5.6, Oracle 19c and Microsoft SQL Server 2019. Please note that automated and tested only implies that it is covered by this automation, and does not mean it is (not) officially supported by HCL.
+Automated and tested database backends by HCL are IBM DB2 11.5.9, Oracle 19c and Microsoft SQL Server 2019. Please note that automated and tested only implies that it is covered by this automation, and does not mean it is (not) officially supported by HCL.
 
 ## What did we change?
 

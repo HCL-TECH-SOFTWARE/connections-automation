@@ -1,6 +1,7 @@
 ---
 - name:                    Setup OS
   include_tasks:           setup_os.yml
+  when:                    inventory_hostname in groups["dmgr"]
 
 - name:                    Create Tiny Editors user for Tiny Editors installation
   include_tasks:           create_tiny_editors_user.yml
@@ -9,6 +10,14 @@
   include_tasks:           download_tiny_editors.yml
   when:
    - __setup_environment |bool
+   - inventory_hostname in groups["dmgr"]
 
 - name:                    Install Tiny Editors
   include_tasks:           install_tiny_editors.yml
+  when:
+   - inventory_hostname in groups["dmgr"]
+
+- name:                    Render Tiny Editors configurations
+  include_tasks:           render_tiny_editor_configurations.yml
+  when:
+   - inventory_hostname in groups["cnx_was_servers"]

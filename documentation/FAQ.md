@@ -8,9 +8,9 @@
 
 [What if I have some issues?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-if-i-have-some-issues)
 
-[Flexnet package names are different then some default package names here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#flexnet-package-names-are-different-then-some-default-package-names-here)
+[My HCLSoftware package names are different then some default package names here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#my-hclsoftware-package-names-are-different-then-some-default-package-names-here)
 
-[How can I use Flexnet package names for WebSphere?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-can-i-use-flexnet-package-names-for-websphere)
+[How can I use My HCLSoftware package names for WebSphere?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-can-i-use-my-hclsoftware-package-names-for-websphere)
 
 [What are the minimum system requirements to use this automation?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-are-the-minimum-system-requirements-to-use-this-automation)
 
@@ -48,7 +48,7 @@
 
 This is the end to end automation used by HCL Connections development team(s) to test different features for HCL Connections, Component Pack for HCL Connections and HCL Connections Docs.
 
-Everything on main branch can be considered tested by HCL Connections development teams in at least single node, multiple single nodes (like, for example, one node for HCL Connections and another for Component Pack) or fully distributed environment.
+Everything on main branch can be considered tested by HCL Connections development teams in at least single node, multiple single nodes (like, for example, one node for HCL Connections and another for Component Pack) or fully distributed environment. 
 
 ## How can I start with this?
 
@@ -56,23 +56,23 @@ If you never used Ansible before, please start with this [quick start guide](htt
 
 ## What if I have some issues?
 
-The easiest way is just to open the issue/start the discussion here in Github. If you are using HCL Connections you can go through the official support channels as well, but this is the fastest and the most straight forward way to get in touch directly with the developers who are maintaining the upstream.
+The easiest way is just to open the issue/start the discussion here in Github. If you are using HCL Connections you can go through the official support channels as well, but this is the fastest and the most straight forward way to get in touch directly with the developers who are maintaining the upstream. 
 
-## Flexnet package names are different then some default package names here
+## My HCLSoftware package names are different then some default package names here
 
-Package names used as default in those scripts are the same package names used by HCL Connections development teams inside all internal environments, including those exposed to the customers from time to time. The names used in Flexnet are IBM's part IDs.
+Package names used as default in those scripts are the same package names used by HCL Connections development teams inside all internal environments, including those exposed to the customers from time to time. The names used in My HCLSoftware are IBM's part IDs.
 
-However, if needed, you should be able to search on both names through the Flexnet to set up whatever you need. We do use Flexnet names as overwrites in [examples](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml#L50-L58).
+However, if needed, you should be able to search on both names through the My HCLSoftware to set up whatever you need. We do use My HCLSoftware names as overwrites in [examples](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml#L50-L58).
 
-## How can I use Flexnet package names for WebSphere?
+## How can I use My HCLSoftware package names for WebSphere?
 
 You can always override default package names. Please report the issue in Github or open a pull request if something doesn't provide that functionality.
 
-For WebSphere, for example, this is how you overwrite default IBM names with those [HCL uses in Flexnet](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml#L50-L58).
+For WebSphere, for example, this is how you overwrite default IBM names with those [HCL uses in My HCLSoftware](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml#L50-L58).
 
 ## What are the minimum system requirements to use this automation?
 
-To spin up demo ready HCL Connections with Component Pack (including Customizer enabled), we (HCL Connections Development Team) use two nodes environments equivalent to AWS m5a.xlarge instance for DB2, OpenLDAP, IBM SDI, HCL Connections and equivalent of AWS m5a.4xlarge for Nginx, Docker (and Docker Registry), NFS server, Kubernetes and Component Pack with all the features currently automated enabled.
+To spin up demo ready HCL Connections with Component Pack (including Customizer enabled), we (HCL Connections Development Team) use two nodes environments equivalent to AWS m5a.xlarge instance for DB2, OpenLDAP, IBM SDI, HCL Connections and equivalent of AWS m5a.4xlarge for Nginx, Docker (and Docker Registry), NFS server, Kubernetes and Component Pack with all the features currently automated enabled. 
 
 If you want to use Docs as well, be sure to increase the first instance to at least m5a.2xlarge equivalent.
 
@@ -90,15 +90,15 @@ These scripts will spin up OpenLDAP only, but even if you are using other LDAP i
 
 ## How do I specify which clusters should auto start?
 
-[This line](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/c04747109398a2e34945d8893334aca165ea8255/environments/examples/cnx7/connections_7_without_component_pack/connections#L173) lists all the clusters that should start automatically. The reason why not all clusters are started or stopped automatically is simply that in some cases you don't want some clusters running at all (one of the first examples being Push cluster).
+[This line](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/c04747109398a2e34945d8893334aca165ea8255/environments/examples/cnx7/connections_7_without_component_pack/connections#L173) lists all the clusters that should start automatically. The reason why not all clusters are started or stopped automatically is simply that in some cases you don't want some clusters running at all (one of the first examples being Push cluster). 
 
 ## Can I only add Component Pack with this?
 
-Yes, this automation is flexible enough that you can install everything or just a part of it, in this case Component Pack only (yes, also on already running HCL Connections environment).
+Yes, this automation is flexible enough that you can install everything or just a part of it, in this case Component Pack only (yes, also on already running HCL Connections environment). 
 
 ## What if my Connections is on Windows?
 
-All the steps that would be otherwise done by Ansible on your Windows side would have to be executed manually.
+All the steps that would be otherwise done by Ansible on your Windows side would have to be executed manually. 
 
 ## Can I upgrade HCL Connections using those scripts?
 
@@ -110,7 +110,7 @@ Yes. The scripts are written in a way that you can spin up everything end to end
 
 ## Can I upgrade Component Pack using those scripts?
 
-Yes, you can upgrade or recreate Component Pack with those scripts.
+Yes, you can upgrade or recreate Component Pack with those scripts. 
 
 ## Why are there many assumptions in different configuration files?
 
@@ -139,3 +139,4 @@ Haproxy is definitely not mandatory, but if you are creating a Kubernetes cluste
 ## Docs thumbnails stop working after upgrading Connections. How to fix that?
 
 Under certain circumstances, the references to Connections Docs shared libraries will be removed during the Connections upgrade.  To add them back, go to the WebSphere Integrated Solutions Console, navigate to All applications -> News.  Select "Shared library references" then "Reference shared libraries" to add DocsDaemonLib and ViewerDaemonLib to the News application, click OK.
+

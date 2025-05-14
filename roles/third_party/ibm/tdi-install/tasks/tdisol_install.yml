@@ -109,7 +109,8 @@
     remote_src:          yes
   with_items:
    - "db2jcc4.jar"
-   - "db2jcc_license_cu.jar"
+ #  The file db2jcc_license_cu.jar has been removed from the DB2 v12 java folder and is not required for CNX silent install 
+#   - "db2jcc_license_cu.jar"
   when:
     - "'db2_servers' in groups"
 

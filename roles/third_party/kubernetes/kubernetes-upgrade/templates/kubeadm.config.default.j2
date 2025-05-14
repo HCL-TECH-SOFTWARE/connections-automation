@@ -7,7 +7,7 @@ kind: ClusterConfiguration
 kubernetesVersion: v{{ __kubernetes_version }}
 apiServer:
 {% if ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true %}
-  certSANS:
+  certSANs:
     - "{{ __load_balancer_dns }}"
 controlPlaneEndpoint: "{{ __load_balancer_dns }}:6443"
 etcd:
