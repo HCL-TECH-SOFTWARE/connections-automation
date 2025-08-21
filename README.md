@@ -1,7 +1,7 @@
 # HCL Connections and Component Pack Deployment Automation Framework
 
 > [!NOTE]
-> Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](../QUICKSTART.md) before you begin the installation.
+> Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
 
 The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
 
