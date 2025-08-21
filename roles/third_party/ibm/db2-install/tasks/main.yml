@@ -68,5 +68,5 @@
   include_tasks:              install_jdbc.yml
   when:
     - "'db2_servers' in groups"
-    - inventory_hostname in groups["was_servers"]
+    - (inventory_hostname in groups["was_servers"] or inventory_hostname in groups["dmgr"])
     - __setup_db2_jdbc |bool

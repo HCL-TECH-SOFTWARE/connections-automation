@@ -1,5 +1,8 @@
 # Upgrading HCL Connections v8 CR using Ansible automation
 
+> [!NOTE]
+> Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](../QUICKSTART.md) before you begin the upgrade.
+
 This automation is used to upgrade HCL Connections and Component Pack v8.0 to the latest CR.
 
 For this example, we will show:

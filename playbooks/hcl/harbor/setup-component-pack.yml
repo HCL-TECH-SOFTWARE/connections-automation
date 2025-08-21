@@ -10,6 +10,19 @@
   roles:
     - roles/hcl/component-pack-harbor
 
+# This is needed after enable_es_for_metrics
+- name:                    Rerun Docs update_webserver script if installed
+  import_playbook:         ../update-webserver-for-docs.yml
+  when:
+    - groups['proxy_servers'] is defined
+
+- name:                   Import Ingress NGINX TLS certificate to IHS
+  hosts:                  ihs_servers
+  become:                 true
+  roles:
+    - { role: roles/hcl/component-pack-harbor/enable-ingress-tls,
+        when: ( ingress_nginx_tls_enable | default(false)) | bool }    
+
 - name:                    CNX Post Install Config for Component Pack
   hosts:                   dmgr
   become:                  true

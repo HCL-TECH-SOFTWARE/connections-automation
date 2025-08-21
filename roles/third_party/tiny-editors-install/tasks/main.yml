@@ -21,3 +21,15 @@
   include_tasks:           render_tiny_editor_configurations.yml
   when:
    - inventory_hostname in groups["cnx_was_servers"]
+
+- name:                    Installing the TinyMCE editor service requires Common to be restarted if it is running or partially running
+  include_tasks:           restart_app_common.yml
+  when:
+   - __install_tinyeditors |bool
+   - inventory_hostname in groups["dmgr"]
+
+- name:                    Install Tiny Editor service
+  include_tasks:           install_tiny_editor_service.yml
+  when:
+   - __install_tinyeditors |bool
+   - inventory_hostname in groups["dmgr"]

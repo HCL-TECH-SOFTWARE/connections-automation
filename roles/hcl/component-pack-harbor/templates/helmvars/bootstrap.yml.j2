@@ -11,7 +11,11 @@ env:
   skip_configure_redis: {{ __skip_configure_redis }}
   set_opensearch_ca_password: {{ __opensearch_ca_password }}
   set_opensearch_key_password: {{ __opensearch_key_password }}
-  force_regenerate: {{ __force_regenerate_certs }}
+  force_regenerate_all: {{ __force_regenerate_certs }}
+  force_regenerate_ingress: {{ __force_regenerate_ingress }}
+  force_regenerate_mongo: {{ __force_regenerate_mongo }}
+  force_regenerate_opensearch: {{ __force_regenerate_opensearch }}
+  user_provided_cert_SANs: {{ cert_SAN | join(',') | quote }}
 image:
   repository: {{ __docker_registry_url }}
 replicaCount: {{ __replica_count }}

@@ -1,5 +1,32 @@
 # Quick start for setting up HCL Connections and Component Pack Deployment Automation Framework
 
+> [!NOTE]
+> ### Special Attention for Connections v8 CR11 and WebSphere FP27 Installation/Upgrade
+> Starting with WAS FP27, hostname verification is enabled by default for SSL certificates. The following steps should be performed the first time you install or upgrade to WAS FP27 to ensure a smooth deployment:
+>
+> #### 1. Hostname Configuration
+>   - Ensure that the FQDN (fully qualified domain name) appears before the short hostname in your `/etc/hosts` file.  
+> #### 2. Upgrading from Previous Ansible Deployment
+> - **Regenerate Self-Signed Certificates:**  
+>  The Subject Alternative Name (SAN) in self-signed certificates for NGINX and HAProxy should be updated.  
+>    - Run `playbooks/third_party/setup-nginx.yml` and `playbooks/third_party/setup-haproxy.yml` again to recreate these certificates.
+>    - If you need to override the default SAN values, refer to `nginx_custom_cert_sans` and `haproxy_custom_cert_sans` in [`VARIABLES.md`](VARIABLES.md).
+>
+> - **OpenSearch Certificate:**  
+>    - Add `force_regenerate_opensearch: true` to `all.yml` to ensure the OpenSearch certificate is recreated with the correct SAN.
+>    - To override the default SAN value, see `bootstrap_custom_cert_sans` in [`VARIABLES.md`](VARIABLES.md).
+>    - After bootstrap is upgraded, remove or set `force_regenerate_opensearch` to false in subsequent runs to prevent the certificates from being continuously regenerated which may lead to unexpected behavior.
+>
+> #### 3. TLS for Ingress Controller (CR11 and Later)
+> - Before upgrading from v8 CR10 or earlier, set `force_regenerate_ingress: true` in `all.yml` to ensure that Component Pack bootstrap automatically creates the certificate for the Ingress Controller.
+> - If you prefer to use Ansible to create the certificate with a custom SAN value, refer to the descriptions of `create_ingress_nginx_secret`, `ingress_nginx_secret_name`, and `ingress_nginx_custom_cert_sans` in [`VARIABLES.md`](VARIABLES.md) how to do so.
+> - After the initial deployment, these settings can be disabled in subsequent runs to prevent the certificates from being continuously regenerated, which may lead to unexpected behavior.
+>
+> #### 4. iFix needed for HCL Connections Docs
+> - There is a known issue in Fixpack 27 that prevents the Docs Proxy server from functioning properly. For details, see [PH65161: UPGRADE TO 9.0.5.22 and 8.5.5.27 COULD TRIGGER "THE SPECIFIED SSLALIAS:NAME DOES NOT EXIST." ERROR](https://www.ibm.com/support/pages/apar/PH65161). If HCL Connections Docs is installed, please refer to [KB0123208](https://support.hcl-software.com/csm?id=kb_article&sysparm_article=KB0123208) to apply the fix.
+<br/><br/>
+
+
 This is just an example of setting up your first HCL Connections and Component Pack environment including Customizer configured.
 
 To set this up, you will need at least four machines (for this example, let us say we use AlmaLinux 9):
@@ -49,7 +76,7 @@ cp
 ```
 
 * Update all three machines using yum update or dnf before you proceed.  This is important otherwise deployment will fail due to missing packages.
-* Update your /etc/hosts on each of those machines with proper ip/short/long name
+* Update your /etc/hosts on each of those machines with proper ip/long/short name
 * On all three machines, ensure that the content of /etc/environment file is like follows:
 
 ```

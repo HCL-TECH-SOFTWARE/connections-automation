@@ -12,7 +12,7 @@
 - name:          Pre-check DB2 version
   include_tasks: precheck_DB2_version.yml
   when:
-    - "'db2_servers' in groups"    
+    - "'db2_servers' in groups"
 
 - name:          Define Vars
   include_tasks: define_vars.yml

@@ -18,6 +18,9 @@ __certs_ldif_location:          "/tmp/certs.ldif"
 
 __certs_ldif_rev_template:      "certsrev.ldif.j2"
 
+__ldap_cnf_template:            "cert.cnf.j2"
+__ldap_cnf_location:            "/etc/openldap/certs/ldap_cert.cnf"
+
 __db_ldif_success_file:         "/etc/openldap/db.ldif.success"
 __schema_ldif_success_file:     "/etc/openldap/schema.ldif.success"
 __users_ldif_success_file:      "/etc/openldap/users.ldif.success"

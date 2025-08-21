@@ -9,11 +9,35 @@
     path:                   /etc/openldap/certs/
     state:                  directory
     mode:                   '0755'
-  when:
-    - ansible_distribution == "SLES"
+
+- name:                     Get hostnames from /etc/hosts
+  shell:                    grep -w "{{ inventory_hostname }}" /etc/hosts | head -n 1 | awk '{for(i=2;i<=NF;i++) print $i}'
+  register:                 ldap_hostnames_raw
+
+- name:                     Split hostnames into list
+  set_fact:
+    ldap_default_san_list:  "{{ ldap_hostnames_raw.stdout.split() | unique }}"
+
+- name:                     Convert ldap_custom_cert_sans to a list if provided
+  set_fact:
+    ldap_custom_cert_sans:  "{{ ldap_custom_cert_sans | split(',') }}"
+  when:                     ldap_custom_cert_sans is defined
+
+- name:                     Set final LDAP SAN list
+  set_fact:
+    __ldap_cert_san_list:   "{{ ldap_custom_cert_sans | default(ldap_default_san_list) | unique }}"
+
+- name:                     Show me the SAN list
+  debug:
+    msg:                    "{{ __ldap_cert_san_list }}"
+
+- name:                     Apply cnf file
+  template:
+    src:                    "{{ __ldap_cnf_template }}"
+    dest:                   "{{ __ldap_cnf_location }}"
 
 - name:                     "Generate {{ __ldap_cert_path }} and {{ __ldap_cert_key_path }}"
-  command:                  openssl req -new -x509 -nodes -newkey rsa:2048 -out {{ __ldap_cert_path }} -keyout {{ __ldap_cert_key_path }} -days 1460 -batch
+  command:                  openssl req -new -x509 -nodes -newkey rsa:2048 -out {{ __ldap_cert_path }} -keyout {{ __ldap_cert_key_path }} -config {{ __ldap_cnf_location }} -days 1460 -batch
   when:
     - not ldap_ssl_already_created.stat.exists
 
@@ -54,7 +78,7 @@
   failed_when:              ( ldapssl.rc not in [0] )
   when:
     - not ldap_ssl_already_created.stat.exists
-    
+
 - name:                     "Create {{ __ldap_ssl_success_file }} file"
   file:
     path:                   "{{ __ldap_ssl_success_file }}"

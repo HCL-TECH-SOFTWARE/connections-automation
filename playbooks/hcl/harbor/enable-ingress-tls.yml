@@ -1,0 +1,7 @@
+---
+- name:                    Import Ingress controller cert to IHS, update IHS config
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/component-pack-harbor/enable-ingress-tls
+

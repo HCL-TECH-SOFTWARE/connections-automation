@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.32.1') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.33.1') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -99,6 +99,9 @@ __search_secret:                             "{{ search_secret | default('passwo
 __solr_secret:                               "{{ solr_secret | default('password') }}"
 __skip_configure_redis:                      "{{ skip_configure_redis | default('false') }}"
 __force_regenerate_certs:                    "{{ force_regenerate_certs | default('false') }}"
+__force_regenerate_ingress:                  "{{ force_regenerate_ingress | default('false') }}"
+__force_regenerate_mongo:                    "{{ force_regenerate_mongo | default('false') }}"
+__force_regenerate_opensearch:               "{{ force_regenerate_opensearch | default('false') }}"
 
 __nfsMasterAddress:                          "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
 __persistentVolumePath:                      "{{ persistentVolumePath | default('pv-connections') }}"
@@ -207,3 +210,10 @@ __opensearch_dashboard_password:             "{{ opensearch_dashboard_password |
 
 __people_migrate_timeout:                    "{{ people_migrate_timeout | default('300') | int }}"
 __mongoTerminationGracePeriodSeconds:        "{{ mongoTerminationGracePeriodSeconds | default('90') | int }}"
+
+__create_ingress_nginx_secret:               "{{ create_ingress_nginx_secret | default(false) |lower }}"
+__ingress_nginx_secret_name:                 "{{ ingress_nginx_secret_name | default('ingress-nginx-tls-secret') }}"
+__ingress_nginx_tls_cert_dir:                "/tmp/ingress-nginx-tls"
+__ingress_nginx_tls_cert_file:               "ingress-nginx-tls.crt"
+__ingress_nginx_tls_key_file:                "ingress-nginx-tls.key"
+__ingress_nginx_tls_enable:                  "{{ ingress_nginx_tls_enable | default(false) | bool }}"

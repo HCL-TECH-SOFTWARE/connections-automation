@@ -1,6 +1,6 @@
 # Using different database backends with HCL Connections' automation
 
-Automated and tested database backends by HCL are IBM DB2 11.5.9, Oracle 19c and Microsoft SQL Server 2019. Please note that automated and tested only implies that it is covered by this automation, and does not mean it is (not) officially supported by HCL.
+Automated and tested database backends by HCL are IBM DB2 12.1, IBM DB2 11.5.9, Oracle 19c and Microsoft SQL Server 2019. Please note that automated and tested only implies that it is covered by this automation, and does not mean it is (not) officially supported by HCL.
 
 ## What did we change?
 
@@ -19,9 +19,9 @@ By default, they are set to false, which means that if you don specifically say 
 
 This applies only for HCL Connections.
 
-## Defaults and IBM DB2 11.5.9
+## Defaults and IBM DB2 12.1
 
-First supported database with this automation was IBM DB2 v11.5.9
+First supported database with this automation was IBM DB2 v12.1
 
 To install Connections by using DB2 as a backend, all you need is this:
 
@@ -46,7 +46,7 @@ db_hostname=db1.internal.example.com
 db_port=50000
 db_type=DB2
 ```
-To install Connections by using DB2 v11.1 as a backend, addition to the above set of parameters you need to set(by default it is set to false):
+To install Connections by using DB2 v11.5.9 as a backend, addition to the above set of parameters you need to set(by default it is set to false):
 
 ```
 install_latest_db2=false

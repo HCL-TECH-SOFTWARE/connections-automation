@@ -1,0 +1,12 @@
+---
+- name:                     "Stop {{ __tinysvc_link_common }} Server Cluster"
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+  vars:
+    __cluster_name:        "{{ __tinysvc_link_common }}"
+
+- name:                     "Start {{ __tinysvc_link_common }} Server Cluster"
+  include_role:
+    name: roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+  vars:
+    __cluster_name:        "{{ __tinysvc_link_common }}"

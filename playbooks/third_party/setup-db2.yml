@@ -4,7 +4,7 @@
   roles:
     - roles/third_party/linux/swap-setup
 
-- hosts:                    db2_servers, was_servers
+- hosts:                    db2_servers, was_servers, dmgr
   become:                   true
   any_errors_fatal:         true
   roles:
