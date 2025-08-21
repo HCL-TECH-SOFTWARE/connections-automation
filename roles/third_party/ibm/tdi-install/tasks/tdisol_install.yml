@@ -169,13 +169,18 @@
   when:
     - __upgrade_package_bin is search("FP0009")
 
+- name:                 Check if LDAP keystore already exists
+  stat:
+    path:               "{{ __tdi_sol_dest }}/TDI/ldapcerts.jks"
+  register:             ldap_keystore_stat
+
 - name: Create tmp folder
   file:
     path: "{{ __tdi_temp_dir }}"
     state: directory
     mode: '0755'
   when:
-    - not tdi_already_installed.stat.exists
+    - not ldap_keystore_stat.stat.exists
     - __ldap_ssl_enabled |bool
 
 - name: Create keystore for LDAPS
@@ -185,7 +190,7 @@
     openssl x509 -inform der -in {{ __tdi_temp_dir }}/temp-key.der -out {{ __tdi_temp_dir }}/temp-key.pem
     {{ __tdi_user_install_dir }}/jvm/jre/bin/keytool -import -alias ldap-certificate -noprompt -keystore {{ __tdi_sol_dest }}/TDI/ldapcerts.jks -storepass {{ __tdi_keystore_password }} -file {{ __tdi_temp_dir }}/temp-key.pem
   when:
-    - not tdi_already_installed.stat.exists
+    - not ldap_keystore_stat.stat.exists
     - __ldap_ssl_enabled |bool
 
 - name: Delete temp folder
@@ -193,7 +198,7 @@
     path: "{{ __tdi_temp_dir }}"
     state: absent
   when:
-    - not tdi_already_installed.stat.exists
+    - not ldap_keystore_stat.stat.exists
     - __ldap_ssl_enabled |bool
 
 - name: Enable keystore in solution.properties

@@ -16,6 +16,23 @@
   with_items:
    - "{{ __nginx_install_dir }}/ssl"
 
+- name:                     Combine ingress and host FQDNs for NGINX
+  set_fact:
+    nginx_default_san_list: "{{ [cnx_component_pack_ingress] + [cnx_application_ingress] + [inventory_hostname] }}"
+
+- name:                     Convert nginx_custom_cert_sans to a list if provided
+  set_fact:
+    nginx_custom_cert_sans: "{{ nginx_custom_cert_sans | split(',') }}"
+  when:                     nginx_custom_cert_sans is defined
+
+- name:                     Use custom SAN list if provided, else use default ingress hostnames
+  set_fact:
+    __nginx_cert_san_list:  "{{ nginx_custom_cert_sans | default(nginx_default_san_list) | map('trim') | unique }}"
+
+- name:                     Show me the SAN list
+  debug:
+    msg:                    "{{ __nginx_cert_san_list }}"
+
 - name:                     Apply nginx.conf
   template:
     src:                    "{{ __nginx_conf_template }}"

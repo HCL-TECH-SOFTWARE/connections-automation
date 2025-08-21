@@ -55,6 +55,7 @@ ldap_search_filter | (objectclass=inetOrgPerson) | Ldap search filter
 ldap_map_guid | entryUUID | mapping for guid property
 ldap_map_uid | uid | mapping for uid property
 ldap_server_type | CUSTOM | LDAP Server type of LDAP repo in WebSphere configuration
+ldap_custom_cert_sans | unique domain(*.`{{ldap_server}}`) | If provided, this variable specifies the Subject Alternative Names (SANs) for the LDAP TLS cert. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
 
 ### Database Variables
 Name | Default | Description
@@ -89,7 +90,7 @@ db2_instance_fenced_user | db2fenc1 | Fenced user to run user defined functions 
 db2_instance_fenced_group | db2group | Fenced user group
 db2_instance_fenced_homedir | /home/db2fenc1 | Fenced user home directory
 db2_instance_default_lang | EN | DB2 instance default language
-install_latest_db2 | true | true will install IBM DB2 v11.5.9, false will install IBM DB2 v11.1
+install_latest_db2 | false | true will install IBM DB2 v12.1 false will install IBM DB2 v11.5.9
 force_check_db2_version_mismatch | false | true terminates the script if already installed version (if any) on the system is different than the version that user expects
 
 ### Oracle Variables
@@ -143,7 +144,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5026.20240702_1024 | WebSphere Fix Pack
+was_fp_version | 8.5.5027.20250129_1123 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -157,8 +158,8 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5026.20240702_1024 | IHS Fix Pack version
-wct_version | 8.5.5026.20240702_1024 | WebSphere Toolbox Fix Pack version
+ihs_version | 8.5.5027.20250129_1123 | IHS Fix Pack version
+wct_version | 8.5.5027.20250129_1123 | WebSphere Toolbox Fix Pack version
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -300,6 +301,7 @@ tinyeditors_customization_path | /opt/IBM/SharedArea/customization | Connections
 tinyeditors_provision_path | /opt/IBM/SharedArea/provision/webresources | Connections provision path
 tinyeditors_download_location | *none* - required | Tiny Editors kit download location
 tinyeditors_package_name | TinyEditorsForConnections.zip | Tiny Editors install kit file
+tinysvc_link_common | 'Apps' if cnx_deploy_type is 'small' else 'Infra' if cnx_deploy_type is 'medium' else 'Common' | Determines the target cluster for deploying Tiny Editors Services. The Tiny Services need to be mapped wherever Common is located.
 hcl_program_folder | /opt/HCL | Location to store Tiny Editors program folders
 tinyeditors_config_file_path | /opt/ephox | Tiny Editors post install configuration folder location
 tinyeditors_config_file_name | application.conf | Tiny Editors post install configuration file name
@@ -319,14 +321,14 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.32.1 | Kubernetes version to be installed
+kubernetes_version | 1.33.1 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
 kube_binaries_download_url | https://cdn.dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.28.0 | Calico version to be installed
+calico_version | 3.30.0 | Calico version to be installed
 helm_version | 3.15.3 | Helm version to be installed
 haproxy_version | 3.1.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
@@ -338,6 +340,8 @@ nginx_logs_dir | /var/log/nginx | NGINX logs location
 nginx_pid_loc | /run/nginx.pid | Used when build_nginx=true, NGINX pid file location
 nginx_exec_path | /usr/sbin/nginx | Used when build_nginx=true, NGINX executable location
 nginx_user | nginx | User to run the NGINX process
+nginx_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the NGINX TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
+haproxy_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the HAProxy TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
 
 ### Component Pack Variables
 Name | Default | Description
@@ -357,7 +361,10 @@ es_ca_password | password | Elasticsearch CA password
 redis_secret | password |  Redis secret used in bootstrap
 search_secret | password | search secret used in bootstrap
 solr_secret | password | Solr secret used in bootstrap
-force_regenerate_certs | false | When true, bootstrap installation overwrites existing certs/secrets
+force_regenerate_certs | false | When set to true, the bootstrap installation will overwrite any existing certs/secret for all components managed by the bootstrap repository
+force_regenerate_ingress | false | When set to true, bootstrap installation overwrites existing certs/secret for ingress-nginx
+force_regenerate_mongo | false | When set to true, bootstrap installation overwrites existing certs/secret for mongo
+force_regenerate_opensearch | false | When set to true, bootstrap installation overwrites existing certs/secret for opensearch
 default_namespace | connections | Kubernetes namespace
 nfsMasterAddress | hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] | NFS master IP
 persistentVolumePath | pv-connections | Persistent volume location to be created
@@ -416,6 +423,11 @@ opensearch_watermark_low | *none* | Controls the low watermark for disk usage fo
 opensearch_auto_expand_replicas | *none* | Whether the OpenSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 mongoTerminationGracePeriodSeconds | 90 | The amount of time (in seconds) Kubernetes will wait for mongo7 pod to gracefully shut down before forcibly terminating it.
+bootstrap_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | If provided, this variable specifies the Subject Alternative Names (SANs) to be passed to the Component Pack bootstrap for TLS certificates generation. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
+create_ingress_nginx_secret | false | Determines whether Ansible should manage the Kubernetes Ingress NGINX TLS secret. If set to true, Ansible will delete the existing secret specified in `ingress_nginx_secret_name` (if provided) and create a new TLS secret using the generated certificate and key.
+ingress_nginx_secret_name | ingress-nginx-tls-secret | Name of the Kubernetes TLS secret to be used as the default certificate for the Ingress NGINX controller. If `create_ingress_nginx_secret: true`, Ansible will create this secret using the generated TLS certificate and key.
+ingress_nginx_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | Used when `create_ingress_nginx_secret: true`. If provided, this variable specifies the Subject Alternative Names (SANs) for the ingress_nginx certificate. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
+ingress_nginx_tls_enable | false | True will import the Kubernetes Ingress NGINX TLS secret to IHS and update IHS configuration to use TLS port for the Component Pack.
 
 ### NFS Variables
 Name | Default | Description

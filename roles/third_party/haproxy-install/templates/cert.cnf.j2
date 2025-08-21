@@ -12,6 +12,6 @@ extendedKeyUsage = serverAuth
 subjectAltName=@alt_names
 
 [alt_names]
-{% for name in __nginx_cert_san_list %}
+{% for name in __haproxy_cert_san_list %}
 DNS.{{ loop.index }} = {{ name }}
 {% endfor %}

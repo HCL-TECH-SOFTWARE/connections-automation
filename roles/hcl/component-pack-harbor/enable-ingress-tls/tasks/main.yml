@@ -1,0 +1,3 @@
+---
+- name:                      Import ingress controller certificate to IHS and update config
+  include_tasks:             import_ingress_cert_to_ihs.yml

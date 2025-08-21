@@ -1,0 +1,63 @@
+---
+- include_vars:              ../../../third_party/ibm/ihs/ibm-http-httpdconf/vars/main.yml
+- include_vars:              ../vars/main.yml
+
+- name:                      Delete /tmp/ingress-nginx-cert.pem if exists
+  file:
+    path:                    /tmp/ingress-nginx-cert.pem
+    state:                   absent
+  become:                    true
+
+- name:                      Save the ingress controller certificate to /tmp/ingress-nginx-cert.pem
+  shell:                     "openssl s_client -servername {{ __load_balancer_fqdn }} -connect {{ __load_balancer_fqdn }}:{{ __controller_https_node_port }} -showcerts < /dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/ingress-nginx-cert.pem"
+
+- name:                      Get the current list IHS certificates
+  shell:                     "{{ __ihs_gsk_api }} -cert -list -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}"
+  register:                  ihs_cert_list
+  become:                    true
+
+- name:                      Delete certificate with the same label from IHS keystore if exists
+  shell:                     "{{ __ihs_gsk_api }} -cert -delete -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -label 'ingress-nginx-cert'"
+  ignore_errors:             true
+  when :                     "'ingress-nginx-cert' in ihs_cert_list.stdout"
+  become:                    true
+
+- name:                      Import the ingress controller certificate to IHS
+  shell:                     "{{ __ihs_gsk_api }} -cert -add -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}  -label 'ingress-nginx-cert' -file /tmp/ingress-nginx-cert.pem"
+  register:                  ihs_import_cert_output
+
+- name:                      Get the updated list IHS certificates after import
+  shell:                     "{{ __ihs_gsk_api }} -cert -list -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}"
+  register:                  ihs_cert_list
+  become:                    true
+
+- name:                      Print the updated list of certificates
+  debug:
+    msg:                     "{{ ihs_cert_list.stdout_lines }}"
+
+- name:                      Clean up /tmp/ingress-nginx-cert.pem
+  file:
+    path:                    /tmp/ingress-nginx-cert.pem
+    state:                   absent
+  become:                    true
+
+- name:                      Replace all {{ __controller_http_node_port }} with {{ __controller_https_node_port }} in httpd.conf
+  replace:
+    path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
+    regexp:                  'http://([^:]+):{{ __controller_http_node_port }}'
+    replace:                 'https://\1:{{ __controller_https_node_port }}'
+    backup:                  yes
+  become:                    true
+
+- name:                      Ensure SSLProxyEngine On is set in httpd.conf
+  lineinfile:
+    path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
+    regexp:                  '^SSLProxyEngine\s+.*'
+    line:                    'SSLProxyEngine On'
+    insertafter:             '^SSLProtocolDisable'
+    backup:                  yes
+    state:                   present
+
+- name:                      Restart HTTP Server
+  include_role:
+    name:                    roles/third_party/ibm/ihs/ibm-http-server-restart

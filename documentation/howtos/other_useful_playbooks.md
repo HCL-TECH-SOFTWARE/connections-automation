@@ -45,8 +45,20 @@ This playbook is useful when the IHS SSL certificate in your test environment ha
 ansible-playbook -i <your inventory.ini> playbooks/third_party/ibm-http-server-create-cert.yml
 ```
 
+## Update IHS configuration for the Docs proxy server after regenerating plugin
+This playbook rerun the Docs `update_webserver.sh` script needed after regenerating plugin
+```
+ansible-playbook -i <your inventory.ini> playbooks/hcl/update-webserver-for-docs.yml
+```
+
 ## Renew Kubernetes self generated kubeadm-managed certificates
 This playbook is useful for renewing Kubernetes self-generated, kubeadm-managed certificates that are close to expiration.
 ```
 ansible-playbook -i <your inventory.ini> playbooks/third_party/kubernetes/renew-kubernetes-cert.yml
+```
+
+## Enable secure traffic to the Ingress Controller
+This playbook imports the ingress-nginx TLS certificate to IHS keystore and updates IHS configuration to use HTTPS for ingress resources.
+```
+ansible-playbook -i <your inventory.ini> playbooks/hcl/harbor/enable-ingress-tls.yml
 ```

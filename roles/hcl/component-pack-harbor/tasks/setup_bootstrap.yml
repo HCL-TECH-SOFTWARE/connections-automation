@@ -20,6 +20,33 @@
    - bootstrap_template_file is not defined
    - bootstrap_already_provisioned.rc == 0
 
+- name:                      Set default SANs based on logic
+  set_fact:
+    cert_SAN_list: |-
+                             {{ (["*." ~ (frontend_fqdn.split('.', 1)[1])] + ["*." ~ (load_balancer_dns.split('.', 1)[1])]) }}
+  become_user:               "{{ __sudo_user }}"
+  when:
+   - bootstrap_template_file is not defined
+
+- name:                      Convert bootstrap_custom_cert_sans to list if provided
+  set_fact:                  
+    bootstrap_custom_cert_sans:   "{{ bootstrap_custom_cert_sans | split(',') }}"
+  when:                      bootstrap_template_file is not defined and bootstrap_custom_cert_sans is defined   
+
+- name:                      Override SANs if user provides their own
+  set_fact:
+    cert_SAN: |-
+                             {% set source_sans = bootstrap_custom_cert_sans | default(cert_SAN_list) %}
+                             {% set source_sans = source_sans | map('trim') | list | unique %}
+                             {{ source_sans }}
+  become_user:               "{{ __sudo_user }}"
+  when:                      bootstrap_template_file is not defined
+
+- name:                      Show me the SAN list
+  debug:
+    msg:                     "{{ cert_SAN }}"
+  when:                      bootstrap_template_file is not defined   
+
 - name:                      "Render {{ __bootstrap_install_env }}"
   template:
     src:                     "helmvars/bootstrap.yml.j2"

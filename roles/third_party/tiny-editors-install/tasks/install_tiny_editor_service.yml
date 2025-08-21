@@ -15,14 +15,14 @@
     src:                     "{{ __tinyeditorservice_template }}"
     dest:                    "/tmp/install_app.py"
     mode:                    '0755'
-    
+
 - name:                      "Run wsadmin.sh install to install TinyEditor service for spell check"
   shell: |
           {{ __was_install_location }}/profiles/{{ __profile_name }}/bin/wsadmin.sh -conntype SOAP \
           -host {{ __was_hostname }} -port {{ __dmgr_soap_port }} \
           -user {{ __was_username }} -password {{ __was_password }} \
           -lang jython -f /tmp/install_app.py \
-          "{{ __ear_file_path }}" "{{ inventory_hostname_short }}" "TinyEditorsServices" "{{ __was_cellname }}"
+          "{{ __ear_file_path }}" "{{ groups['ihs_servers'] | map('extract', hostvars, ['inventory_hostname_short']) | join(' ') }}" "TinyEditorsServices" "{{ __was_cellname }}" "{{ __tinysvc_link_common }}"
   register:                  wsadmin_output
   ignore_errors:             yes
   no_log:                    true

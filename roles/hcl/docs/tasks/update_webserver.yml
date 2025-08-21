@@ -20,7 +20,7 @@
     responses:
       (.*)If this host is already registered as a job manager target(.*): ""
     timeout:           300
-  async:               300
+  async:               600
   poll:                5
   become:             true
   when:

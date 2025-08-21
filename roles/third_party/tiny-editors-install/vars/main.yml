@@ -28,3 +28,13 @@ __dmgr_soap_port:                 "{{ dmgr_soap_port | default('8879')}}"
 __dmgr_hostname:                  "{{ groups['dmgr'][0] }}"
 __was_cellname:                   "{{ was_cellname | default('ConnectionsCell') }}"
 __was_hostname:                   "{{ inventory_hostname }}"
+
+__cnx_deploy_type:                "{{ cnx_deploy_type | default('small') }}"
+__tinysvc_link_common: >-
+  {{ tinysvc_link_common
+     | default(
+         'Apps' if __cnx_deploy_type == 'small' else
+         'Infra' if __cnx_deploy_type == 'medium' else
+         'Common'
+       )
+  }}

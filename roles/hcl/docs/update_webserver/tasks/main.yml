@@ -1,0 +1,40 @@
+---
+  - include_vars:            ../../vars/main.yml
+
+  - name:                    Check if plugin-cfg.xml contains a Uri for Docs
+    shell: |
+      grep -E '<Uri .*Name="/docs/.*>' "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/plugin-cfg.xml"
+    register:                is_docs_in_plugin_cfg
+    failed_when:             false
+    changed_when:            false 
+    when:                    inventory_hostname in groups["ihs_servers"][0]
+
+  - name:                    Set fact if Docs URI is found
+    set_fact:
+      docs_found:            "{{ is_docs_in_plugin_cfg is not failed and is_docs_in_plugin_cfg.rc == 0 }}"
+    when:                    inventory_hostname in groups["ihs_servers"][0]
+
+  - name:                    Show me if Docs URI is found
+    debug:
+      msg:                   "{{ hostvars[groups['ihs_servers'][0]].docs_found | bool }}"
+    when:                    inventory_hostname in groups["ihs_servers"][0]      
+      
+  - name:                    Run Docs update_webserver script if Docs is present in plugin-cfg.xml
+    include_tasks:           ../../roles/hcl/docs/tasks/update_webserver.yml
+    when:
+      - groups['proxy_servers'] is defined and inventory_hostname == groups['proxy_servers'][0]
+      - hostvars[groups['ihs_servers'][0]].docs_found is defined and hostvars[groups['ihs_servers'][0]].docs_found | bool
+
+  - name:                    Propagate plugin to IHS servers
+    include_tasks:           ../../roles/hcl/docs/tasks/propagate_plugin.yml
+    when:                    
+      - inventory_hostname in groups["ihs_servers"]
+      - hostvars[groups['ihs_servers'][0]].docs_found is defined and hostvars[groups['ihs_servers'][0]].docs_found | bool
+
+  - name:                    Restart IHS servers
+    include_role:            
+      name:                  roles/third_party/ibm/ihs/ibm-http-server-restart
+    when:
+      - restart_ihs | default(true)
+      - inventory_hostname in groups["ihs_servers"]
+      - hostvars[groups['ihs_servers'][0]].docs_found is defined and hostvars[groups['ihs_servers'][0]].docs_found | bool

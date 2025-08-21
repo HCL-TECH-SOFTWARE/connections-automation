@@ -1,5 +1,101 @@
-- name:                      Add Community Helm Repo
+---
+- name:                      Ensure Ingress NGINX secret exists when not creating it (create_ingress_nginx_secret is false)
+  command:                   kubectl get secret {{ __ingress_nginx_secret_name }} -n {{ __default_namespace }}
+  register:                  ingress_secret_check
+  failed_when:               ingress_secret_check.rc != 0
+  changed_when:              false
+  become_user:               "{{ __sudo_user }}"
+  when:                      not __create_ingress_nginx_secret | bool
+
+- name:                      Ensure cert directory is clean
+  file:
+    path:                    "{{ __ingress_nginx_tls_cert_dir }}"
+    state:                   absent
+  become_user:               "{{ __sudo_user }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Create cert directory
+  file:
+    path:                    "{{ __ingress_nginx_tls_cert_dir }}"
+    state:                   directory
+    mode:                    '0755'
+  become_user:               "{{ __sudo_user }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Set default SANs based on logic
+  set_fact:
+    cert_SAN_list: |-
+                             {{ (["*." ~ (frontend_fqdn.split('.', 1)[1])] + ["*." ~ (load_balancer_dns.split('.', 1)[1])]) }}
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Convert ingress_nginx_custom_cert_sans to list if provided
+  set_fact:
+    ingress_nginx_custom_cert_sans:   "{{ ingress_nginx_custom_cert_sans | split(',') }}"
+  when:                      __create_ingress_nginx_secret | bool and ingress_nginx_custom_cert_sans is defined
+
+- name:                      Override SANs if user provides their own
+  set_fact:
+    cert_SAN: |-
+                             {% set source_sans = ingress_nginx_custom_cert_sans | default(cert_SAN_list) %}
+                             {% set source_sans = source_sans | map('trim') | list | unique %}
+                             {{ source_sans }}
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                     Show me the SAN list
+  debug:
+    msg:                    "{{ cert_SAN }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Create OpenSSL config with SANs
+  template:
+    src:                     ingress-openssl.cnf.j2
+    dest:                    /tmp/ingress-openssl.cnf
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Generate encrypted private key and self-signed TLS certificate for NGINX Ingress
+  shell: |
+                             openssl genrsa -out {{ __ingress_nginx_tls_cert_dir }}/{{ __ingress_nginx_tls_key_file }} 2048
+
+                             openssl req -x509 -new -key {{ __ingress_nginx_tls_cert_dir }}/{{ __ingress_nginx_tls_key_file }} \
+                             -days 730 \
+                             -out {{ __ingress_nginx_tls_cert_dir }}/{{ __ingress_nginx_tls_cert_file }} \
+                             -config /tmp/ingress-openssl.cnf \
+                             -extensions v3_req
+  args:
+    executable:              /bin/bash
+  become_user:               "{{ __sudo_user }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+
+- name:                      Delete existing TLS secret if exists
+  shell:                     kubectl delete secret {{ __ingress_nginx_secret_name }} -n {{ __default_namespace }}
+  ignore_errors:             true
+  become_user:               "{{ __sudo_user }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Create Kubernetes TLS secret for NGINX Ingress
+  shell: |
+                             kubectl create secret tls {{ __ingress_nginx_secret_name }} \
+                               --key {{ __ingress_nginx_tls_cert_dir }}/{{ __ingress_nginx_tls_key_file }} \
+                               --cert {{ __ingress_nginx_tls_cert_dir }}/{{ __ingress_nginx_tls_cert_file }} \
+                               -n {{ __default_namespace }}
+  become_user:               "{{ __sudo_user }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Cleanup cert directory after use
+  file:
+    path:                    "{{ __ingress_nginx_tls_cert_dir }}"
+    state:                   absent
+  become_user:               "{{ __sudo_user }}"
+  when:                      __create_ingress_nginx_secret | bool
+
+- name:                      Add ingress-nginx Helm Repo
   shell:                     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Update ingress-nginx Helm Repo
+  shell:                     helm repo update ingress-nginx
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
 
@@ -12,27 +108,6 @@
 
 - debug: var=cluster_flavor_check
   run_once: true
-
-- name:                      Check if cnx-ingress is already deployed
-  shell:                     helm ls --all-namespaces | grep cnx-ingress | grep -i DEPLOYED
-  changed_when:              true
-  register:                  cnx_ingress_already_provisioned
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name:                      Delete cnx-ingress if already exists
-  shell:                     helm uninstall cnx-ingress --namespace {{ __default_namespace }}
-  when:
-   - cnx_ingress_already_provisioned.rc == 0
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
-
-- name:                      Delete configmaps
-  shell:                     kubectl delete configmaps ingress-controller-leader ingress-controller-leader-nginx -n {{ __default_namespace }}
-  when:
-   - cnx_ingress_already_provisioned.rc == 0
-  become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
 
 - name:                      Give it some space...
   pause:
@@ -53,28 +128,33 @@
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator already Deployed
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communityingress_env_vanilla }} -f $HOME/cnx-ingress-values.yml --wait
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.extraArgs.default-ssl-certificate={{ __default_namespace }}/{{ __ingress_nginx_secret_name }} --set {{ __communityingress_env_vanilla }} -f $HOME/cnx-ingress-values.yml --wait
   when:
    - prom_operator_already_provisioned.rc == 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Install ingress-nginx - if Vanilla Kubernetes if Prom-Operator NOT already Deployed
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set {{ __communitying_ind_env_vanilla }} --wait
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx \
+                              --namespace {{ __default_namespace }} \
+                              --set controller.image.allowPrivilegeEscalation=false \
+                              --set controller.extraArgs.default-ssl-certificate={{ __default_namespace }}/{{ __ingress_nginx_secret_name }} \
+                              --set {{ __communitying_ind_env_vanilla }} \
+                              --wait
   when:
    - prom_operator_already_provisioned.rc != 0
    - ("eks.amazonaws.com" not in cluster_flavor_check.stdout) and  ("api." not in cluster_flavor_check.stdout)
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator already Deployed
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communityingress_env_eks_os }} -f cnx-ingress-values.yml --wait
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set {{ __communityingress_env_eks_os }} --set controller.extraArgs.default-ssl-certificate={{ __default_namespace }}/{{ __ingress_nginx_secret_name }} -f cnx-ingress-values.yml --wait
   when:
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
    - prom_operator_already_provisioned.rc == 0
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Install ingress-nginx - if EKS/OpenShift  if Prom-Operator NOT already Deployed
-  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set {{ __communitying_ind_env_eks_os }} --wait
+  shell:                     helm upgrade cnx-ingress -i ingress-nginx/ingress-nginx --namespace {{ __default_namespace }} --set controller.image.allowPrivilegeEscalation=false --set controller.extraArgs.default-ssl-certificate={{ __default_namespace }}/{{ __ingress_nginx_secret_name }} --set {{ __communitying_ind_env_eks_os }} --wait
   when:
    - ("eks.amazonaws.com" in cluster_flavor_check.stdout) or  ("api." in cluster_flavor_check.stdout)
    - prom_operator_already_provisioned.rc != 0

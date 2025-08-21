@@ -7,4 +7,17 @@
     - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
     - roles/third_party/ibm/ihs/ibm-http-httpdconf
     - roles/third_party/ibm/ihs/ibm-http-config-plgwct
+
+- name:                    Rerun Docs update_webserver script if installed
+  import_playbook:         ../hcl/update-webserver-for-docs.yml
+  vars:
+    restart_ihs:           false
+  when:
+    - groups['proxy_servers'] is defined
+
+- name:                    Restart HTTP Servers
+  hosts:                   ihs_servers
+  serial:                  1
+  become:                  true
+  roles:
     - roles/third_party/ibm/ihs/ibm-http-server-restart

@@ -9,3 +9,9 @@
   become:                  true
   roles:
     - roles/hcl/component-pack-harbor
+
+# This is needed after enable_es_for_metrics
+- name:                    Rerun Docs update_webserver script if installed
+  import_playbook:         ../update-webserver-for-docs.yml
+  when:
+    - groups['proxy_servers'] is defined

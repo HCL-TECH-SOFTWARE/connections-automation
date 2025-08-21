@@ -4,22 +4,13 @@ import re
 
 # Read command-line arguments
 ear_file_path = sys.argv[0]  # Path to the EAR file
-node_name_original = sys.argv[1]  # WebSphere node name
+node_names_original = sys.argv[1]  # WebSphere node name
 app_name = sys.argv[2]  # Application name
 cell_name = sys.argv[3]  # WebSphere cell name
+tinysvc_link_common = sys.argv[4]  # Cluster name for common mapping
 
 # Retrieve running servers
 running_servers = AdminControl.queryNames("type=Server,*").splitlines()
-
-server_list = []
-for server in running_servers:
-    server_name = AdminControl.invoke(server, "getName")
-    node_name = AdminControl.invoke(server, "getNodeName")
-    server_list.append((node_name, server_name))
-
-# Retrieve all cluster names dynamically
-clusters_raw = AdminConfig.list("ServerCluster")
-clusters = clusters_raw.splitlines()
 
 # Define timeout parameters
 max_wait_time = 300  # Maximum wait time in seconds (5 minutes)
@@ -59,55 +50,34 @@ AdminConfig.save()
 print("Retrieving Installed Modules...")
 modules = AdminApp.listModules(app_name).splitlines()
 
-map_modules_to_servers = "-MapModulesToServers ["
+# modules = ['tiny-spelling.war', 'tiny-hyperlinking.war']
 
-# Iterate through modules
-for mod in modules:
-    mod_name = mod.split("#")[1]  # Extract module base name
+map_modules_to_servers = "-MapModulesToServers["
+
+server_mappings = []
+mappings = []
+
+for server in node_names_original.split():
+    node_name = server + "-node"
+    server_mapping = "WebSphere:cell=%s,node=%s,server=%s" % (cell_name, node_name, server)
+    server_mappings.append(server_mapping)
+
+server_mappings_str = '+'.join(server_mappings)
+
+# Build final MapModulesToServers structure
+for module in modules:
+    mod_name = module.split("#")[1]  # Extract module base name
     war_name = mod_name.split("+")[0]
+    mapping_entry = "[ %s %s,WEB-INF/web.xml WebSphere:cell=%s,cluster=%s+%s ]" % (war_name, war_name, cell_name, tinysvc_link_common, server_mappings_str)
+    mappings.append(mapping_entry)
 
-    # Collect all clusters associated with this module
-    cluster_list = []
-    for cluster in clusters:
-        cluster_nodes = AdminConfig.list("ClusterMember", cluster).splitlines()
-        for cluster_node in cluster_nodes:
-            cluster_node_name = AdminConfig.showAttribute(cluster_node, "nodeName")
-
-            # Check if this cluster's node is in server_list
-            node_found = False
-            for node_name, server_name in server_list:
-                if node_name == cluster_node_name:
-                    cluster_list.append(AdminConfig.showAttribute(cluster, "name"))
-                    node_found = True
-                    break  # Stop checking further nodes
-            if node_found:
-                break  # Move to the next cluster
-
-    # Construct cluster mapping string
-    cluster_mapping = ""
-    for c in cluster_list:
-        if cluster_mapping:
-            cluster_mapping += "+"
-        cluster_mapping += "WebSphere:cell=%s,cluster=%s" % (cell_name, c)
-
-
-    # Use the first valid node and server
-    first_node = None
-    first_server = None
-    for node_name, server_name in server_list:
-        if "-" in server_name:  # Ensure it's a clustered server
-            first_node = node_name
-            first_server = server_name.split("-")[1]
-            break
-
-    # Ensure we have a valid node and server before adding the entry
-    if first_node and first_server:
-        map_modules_to_servers += (
-            "[ %s %s,WEB-INF/web.xml %s+WebSphere:cell=%s,node=%s-node,server=%s ]"
-            % (war_name, war_name, cluster_mapping, cell_name, node_name_original, node_name_original)
-        )
+for mapping in mappings:
+    map_modules_to_servers += " " + mapping
 
 map_modules_to_servers += "]"
+
+print("Final command string:")
+print(map_modules_to_servers)
 
 # Apply module-to-server mappings
 print("Applying Module to Server Mappings...")
@@ -146,6 +116,7 @@ for node in nodes:
         if "-" in serverName:
             filtered_processes.append(serverName)
 
+filtered_processes = [p for p in filtered_processes if p.startswith(tinysvc_link_common + "-")]
 # Print final list of filtered processes
 print("Filtered processes:", filtered_processes)
 

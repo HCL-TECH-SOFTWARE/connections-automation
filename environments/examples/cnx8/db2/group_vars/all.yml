@@ -4,6 +4,18 @@
 cnx_component_pack_ingress:                      "web.internal.example.com"
 cnx_application_ingress:                         "connections.example.com"
 
+# The variables below allow you to specify custom Subject Alternative Names (SANs) to include in SSL/TLS certificates generated
+# for different services. SANs define the DNS names that the certificate is valid for, in addition to (or instead of) the Common Name (CN).
+# Valid SANs are required for hostname verification starting with WAS FP27.
+# For details on these variables, see VARIABLES.md.
+#
+# nginx_custom_cert_sans:                         'lb.example.com,web.example.com,web.internal.example.com'
+# haproxy_custom_cert_sans:                       'lb.example.com,web.example.com,web.internal.example.com'
+# ldap_custom_cert_sans:                          '*.example.com,*.sub.example.com'
+# bootstrap_custom_cert_sans:                     '*.example.com,*.sub.example.com'
+# ingress_nginx_custom_cert_sans:                 '*.example.com,*.sub.example.com'
+
+
 # Usernames and password for eventual customization. Shown here are default usernames and password. Change it to customize it
 
 was_username:                                    wasadmin
@@ -41,17 +53,36 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP26
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP27
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP26
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP27
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 cnx_fixes_repository_url:                        "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 
-cnx_fixes_version:                               "8.0.0.0_CR10"
+cnx_fixes_version:                               "8.0.0.0_CR11"
 cnx_fixes_files:
-  - { file_name: "HC8.0_CR10.zip" }
+  - { file_name: "HC8.0_CR11.zip" }
+
+# The variables below are specifying the specific version of FP26 and files needed
+# to install it. Those files live in the repositories mentioned above.
+#was_fp_version:                                 "8.5.5026.20240702_1024"
+#was_fp_files:
+#  - { file_name: 8.5.5-WS-WAS-FP026-part1.zip }
+#  - { file_name: 8.5.5-WS-WAS-FP026-part2.zip }
+#  - { file_name: 8.5.5-WS-WAS-FP026-part3.zip }
+
+#ihs_version:                                     "8.5.5026.20240702_1024"
+#ihs_fp_files:
+#  - { file_name: 8.5.5-WS-WASSupplements-FP026-part1.zip }
+#  - { file_name: 8.5.5-WS-WASSupplements-FP026-part2.zip }
+#  - { file_name: 8.5.5-WS-WASSupplements-FP026-part3.zip }
+
+#wct_version:    "8.5.5026.20240702_1024"
+#wct_fp_files:
+#  - { file_name: 8.5.5-WS-WCT-FP026-part1.zip }
+#  - { file_name: 8.5.5-WS-WCT-FP026-part2.zip }  
 
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"

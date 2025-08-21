@@ -74,5 +74,15 @@
     - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
     - roles/third_party/ibm/wasnd/was-dmgr-start-cluster
 
-- name:                    Configure an extended user to enable the creation of an External Community
-  import_playbook:         setup-extended-user.yml
+- name:                    Setup an extended user to enable the creation of an external community
+  hosts:                   dmgr
+  become:                  true
+  tasks:
+    - block:
+        - name:            Include setup_extended_user role
+          include_role:
+            name:          roles/hcl/connections/setup_extended_user
+      rescue:
+        - name:            Log a warning message when setup-extended-user.yml fails
+          debug:
+            msg:           "WARNING: setup-extended-user.yml role failed. Please review the logs and run the playbook separately to complete the configuration."

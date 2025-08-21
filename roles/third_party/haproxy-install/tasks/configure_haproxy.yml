@@ -31,16 +31,38 @@
     enabled:                 yes
     masked:                  no
 
+- name:                      Combine ingress and host FQDNs for HAProxy
+  set_fact:
+    haproxy_default_san_list: "{{ [cnx_component_pack_ingress] + [cnx_application_ingress] + [inventory_hostname] }}"
+
+- name:                      Convert haproxy_custom_cert_sans to a list if provided
+  set_fact:
+    haproxy_custom_cert_sans:  "{{ haproxy_custom_cert_sans | split(',') }}"
+  when:                      haproxy_custom_cert_sans is defined
+
+- name:                      Use custom SAN list if provided, else use default ingress hostnames
+  set_fact:
+    __haproxy_cert_san_list: "{{ haproxy_custom_cert_sans | default(haproxy_default_san_list) | map('trim') | unique }}"
+
+- name:                      Show me the SAN list
+  debug:
+    msg:                     "{{ __haproxy_cert_san_list }}"
+
 - name:                      Apply haproxy.cfg
   template:
     src:                     "{{ __haproxy_config_template }}"
     dest:                    "{{ __haproxy_config_file }}"
     owner:                   "{{ __haproxy_user }}"
 
+- name:                      Apply cnf file
+  template:
+    src:                     "{{ __haproxy_cnf_template }}"
+    dest:                    "{{ __haproxy_cnf_location }}"
+
 - name:                      Generate self signed certificates
   command:                   "{{ item }}"
   with_items:
-   - "openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout /etc/haproxy/ssl/nginx-selfsigned.key -out /etc/haproxy/ssl/nginx-selfsigned.crt -batch"
+   - "openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout /etc/haproxy/ssl/nginx-selfsigned.key -out /etc/haproxy/ssl/nginx-selfsigned.crt -config {{ __haproxy_cnf_location }} -batch"
   become:                    true
 
 - name:                      Generate pem 1

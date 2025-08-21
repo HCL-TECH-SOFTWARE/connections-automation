@@ -16,6 +16,9 @@ __haproxy_config_dir:                    "/etc/haproxy"
 __haproxy_config_file:                   "{{ __haproxy_config_dir }}/haproxy.cfg"
 __haproxy_config_template:               "haproxy.cfg.j2"
 
+__haproxy_cnf_template:                  "cert.cnf.j2"
+__haproxy_cnf_location:                  "{{ __haproxy_config_dir }}/ssl/haproxy_cert.cnf"
+
 __haproxy_bin_dir:                       "/var/lib/haproxy"
 __haproxy_stats_file:                    "{{ __haproxy_bin_dir }}/stats"
 __haproxy_exec_src:                      "/usr/local/sbin/haproxy"

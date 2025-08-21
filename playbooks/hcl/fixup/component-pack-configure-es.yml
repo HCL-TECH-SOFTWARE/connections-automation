@@ -19,3 +19,12 @@
       when:
          - __enable_es_metrics |bool
          - not __skip_connections_integration
+
+# This is needed after enable_es_for_metrics
+- name:                        Rerun Docs update_webserver script if installed
+  import_playbook:             ../update-webserver-for-docs.yml
+  vars:
+    __enable_es_metrics:       "{{ enable_es_metrics | default(true) |lower }}"
+  when:
+    - groups['proxy_servers'] is defined
+    - __enable_es_metrics |bool         
