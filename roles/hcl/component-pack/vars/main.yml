@@ -60,6 +60,9 @@ __default_namespace:                         "{{ default_namespace | default('co
 
 __ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(true) |lower }}"
 
+__msoutlook_tenant_id:                       "{{ integrations_msoutlook_tenant_id | default('changeme') }}"
+__msoutlook_client_id:                       "{{ integrations_msoutlook_client_id | default('changeme') }}"
+
 __msteams_tenant_id:                         "{{ integrations_msteams_tenant_id | default('changeme') }}"
 __msteams_client_id:                         "{{ integrations_msteams_client_id | default('changeme') }}"
 __msteams_client_secret:                     "{{ integrations_msteams_client_secret | default('changeme') }}"
