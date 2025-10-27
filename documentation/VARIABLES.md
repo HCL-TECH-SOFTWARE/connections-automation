@@ -408,6 +408,8 @@ enable_es_metrics | true | True will configure ElasticSearch
 enable_gk_flags | true | True will configure Tailored Experience features for communities (for Connections 7 onwards)
 setup_teams | true | True will deploy Microsoft Teams integration (for Connections 7 onwards)
 setup_ms_teams_extensions | true | True will Microsoft Teams extensions (for Connections 7 onwards)
+integrations_msoutlook_tenant_id | changeme | Tenant ID to configure Microsoft Outlook integration
+integrations_msoutlook_client_id | changeme | Client ID to configure Microsoft Outlook integration
 integrations_msteams_tenant_id | changeme | Tenant ID to configure Microsoft Teams integration
 integrations_msteams_client_id | changeme | Client ID to configure Microsoft Teams integration
 integrations_msteams_client_secret | changeme | Kubernetes secret name for Microsoft Teams integration
