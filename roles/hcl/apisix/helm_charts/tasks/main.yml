@@ -41,7 +41,7 @@
 
 - name:                      Extract tag version from chart version
   set_fact:
-    hcl_api_gateway_image_tag_version: "{{ hcl_api_gateway_chart_version.stdout.split('-', 1)[1] }}"
+    hcl_api_gateway_config_image_tag_version: "{{ hcl_api_gateway_chart_version.stdout.split('-', 1)[1] }}"
 
 - name:                     Render core-apisix-custom-values.yaml template for APISIX Helm Chart
   ansible.builtin.template:

@@ -5,12 +5,9 @@
 
 # Use the global key to apply the secret to all components
 global:
-{% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
+# Kubernetes secret name for Docker registry credentials
   imagePullSecrets:
     - {{ __hcl_api_gateway_image_pull_secret_name }}
-{% else %}
-  imagePullSecrets: []
-{% endif %}
 
 # -----------------------------------------------------------------------------
 # APISIX Configuration
@@ -24,15 +21,15 @@ extraVolumes:
 extraVolumeMounts:
   # -- (string) Mount path for custom Lua scripts.
   - name: cnx-custom-scripts
-    mountPath: {{ __apisix_custom_lua_scripts_path }}
+    mountPath: /usr/local/apisix/hcl/cnx/scripts
 extraInitContainers:
   - name: copy-cnx-custom-scripts
     # -- (string) Custom image containing Lua scripts.
-    image: "{{ __docker_registry_url }}/{{ __hcl_api_gateway_image_name }}:{{ __hcl_api_gateway_image_tag }}"
+    image: "{{ __docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
     imagePullPolicy: IfNotPresent
     # -- (command) Copy scripts to volume.
     # @section -- APISIX Data Plane
-    command: ["/bin/sh", "-c", "cp -r /app/hcl/cnx/* {{ __apisix_custom_lua_scripts_path }}"]
+    command: ["/bin/sh", "-c", "cp -r /app/hcl/cnx/* /usr/local/apisix/hcl/cnx/scripts"]
     securityContext:
       # -- (int) Run as non-root user.
       # @section -- APISIX Data Plane
@@ -41,14 +38,14 @@ extraInitContainers:
       allowPrivilegeEscalation: false
     volumeMounts:
       - name: cnx-custom-scripts
-        mountPath: {{ __apisix_custom_lua_scripts_path }}
+        mountPath: /usr/local/apisix/hcl/cnx/scripts
 
 # -- (string) Override gateway and admin service name
 fullnameOverride: {{ __apisix_service_fullname_override }}
 
 service:
   # -- (string) Service type for APISIX (ClusterIP , NodePort or LoadBalancer)
-  type: {{ __apisix_gateway_service_type }}
+  type: NodePort
   # -- (int) NodePort for HTTP
   http:
     nodePort: {{ __apisix_gateway_node_port_http }}
@@ -96,7 +93,7 @@ apisix:
     # -- (bool) Enable custom plugins feature.
     enabled: true
     # -- (string) Lua search path for custom plugin scripts.
-    luaPath: "{{ __apisix_custom_lua_scripts_path }}/?.lua;;"
+    luaPath: "/usr/local/apisix/hcl/cnx/scripts/?.lua;;"
     # -- (list) List of custom plugins to load.
     plugins: []
   ssl:

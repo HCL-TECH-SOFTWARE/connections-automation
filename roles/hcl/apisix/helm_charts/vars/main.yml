@@ -35,8 +35,7 @@ __hcl_api_gateway_helm_repo_username:          "{{ hcl_api_gateway_helm_repo_use
 __hcl_api_gateway_helm_repo_password:          "{{ hcl_api_gateway_helm_repo_password | default('') }}" # Populate from group_vars if needed
 
 # Docker Image details
-__hcl_api_gateway_image_name:                  "{{ hcl_api_gateway_image_name | default('hcl-api-gateway-config') }}"
-__hcl_api_gateway_image_tag:                   "{{ hcl_api_gateway_image_tag | default(hcl_api_gateway_image_tag_version) }}"
+__hcl_api_gateway_config_image_tag:            "{{ hcl_api_gateway_config_image_tag | default(hcl_api_gateway_config_image_tag_version) }}"
 
 __core_apisix_helm_timeout:                "{{ core_apisix_helm_timeout | default('600s') }}" # 10 minutes
 __hcl_api_gateway_helm_timeout:                "{{ hcl_api_gateway_helm_timeout | default('600s') }}" # 10 minutes
@@ -49,14 +48,12 @@ __hcl_api_gateway_custom_values_temp_path:    "/home/{{ __sudo_user }}/generated
 
 __pod_wait_timeout:                           "{{ pod_wait_timeout | default('600s') }}" # 10 minutes
 __apisix_route_path:                          "{{ apisix_route_path | default('/connections/api/v2') }}"
-__apisix_custom_lua_scripts_path:            "{{ apisix_custom_lua_scripts_path | default('/usr/local/apisix/hcl/cnx/scripts') }}"
 __apisix_swagger_server_fqdn:                 "{{ groups['internal_lb'][0] | default( __frontend_fqdn ) }}"
 __apisix_swagger_server_url_default:          "https://{{ __apisix_swagger_server_fqdn }}{{ __apisix_route_path }}"
 __apisix_swagger_server_url:                  "{{ apisix_swagger_server_url | default(__apisix_swagger_server_url_default) }}"
 
 __apisix_gateway_node_port_http:            "{{ apisix_gateway_node_port_http | default(31080) }}"
 __apisix_gateway_node_port_https:           "{{ apisix_gateway_node_port_https | default(31443) }}"
-__apisix_gateway_service_type:              "{{ apisix_gateway_service_type | default('NodePort') }}"
 __apisix_service_fullname_override:         "{{ apisix_service_fullname_override | default(__apisix_core_release_name) }}"
 __apisix_ingress_class:                     "{{ apisix_ingress_class | default(__apisix_namespace ~ '-apisix-ingress-class') }}"
 
