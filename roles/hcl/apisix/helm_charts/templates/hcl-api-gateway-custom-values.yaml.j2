@@ -33,14 +33,12 @@ swaggerUi:
   # -- (int) Number of replicas for Swagger UI deployment
   replicas: 1
   # -- (string) Custom image containing OpenAPI specs
-  image: "{{ __docker_registry_url }}/{{ __hcl_api_gateway_image_name }}:{{ __hcl_api_gateway_image_tag }}"
+  image: "{{ __docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
   # -- (string) Image pull policy for Swagger UI
   imagePullPolicy: IfNotPresent
-  # -- imagePullSecrets
-{% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
+  # -- Kubernetes secret name for Docker registry credentials
   imagePullSecrets:
     - {{ __hcl_api_gateway_image_pull_secret_name }}
-{% endif %}
   # -- (string) Server URL for Swagger UI (should match your APISIX dataplane endpoint)
   serverUrl: "{{ __apisix_swagger_server_url }}"
   # -- (array) List of OpenAPI spec files to include in Swagger UI
