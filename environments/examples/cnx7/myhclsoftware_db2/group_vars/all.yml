@@ -40,13 +40,16 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
+
+# NEW - must set to "8" for now.
+ihs_major_version:                               "8"
 
 iim_bin_file:                                    "agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
 iim_version:                                     "1.9.1003.20200730_2125"

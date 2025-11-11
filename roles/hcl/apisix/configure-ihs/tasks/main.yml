@@ -1,0 +1,18 @@
+- name:                         Backup httpd.conf
+  ansible.builtin.command:      cp {{ __ihs_httpd_conf_file }} {{ __ihs_httpd_conf_file }}_{{ __now }}
+  ignore_errors:                true
+
+- name:                         Insert APISIX proxy rules if APISIX is enabled
+  blockinfile:
+    path:                       "{{ __ihs_httpd_conf_file }}"
+    marker:                     "# {mark} APISIX PROXY RULES (HTTPS)"
+    insertbefore:               '<Location /auth >'
+    block: |
+      ProxyPass "{{ __apisix_route_path }}/explorer" "https://{{ __load_balancer_fqdn }}:32443{{ __apisix_route_path }}/explorer"
+      ProxyPassReverse "{{ __apisix_route_path }}/explorer" "https://{{ __load_balancer_fqdn }}:32443{{ __apisix_route_path }}/explorer"
+      ProxyPass "{{ __apisix_route_path }}" "https://{{ __load_balancer_fqdn }}:32443{{ __apisix_route_path }}"
+      ProxyPassReverse "{{ __apisix_route_path }}" "https://{{ __load_balancer_fqdn }}:32443{{ __apisix_route_path }}"
+      ProxyPass "/ui" "https://{{ __load_balancer_fqdn }}:32443/ui"
+      ProxyPassReverse "/ui" "https://{{ __load_balancer_fqdn }}:32443/ui"
+      ProxyPass "/apisix" "https://{{ __load_balancer_fqdn }}:32443/apisix"
+      ProxyPassReverse "/apisix" "https://{{ __load_balancer_fqdn }}:32443/apisix"

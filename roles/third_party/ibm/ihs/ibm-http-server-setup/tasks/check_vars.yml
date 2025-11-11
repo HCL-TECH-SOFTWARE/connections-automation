@@ -1,0 +1,21 @@
+---
+- name:              Check if ihs_major_version is defined
+  assert:
+    that:
+    - ihs_major_version is defined
+    fail_msg: "Set the value of 'ihs_major_version' variable in the inventory file."
+
+- name:              Check if ihs_major_version is valid
+  assert:
+    that:
+    - ihs_major_version|string in ['8', '9']
+    fail_msg: "The 'ihs_major_version' must be set to either 8 or 9 in the inventory file. Current value: {{ ihs_major_version }}"
+    success_msg: "ihs_major_version is set to: {{ ihs_major_version }}"
+
+- name:              Check if defined ihs_major_version matches already installed version
+  assert:
+    that:
+    - ihs_major_version|string == ihs_major_version_installed|string
+    fail_msg: "The defined 'ihs_major_version' ({{ ihs_major_version }}) does not match the already installed IHS major version ({{ ihs_major_version_installed }}). Please correct the value in inventory file."
+    success_msg: "Defined ihs_major_version ({{ ihs_major_version }}) matches installed version ({{ ihs_major_version_installed }})"
+  when: ihs_already_installed is defined and ihs_already_installed.rc == 0

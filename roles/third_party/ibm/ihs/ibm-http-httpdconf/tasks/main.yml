@@ -2,7 +2,6 @@
 - name:                 Backup httpd.conf
   command:              cp {{ __ihs_install_location }}/conf/httpd.conf {{ __ihs_install_location }}/conf/httpd.conf_{{ __now }}
   ignore_errors:        true
-  when:                 __was_major_version is version('8', '=')
 
 - name:                 Generate self signed certificate
   include_role:
@@ -11,10 +10,8 @@
 - name:                 "Am I going to enable ActivitiesPlus?"
   debug:
     msg:                "{{ __setup_huddoboards }}"
-  when:                 __was_major_version is version('8', '=')
 
 - name:                 "Generate httpd.conf"
   template:
     src:                "httpd.conf.j2"
     dest:               "{{ __ihs_install_location }}/conf/httpd.conf"
-  when:                 __was_major_version is version('8', '=')

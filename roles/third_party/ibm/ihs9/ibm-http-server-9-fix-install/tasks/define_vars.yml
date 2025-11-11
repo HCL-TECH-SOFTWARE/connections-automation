@@ -1,0 +1,36 @@
+---
+- name:              Use Fix Pack 9.0.5.25?
+  set_fact:
+    __ihs_fp_files:      "{{ __ihs_fp_files_fp25 }}"
+    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v90_{{ __ihs_fp_version_fp25 }}"
+    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v90' version='{{ __ihs_fp_version_fp25 }}'\""
+  when:                  ( __ihs_version == __ihs_fp_version_fp25 )
+
+- name:              Use Fix Pack 9.0.5.24?
+  set_fact:
+    __ihs_fp_files:      "{{ __ihs_fp_files_fp24 }}"
+    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v90_{{ __ihs_fp_version_fp24 }}"
+    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v90' version='{{ __ihs_fp_version_fp24 }}'\""
+  when:                  ( __ihs_version == __ihs_fp_version_fp24 )
+  
+- name:              Use Fix Pack 9.0.5.11?
+  set_fact:
+    __ihs_fp_files:      "{{ __ihs_fp_files_fp11 }}"
+    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v90_{{ __ihs_fp_version_fp11 }}"
+    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v90' version='{{ __ihs_fp_version_fp11 }}'\""
+  when:                  ( __ihs_version == __ihs_fp_version_fp11 )
+
+- name:              Is IIM Installed?
+  command:           "egrep {{ __iim_product_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          iim_already_installed
+  ignore_errors:     true
+
+- name:              Is IHS Installed?
+  command:           "egrep {{ __ihs_product_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          ihs_already_installed
+  ignore_errors:     true
+
+- name:              Is Product already Installed?
+  command:           "egrep {{ __ihs_version_id }} /var/ibm/InstallationManager/installed.xml"
+  register:          version_already_installed
+  ignore_errors:     true

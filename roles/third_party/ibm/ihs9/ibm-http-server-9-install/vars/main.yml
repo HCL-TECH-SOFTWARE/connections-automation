@@ -1,0 +1,49 @@
+---
+__was_major_version:       "{{ was_major_version | default('8') }}"  
+__repository_url:         "{{ ihs_repository_url }}"
+__tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}/ihs"
+__logs_dir:               "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
+__iim_install_location:   "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"
+__ihs_install_location:   "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+__plg_install_location:   "{{ plg_install_location  | default('/opt/IBM/WebSphere/Plugins') }}"
+__wct_install_location:   "{{ wct_install_location  | default('/opt/IBM/WebSphere/Toolbox') }}"
+__imshared_location:      "{{ imshared_location  | default('/opt/IBM/IMShared') }}"
+__now:                    "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__rsp_file:               "{{ __logs_dir }}/ihs_9_plg_wct.rsp"
+__log_file:               "{{ __logs_dir }}/ihs_install.{{ __now }}.log"
+__tpl_file:               "ihs_9_plg_wct.rsp.j2"
+__tpl_admin_conf:         "ihs_admin_conf.j2"
+
+__was_sdk_files_default:
+  - { file_name: sdk-8.0-5.35-all-prt1-installmgr.zip }
+  - { file_name: sdk-8.0-5.35-all-prt2-installmgr.zip }
+  - { file_name: sdk-8.0-5.35-all-prt3-installmgr.zip }
+__was_sdk_files:          "{{ was_sdk_files | default(__was_sdk_files_default) }}"
+
+__this_files_default:
+  - { file_name:  was.repo.90501.ihs.zip }
+__this_files:             "{{ ihs_files | default(__this_files_default) }}"
+
+__this_plugins_files_default:
+  - { file_name:  was.repo.90501.plugins.zip }
+__this_plugins_files:             "{{ ihs_plugins_files | default(__this_plugins_files_default) }}"
+
+__this_wct_files_default:
+  - { file_name:  was.repo.90501.wct.zip }
+__this_wct_files:             "{{ wct_files | default(__this_wct_files_default) }}"
+
+__this_version:           "{{ ihs_version | default('9.0.5001.20190828_0616') }}"
+__this_sdk_version:       "{{ sdk_version | default('8.0.5035.20190422_0948') }}"
+
+__product_id:             "\"id='com.ibm.websphere.IHS.v90'\""
+__version_check:          "Installed com.ibm.websphere.IHS.v90_9.0.5001"
+
+__iim_product_id:         "\"id='com.ibm.cic.agent\""
+
+__ihs_username:           "{{ ihs_username | default('ihsadmin') }}"
+__ihs_admins_group:       "{{ ihs_admins_group | default('ihsadmins') }}"
+
+__ihs_admin_port:         "{{ ihs_admin_port | default('8085') }}"
+
+__iim_keep_fetched_files: "{{ iim_keep_fetched_files | default(false) }}"
+__iim_preserve_artifacts: "{{ iim_preserve_artifacts | default(false) }}"

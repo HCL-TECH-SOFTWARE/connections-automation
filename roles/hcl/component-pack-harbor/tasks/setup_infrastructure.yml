@@ -20,6 +20,33 @@
     dest:                    "{{ __infrastructure_env }}"
   become_user:               "{{ __sudo_user }}"
 
+- name:                      Check if old mongo security job is deployed
+  shell:                     kubectl get job check-and-update-mongo7-security -n {{ __default_namespace }} -o jsonpath='{.spec.template.spec.containers[*].image}' | grep bitnami
+  register:                  old_mongo_security_job_deployed
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Delete old mongo security job if deployed
+  shell:                     kubectl delete job --namespace {{ __default_namespace }} check-and-update-mongo7-security
+  become_user:               "{{ __sudo_user }}"
+  when:                      old_mongo_security_job_deployed.rc == 0  
+
+- name:                      Check if legacy Redis is deployed
+  shell:                     kubectl get sts redis-server -n {{ __default_namespace }} -o jsonpath='{.spec.template.spec.containers[0].image}' | grep 'redis' | grep -v 'redis7'
+  register:                  legacy_redis_deployed
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Delete legacy Redis server if deployed
+  shell:                     kubectl delete sts,pdb,svc --namespace {{ __default_namespace }} redis-server
+  become_user:               "{{ __sudo_user }}"
+  when:                      legacy_redis_deployed.rc == 0
+
+- name:                      Delete legacy Redis Sentinel if deployed
+  shell:                     kubectl delete deploy,pdb,svc --namespace {{ __default_namespace }} redis-sentinel
+  become_user:               "{{ __sudo_user }}"
+  when:                      legacy_redis_deployed.rc == 0
+
 - name:                      Upgrade infrastructure
   command:                   "helm upgrade infrastructure {{ __helm_repository_local_name }}/infrastructure -i --version {{ infrastructure_chart_version.stdout }} -f {{ __infrastructure_env }} --namespace {{ __default_namespace }}"
   become_user:               "{{ __sudo_user }}"

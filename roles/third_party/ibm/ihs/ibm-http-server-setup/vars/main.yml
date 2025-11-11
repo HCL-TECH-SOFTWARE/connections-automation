@@ -1,0 +1,2 @@
+__ihs_major_version:       "{{ ihs_major_version }}"
+__ihs_package_name:        "\"name='IBM HTTP Server for WebSphere Application Server'\""

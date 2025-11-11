@@ -1,6 +1,6 @@
 ---
 __setup_db2_jdbc:              "{{ setup_db2_jdbc | default(false) }}"
-__install_latest_db2:          "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:          "{{ install_latest_db2 | default(true) }}"
 __default_package_name:        "{{ 'special_50594_v12.1.0_linuxx64_universal_fixpack.tar.gz' if __install_latest_db2 else 'v11.5.9_linuxx64_universal_fixpack.tar.gz' }}"
 __default_license_file:        "{{ 'DB2_ESE_AUSI_Activation_12.1.zip' if __install_latest_db2 else 'DB2_ESE_AUSI_Activation_11.5.zip' }}"
 __db2_default_install_path:    "{{ '/opt/IBM/db2/V12.1' if __install_latest_db2 else '/opt/IBM/db2/V11.5' }}"

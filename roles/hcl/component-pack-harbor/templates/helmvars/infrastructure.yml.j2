@@ -5,16 +5,18 @@ global:
 haproxy:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
+redis7:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+# Set legacy Redis to disabled to uninstall deployment
 redis:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
+  enabled: false
 redis-sentinel:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
-mongodb:
-  namespace: {{ __default_namespace }}
-  createSecret: false
-  replicaCount: {{ __replica_count }}
+  enabled: false
 mongo5:
   clusterDomain: {{ __default_clusterDomain }}
   namespace: {{ __default_namespace }}

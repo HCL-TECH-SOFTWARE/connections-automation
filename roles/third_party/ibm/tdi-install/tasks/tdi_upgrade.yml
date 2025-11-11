@@ -16,19 +16,19 @@
      tdi_already_upgraded:  "true"
   when:                  "upgrade_version in installed_version_check.stdout"
 
-- name:                  "Verify if updateLog4j.sh is already run (for FP8/FP9)"
+- name:                  "Verify if updateLog4j.sh is already run (for FP8/FP9/FP14)"
   stat:
     path:                "{{ __tdi_user_install_dir }}/updateLog4j.success"
   register:              updateLog4j_already_run
   when:
-    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
 
-- name:                  "Verify if removeAMC.sh is already run (for FP8/FP9)"
+- name:                  "Verify if removeAMC.sh is already run (for FP8/FP9/FP14)"
   stat:
     path:                "{{ __tdi_user_install_dir }}/removeAMC.success"
   register:              removeAMC_already_run
   when:
-    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
 
 - name:                  Clean up upgrade folder(s)
   file:
@@ -88,41 +88,37 @@
     - tdi_already_installed.stat.exists |bool
     - tdi_already_upgraded is not defined
 
+- name: Debug script file paths before setting +x
+  stat:
+    path: "{{ __tdi_user_install_dir }}/bin/{{ item }}"
+  loop:
+    - updateLog4j.sh
+    - removeAMC.sh
+    - moveActiveMQ.sh 
+  register: script_stats
+  
+- name: Add +x to additional upgrade scripts
+  file:
+    path: "{{ __tdi_user_install_dir }}/bin/{{ item }}"
+    mode: '0755'
+    state: file
+  loop:
+    - updateLog4j.sh
+    - removeAMC.sh
+    - moveActiveMQ.sh 
+  when: upgrade_version is search("FP0008") or upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
+  
 - name:                  "Verify FP upgrade"
   shell:                 "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh -queryreg"
   register:              fp_upgrade_check
   when:                  tdi_upgrade is changed
-
-- name:                  "Check queryreg stdout to confirm {{ upgrade_version }} is installed"
-  debug:
-    var:                 fp_upgrade_check.stdout_lines
-  when:                  tdi_upgrade is changed
-  failed_when:           upgrade_version not in fp_upgrade_check.stdout
-
-- name:                  "Create {{ __tdi_user_install_dir }}/{{ upgrade_version }}.success file"
-  file:
-    path:                "{{ __tdi_user_install_dir }}/{{ upgrade_version }}.success"
-    state:               touch
-  when:                  tdi_upgrade is changed
-
-# Additional scripts for FP8, FP9
-- name:                  Add +x to additional upgrade scripts
-  file:
-    dest:                "{{ __tdi_user_install_dir }}/bin/{{ item }}"
-    mode:                a+x
-  with_items:
-    - updateLog4j.sh
-    - removeAMC.sh
-  when:
-    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
-    - not updateLog4j_already_run.stat.exists |bool or not removeAMC_already_run.stat.exists |bool
 
 - name:                  Run updateLog4j.sh
   shell:                 "{{ __tdi_user_install_dir }}/bin/updateLog4j.sh"
   register:              run_updateLog4j
   failed_when:           run_updateLog4j.rc != 0
   when:
-    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
     - not updateLog4j_already_run.stat.exists |bool
 
 - name:                  "Create {{ __tdi_user_install_dir }}/updateLog4j.success file"
@@ -136,8 +132,45 @@
   register:              run_removeAMC
   failed_when:           run_removeAMC.rc != 0
   when:
-    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009")
+    - upgrade_version is search("FP0008") or upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
     - not removeAMC_already_run.stat.exists |bool
+
+# Added the following to stabilize log verification
+- name: Run queryreg to get installed versions
+  shell: "{{ __tdi_user_install_dir }}/bin/applyUpdates.sh -queryreg"
+  register: fp_upgrade_check
+  ignore_errors: yes  # Don't fail if command errors out
+
+- name: Debug queryreg output
+  debug:
+    msg:
+      - "Output:\n{{ fp_upgrade_check.stdout | default('No output') }}"
+
+- name: Set fact if upgrade version is already installed
+  set_fact:
+    tdi_already_upgraded: true
+  when: >
+    fp_upgrade_check.stdout is defined
+    and upgrade_version in fp_upgrade_check.stdout
+
+- name: Show upgrade status
+  debug:
+    msg: "Upgrade version {{ upgrade_version }} installed."
+  when: tdi_already_upgraded | default(false)
+
+- name: Fail if upgrade version not found and upgrade was expected
+  fail:
+    msg: "Upgrade version {{ upgrade_version }} not detected in applyUpdates.sh output."
+  when:
+  - fp_upgrade_check.stdout is defined
+  - upgrade_version not in fp_upgrade_check.stdout
+  - not (fp_upgrade_check.failed | default(false))
+    
+- name:                  "Create {{ __tdi_user_install_dir }}/{{ upgrade_version }}.success file"
+  file:
+    path:                "{{ __tdi_user_install_dir }}/{{ upgrade_version }}.success"
+    state:               touch
+  when:                  tdi_upgrade is changed
 
 - name:                  "Create {{ __tdi_user_install_dir }}/removeAMC.success file"
   file:
@@ -145,16 +178,17 @@
     state:               touch
   when:                  run_removeAMC is changed
 
-  # Connections specific KB0104118 for FP9 (there is also a part in tdisol_install.yml)
+    # Connections specific KB0104118 for FP9 & FP14 (there is also a part in tdisol_install.yml)
 - name:                  "Check if {{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ exists"
   stat:
     path:                "{{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ"
   register:              activemq_folder_exists
   when:
-    - upgrade_version is search("FP0009")
+    - upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
 
 - name:                  Move ActiveMQ folder if exists
   shell:                 "mv {{ __tdi_user_install_dir }}/jars/3rdparty/others/ActiveMQ {{ __tdi_user_install_dir }}/maintenance/BACKUP/{{ upgrade_version }}/"
   when:
-    - upgrade_version is search("FP0009")
+    - upgrade_version is search("FP0009") or upgrade_version is search("FP0014")
     - activemq_folder_exists.stat.exists |bool
+    

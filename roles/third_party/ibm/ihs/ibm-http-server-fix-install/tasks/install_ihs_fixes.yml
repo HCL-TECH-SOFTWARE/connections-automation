@@ -42,6 +42,14 @@
     backup:      yes
   ignore_errors: true
 
+- name:          Stop IHS server
+  include_role:
+    name:        roles/third_party/ibm/ihs/ibm-http-server-stop
+
+- name:          Stop adminctl server
+  include_role:
+    name:        roles/third_party/ibm/ihs/ibm-http-adminctl-stop
+
 - name:          Install IBM HTTP Server Fixes Software
   command:
     chdir={{ __tmp_dir }}

@@ -31,7 +31,7 @@ __plg_install_location:              "{{ plg_install_location | default('/opt/IB
 #
 __cnx_deploy_type:                   "{{ cnx_deploy_type | default('small') }}"
 
-__install_latest_db2:                "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:                "{{ install_latest_db2 | default(true) }}"
 __db2_default_install_path:          "{{ '/opt/IBM/db2/V12.1' if __install_latest_db2 else '/opt/IBM/db2/V11.5' }}"
 __db2_installation_folder:           "{{ db2_installation_folder | default(__db2_default_install_path) }}"
 __db_concord_username:               "{{ db_concord_username | default('DOCSUSER') }}"

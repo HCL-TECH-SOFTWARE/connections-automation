@@ -53,6 +53,9 @@ cnx_major_version:                               "8"
 
 cnx_updates_enabled:                             True
 
+# NEW - must set to "8" for now.
+ihs_major_version:                               "8"
+
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
 
 smtp_hostname:                                   localhost

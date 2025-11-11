@@ -40,9 +40,9 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
@@ -57,6 +57,9 @@ connections_wizards_package_name:                "HCL_Connections_7.0_wizards_li
 cnx_major_version:                               "7"
 
 cnx_updates_enabled:                             True
+
+# NEW - must set to "8" for now.
+ihs_major_version:                               "8"
 
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
 

@@ -9,11 +9,12 @@ __download_location:            "{{ tdi_download_location | default('http://c7lb
 __oracle_download_location:     "{{ oracle_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Oracle') }}"
 __package_name:                 "{{ tdi_package_name | default('SDI_7.2_XLIN86_64_ML.tar') }}"
 __jre_package_version:          "{{ jre_package_version | default('ibm-java-x86_64-80') }}"
-__jre_package_name:             "{{ jre_package_name | default('ibm-java-jre-8.0-6.25-linux-x86_64.tgz') }}"
+__jre_package_name:             "{{ jre_package_name | default('ibm-java-jre-8.0-8.45-linux-x86_64.tgz') }}"
+__jre_package_build:            "{{ jre_package_build | default('8.0.8.45') }}"
 __java_policy_file_path:        "{{ __tdi_user_install_dir }}/jvm/jre/lib/security/java.policy"
-__upgrade_package_name:         "{{ tdi_upgrade_package_name | default('7.2.0-ISS-SDI-FP0009.zip') }}"
-__upgrade_package_bin:          "{{ tdi_upgrade_package_bin | default('SDI-7.2-FP0009.zip') }}"
-__upgrade_package_folder_name:  "{{ tdi_upgrade_package_folder_name | default('7.2.0-ISS-SDI-FP0009') }}"
+__upgrade_package_name:         "{{ tdi_upgrade_package_name | default('7.2.0-ISS-SDI-FP0014.zip') }}"
+__upgrade_package_bin:          "{{ tdi_upgrade_package_bin | default('SDI-7.2-FP0014.zip') }}"
+__upgrade_package_folder_name:  "{{ tdi_upgrade_package_folder_name | default('7.2.0-ISS-SDI-FP0014') }}"
 __extraction_folder:            "{{ extraction_folder | default('/opt/IBM/InstallBinaries/TDI') }}"
 __tmp_extraction_folder:        "{{ extraction_folder | default('/tmp/TDI') }}"
 
@@ -49,7 +50,7 @@ __mssql_jdbc_jre8_location:     "{{ mssql_jdbc_location | default('/opt/mssql/jd
 
 __oracle_jdbc_location:         "{{ oracle_jdbc_location | default('/opt/oracle') }}"
 
-__install_latest_db2:           "{{ install_latest_db2 | default(false) }}"
+__install_latest_db2:           "{{ install_latest_db2 | default(true) }}"
 __db2_default_jdbc_location:    "{{ '/opt/IBM/db2/V12.1/java' if __install_latest_db2 else '/opt/IBM/db2/V11.5/java' }}"
 
 __db2_user:                    "{{ db2_user | default('db2inst1') }}"

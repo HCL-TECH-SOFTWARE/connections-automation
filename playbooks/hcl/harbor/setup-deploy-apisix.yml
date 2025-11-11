@@ -1,0 +1,49 @@
+---
+## Playbook to deploy APISIX infrastructure and Helm charts.
+## This playbook orchestrates the setup of Kubernetes PVs, secrets,
+## the Helm chart installation, and server configuration.
+
+# Manage APISIX Namespace
+- name:                     Manage APISIX Namespace
+  hosts:                    k8s_masters[0]
+  become:                   true
+  roles:
+    - roles/hcl/apisix/namespace_management
+
+# Configure NFS for APISIX
+- name:                     Provision NFS Volumes for APISIX
+  hosts:                    nfs_servers[0]
+  become:                   true
+  roles:
+    - roles/hcl/apisix/configure-nfs
+
+# Provision APISIX Volumes and StorageClass
+- name:                     Provision APISIX Volumes
+  hosts:                    k8s_masters[0]
+  become:                   true
+  roles:
+    - roles/hcl/apisix/volumes
+
+# Create APISIX Secrets
+- name:                     Create APISIX Secrets
+  hosts:                    k8s_masters[0]
+  become:                   true
+  roles:
+    - roles/hcl/apisix/secrets
+
+- name:                     Configure IHS for APISIX
+  hosts:                    ihs_servers
+  become:                   true
+  roles:
+    - roles/hcl/apisix/configure-ihs
+
+# Import TLS certificate into IHS
+- name:                     Import TLS certificate into IHS
+  import_playbook:          enable-ingress-tls.yml
+
+# Deploy APISIX Helm Charts
+- name:                     Deploy APISIX Helm Charts
+  hosts:                    k8s_masters[0]
+  become:                   true
+  roles:
+    - roles/hcl/apisix/helm_charts

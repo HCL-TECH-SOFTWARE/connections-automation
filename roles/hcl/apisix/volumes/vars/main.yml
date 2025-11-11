@@ -1,0 +1,18 @@
+---
+__sudo_user:                              "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+# List of PersistentVolume names to manage
+__apisix_namespace:                       "{{ apisix_namespace | default('connections') }}"
+__apisix_etcd_pv_name:                    "{{ apisix_etcd_pv_name | default(__apisix_namespace ~ '-apisix-etcd') }}"
+__apisix_etcd_replicaset:                 "{{ apisix_etcd_replicaset | default('3') }}"
+__apisix_volume_storage_capacity:         "{{ apisix_volume_storage_capacity | default('10Gi') }}"
+__apisix_volume_access_mode:              "{{ apisix_volume_access_mode | default('ReadWriteOnce') }}"
+__persistentVolumePath:                   "{{ persistentVolumePath | default('pv-connections') }}"
+
+# Timeout for waiting on PVs to be available/bound
+__pv_wait_timeout:                        "{{ pv_wait_timeout | default('100s') }}"
+
+# StorageClass names
+__apisix_storage_class_name:              "{{ storage_class_name_etcd | default(__apisix_namespace ~ '-apisix-sc') }}"
+__apisix_storage_class_reclaim_policy:    "{{ storage_class_reclaim_policy | default('Retain') }}"
+__nfsMasterAddress:                       "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
+__nfs_client_network_address:             "{{ nfs_client_network_address | default( hostvars[inventory_hostname]['ansible_default_ipv4']['network'] ) }}"
