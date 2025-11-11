@@ -1,0 +1,46 @@
+---
+- name:          Disable SELinux
+  selinux:
+    state:       disabled
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+  ignore_errors: true
+  notify:        reboot
+
+- name:          Install pre-requisites Zypper
+  zypper:
+    name: ['glibc-32bit','libgcc_s1-32bit', 'libapr-util1', 'libnsl1']
+    state: present
+  when: ansible_os_family == "Suse"
+
+# java 32 bits for Toolbox/WCT 8.5
+- name:          Install pre-requisites Yum
+  yum:
+    name: ['glibc.i686', 'libgcc.i686']
+    state: present
+  when:
+    - ansible_os_family == "RedHat"
+
+- name:          Install pre-requisites Yum on RHEL 8
+  yum:
+    name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
+    state:       present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:          Install pre-requisites Dnf on RHEL 8
+  dnf:
+    name:        ['gtk2.i686', 'libXtst.i686', 'libXft.i686', 'libXtst.i686', 'libnsl.i686']
+    state:       present
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
+
+- name:          Install libxcrypt-compat package
+  dnf:
+    name:        libxcrypt-compat
+    state:       present
+  when:
+    - ansible_distribution == "AlmaLinux"

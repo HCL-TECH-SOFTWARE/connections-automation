@@ -13,8 +13,7 @@
   become:                  true
   roles:
     - roles/third_party/ibm/installation-manager-install
-    - roles/third_party/ibm/ihs/ibm-http-server-install
-    - roles/third_party/ibm/ihs/ibm-http-server-fix-install
+    - roles/third_party/ibm/ihs/ibm-http-server-setup
 
 - name:                    Setup DMGR
   hosts:                   dmgr
@@ -50,5 +49,5 @@
   become:                  true
   roles:
     - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
-    - roles/third_party/ibm/ihs/ibm-http-httpdconf
+    - roles/third_party/ibm/ihs/ibm-http-httpdconf-setup
     - roles/third_party/ibm/ihs/ibm-http-server-restart

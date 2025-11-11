@@ -1,0 +1,88 @@
+---
+- name:          Cleanup Binaries directory
+  file:          path={{ __tmp_dir }} state=absent
+  ignore_errors: true
+
+- name:              Create Binaries directories
+  file:              path={{ item }} state=directory mode=0755
+  with_items:
+    - "{{ __tmp_dir }}"
+    - "{{ __tmp_dir }}/wassdk"
+    - "{{ __tmp_dir }}/ihsfixes"
+    - "{{ __tmp_dir }}/wctfixes"
+
+- name:          Create Logs directory
+  file:          path={{ __logs_dir }} state=directory mode=0755
+
+- name:              Download WAS V9 FP SDK Files
+  get_url:
+    url:             "{{ ihs_fixes_repository_url }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/{{ item.file_name }}"
+    mode:            0755
+  with_items:        "{{ __was_fp_sdk_files_latest }}"
+
+- name:              Extract WAS V9 FP SDK Files
+  unarchive:
+    src:             "{{ __tmp_dir }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/wassdk/"
+    copy:            no
+  with_items:        "{{ __was_fp_sdk_files_latest }}"
+
+- name:              Download WAS IHS V9 FP Files
+  get_url:
+    url:             "{{ ihs_fixes_repository_url }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/{{ item.file_name }}"
+    mode:            0755
+  with_items:        "{{ __ihs_fp_files_latest }}"
+
+- name:              Extract WAS IHS V9 FP Files
+  unarchive:
+    src:             "{{ __tmp_dir }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/ihsfixes/"
+    copy:            no
+  with_items:        "{{ __ihs_fp_files_latest }}"
+
+- name:              Download WAS WCT V9 FP Files
+  get_url:
+    url:             "{{ ihs_fixes_repository_url }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/{{ item.file_name }}"
+    mode:            0755
+  with_items:        "{{ __wct_fp_files_latest }}"
+
+- name:              Extract WAS WCT V9 FP Files
+  unarchive:
+    src:             "{{ __tmp_dir }}/{{ item.file_name }}"
+    dest:            "{{ __tmp_dir }}/wctfixes/"
+    copy:            no
+  with_items:        "{{ __wct_fp_files_latest }}"
+
+- name:              Generate Response file for IHS FP
+  template:
+    src:             "{{ __tpl_file }}"
+    dest:            "{{ __rsp_file }}"
+
+- name:              Disable Repository on Installation Manager
+  replace:
+    path:            /var/ibm/InstallationManager/.settings/com.ibm.cic.agent.core.prefs
+    regexp:          '(\s*)RepositoryIsOpen=true(\s*)'
+    replace:         '\1RepositoryIsOpen=false\2'
+    backup:          yes
+  ignore_errors:     true
+
+- name:          Stop IHS server
+  include_role:
+    name:        roles/third_party/ibm/ihs/ibm-http-server-stop
+
+- name:          Stop adminctl server
+  include_role:
+    name:        roles/third_party/ibm/ihs/ibm-http-adminctl-stop
+
+- name:              Install IBM HTTP Server V9 Fixes Software
+  command:
+    chdir={{ __tmp_dir }}
+    {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense  -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }} -sVP -log {{ __log_file }} input {{ __rsp_file }}
+  register:      cout
+  changed_when:  (cout.stdout.find(__ihs_version_check) != -1)
+#
+- name:              Cleanup Binaries directory
+  file:              path={{ __tmp_dir }} state=absent

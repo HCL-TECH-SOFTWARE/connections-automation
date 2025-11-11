@@ -1,20 +1,16 @@
 ---
 - name:          Setup Operating System
   include_tasks: setup_os.yml
-  when:          __was_major_version is version('8', '=')
 
 - name:          Create user and group
   include_tasks:  create_user_and_group.yml
-  when:          __was_major_version is version('8', '=')
 
 - name:          Check Vars
   include_tasks: check_vars.yml
-  when:          __was_major_version is version('8', '=')
 
 - name:          Define Vars
   include_tasks: define_vars.yml
-  when:          __was_major_version is version('8', '=')
 
 - name:          Install IBM HTTP Server
   include_tasks: install_ihs.yml
-  when:          __was_major_version is version('8', '=') and version_already_installed.rc != 0
+  when:          version_already_installed.rc != 0

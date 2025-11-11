@@ -1,4 +1,4 @@
-- name:                     "Verifiy if TDI is already installed"
+- name:                     "Verify if TDI is already installed"
   stat:
     path:                   "{{ __tdi_installed_success_file }}"
   register:                 tdi_already_installed
@@ -10,14 +10,28 @@
     - tdi_already_installed.stat.exists
 
 - name:                     Checking existing version for jre
-  shell:                    "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
+  shell:                    "{{ __tdi_user_install_dir }}/jvm/jre/bin/java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
   register:                 jre_version_stat
   when:
     - tdi_already_installed.stat.exists
     - jre_stat.stat.exists
 
 - debug:
-    msg: "{{ jre_version_stat.stdout }}"
+    msg: "Installed JRE version: {{ jre_version_stat.stdout }}"
+
+- name:                     Determine if JRE upgrade is needed
+  set_fact:
+    upgrade_jre_needed: >-
+      {{
+        ('1.7' in jre_version_stat.stdout) or
+        (jre_version_stat.stdout != __jre_package_build)
+      }}
+  when:
+    - jre_version_stat.stdout is defined
+    - __jre_package_build is defined
+
+- debug:
+    msg: "Upgrade needed? {{ upgrade_jre_needed | default(false) }}"
 
 - name:                     Create temp download folder
   file:
@@ -26,7 +40,7 @@
   when:
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists
-    - "'1.7' in jre_version_stat.stdout"
+    - upgrade_jre_needed | default(false)
 
 - name:                     Download and unzip installation {{ __jre_package_name }} to the {{ __tmp_extraction_folder }}
   unarchive:
@@ -38,14 +52,14 @@
   when:
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists
-    - "'1.7' in jre_version_stat.stdout"
+    - upgrade_jre_needed | default(false)
 
 - name:                     Backing up old jre dir
-  command:                  mv "{{ __tdi_user_install_dir }}/jvm/jre" "{{ __tdi_user_install_dir }}/jvm/jre_{{ansible_date_time.iso8601}}"
+  command:                  mv "{{ __tdi_user_install_dir }}/jvm/jre" "{{ __tdi_user_install_dir }}/jvm/jre_{{ ansible_date_time.iso8601 }}"
   when:
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists
-    - "'1.7' in jre_version_stat.stdout"
+    - upgrade_jre_needed | default(false)
 
 - name:                     Copy new jre dir to jvm dir
   copy:
@@ -57,17 +71,17 @@
   when:
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists
-    - "'1.7' in jre_version_stat.stdout"
+    - upgrade_jre_needed | default(false)
 
 - name:                     Checking updated version for jre
-  shell:                    "{{ __tdi_user_install_dir }}/jvm/jre/bin/./java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
+  shell:                    "{{ __tdi_user_install_dir }}/jvm/jre/bin/java -version 2>&1 | awk -F'\"' 'NR==1{ print $2 }'"
   register:                 updated_jre_version_stat
   when:
     - tdi_already_installed.stat.exists
     - jre_stat.stat.exists
 
 - debug:
-    msg: "{{ updated_jre_version_stat.stdout }}"
+    msg:                    "Updated JRE version: {{ updated_jre_version_stat.stdout }}"
 
 - name:                     Grant all permissions to all files in the SDI install dir
   become:                   true

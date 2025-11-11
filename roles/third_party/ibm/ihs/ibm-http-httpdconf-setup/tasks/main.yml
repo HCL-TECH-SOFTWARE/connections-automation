@@ -1,0 +1,13 @@
+---
+- name:                  Pre-check IHS version
+  include_tasks:         precheck_ihs_version.yml
+
+- name:                  Apply httpdconf for IBM HTTP Server v8
+  include_role:
+    name:                roles/third_party/ibm/ihs/ibm-http-httpdconf
+  when:                  ihs_target_version|string == '8'
+
+- name:                  Apply httpdconf for IBM HTTP Server v9
+  include_role:
+    name:                roles/third_party/ibm/ihs9/ibm-http-9-httpdconf
+  when:                  ihs_target_version|string == '9'

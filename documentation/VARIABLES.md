@@ -90,7 +90,7 @@ db2_instance_fenced_user | db2fenc1 | Fenced user to run user defined functions 
 db2_instance_fenced_group | db2group | Fenced user group
 db2_instance_fenced_homedir | /home/db2fenc1 | Fenced user home directory
 db2_instance_default_lang | EN | DB2 instance default language
-install_latest_db2 | false | true will install IBM DB2 v12.1 false will install IBM DB2 v11.5.9
+install_latest_db2 | true | true will install IBM DB2 v12.1 false will install IBM DB2 v11.5.9
 force_check_db2_version_mismatch | false | true terminates the script if already installed version (if any) on the system is different than the version that user expects
 
 ### Oracle Variables
@@ -144,7 +144,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5027.20250129_1123 | WebSphere Fix Pack
+was_fp_version | 8.5.5028.20250710_1103 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -158,8 +158,9 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5027.20250129_1123 | IHS Fix Pack version
-wct_version | 8.5.5027.20250129_1123 | WebSphere Toolbox Fix Pack version
+ihs_version | 8.5.5028.20250710_1103 | IHS Fix Pack version
+wct_version | 8.5.5028.20250710_1103 | WebSphere Toolbox Fix Pack version
+ihs_major_version | *none* - required | Install HTTP Server major version, should be set to "8".
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -321,15 +322,15 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.33.1 | Kubernetes version to be installed
+kubernetes_version | 1.34.1 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
 kube_binaries_download_url | https://cdn.dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.30.0 | Calico version to be installed
-helm_version | 3.15.3 | Helm version to be installed
+calico_version | 3.30.3 | Calico version to be installed
+helm_version | 3.19.0 | Helm version to be installed
 haproxy_version | 3.1.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate

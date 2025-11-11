@@ -1,0 +1,6 @@
+---
+__now:                     "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__ihs_install_location:    "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+__ihs_httpd_conf_file:     "{{ __ihs_install_location }}/conf/httpd.conf"
+__load_balancer_fqdn:      "{{ load_balancer_dns | default(hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname']) }}"
+__apisix_route_path:       "{{ apisix_route_path | default('/connections/api/v2') }}"

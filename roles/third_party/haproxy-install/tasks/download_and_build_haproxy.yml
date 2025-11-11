@@ -38,10 +38,27 @@
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
 
-- name:                   Add HAProxy repository for SUSE
-  command:                zypper addrepo https://download.opensuse.org/repositories/server:http/{{ ansible_distribution_version }}/server:http.repo
+- name:                   List existing HAProxy repository
+  command:                "zypper lr -u"
+  register: zypper_repos_output
+  changed_when:           false
   when:
     - ansible_distribution == "SLES"
+
+- name:                   Check if HAProxy repository already exists
+  set_fact:
+    haproxy_repo_exists: "{{ zypper_repos_output.stdout_lines | select('search', repo_url) | list | length > 0 }}"
+  vars:
+    repo_url: "https://download.opensuse.org/repositories/server:/http/{{ ansible_distribution_version }}/"
+  when:
+    - ansible_distribution == "SLES" and zypper_repos_output.stdout_lines is defined
+
+- name:                   Add HAProxy repository for SUSE
+  command:                "zypper addrepo {{ repo_url }}"
+  vars:
+    repo_url: "https://download.opensuse.org/repositories/server:http/{{ ansible_distribution_version }}/server:http.repo"
+  when:
+    - ansible_distribution == "SLES" and not haproxy_repo_exists
 
 - name:                   Refresh all zypper repositories on SUSE
   command:                zypper --non-interactive --gpg-auto-import-keys refresh

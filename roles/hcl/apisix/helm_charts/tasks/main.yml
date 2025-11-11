@@ -1,0 +1,91 @@
+---
+- name:                     Delete image pull secret so that we can recreate it
+  ansible.builtin.shell:
+    cmd: |
+                            kubectl delete secret {{ __hcl_api_gateway_image_pull_secret_name }} -n {{ __apisix_namespace }}
+  become_user:              "{{ __sudo_user }}"
+  ignore_errors:            true
+  when:                     pool_server is not defined
+
+- name:                     Create image pull secret
+  ansible.builtin.shell:
+    cmd: |
+                            kubectl create secret docker-registry {{ __hcl_api_gateway_image_pull_secret_name }} \
+                              --docker-server={{ __docker_registry_url }} \
+                              --docker-username={{ __docker_registry_username }} \
+                              --docker-password={{ __docker_registry_password }} \
+                              --namespace {{ __apisix_namespace }}
+  become_user:              "{{ __sudo_user }}"
+  register:                 hcl_api_gateway_image_pull_secret_created_result
+  when:                     pool_server is not defined
+
+# Set a fact based on the image pull secret creation result
+- name: Set image_pull_secret_exists fact
+  ansible.builtin.set_fact:
+    hcl_api_gateway_image_pull_secret_exists: "{{ hcl_api_gateway_image_pull_secret_created_result.rc == 0 }}"
+  when:                     pool_server is not defined
+
+- name:                     "Login to OCI {{ __docker_registry_url }}"
+  ansible.builtin.shell:    "helm registry login -u {{ __docker_registry_username }} -p {{ __docker_registry_password }} {{ __docker_registry_url }}"
+  become_user:              "{{ __sudo_user }}"
+  when:                     pool_server is not defined
+
+- name:                      Get HCL CNX APISIX Helm Chart and version harbor OCI
+  shell:                     "helm show all {{ __oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} --devel | grep -oP '^version:\\s*\\K[^ ]+'"
+  register:                  hcl_api_gateway_chart_version
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Found HCL CNX APISIX Helm Chart version
+  debug:
+    msg:                     "{{ hcl_api_gateway_chart_version.stdout }}"
+
+- name:                      Extract tag version from chart version
+  set_fact:
+    hcl_api_gateway_image_tag_version: "{{ hcl_api_gateway_chart_version.stdout.split('-', 1)[1] }}"
+
+- name:                     Render core-apisix-custom-values.yaml template for APISIX Helm Chart
+  ansible.builtin.template:
+    src:                    "core-apisix-custom-values.yaml.j2"
+    dest:                   "{{ __custom_values_temp_path }}"
+  become_user:              "{{ __sudo_user }}"
+
+- name:                     Add Apache APISIX Helm Repo
+  shell:                    |
+                            helm repo add apisix {{ __apisix_core_chart_registry_url }} || helm repo update apisix
+                            helm repo update
+  become_user:              "{{ __sudo_user }}"
+  ignore_errors:            true
+
+- name:                     Install the Core APISIX Helm Chart
+  ansible.builtin.shell:    |
+                            helm upgrade --install {{ __apisix_core_release_name }} \
+                              apisix/apisix --version "{{ __apisix_core_chart_version }}" \
+                              --namespace "{{ __apisix_namespace }}" -f {{ __custom_values_temp_path }} \
+                              --wait --timeout {{ __core_apisix_helm_timeout }}
+  become_user:              "{{ __sudo_user }}"
+
+- name:                     Wait for Core APISIX pods to be ready
+  ansible.builtin.shell:    |
+                            kubectl wait --for=condition=Ready pods --all -n "{{ __apisix_namespace }}" --timeout={{ __pod_wait_timeout }} --selector="{{ __core_apisix_pod_selector }}"
+  become_user:              "{{ __sudo_user }}"
+
+- name:                     Render hcl-api-gateway-custom-values.yaml template for HCL CNX APISIX Helm Chart
+  ansible.builtin.template:
+    src:                    "hcl-api-gateway-custom-values.yaml.j2"
+    dest:                   "{{ __hcl_api_gateway_custom_values_temp_path }}"
+  become_user:              "{{ __sudo_user }}"
+
+- name:                     Install the HCL CNX APISIX Helm Chart from repository
+  ansible.builtin.shell:    |
+                            helm upgrade --install {{ __hcl_api_gateway_release_name }} \
+                              {{ __oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} \
+                              --version "{{ hcl_api_gateway_chart_version.stdout }}" \
+                              --namespace "{{ __apisix_namespace }}" \
+                              -f {{ __hcl_api_gateway_custom_values_temp_path }} \
+                              --wait --timeout {{ __hcl_api_gateway_helm_timeout }}
+  become_user:              "{{ __sudo_user }}"
+
+- name:                     Wait for HCL CNX APISIX pods to be ready
+  ansible.builtin.shell:    |
+                            kubectl wait --for=condition=Ready pods --all -n "{{ __apisix_namespace }}" --timeout={{ __pod_wait_timeout }} --selector="{{ __hcl_api_gateway_pod_selector }}"
+  become_user:              "{{ __sudo_user }}"

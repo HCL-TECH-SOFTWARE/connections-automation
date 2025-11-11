@@ -1,0 +1,26 @@
+---
+- name:                  Pre-check IHS version
+  include_tasks:         precheck_ihs_version.yml
+
+- name:                  Check Vars
+  include_tasks:         check_vars.yml
+  
+- name:                  Install IBM HTTP Servers 8 
+  include_role:
+    name:                roles/third_party/ibm/ihs/ibm-http-server-install
+  when:                  __ihs_major_version is version('8', '=') and ihs_already_installed.rc != 0
+
+- name:                  Install IBM HTTP Servers 8 Fix Pack
+  include_role:
+    name:                roles/third_party/ibm/ihs/ibm-http-server-fix-install
+  when:                  __ihs_major_version is version('8', '=')
+
+- name:                  Install IBM HTTP Servers 9 
+  include_role:
+    name:                roles/third_party/ibm/ihs9/ibm-http-server-9-install
+  when:                  (__ihs_major_version is version('9', '=') and ihs_already_installed.rc != 0)
+
+- name:                  Install IBM HTTP Servers 9 Fix Pack
+  include_role:
+    name:                roles/third_party/ibm/ihs9/ibm-http-server-9-fix-install
+  when:                  __ihs_major_version is version('9', '=')

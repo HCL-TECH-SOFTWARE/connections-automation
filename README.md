@@ -16,7 +16,7 @@ For HCL Connections 8 dependencies this means that:
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 27. By default, FP27 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 28. By default, FP28 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
@@ -114,8 +114,10 @@ Oracle:
 
 TDI:
 -r-xr-xr-x.  1 root orion  76251327 May  6  2020 7.2.0-ISS-SDI-FP0006.zip
+-r-xr-xr-x.  1 pnott pnott 130768662 Jul 15 2025 7.2.0-ISS-SDI-FP0014.zip
 -r-xr-xr-x.  1 root orion 644894720 Apr 30  2020 SDI_7.2_XLIN86_64_ML.tar
 -rw-r--r--   1 sabrinayee sabrinayee 130165047 Sep  8 19:40 ibm-java-jre-8.0-6.25-linux-x86_64.tgz
+-rw-r--r--   1 pnott pnott 134928623 Jul 15 2025 ibm-java-jre-8.0-8.45-linux-x86_64.tgz
 
 cp:
 -rw-r--r--   1 sabrinayee sabrinayee 5550666926 Mar  7  2022 ComponentPack_7.0.0.2.zip
@@ -132,15 +134,15 @@ was855:
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
-was855FP27:
--rw-rw-r-- 1 pnott pnott 1101651839 Apr 28 13:08 8.5.5-WS-WAS-FP027-part1.zip
--rw-rw-r-- 1 pnott pnott  198789133 Apr 28 13:07 8.5.5-WS-WAS-FP027-part2.zip
--rw-rw-r-- 1 pnott pnott 2018259127 Apr 28 13:09 8.5.5-WS-WAS-FP027-part3.zip
--rw-rw-r-- 1 pnott pnott  533258243 Apr 28 13:07 8.5.5-WS-WASSupplements-FP027-part1.zip
--rw-rw-r-- 1 pnott pnott  785692894 Apr 28 13:07 8.5.5-WS-WASSupplements-FP027-part2.zip
--rw-rw-r-- 1 pnott pnott 2018259127 Apr 28 13:08 8.5.5-WS-WASSupplements-FP027-part3.zip
--rw-rw-r-- 1 pnott pnott  301891126 Apr 28 13:06 8.5.5-WS-WCT-FP027-part1.zip
--rw-rw-r-- 1 pnott pnott 2021732150 Apr 28 13:07 8.5.5-WS-WCT-FP027-part2.zip
+was855FP28:
+-rw-rw-r-- 1 pnott pnott 1101651839 Apr 28 13:08 8.5.5-WS-WAS-FP028-part1.zip
+-rw-rw-r-- 1 pnott pnott  198789133 Apr 28 13:07 8.5.5-WS-WAS-FP028-part2.zip
+-rw-rw-r-- 1 pnott pnott 2018259127 Apr 28 13:09 8.5.5-WS-WAS-FP028-part3.zip
+-rw-rw-r-- 1 pnott pnott  533258243 Apr 28 13:07 8.5.5-WS-WASSupplements-FP028-part1.zip
+-rw-rw-r-- 1 pnott pnott  785692894 Apr 28 13:07 8.5.5-WS-WASSupplements-FP028-part2.zip
+-rw-rw-r-- 1 pnott pnott 2018259127 Apr 28 13:08 8.5.5-WS-WASSupplements-FP028-part3.zip
+-rw-rw-r-- 1 pnott pnott  301891126 Apr 28 13:06 8.5.5-WS-WCT-FP028-part1.zip
+-rw-rw-r-- 1 pnott pnott 2021732150 Apr 28 13:07 8.5.5-WS-WCT-FP028-part2.zip
 ```
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
@@ -557,6 +559,13 @@ Once your Component Pack installation is done, run this playbook to set up some 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/connections-post-install.yml
 ```
+
+## Optional: Installing HCL API Gateway
+
+If you want to install the optional HCL API Gateway for advanced API management and gateway features, please refer to the dedicated guide:
+
+- [Installing HCL API Gateway with Ansible](documentation/howtos/hcl_api_gateway_deployment.md)
+
 
 ## Troubleshooting
 

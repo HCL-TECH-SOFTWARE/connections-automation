@@ -1,18 +1,39 @@
 ---
 - name:               Check if all Deployments (except retrievalservice and indexingservice) are ready
-  shell:              "kubectl -n {{ __default_namespace }} rollout status deploy $(kubectl -n {{ __default_namespace }} get deploy | grep -vE \"retrievalservice|indexingservice|NAME\" | awk '{print $1}') --timeout=300s > /dev/null"
+  shell:              |
+    set -e
+    for d in $(kubectl -n {{ __default_namespace }} get deploy \
+                | grep -vE 'retrievalservice|indexingservice|NAME' \
+                | awk '{print $1}'); do
+      echo "Waiting for rollout: $d"
+      kubectl -n {{ __default_namespace }} rollout status deploy/"$d" --timeout=300s
+    done
   when:
     - inventory_hostname == groups['k8s_masters'][0]
   become_user:        "{{ __sudo_user }}"
 
 - name:               Check if all DaemonSets are ready
-  shell:              "kubectl -n {{ __default_namespace }} rollout status ds --timeout=300s > /dev/null"
+  shell:              |
+    set -e
+    for ds in $(kubectl -n {{ __default_namespace }} get ds \
+                  | grep -v NAME \
+                  | awk '{print $1}'); do
+      echo "Waiting for rollout: $ds"
+      kubectl -n {{ __default_namespace }} rollout status ds/"$ds" --timeout=300s
+    done
   when:
     - inventory_hostname == groups['k8s_masters'][0]
   become_user:        "{{ __sudo_user }}"
 
 - name:               Check if all Statefulsets are ready
-  shell:              "kubectl -n {{ __default_namespace }} rollout status sts --timeout=300s > /dev/null"
+  shell:              |
+    set -e
+    for sts in $(kubectl -n {{ __default_namespace }} get sts \
+                   | grep -v NAME \
+                   | awk '{print $1}'); do
+      echo "Waiting for rollout: $sts"
+      kubectl -n {{ __default_namespace }} rollout status sts/"$sts" --timeout=300s
+    done
   when:
     - inventory_hostname == groups['k8s_masters'][0]
   become_user:        "{{ __sudo_user }}"

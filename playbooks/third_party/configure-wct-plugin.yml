@@ -5,7 +5,7 @@
   become:                  true
   roles:
     - roles/third_party/ibm/ihs/ibm-http-adminctl-restart
-    - roles/third_party/ibm/ihs/ibm-http-httpdconf
+    - roles/third_party/ibm/ihs/ibm-http-httpdconf-setup
     - roles/third_party/ibm/ihs/ibm-http-config-plgwct
 
 - name:                    Rerun Docs update_webserver script if installed

@@ -1,0 +1,66 @@
+---
+# --- StorageClass Management ---
+- name:                     Check if StorageClass "{{ __apisix_storage_class_name }}" exists
+  ansible.builtin.shell: |
+                            kubectl get sc {{ __apisix_storage_class_name }}
+  become_user:              "{{ __sudo_user }}"
+  register:                 apisix_storage_class_result
+  ignore_errors:            true
+
+- name:                     Delete old APISIX StorageClass template if exists
+  file:
+    path:                   "/tmp/rendered-storage-class.yaml"
+    state:                  absent
+  become_user:              "{{ __sudo_user }}"
+  when:                     apisix_storage_class_result.rc != 0
+
+- name:                     Render APISIX StorageClass template
+  ansible.builtin.template:
+    src:                    "apisix-storage-class.yaml.j2"
+    dest:                   "/tmp/rendered-storage-class.yaml"
+  become_user:              "{{ __sudo_user }}"
+  when:                     apisix_storage_class_result.rc != 0
+
+- name:                     Create '{{ __apisix_storage_class_name }}' StorageClass
+  ansible.builtin.shell:    |
+                            kubectl apply -f /tmp/rendered-storage-class.yaml
+  become_user:              "{{ __sudo_user }}"
+  when:                     apisix_storage_class_result.rc != 0
+  changed_when:             true
+
+# Check if K8S PV resources exists
+- name:                       Check if etcd persistent volumes exists
+  ansible.builtin.shell: |
+                              kubectl get pv --ignore-not-found | grep '{{ __apisix_etcd_pv_name }}-{{ item }}' | awk {'print $1'}
+  loop:                       "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  register:                   apisix_etcd_pv_resources
+  become_user:                "{{ __sudo_user }}"
+
+# Render K8S PV resources for APISIX etcd
+- name:                       Delete old persistent volume templates if exists
+  file:
+    path:                     /tmp/{{ __apisix_etcd_pv_name }}-{{ item }}.yaml
+    state:                    absent
+  become_user:                "{{ __sudo_user }}"
+  vars:
+    pv_name:                 "{{ __apisix_etcd_pv_name }}"
+  loop:                       "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  when:                       (__apisix_etcd_pv_name ~ '-' ~ item) not in apisix_etcd_pv_resources.results[item].stdout
+
+- name:                       Render persistent volume templates for APISIX etcd
+  ansible.builtin.template:
+    src:                      "apisix-nfs-pvs.yaml.j2"
+    dest:                     /tmp/{{ __apisix_etcd_pv_name }}-{{ item }}.yaml
+  become_user:                "{{ __sudo_user }}"
+  vars:
+    pv_name:                 "{{ __apisix_etcd_pv_name }}"
+  loop:                       "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  when:                       (__apisix_etcd_pv_name ~ '-' ~ item) not in apisix_etcd_pv_resources.results[item].stdout
+
+# Apply K8S PV resources for APISIX etcd
+- name:                       Create persistent volumes for APISIX etcd
+  ansible.builtin.shell: |
+                              kubectl apply -f /tmp/{{ __apisix_etcd_pv_name }}-{{ item }}.yaml
+  become_user:                "{{ __sudo_user }}"
+  loop:                       "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  when:                       (__apisix_etcd_pv_name ~ '-' ~ item) not in apisix_etcd_pv_resources.results[item].stdout

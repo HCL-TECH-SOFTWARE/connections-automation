@@ -1,0 +1,69 @@
+# ansible/roles/helm_charts/vars/main.yml
+---
+
+__sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+__frontend_fqdn:                             "{{ frontend_fqdn | default( inventory_hostname ) }}"
+__frontend_domain:                           "{{ cnx_application_ingress.split('.')[1:] | join('.') }}"
+__load_balancer_fqdn:                        "{{ cnx_component_pack_ingress | default( inventory_hostname ) }}"
+__load_balancer_domain:                      "{{ load_balancer_dns.split('.', 1)[1] | default( inventory_hostname.split('.', 1)[1] ) }}"
+
+__apisix_namespace:                          "{{ apisix_namespace | default('connections') }}"
+__apisix_core_release_name:                  "{{ apisix_core_release_name | default('core-apisix') }}"
+__apisix_core_chart_registry_url:            "{{ apisix_core_chart_registry_url | default('https://charts.apiseven.com') }}"
+__apisix_core_chart_version:                 "{{ apisix_core_chart_version | default('2.12.0') }}"
+__ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) |lower }}"
+
+# APISIX Admin API settings
+__apisix_admin_service_name:                 "{{ apisix_admin_service_name | default( __apisix_core_release_name ~ '-admin') }}"
+__apisix_admin_service_port:                 "{{ apisix_admin_service_port | default(9180) }}"
+__apisix_enable_admin_ui:                    "{{ apisix_enable_admin_ui | default(true) | lower }}"
+__apisix_secrets_name:                        "{{ apisix_secrets_name | default('apisix-admin-secret') }}"
+__apisix_admin_password:                      "{{ apisix_admin_password | default('password') }}"
+
+# New variables for HCL CNX APISIX chart from repository
+__docker_registry_url:                       "{{ docker_registry_url | default('hclcr.io/cnx') }}"
+__docker_registry_username:                  "{{ docker_registry_username | default('admin') }}"
+__docker_registry_password:                  "{{ docker_registry_password | default('password') }}"
+__oci_helm_repository:                       "oci://{{ __docker_registry_url }}"
+__hcl_api_gateway_image_pull_secret_name:    "{{ hcl_api_gateway_image_pull_secret_name | default('myregkey') }}"
+
+__hcl_api_gateway_release_name:                "{{ hcl_api_gateway_release_name | default('hcl-api-gateway') }}"
+__hcl_api_gateway_chart_name:                  "{{ hcl_api_gateway_chart_name | default('hcl-api-gateway') }}"
+
+# If your Artifactory repo requires authentication for Helm, add these:
+__hcl_api_gateway_helm_repo_username:          "{{ hcl_api_gateway_helm_repo_username | default('') }}" # Populate from group_vars if needed
+__hcl_api_gateway_helm_repo_password:          "{{ hcl_api_gateway_helm_repo_password | default('') }}" # Populate from group_vars if needed
+
+# Docker Image details
+__hcl_api_gateway_image_name:                  "{{ hcl_api_gateway_image_name | default('hcl-api-gateway-config') }}"
+__hcl_api_gateway_image_tag:                   "{{ hcl_api_gateway_image_tag | default(hcl_api_gateway_image_tag_version) }}"
+
+__core_apisix_helm_timeout:                "{{ core_apisix_helm_timeout | default('600s') }}" # 10 minutes
+__hcl_api_gateway_helm_timeout:                "{{ hcl_api_gateway_helm_timeout | default('600s') }}" # 10 minutes
+
+__core_apisix_pod_selector:                "{{ core_apisix_pod_selector | default('app.kubernetes.io/name=apisix') }}"
+__hcl_api_gateway_pod_selector:                "{{ hcl_api_gateway_pod_selector | default('app=swagger-ui') }}"
+
+__custom_values_temp_path:                    "/home/{{ __sudo_user }}/generated_charts/core-apisix-custom-values.yaml"
+__hcl_api_gateway_custom_values_temp_path:    "/home/{{ __sudo_user }}/generated_charts/hcl-api-gateway-custom-values.yaml"
+
+__pod_wait_timeout:                           "{{ pod_wait_timeout | default('600s') }}" # 10 minutes
+__apisix_route_path:                          "{{ apisix_route_path | default('/connections/api/v2') }}"
+__apisix_custom_lua_scripts_path:            "{{ apisix_custom_lua_scripts_path | default('/usr/local/apisix/hcl/cnx/scripts') }}"
+__apisix_swagger_server_fqdn:                 "{{ groups['internal_lb'][0] | default( __frontend_fqdn ) }}"
+__apisix_swagger_server_url_default:          "https://{{ __apisix_swagger_server_fqdn }}{{ __apisix_route_path }}"
+__apisix_swagger_server_url:                  "{{ apisix_swagger_server_url | default(__apisix_swagger_server_url_default) }}"
+
+__apisix_gateway_node_port_http:            "{{ apisix_gateway_node_port_http | default(31080) }}"
+__apisix_gateway_node_port_https:           "{{ apisix_gateway_node_port_https | default(31443) }}"
+__apisix_gateway_service_type:              "{{ apisix_gateway_service_type | default('NodePort') }}"
+__apisix_service_fullname_override:         "{{ apisix_service_fullname_override | default(__apisix_core_release_name) }}"
+__apisix_ingress_class:                     "{{ apisix_ingress_class | default(__apisix_namespace ~ '-apisix-ingress-class') }}"
+
+__ingress_nginx_secret_name:                "{{ ingress_nginx_secret_name | default('ingress-nginx-tls-secret') }}"
+
+# StorageClass names
+__apisix_storage_class_name:                  "{{ storage_class_name_etcd | default(__apisix_namespace ~ '-apisix-sc') }}"
+__apisix_etcd_pv_name:                        "{{ apisix_etcd_pv_name | default(__apisix_namespace ~ '-apisix-etcd') }}"
+__apisix_etcd_replicaset:                     "{{ apisix_etcd_replicaset | default('3') }}"
+__apisix_etcd_volume_size:                    "{{ apisix_etcd_volume_size | default('10Gi') }}"

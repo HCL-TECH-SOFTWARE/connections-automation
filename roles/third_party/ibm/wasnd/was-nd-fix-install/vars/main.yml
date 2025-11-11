@@ -10,8 +10,8 @@ __rsp_file:                "{{ __logs_dir }}/was_nd_fixes.rsp"
 __log_file:                "{{ __logs_dir }}/was_nd_fixes_install.{{ __now }}.log"
 __tpl_file:                "was_nd_fixes.rsp.j2"
 
-__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp27  ) }}"
-__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp27  ) }}"
+__was_fp_version_latest:   "{{ was_fp_version_latest | default( __was_fp_version_fp28  ) }}"
+__was_fp_files_latest:     "{{ was_fp_files_latest | default( __was_fp_files_fp28  ) }}"
 
 __was_fp_version_log4j:       "8.5.5011.20211215_1027"
 __was_fp_files_log4j:
@@ -20,6 +20,12 @@ __was_fp_files_log4j:
 __was_fp_version_PH49497:       "8.5.5022.20220916_1309"
 __was_fp_files_PH49497:
     - { file_name: 8.5.5.22-WS-WAS-IFPH49497.zip }
+
+__was_fp_version_fp28:     "8.5.5028.20250710_1103"
+__was_fp_files_fp28:
+  - { file_name: 8.5.5-WS-WAS-FP028-part1.zip }
+  - { file_name: 8.5.5-WS-WAS-FP028-part2.zip }
+  - { file_name: 8.5.5-WS-WAS-FP028-part3.zip }
 
 __was_fp_version_fp27:     "8.5.5027.20250129_1123"
 __was_fp_files_fp27:

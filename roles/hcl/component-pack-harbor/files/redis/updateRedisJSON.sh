@@ -8,7 +8,7 @@ MASTER_HOSTNAME=""
 REDIS_PORT="30379"
 REDIS_SECRET=""
 orgId="00000000-0000-0000-0000-000000000000"
-PATH_TOUPDATE_FOLDER="/opt/IC_Share/configuration/update"
+PATH_TOUPDATE_FOLDER="/opt/HCL/Connections/shared/configuration/update"
 
 
 logErr() {
@@ -26,26 +26,22 @@ logIt() {
 usage() {
 	logIt ""
 	logIt "Usage: ./updateRedisJSON.sh [OPTION]"
-	logIt "This script will prepare the JSON configuration files needed to configure IBM Connections for communicating Redis traffic to OrientMe"
-        logIt "Execute this script on the IBM Connections Deployment manager"
+	logIt "This script will prepare the JSON configuration files needed to configure HCL Connections for communicating Redis traffic to Homepage"
+        logIt "Execute this script on the HCL Connections Deployment manager"
 	logIt ""
 	logIt "Options are:"
-	logIt "-m    | --master			Kubernetes Master Server Hostname/IPAddress : The IP/Hostname of the Kubernetes master server. Required."
+	logIt "-m    | --master			Hostname/IPAddress of the external Kubernetes load balancer in an HA environment or the Kubernetes worker in single node environment  Required."
 	logIt "-po   | --port				The external port that Redis is running on within Kubernetes. Required.  Default value : 30379"
-        logIt "-pa   | --path				The absolute path to the Update folder.  Default value : /opt/IC_Share/configuration/update "
+        logIt "-pa   | --path				The absolute path to the Update folder.  Default value : /opt/HCL/Connections/shared/configuration/update"
 
 	logIt ""
 	logIt "-pw   | --password			Password for Redis Secret.  Must match value in Kubernetes secret.  Optional."
-        logIt "-cl   | --clearpassword			Clear Password for Redis Secret.  Optional. Cannot be used with -pw option."
-
 
 
 	logIt ""
-	logIt "sample usage (Redis Host and Redis Port) : ./updateRedisJSON.sh -m <Master Server Hostname/IPAddress> -po <Redis Port>"
+	logIt "sample usage (Redis Host and Redis Port) : ./updateRedisJSON.sh -m <Kubernetes load balancer Hostname/IPAddress> -po <Redis Port>"
 	logIt ""
-	logIt "sample usage (Redis Host, Redis Port and Redis Password) : ./updateRedisJSON.sh -m <Master Server Hostname/IPAddress> -po <Redis Port> -pw <Redis Secret>"
-	logIt ""
-        logIt "sample usage (Clear Redis Password - needed if disabling redis authenication after it is enabled) : ./updateRedisJSON.sh -m <Master Server Hostname/IPAddress> -po <Redis Port> -cl"
+	logIt "sample usage (Redis Host, Redis Port and Redis Password) : ./updateRedisJSON.sh -m <Kubernetes load balancer Hostname/IPAddress> -po <Redis Port> -pw <Redis Secret>"
 	logIt ""
 
 	exit 1

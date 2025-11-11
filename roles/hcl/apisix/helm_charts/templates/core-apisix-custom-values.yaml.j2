@@ -1,0 +1,206 @@
+# ============================================================================
+# Core APISIX Custom Values
+# This file customizes the Core APISIX Helm chart for production and development.
+# ============================================================================
+
+# Use the global key to apply the secret to all components
+global:
+{% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
+  imagePullSecrets:
+    - {{ __hcl_api_gateway_image_pull_secret_name }}
+{% else %}
+  imagePullSecrets: []
+{% endif %}
+
+# -----------------------------------------------------------------------------
+# APISIX Configuration
+# -----------------------------------------------------------------------------
+
+# Use extraInitContainers to mount custom lua scripts
+extraVolumes:
+  # -- (volume) Volume for custom Lua scripts.
+  - name: cnx-custom-scripts
+    emptyDir: {}
+extraVolumeMounts:
+  # -- (string) Mount path for custom Lua scripts.
+  - name: cnx-custom-scripts
+    mountPath: {{ __apisix_custom_lua_scripts_path }}
+extraInitContainers:
+  - name: copy-cnx-custom-scripts
+    # -- (string) Custom image containing Lua scripts.
+    image: "{{ __docker_registry_url }}/{{ __hcl_api_gateway_image_name }}:{{ __hcl_api_gateway_image_tag }}"
+    imagePullPolicy: IfNotPresent
+    # -- (command) Copy scripts to volume.
+    # @section -- APISIX Data Plane
+    command: ["/bin/sh", "-c", "cp -r /app/hcl/cnx/* {{ __apisix_custom_lua_scripts_path }}"]
+    securityContext:
+      # -- (int) Run as non-root user.
+      # @section -- APISIX Data Plane
+      runAsUser: 1001
+      runAsGroup: 1001
+      allowPrivilegeEscalation: false
+    volumeMounts:
+      - name: cnx-custom-scripts
+        mountPath: {{ __apisix_custom_lua_scripts_path }}
+
+# -- (string) Override gateway and admin service name
+fullnameOverride: {{ __apisix_service_fullname_override }}
+
+service:
+  # -- (string) Service type for APISIX (ClusterIP , NodePort or LoadBalancer)
+  type: {{ __apisix_gateway_service_type }}
+  # -- (int) NodePort for HTTP
+  http:
+    nodePort: {{ __apisix_gateway_node_port_http }}
+  # -- (int) NodePort for HTTPS
+  tls:
+    nodePort: {{ __apisix_gateway_node_port_https }}
+
+ingress:
+  # -- Enable Ingress for APISIX gateway
+  enabled: true
+  # -- # -- (string) Ingress class for APISIX gateway service
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  tls:
+    - hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+        - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
+        - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+{% endif %}
+{% else %}
+        - "{{ cnx_application_ingress }}"
+{% endif %}
+      secretName: "{{ __ingress_nginx_secret_name }}"
+  hosts:
+{% if __ingress_multi_domain_enabled == "true" %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths:
+        - {{ __apisix_route_path }}(/.*)?
+{% if load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths:
+        - {{ __apisix_route_path }}(/.*)?
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths:
+        - {{ __apisix_route_path }}(/.*)?
+{% endif %}
+
+apisix:
+  # -- (object) Configuration for custom APISIX plugins.
+  customPlugins:
+    # -- (bool) Enable custom plugins feature.
+    enabled: true
+    # -- (string) Lua search path for custom plugin scripts.
+    luaPath: "{{ __apisix_custom_lua_scripts_path }}/?.lua;;"
+    # -- (list) List of custom plugins to load.
+    plugins: []
+  ssl:
+    # -- (bool) Enable SSL for APISIX Admin service
+    enabled: true
+    # -- (string) Kubernetes secret name for TLS certificate
+    existingCASecret: {{ __ingress_nginx_secret_name }}
+    # -- (string) TLS CA filename
+    certCAFilename: tls.crt
+  admin:
+    # -- (bool) Enable Admin API
+    enabled: true
+    # -- (bool)  Enable Embedded Admin UI
+    enable_admin_ui: {{ __apisix_enable_admin_ui }}
+    credentials:
+      # -- (string) Kubernetes secret name for admin API key.
+      secretName: {{ __apisix_secrets_name }}
+      # -- (string) Key in secret for admin password.
+      secretAdminKey: admin-password
+      # -- (string) Key in secret for viewer password.
+      secretViewerKey: viewer-password
+    # -- (object) Ingress for APISIX Admin API
+    ingress:
+      # -- (bool) Enable ingress for APISIX Admin API.
+      enabled: true
+      # -- (string) Ingress class name for Admin API.
+      className: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/rewrite-target: /$1$2
+      hosts:
+{% if __ingress_multi_domain_enabled == "true" %}
+        - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+          paths:
+            - /(ui|apisix)(/.*)?
+{% if load_balancer_dns != frontend_fqdn %}
+        - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+          paths:
+            - /(ui|apisix)(/.*)?
+{% endif %}
+{% else %}
+        - host: "{{ cnx_application_ingress }}"
+          paths:
+            - /(ui|apisix)(/.*)?
+{% endif %}
+      tls:
+        - hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+            - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
+            - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+{% endif %}
+{% else %}
+            - "{{ cnx_application_ingress }}"
+{% endif %}
+          secretName: "{{ __ingress_nginx_secret_name }}"
+  nginx:
+    # -- (int) NGINX worker processes
+    workerProcesses: 4
+
+# --------------------------------------------------------------------
+# APISIX Ingress Controller
+# --------------------------------------------------------------------
+
+ingress-controller:
+  # -- (bool) Enable the APISIX Ingress Controller.
+  enabled: true
+  config:
+    kubernetes:
+      ingressClass: "{{ __apisix_ingress_class }}"
+  apisix:
+    adminService:
+      # -- (string) Name of the APISIX Admin API service.
+      name: {{ __apisix_admin_service_name }}
+      # -- (string) Namespace of the APISIX Admin API service.
+      namespace: {{ __apisix_namespace }}
+       # -- (int) Port for the APISIX Admin API service.
+      port: {{ __apisix_admin_service_port }}
+  gatewayProxy:
+    # -- (bool) Create the default gateway proxy.
+    createDefault: true
+    provider:
+      controlPlane:
+        # -- (string) Authentication type for control plane.
+        auth:
+          # -- (object) Admin key credentials for control plane.
+          type: AdminKey
+          adminKey:
+            # -- (string) Value of the admin key.
+            value: {{ __apisix_admin_password }}
+
+# --------------------------------------------------------------------
+# etcd
+# --------------------------------------------------------------------
+
+etcd:
+  # -- (bool) Enable etcd
+  enabled: true
+  replicaCount: {{ __apisix_etcd_replicaset }}
+  persistence:
+    # -- (bool) Enable persistent storage for etcd
+    enabled: true
+    # -- (string) Persistent volume size
+    size: {{ __apisix_etcd_volume_size }}
+    storageClass: "{{ __apisix_storage_class_name }}"
+    selector:
+        matchLabels:
+          attachTo: {{ __apisix_etcd_pv_name }}
