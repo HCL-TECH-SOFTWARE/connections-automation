@@ -1,0 +1,45 @@
+---
+- name:                     Install 389 ds and dependencies
+  zypper:
+    name:                   ['389-ds']
+    state:                   present
+  become:                    true
+  when:
+    - ldap_database_already_created is defined
+    - not ldap_database_already_created.stat.exists
+
+- name:                      Ensure /etc/dirsrv exists
+  file:
+    path:                    /etc/dirsrv
+    state:                   directory
+    owner:                   root
+    group:                   root
+    mode:                    '0755'
+  become:                    true      
+
+- name:                     Create Directory Server instance for 389 DS
+  command:                  "dscreate from-file /etc/dirsrv/{{ __ds_instance_name }}.inf"
+  args:
+    creates:                "{{ __ds_instance_dir }}"
+  register:                  dscreate_result
+  become:                    true
+  failed_when:              dscreate_result.rc != 0
+  when:
+    - not ldap_database_already_created.stat.exists
+
+- name:                     Create DB success marker for 389 DS
+  file:
+    path:                   "{{ __db_ldif_success_file }}"
+    state:                   touch
+  when:
+    - not ldap_database_already_created.stat.exists
+    - dscreate_result is succeeded
+
+- name:                     Start DS instance for 389 DS
+  service:
+    name:                   "dirsrv@{{ __ds_instance_name }}"
+    state:                  started
+    enabled:                yes
+  become:                    true
+
+  

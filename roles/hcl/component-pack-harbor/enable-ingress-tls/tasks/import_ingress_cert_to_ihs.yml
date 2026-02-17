@@ -7,49 +7,94 @@
     path:                    /tmp/ingress-nginx-cert.pem
     state:                   absent
   become:                    true
+  when:                      enable_ingress_tls | default(true) | bool
 
 - name:                      Save the ingress controller certificate to /tmp/ingress-nginx-cert.pem
   shell:                     "openssl s_client -servername {{ __load_balancer_fqdn }} -connect {{ __load_balancer_fqdn }}:{{ __controller_https_node_port }} -showcerts < /dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/ingress-nginx-cert.pem"
+  register:                  cert_result
+  retries:                   10
+  delay:                     10  
+  until:                     cert_result.rc == 0
+  when:                      enable_ingress_tls | default(true) | bool
 
 - name:                      Get the current list IHS certificates
   shell:                     "{{ __ihs_gsk_api }} -cert -list -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}"
   register:                  ihs_cert_list
   become:                    true
+  when:                      enable_ingress_tls | default(true) | bool
 
 - name:                      Delete certificate with the same label from IHS keystore if exists
   shell:                     "{{ __ihs_gsk_api }} -cert -delete -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -label 'ingress-nginx-cert'"
   ignore_errors:             true
-  when :                     "'ingress-nginx-cert' in ihs_cert_list.stdout"
+  when:
+    - enable_ingress_tls | default(true) | bool
+    - "'ingress-nginx-cert' in ihs_cert_list.stdout"
   become:                    true
 
 - name:                      Import the ingress controller certificate to IHS
   shell:                     "{{ __ihs_gsk_api }} -cert -add -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}  -label 'ingress-nginx-cert' -file /tmp/ingress-nginx-cert.pem"
   register:                  ihs_import_cert_output
+  when:                      enable_ingress_tls | default(true) | bool
 
 - name:                      Get the updated list IHS certificates after import
   shell:                     "{{ __ihs_gsk_api }} -cert -list -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}"
   register:                  ihs_cert_list
   become:                    true
+  when:                      enable_ingress_tls | default(true) | bool
 
 - name:                      Print the updated list of certificates
   debug:
     msg:                     "{{ ihs_cert_list.stdout_lines }}"
+  when:                      enable_ingress_tls | default(true) | bool
 
 - name:                      Clean up /tmp/ingress-nginx-cert.pem
   file:
     path:                    /tmp/ingress-nginx-cert.pem
     state:                   absent
   become:                    true
+  when:                      enable_ingress_tls | default(true) | bool
 
-- name:                      Replace all {{ __controller_http_node_port }} with {{ __controller_https_node_port }} in httpd.conf
+- name:                      Replace {{ __controller_http_node_port }} with {{ __controller_https_node_port }} in httpd.conf (enable TLS)
   replace:
     path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
     regexp:                  'http://([^:]+):{{ __controller_http_node_port }}'
     replace:                 'https://\1:{{ __controller_https_node_port }}'
     backup:                  yes
   become:                    true
+  when:                      enable_ingress_tls | default(true) | bool
 
-- name:                      Ensure SSLProxyEngine On is set in httpd.conf
+- name:                      Replace {{ __controller_https_node_port }} with {{ __controller_http_node_port }} in httpd.conf (disable TLS)
+  replace:
+    path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
+    regexp:                  'https://([^:]+):{{ __controller_https_node_port }}'
+    replace:                 'http://\1:{{ __controller_http_node_port }}'
+    backup:                  yes
+  become:                    true
+  when:                      not (enable_ingress_tls | default(true) | bool)
+
+- name:                      Replace {{ __mw_proxy_port }} with {{ __mw_proxy_port_https }} in httpd.conf (enable TLS)
+  replace:
+    path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
+    regexp:                  'http://([^:]+):{{ __mw_proxy_port }}'
+    replace:                 'https://\1:{{ __mw_proxy_port_https }}'
+    backup:                  yes
+  become:                    true
+  when:
+    - pool_server | default(false) | bool
+    - enable_ingress_tls | default(true) | bool
+
+- name:                      Replace {{ __mw_proxy_port_https }} with {{ __mw_proxy_port }} in httpd.conf (disable TLS)
+  replace:
+    path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
+    regexp:                  'https://([^:]+):{{ __mw_proxy_port_https }}'
+    replace:                 'http://\1:{{ __mw_proxy_port }}'
+    backup:                  yes
+  become:                    true
+  when:
+    - pool_server | default(false) | bool
+    - not (enable_ingress_tls | default(true) | bool)
+
+- name:                      Ensure SSLProxyEngine On is set in httpd.conf (enable TLS)
   lineinfile:
     path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
     regexp:                  '^SSLProxyEngine\s+.*'
@@ -57,6 +102,17 @@
     insertafter:             '^SSLProtocolDisable'
     backup:                  yes
     state:                   present
+  when:                      enable_ingress_tls | default(true) | bool
+
+# - name:                      Ensure SSLProxyEngine Off is set in httpd.conf (disable TLS)
+#   lineinfile:
+#     path:                    "{{ __ihs_install_location }}/conf/httpd.conf"
+#     regexp:                  '^SSLProxyEngine\s+.*'
+#     line:                    'SSLProxyEngine Off'
+#     insertafter:             '^SSLProtocolDisable'
+#     backup:                  yes
+#     state:                   present
+#   when:                      not (enable_ingress_tls | default(true) | bool)
 
 - name:                      Restart HTTP Server
   include_role:

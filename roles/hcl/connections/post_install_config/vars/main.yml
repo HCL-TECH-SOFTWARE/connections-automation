@@ -14,7 +14,12 @@ __cnx_major_version:         "{{ cnx_major_version | default('8') }}"
 __ldap_realm:                "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com') }}"
 __ldap_server_default:       "{{ hostvars[groups['ldap_servers'][0]]['inventory_hostname'] }}"
 __ldap_server:               "{{ ldap_server | default( __ldap_server_default ) }}"
-__ldap_bind_user:            "{{ ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com') }}"
+__ldap_bind_user: >-         
+                              {{
+                                'cn=Directory Manager'
+                                if ansible_distribution == 'SLES'
+                                else ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com')
+                              }}
 __ldap_bind_pass:            "{{ ldap_bind_pass | default('password') }}"
 
 # CNX front door
@@ -89,6 +94,8 @@ __mobilecfg_namespaces:
   xsi="http://www.w3.org/2001/XMLSchema-instance"
 __mobilecfg_push_xpath:             "/tns:config/tns:Push"
 __mobilecfg_mobileadmin_xpath:      "/tns:config/tns:MobileAdmin"
+# WARNING: cnx_mobile_reject_untrusted_certs should never be set to false in Production deployments
+__mobilecfg_reject_untrusted_certs: "{{ cnx_mobile_reject_untrusted_certs | lower }}"
 
 # Touchpoint - touchpoint-config.xml
 __touchpoint_config_file:                         "{{ __was_install_location }}/profiles/{{ __profile_name }}/config/cells/{{ __was_cellname }}/LotusConnections-config/touchpoint-config.xml"

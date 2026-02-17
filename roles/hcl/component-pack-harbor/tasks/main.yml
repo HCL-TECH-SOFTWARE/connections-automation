@@ -46,7 +46,7 @@
   when:                      __setup_opensearch |bool
 
 - name:                      Check if opensearch is deployed and pod is in running state
-  shell:                     "kubectl wait -n {{ __default_namespace }} --for=jsonpath='{.status.phase}'=Running  pods --selector app.kubernetes.io/name='opensearch' --timeout=1s"
+  shell:                     "kubectl wait -n {{ __default_namespace }} --for=jsonpath='{.status.phase}'=Running  pods --selector app.kubernetes.io/name='opensearch' --timeout=5s"
   register:                  opensearch_pod_running
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true

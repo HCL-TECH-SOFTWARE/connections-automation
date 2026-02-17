@@ -5,13 +5,13 @@ __cnx_db_update_file:           "{{ cnx_db_update_file | default('65cr1-database
 
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
 __db_version:                   "{{ db_version | default('8.0') }}"
-__download_location:            "{{ connections_wizards_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/Connections7') }}"
+__download_location:            "{{ connections_wizards_download_location | default('connections.internal.example.com:8001/Connections7') }}"
 __package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_8.0_wizards_lin_aix.tar') }}"
 __db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
 __installation_folder:          "{{ __db_extraction_folder }}/Wizards"
 __keep_db_extraction_folder:    "{{ keep_db_extraction_folder | default(false)|bool }}"
 
-__docs_download_location:       "{{ cnx_docs_download_location | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/Docs') }}"
+__docs_download_location:       "{{ cnx_docs_download_location | default('http://connections.internal.example.com:8001/Docs') }}"
 __docs_package_name:            "{{ cnx_docs_package_name | default('HCL_Docs_v202.zip') }}"
 __docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
 __docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"

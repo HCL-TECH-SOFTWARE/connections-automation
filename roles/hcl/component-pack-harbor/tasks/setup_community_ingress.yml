@@ -163,3 +163,16 @@
 - name:                      Wait for ingress controller to become ready as per https://kubernetes.github.io/ingress-nginx/deploy/
   shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
   become_user:               "{{ __sudo_user }}"
+
+- name:                      Import Ingress NGINX TLS certificate to IHS
+  include_role:
+    name:                    roles/hcl/component-pack-harbor/enable-ingress-tls
+    apply:
+      delegate_to:           "{{ item }}"
+      become:                true
+  vars:
+      __ihs_hostname:        "{{ item.split('.')[0] }}"
+      __ihs_hostname_fqdn:   "{{ item }}"
+  loop:                      "{{ groups['ihs_servers'] }}"
+  when:
+    - (ingress_nginx_tls_enable | default(false))|bool

@@ -1,0 +1,31 @@
+---
+- name:                   Check if DB already created for 389 DS
+  stat:
+    path:                 "{{ __db_ldif_success_file }}"
+  register:                ldap_database_already_created
+
+- name:                    Check if 389 DS instance directory exists
+  stat:
+    path:                 "{{ __ds_instance_dir }}"
+  register:                ds_instance_stat
+
+- name:                   Ensure /etc/dirsrv directory exists
+  file:
+    path:                 /etc/dirsrv
+    state:                directory
+    owner:                root
+    group:                root
+    mode:                 '0755'
+  become:                  true 
+
+- name:                     Render INF file for instance creation for 389 DS
+  template:
+    src:                    ds-instance.inf.j2
+    dest:                   "/etc/dirsrv/{{ __ds_instance_name }}.inf"
+    owner:                  root
+    group:                  root
+    mode:                   "0600"
+  become:                    true
+  when:
+    - not ds_instance_stat.stat.exists
+

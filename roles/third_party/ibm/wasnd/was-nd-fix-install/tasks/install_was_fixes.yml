@@ -35,6 +35,45 @@
     backup:          yes
   ignore_errors:     true
 
+- name:              Check if WAS profiles directory exists
+  stat:
+    path:            "{{ __was_install_location }}/profiles"
+  register:          was_profiles_dir
+  changed_when:      false
+
+- name:              Check for running WebSphere processes
+  shell:             ps -ef | grep java | grep -E '(dmgr|nodeagent|server1|WebSphere)' | grep -v grep | awk '{print $2}'
+  register:          running_was_processes
+  failed_when:       false
+  changed_when:      false
+  when:
+    - not was_profiles_dir.stat.exists
+
+- name:              Stop Application Server
+  include_role:
+    name:            roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+  when:
+    - was_profiles_dir.stat.exists
+
+- name:              Stop Dmgr Server
+  include_role:
+    name:            roles/third_party/ibm/wasnd/was-dmgr-stop
+  when:
+    - was_profiles_dir.stat.exists
+
+- name:              Stop WAS Nodes
+  include_role:
+    name:            roles/third_party/ibm/wasnd/was-nodeagent-stop
+  when:
+    - was_profiles_dir.stat.exists
+
+- name:              Kill running WebSphere processes if found
+  shell:             "kill -9 {{ item }}"
+  loop:              "{{ running_was_processes.stdout_lines }}"
+  when:              
+    - running_was_processes.stdout_lines is defined
+    - running_was_processes.stdout_lines | length > 0
+
 - name:              Install IBM WAS ND Fixes Software
   command:
     chdir={{ __tmp_dir }}

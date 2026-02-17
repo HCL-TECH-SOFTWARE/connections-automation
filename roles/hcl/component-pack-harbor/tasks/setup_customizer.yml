@@ -39,7 +39,7 @@
 
 - name:                      Copy ms-teams stuff for customizer to "{{ __customizer_js_files_mount }}"
   copy:
-    src:                     "files/ms-teams/customizations/ms-teams"
+    src: "{{ __msteams_src_override | default('files/ms-teams/customizations/ms-teams') }}"
     dest:                    "{{ __customizer_js_files_mount }}"
     owner:                   "1000"
     group:                   "{{ nogroup }}"
@@ -63,7 +63,7 @@
 
 - name:                      "Render {{ __customizer_env }}"
   template:
-    src:                     "helmvars/customizer.yml.j2"
+    src:                     "{{ __customizer_helm_vars | default('helmvars/customizer.yml.j2') }}"
     dest:                    "{{ __customizer_env }}"
   become_user:               "{{ __sudo_user }}"
 

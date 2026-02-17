@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.34.1') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.34.3') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -55,8 +55,8 @@ __docker_registry_password:                  "{{ docker_registry_password | defa
 __huddoboards_registry_url:                  "{{ huddoboards_registry_url | default('quay.io/huddo') }}"
 __huddoboards_registry_username:             "{{ huddoboards_registry_username | default('admin') }}"
 __huddoboards_registry_password:             "{{ huddoboards_registry_password | default('password') }}"
-__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2025-08-26') }}"
-__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.3.0.tgz') }}"
+__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2026-02-04') }}"
+__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.4.0.tgz') }}"
 __huddoboards_chart_location:                "{{ huddoboards_chart_location | default('https://docs.huddo.com/assets/config/kubernetes') }}"
 
 __network_host:                              "{{ network_host | default('_site_') }}"
@@ -97,10 +97,13 @@ __k8s_master_ip:                             "{{ hostvars[groups['k8s_masters'][
 __master_ip:                                 "{{ load_balancer_dns | default( __k8s_master_ip ) }}"
 __es_ca_password:                            "{{ es_ca_password | default('password') }}"
 __es_key_password:                           "{{ es_key_password | default('password') }}"
-__redis_secret:                              "{{ redis_secret | default('password') }}"
+# redis_secret was replaced by cache_service_secret starting with CNX v8 CR13. Only set redis_secret if it is needed and with a different password.
+__cache_service_secret:                      "{{ cache_service_secret | default('password') }}"
+__redis_secret:                              "{{ redis_secret | default(__cache_service_secret) }}"
 __search_secret:                             "{{ search_secret | default('password') }}"
 __solr_secret:                               "{{ solr_secret | default('password') }}"
-__skip_configure_redis:                      "{{ skip_configure_redis | default('false') }}"
+# skip_configure_redis was replaced by skip_configure_cache_service starting with CNX v8 CR13
+__skip_configure_cache_service:              "{{ skip_configure_cache_service | default(skip_configure_redis | default('false')) }}"
 __force_regenerate_certs:                    "{{ force_regenerate_certs | default('false') }}"
 __force_regenerate_ingress:                  "{{ force_regenerate_ingress | default('false') }}"
 __force_regenerate_mongo:                    "{{ force_regenerate_mongo | default('false') }}"
@@ -220,3 +223,13 @@ __ingress_nginx_tls_cert_dir:                "/tmp/ingress-nginx-tls"
 __ingress_nginx_tls_cert_file:               "ingress-nginx-tls.crt"
 __ingress_nginx_tls_key_file:                "ingress-nginx-tls.key"
 __ingress_nginx_tls_enable:                  "{{ ingress_nginx_tls_enable | default(false) | bool }}"
+
+__mw_proxy_port:                             "{{ mw_proxy_port | default('30301') }}"
+__mw_proxy_port_https:                       "{{ mw_proxy_port_https | default('30443') }}"
+
+__haproxy_config_dir:                         "/etc/haproxy"
+__haproxy_config_file:                        "{{ __haproxy_config_dir }}/haproxy.cfg"
+
+# Internal variable — do not modify.
+# Specifies the URL of the internal container registry from which OpenSearch image is pulled during deployment.
+__opensearch_internal_registry_url:           "internal.repository.example.com"

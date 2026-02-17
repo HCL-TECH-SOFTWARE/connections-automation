@@ -44,3 +44,11 @@
     state:       present
   when:
     - ansible_distribution == "AlmaLinux"
+
+- name:          Copy OS details in /etc/SuSE-release
+  ansible.builtin.copy:
+    src:         /etc/os-release
+    dest:        /etc/SuSE-release
+    remote_src:  yes
+  when:
+    - ansible_distribution == "SLES"

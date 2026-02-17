@@ -72,7 +72,7 @@
     name:            ksh
     state:           present
   when:
-    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution == "AlmaLinux" or ansible_distribution == "RedHat"
 
 - name:              Install Development Tools group
   yum:

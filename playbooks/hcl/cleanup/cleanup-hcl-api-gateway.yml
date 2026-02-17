@@ -1,0 +1,21 @@
+---
+# Cleanup HCL API Gateway and APISIX
+# This playbook orchestrates the complete removal of APISIX infrastructure
+
+- name:                        Cleanup APISIX Helm releases and Kubernetes resources
+  hosts:                       k8s_masters[0]
+  become:                      true
+  roles:
+    - roles/hcl/cleanup/cleanup-api-gateway/cleanup-helm-k8s
+
+- name:                        Cleanup APISIX IHS configuration
+  hosts:                       ihs_servers
+  become:                      true
+  roles:
+    - roles/hcl/cleanup/cleanup-api-gateway/cleanup-ihs
+
+- name:                        Cleanup APISIX NFS data
+  hosts:                       nfs_servers[0]
+  become:                      true
+  roles:
+    - roles/hcl/cleanup/cleanup-api-gateway/cleanup-nfs

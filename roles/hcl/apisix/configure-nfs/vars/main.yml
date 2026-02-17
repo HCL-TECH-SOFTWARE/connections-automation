@@ -8,5 +8,5 @@ __persistentVolumePath:                          "{{ persistentVolumePath | defa
 
 # APISIX specific replica counts
 __apisix_etcd_replicaset:                        "{{ apisix_etcd_replicaset | default('3') }}"
-__apisix_namespace:                              "{{ apisix_namespace | default('connections') }}"
-__apisix_etcd_pv_name:                           "{{ apisix_etcd_pv_name | default(__apisix_namespace ~ '-apisix-etcd') }}"
+__apisix_namespace:                              "{{ apisix_namespace | default('apisix') }}"
+__apisix_etcd_pv_name:                           "{{ apisix_etcd_pv_name | default(__apisix_namespace ~ '-etcd') }}"

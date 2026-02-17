@@ -1,10 +1,4 @@
 ---
-- name:                     Provide absolute path for ldap add users cmd
-  set_fact:
-    __ldap_add_users:      "{{ __symas_bin_path }}{{ __ldap_add_users }}"
-  when:
-    - ansible_distribution == "RedHat" or ansible_distribution == "SLES"
-
 - name:                     "Verify if users are already created"
   stat:
     path:                   "{{ __users_ldif_success_file }}"
@@ -13,7 +7,7 @@
     - __setup_fake_ldap_users |bool
 
 - name:                     "Render {{ __users_ldif_location }}"
-  template:
+  template:     
     src:                    "{{ __users_ldif_template }}"
     dest:                   "{{ __users_ldif_location }}"
   when:
@@ -27,6 +21,21 @@
   when:
     - __setup_fake_ldap_users |bool
     - not ldap_users_already_created.stat.exists
+    - ansible_distribution != 'SLES'  
+
+- name:                   Create users on 389 Directory Server
+  command: >
+                          ldapadd -x
+                          -D "cn=Directory Manager"
+                          -w "{{ __ldap_user_admin_password }}"
+                          -H "ldap://{{ inventory_hostname }}:389"
+                          -f "{{ __users_ldif_location }}"
+  register:               users_389
+  failed_when:            (users_389.rc not in [0])
+  when:
+    - __setup_fake_ldap_users | bool
+    - not ldap_users_already_created.stat.exists
+    - ansible_distribution == 'SLES'    
 
 - name:                     "Cleanup {{ __users_ldif_location }}"
   file:

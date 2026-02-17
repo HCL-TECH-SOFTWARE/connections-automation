@@ -140,7 +140,7 @@ setup_outlook_addin:                             false
 #enable_es_metrics:                               false
 enable_gk_flags:                                 false
 setup_ms_teams_extensions:                       false
-#skip_configure_redis:                            True
+#skip_configure_cache_service:                     True
 
 elasticsearch_default_port:                      30099
 

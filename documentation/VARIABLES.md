@@ -39,7 +39,7 @@ See [Sample Inventories](https://github.com/HCL-TECH-SOFTWARE/connections-automa
 Name | Default | Description
 ---- | --------| -------------
 setup_fake_ldap_users | true | true creates dummy ldap users
-ldap_bind_user | cn=Admin,dc=cnx,dc=pnp-hcl,dc=com | Ldap bind user
+ldap_bind_user | cn=Directory Manager if ansible_distribution == 'SLES' else cn=Admin,dc=cnx,dc=pnp-hcl,dc=com | Ldap bind user. Defaults to cn=Admin,dc=cnx,dc=pnp-hcl,dc=com. On SLES, this value is fixed to cn=Directory Manager.
 ldap_bind_pass | password | Password for simple authentication
 ldap_realm | dc=cnx,dc=pnp-hcl,dc=com | This directive specifies the DN suffix of queries that will be passed to this backend database
 ldap_admin_user | Admin | Ldap admin user
@@ -312,7 +312,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.7.24-3.1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
+containerd_version | 1.7.29-1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -322,14 +322,14 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.34.1 | Kubernetes version to be installed
+kubernetes_version | 1.34.3 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
 kube_binaries_download_url | https://cdn.dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.30.3 | Calico version to be installed
+calico_version | 3.31.3 | Calico version to be installed
 helm_version | 3.19.0 | Helm version to be installed
 haproxy_version | 3.1.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
@@ -355,11 +355,11 @@ was_defer_restart | *none* | Set to true to defer interim WAS restarts
 cp_replica_count | 1 | replica count to set in Helm charts for infrastructure, Orient Me and other apps
 skip_pod_checks | true | True will check if pods are in Running state during setup_infrastructure
 skip_connections_integration | false | True will skip profiles migration for Orient Me, Activities Plus, Outlook Desktop Plugin, ES metrics and MS Teams integration
-skip_configure_redis | false | True will skip Redis configuration. Redis is required for Orient Me, so only skip if you do not plan to deploy Orient Me
+skip_configure_cache_service | false | True will skip cache service (Valkey) configuration in WebSphere. Cache service is required for Orient Me, so only skip if you do not plan to deploy Orient Me
 credentials_name | myregkey | Kubernetes secret name for Docker registry credentials
 es_key_password | password | Elasticsearch Key password
 es_ca_password | password | Elasticsearch CA password
-redis_secret | password |  Redis secret used in bootstrap
+cache_service_secret | password | Cache service (Valkey) secret used in bootstrap
 search_secret | password | search secret used in bootstrap
 solr_secret | password | Solr secret used in bootstrap
 force_regenerate_certs | false | When set to true, the bootstrap installation will overwrite any existing certs/secret for all components managed by the bootstrap repository
@@ -397,8 +397,8 @@ huddo_boards_licence | *none* | Activities Plus license key
 huddoboards_registry_url | quay.io/huddo | huddoboards registry url
 huddoboards_registry_username | admin | huddoboards registry user name
 huddoboards_registry_password | password | huddoboards registry password
-huddoboards_image_tag | 2025-04-28 |  huddoboards image tag in huddoboards registry
-huddoboards_chart_name | huddo-boards-cp-1.2.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
+huddoboards_image_tag | 2026-02-04 |  huddoboards image tag in huddoboards registry
+huddoboards_chart_name | huddo-boards-cp-1.4.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials
 setup_elasticstack | false | True will setup ElasticStack
