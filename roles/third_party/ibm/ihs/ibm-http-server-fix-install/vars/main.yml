@@ -1,6 +1,6 @@
 ---
 __was_major_version:       "{{ was_major_version | default('8') }}"
-__repository_url:         "{{ ihs_fixes_repository_url | default('http://c7lb1.cnx.cwp.pnp-hcl.com:8001/was855FP19') }}"
+__repository_url:         "{{ ihs_fixes_repository_url | default('http://connections.internal.example.com:8001/was855FP19') }}"
 __tmp_dir:                "{{ tmp_dir | default('/opt/IBM/Binaries') }}"
 __logs_dir:               "{{ tmp_dir | default('/opt/IBM/Binaries') }}/logs"
 __iim_install_location:   "{{ iim_install_location  | default('/opt/IBM/InstallationManager') }}"

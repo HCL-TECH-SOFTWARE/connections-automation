@@ -33,3 +33,8 @@ __haproxy_cert_crt:                      "/etc/haproxy/ssl/nginx-selfsigned.crt"
 __haproxy_cert_pem:                      "{{ __haproxy_ssl_dir }}/haproxy.pem"
 
 __haproxy_install_success:               "{{ __haproxy_config_dir }}/haproxy_successfully_installed"
+
+__apisix_gateway_node_port_https:        "{{ apisix_gateway_node_port_https | default(31443) }}"
+
+__mw_proxy_port:                         "{{ mw_proxy_port | default('30301') }}"
+__mw_proxy_port_https:                   "{{ mw_proxy_port_https | default('30443') }}"

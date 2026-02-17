@@ -17,7 +17,12 @@ __ldap_login_properties:     "{{ ldap_login_properties | default('mail;uid') }}"
 __ldap_realm:                "{{ ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com') }}"
 __ldap_server_default:       "{{ hostvars[groups['ldap_servers'][0]]['inventory_hostname'] }}"
 __ldap_server:               "{{ ldap_server | default( __ldap_server_default ) }}"
-__ldap_bind_user:            "{{ ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com') }}"
+__ldap_bind_user: >-
+                              {{
+                                'cn=Directory Manager'
+                                if ansible_distribution == 'SLES'
+                                else ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com')
+                              }}
 __ldap_bind_pass:            "{{ ldap_bind_pass | default('password') }}"
 __ldap_server_type:          "{{ ldap_server_type | default('CUSTOM') }}"
 __ldap_ssl_enabled:          "{{ ldap_ssl_enabled | default('false') }}"

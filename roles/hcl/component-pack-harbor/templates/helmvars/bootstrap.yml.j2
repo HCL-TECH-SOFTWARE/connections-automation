@@ -5,10 +5,13 @@ env:
   set_master_ip: {{ __master_ip }}
   set_elasticsearch_ca_password: {{ __es_ca_password }}
   set_elasticsearch_key_password: {{ __es_key_password }}
+  # set_redis_secret was replaced by set_cache_service_secret starting with CNX v8 CR13. This variable will be removed from the template in future releases.
   set_redis_secret: {{ __redis_secret }}
+  set_cache_service_secret: {{ __cache_service_secret }}
   set_search_secret: {{ __search_secret }}
   set_solr_secret: {{ __solr_secret }}
-  skip_configure_redis: {{ __skip_configure_redis }}
+  # skip_configure_redis was replaced by skip_configure_cache_service starting with CNX v8 CR13. This variable will be removed from the template in future releases.
+  skip_configure_cache_service: {{ __skip_configure_cache_service }}
   set_opensearch_ca_password: {{ __opensearch_ca_password }}
   set_opensearch_key_password: {{ __opensearch_key_password }}
   force_regenerate_all: {{ __force_regenerate_certs }}

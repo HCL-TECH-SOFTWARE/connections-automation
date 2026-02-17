@@ -112,3 +112,11 @@ __symas_sbin_path:                          "/opt/symas/sbin/"
 __openldap_servers_folder_location:         "/usr/share/openldap-servers/DB_CONFIG.example"
 __ldap_folder_location:                     "/var/lib/ldap/DB_CONFIG"
 __db_config_template:                       "db_config.j2"
+
+__ds_instance_name:                         "ldap01"
+__ds_instance_dir:                          "/etc/dirsrv/slapd-{{ __ds_instance_name }}"
+__ds_cert_path:                             "{{ __ds_instance_dir }}/certs/server-cert.pem"
+__ds_cert_key_path:                         "{{ __ds_instance_dir }}/certs/server-key.pem"
+__ds_ca_cert_path:                          "{{ __ds_cert_path }}"
+__ds_ca_nickname:                          "Self-Signed-CA"
+

@@ -1,0 +1,35 @@
+{
+    "organisation": "00000000-0000-0000-0000-000000000000",
+    "settings": [
+        {
+            "id": "e00c9b1e-ae2a-4ea7-ab9a-1d557e132d9c",
+            "name": "c2.export.CACHE_SERVICE_TYPE.host",
+            "title": "c2.export.CACHE_SERVICE_TYPE.host",
+            "category": "General",
+            "description": "The cache service host to which we should export Connections SIB events. REQUIRED for cache service export",
+            "canModify": true,
+            "allowRoles": false,
+            "values": {
+                "___default_role___": {
+                    "isFile": false,
+                    "content": "CACHE_SERVICE_HOST"
+                }
+            }
+        },
+        {
+            "id": "e00c9b1e-ae2a-4ea7-ab9a-1d557e132d9d",
+            "name": "c2.export.CACHE_SERVICE_TYPE.port",
+            "title": "c2.export.CACHE_SERVICE_TYPE.port",
+            "category": "General",
+            "description": "The cache service port to which we should export Connections SIB events. REQUIRED for cache service export",
+            "canModify": true,
+            "allowRoles": false,
+            "values": {
+                "___default_role___": {
+                    "isFile": false,
+                    "content": "CACHE_SERVICE_PORT"
+                }
+            }
+        }
+    ]
+}

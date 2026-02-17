@@ -36,7 +36,7 @@ frontend localhost
     mode http
 
 frontend haproxy_mwproxy
-    bind *:30301
+    bind *:{{ __mw_proxy_port }}
     mode tcp
     option tcplog
     maxconn 100000
@@ -50,10 +50,28 @@ backend masters_mwproxy
     http-check send meth HEAD uri / ver HTTP/1.1
     http-check send hdr Host localhost
     {% for server in groups.k8s_workers %}
-    server {{ server }} {{ server }}:30301 check
+    server {{ server }} {{ server }}:{{ __mw_proxy_port }} check
     {% endfor %}
     http-request set-header X-Forwarded-Port %[dst_port]
     http-request add-header X-Forwarded-Proto https if { ssl_fc }
+
+frontend haproxy_mwproxy_https
+    bind *:{{ __mw_proxy_port_https }}
+    mode tcp
+    option tcplog
+    maxconn 100000
+    timeout client  10800s
+    default_backend masters_mwproxy_https
+
+backend masters_mwproxy_https
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_workers %}
+    server {{ server }} {{ server }}:{{ __mw_proxy_port_https }} check
+    {% endfor %}
 
 frontend haproxy_kube
     bind *:6443
@@ -72,14 +90,14 @@ backend masters
     server {{ server }} {{ server }}:6443 check
     {% endfor %}
 
-frontend haproxy_redis
+frontend haproxy_cache_service
     bind *:30379
     mode tcp
     option tcplog
     timeout client  10800s
-    default_backend masters_redis
+    default_backend masters_cache_service
 
-backend masters_redis
+backend masters_cache_service
     mode tcp
     option tcplog
     option tcp-check
@@ -189,6 +207,23 @@ backend masters_grafana
     default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
     {% for server in groups.k8s_workers %}
     server {{ server }} {{ server }}:31111 check
+    {% endfor %}
+
+frontend hcl_api_gateway
+    bind *:{{ __apisix_gateway_node_port_https }}
+    mode tcp
+    option tcplog
+    timeout client  10800s
+    default_backend masters_hcl_api_gateway
+
+backend masters_hcl_api_gateway
+    mode tcp
+    option tcplog
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 1024 weight 100
+    {% for server in groups.k8s_workers %}
+    server {{ server }} {{ server }}:{{ __apisix_gateway_node_port_https }} check
     {% endfor %}
 
 #frontend community_template_service_frontend

@@ -5,10 +5,11 @@ global:
 haproxy:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
+# Redis sections can be omitted starting with CR13. They will be removed from the template in future releases.
 redis7:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
-# Set legacy Redis to disabled to uninstall deployment
+  enabled: false
 redis:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
@@ -17,11 +18,10 @@ redis-sentinel:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   enabled: false
-mongo5:
-  clusterDomain: {{ __default_clusterDomain }}
+valkey:
   namespace: {{ __default_namespace }}
-  createSecret: false
   replicaCount: {{ __replica_count }}
+  enabled: true
 mongo7:
   clusterDomain: {{ __default_clusterDomain }}
   namespace: {{ __default_namespace }}

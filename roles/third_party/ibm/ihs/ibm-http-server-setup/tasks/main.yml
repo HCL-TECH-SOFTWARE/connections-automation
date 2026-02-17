@@ -4,6 +4,18 @@
 
 - name:                  Check Vars
   include_tasks:         check_vars.yml
+
+- name:                  Check if backup directory exists
+  stat:
+    path:                "{{ __backup_dir }}"
+  register:              upgrade_backup_exists
+  
+- name:                  Upgrade IHS to IHS 9
+  include_role:
+    name:                roles/third_party/ibm/ihs/ibm-http-server-upgrade
+  when:
+    - __ihs_major_version is version('9', '=')
+    - (ihs_major_version_installed is defined and ihs_major_version_installed is version('8', '=')) or (upgrade_backup_exists.stat.exists and ihs_already_installed.rc != 0)
   
 - name:                  Install IBM HTTP Servers 8 
   include_role:

@@ -1,0 +1,51 @@
+- include_vars:               ../../../third_party/nginx-install/vars/main.yml
+- include_vars:              ../vars/main.yml
+
+- name:                      Check if customizer.conf exists
+  stat:
+    path:                    "{{ __customizer_conf_location }}"
+  register:                  customizer_conf_stat
+  delegate_to:               "{{ item }}"
+  loop:                      "{{ groups['k8s_load_balancers'] | default([]) }}"
+
+- name:                      Replace {{ __mw_proxy_port }} with {{ __mw_proxy_port_https }} in customizer.conf (enable TLS)
+  replace:
+    path:                    "{{ __customizer_conf_location }}"
+    regexp:                  'http://([^:]+):{{ __mw_proxy_port }}'
+    replace:                 'https://\1:{{ __mw_proxy_port_https }}'
+    backup:                  yes
+  become:                    true
+  delegate_to:               "{{ item.item }}"
+  loop:                      "{{ customizer_conf_stat.results }}"
+  when:
+    - item.stat is defined
+    - item.stat.exists | default(false)
+    - not item.skipped | default(false)
+    - enable_ingress_tls | default(true) | bool
+
+- name:                      Replace {{ __mw_proxy_port_https }} with {{ __mw_proxy_port }} in customizer.conf (disable TLS)
+  replace:
+    path:                    "{{ __customizer_conf_location }}"
+    regexp:                  'https://([^:]+):{{ __mw_proxy_port_https }}'
+    replace:                 'http://\1:{{ __mw_proxy_port }}'
+    backup:                  yes
+  become:                    true
+  delegate_to:               "{{ item.item }}"
+  loop:                      "{{ customizer_conf_stat.results }}"
+  when:
+    - item.stat is defined
+    - item.stat.exists | default(false)
+    - not item.skipped | default(false)
+    - not (enable_ingress_tls | default(true) | bool)
+
+- name:                      Restart NGINX service
+  systemd:
+    name:                    nginx
+    state:                   restarted
+  become:                    true
+  delegate_to:               "{{ item.item }}"
+  loop:                      "{{ customizer_conf_stat.results }}"
+  when:
+    - item.stat is defined
+    - item.stat.exists | default(false)
+    - not item.skipped | default(false)

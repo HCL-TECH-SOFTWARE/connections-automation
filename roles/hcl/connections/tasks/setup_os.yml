@@ -1,3 +1,4 @@
+
 ---
 - name:          Install pre-requisites Zypper
   zypper:

@@ -18,6 +18,13 @@
 
 - debug:
     msg: "Installed JRE version: {{ jre_version_stat.stdout }}"
+  when:
+    - jre_version_stat.stdout is defined
+
+- debug:
+    msg: "Expected JRE version: {{ __jre_package_build }}"
+  when:
+    - __jre_package_build is defined
 
 - name:                     Determine if JRE upgrade is needed
   set_fact:
@@ -53,6 +60,14 @@
     - jre_stat.stat.exists
     - tdi_already_installed.stat.exists
     - upgrade_jre_needed | default(false)
+
+- name:                     Remove old jre backup if it exists
+  shell:                    "rm -rf {{ __tdi_user_install_dir }}/jvm/jre_*"
+  when:
+    - jre_stat.stat.exists
+    - tdi_already_installed.stat.exists
+    - upgrade_jre_needed | default(false)
+  ignore_errors:            yes
 
 - name:                     Backing up old jre dir
   command:                  mv "{{ __tdi_user_install_dir }}/jvm/jre" "{{ __tdi_user_install_dir }}/jvm/jre_{{ ansible_date_time.iso8601 }}"

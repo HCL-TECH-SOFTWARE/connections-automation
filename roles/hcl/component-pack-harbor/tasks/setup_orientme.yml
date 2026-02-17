@@ -23,7 +23,7 @@
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade orientme
-  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait --timeout 10m"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for people-migrate pod to become ready

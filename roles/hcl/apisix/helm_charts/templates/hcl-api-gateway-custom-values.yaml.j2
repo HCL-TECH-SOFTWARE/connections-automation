@@ -1,75 +1,34 @@
-# ---------------------------------------------------------------------------
-# Custom values for hcl-api-gateway
-# Use this file to override default values in values.yaml for your environment.
-# ---------------------------------------------------------------------------
+# hcl-api-gateway custom values for Helm deployment
 
-# -----------------------------------------------------------------------------
-# Upstreams configuration
-# -----------------------------------------------------------------------------
 productUpstreams:
   hcl:
-    # -- (string) Name of the default HCL backend upstream
+    # REQUIRED: Name of the default HCL backend upstream
     defaultUpstream: hcl-backend
 
 upstreams:
-  # -- (array) List of upstream definitions. Each upstream can have multiple external nodes
   - name: hcl-backend
-    # -- (string) Protocol to use for HCL backend (http or https)
     scheme: https
     externalNodes:
+      # REQUIRED: HCL backend URL or domain
       - name: "{{ __frontend_fqdn }}"
-        # -- (string) CNX backend URL or domain
+        # Do not override
         type: Domain
-        # -- (string) Node type (Domain or IP)
+        # Do not override unless backend port is different
         port: 443
-        # -- (int) Port number for backend
 
-# -----------------------------------------------------------------------------
-# Swagger UI configuration
-# -----------------------------------------------------------------------------
 swaggerUi:
-  # -- (bool) Enable Swagger UI for API documentation
   enabled: true
-  # -- (int) Number of replicas for Swagger UI deployment
   replicas: 1
-  # -- (string) Custom image containing OpenAPI specs
+  # REQUIRED: Provide your Docker registry URL and image tag
   image: "{{ __docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
-  # -- (string) Image pull policy for Swagger UI
   imagePullPolicy: IfNotPresent
-  # -- Kubernetes secret name for Docker registry credentials
+{% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
   imagePullSecrets:
     - {{ __hcl_api_gateway_image_pull_secret_name }}
-  # -- (string) Server URL for Swagger UI (should match your APISIX dataplane endpoint)
-  serverUrl: "{{ __apisix_swagger_server_url }}"
-  # -- (array) List of OpenAPI spec files to include in Swagger UI
-  specFiles:
-    - name: "Blogs API"
-      file: "blogs.yaml"
-    - name: "Moderation API"
-      file: "moderation.yaml"
-  ingress:
-    enabled: true
-    ingressClass: nginx
-    path: {{ __apisix_route_path }}
-    tls:
-      enabled: true
-      secretName: "{{ __ingress_nginx_secret_name }}"
-      hosts:
-{% if  __ingress_multi_domain_enabled == "true"  %}
-        - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
-{% if  load_balancer_dns != frontend_fqdn %}
-        - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
 {% endif %}
-{% else %}
-        - "{{ cnx_application_ingress }}"
-{% endif %}
-  service:
-    # -- (string) Service type for Swagger UI (e.g., NodePort, ClusterIP)
-    type: ClusterIP
 
-apisixTLS:
-  enabled: true
-  secretName: "{{ __ingress_nginx_secret_name }}"
+apisix:
+  # REQUIRED: List of hosts for APISIX routes
   hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
     - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
@@ -79,5 +38,23 @@ apisixTLS:
 {% else %}
     - "{{ cnx_application_ingress }}"
 {% endif %}
-
-ingressClassName: "{{ __apisix_ingress_class }}"
+  # REQUIRED: Ingress class name
+  ingressClassName: "{{ __apisix_ingress_class }}"
+  # REQUIRED: Base path for routes
+  basePath: {{ __apisix_route_path }}
+  adminApi:
+    enabled: true
+    # REQUIRED: Admin API service name
+    serviceName: {{ __apisix_admin_service_name }}
+    # REQUIRED: Admin API service port
+    servicePort: {{ __apisix_admin_service_port }}
+  gatewayProxy:
+    enabled: true
+    # REQUIRED: Gateway proxy service name
+    serviceName: {{ __apisix_gateway_service_name }}
+    # REQUIRED: Gateway proxy service port
+    servicePort: {{ __apisix_gateway_service_port }}
+  tls:
+    enabled: true
+    # REQUIRED: Secret name for APISIX TLS cert
+    secretName: "{{ __ingress_nginx_secret_name }}"

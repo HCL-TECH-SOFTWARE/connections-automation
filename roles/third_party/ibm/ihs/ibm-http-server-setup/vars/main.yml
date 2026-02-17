@@ -1,2 +1,3 @@
 __ihs_major_version:       "{{ ihs_major_version }}"
 __ihs_package_name:        "\"name='IBM HTTP Server for WebSphere Application Server'\""
+__backup_dir:              "{{ backup_dir | default('/opt/IBM/ihs_backup') }}"

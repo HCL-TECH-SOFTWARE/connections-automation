@@ -1,0 +1,109 @@
+# APISIX custom values for Helm deployment
+
+global:
+{% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
+  imagePullSecrets:
+    - {{ __hcl_api_gateway_image_pull_secret_name }}
+{% else %}
+  imagePullSecrets: []
+{% endif %}
+
+# Mount HCL custom libraries (do not change mountPath)
+extraVolumes:
+  - name: hcl-custom-libs
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: hcl-custom-libs
+    # This path is required by HCL custom libraries. Do not override.
+    mountPath: /usr/local/apisix/hcl
+    readOnly: true
+
+# Required for HCL custom libraries. Do not override these environment variables.
+extraEnvVars:
+  - name: LUA_CPATH
+    value: "/usr/local/apisix/hcl/lib/lua/5.1/?.so;;"
+  - name: LD_LIBRARY_PATH
+    value: "/usr/local/apisix/hcl/lib:/usr/local/lib:/usr/lib"
+
+extraInitContainers:
+  - name: setup-hcl-libs
+    # REQUIRED: Provide your Docker registry URL and image tag
+    image: "{{ __docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+    volumeMounts:
+      - name: hcl-custom-libs
+        # This path is required. Do not override.
+        mountPath: /usr/local/apisix/hcl
+
+service:
+  type: NodePort
+  http:
+    # REQUIRED: Set the NodePort for HTTP
+    nodePort: {{ __apisix_gateway_node_port_http }}
+  tls:
+    # REQUIRED: Set the NodePort for HTTPS
+    nodePort: {{ __apisix_gateway_node_port_https }}
+
+apisix:
+  customPlugins:
+    enabled: true
+    # Lua path for custom libraries (do not override)
+    luaPath: "/usr/local/apisix/hcl/share/lua/5.1/?.lua;/usr/local/apisix/hcl/share/lua/5.1/?/init.lua;;"
+    plugins: []
+  ssl:
+    enabled: true
+    # REQUIRED: Set your frontend FQDN
+    fallbackSNI: {{ __frontend_fqdn }}
+  admin:
+    enabled: true
+    # REQUIRED: Set to true to enable the embedded Admin UI
+    enable_admin_ui: {{ __apisix_enable_admin_ui }}
+    credentials:
+      # REQUIRED: Provide the Kubernetes secret name for admin credentials
+      secretName: {{ __apisix_secrets_name }}
+      secretAdminKey: admin-password
+      secretViewerKey: viewer-password
+  nginx:
+    workerProcesses: 4
+
+# Enable APISIX Ingress Controller
+ingress-controller:
+  enabled: true
+  config:
+    kubernetes:
+      # REQUIRED: Set the ingress class name
+      ingressClass: "{{ __apisix_ingress_class }}"
+  apisix:
+    adminService:
+      # REQUIRED: Set the APISIX Admin service name, namespace, and port
+      name: {{ __apisix_admin_service_name }}
+      namespace: {{ __apisix_namespace }}
+      port: {{ __apisix_admin_service_port }}
+  gatewayProxy:
+    createDefault: true
+    provider:
+      controlPlane:
+        auth:
+          adminKey:
+            # REQUIRED: Provide the admin password
+            value: {{ __apisix_admin_password }}
+
+etcd:
+  enabled: true
+  # REQUIRED: Set the number of etcd replicas
+  replicaCount: {{ __apisix_etcd_replicaset }}
+  persistence:
+    enabled: true
+    # REQUIRED: Set the persistent volume size and storage class
+    size: {{ __apisix_etcd_volume_size }}
+    storageClass: "{{ __apisix_storage_class_name }}"
+  selector:
+    matchLabels:
+      # REQUIRED: Set the etcd PV name
+      attachTo: {{ __apisix_etcd_pv_name }}

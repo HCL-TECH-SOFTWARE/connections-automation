@@ -1,0 +1,36 @@
+---
+- name:                     Load shared APISIX cleanup variables
+  include_vars:             "{{ role_path }}/../vars/main.yml"
+
+- name:                     Display NFS cleanup plan
+  ansible.builtin.debug:
+    msg:                    "Starting cleanup of APISIX NFS data on {{ inventory_hostname }}."
+  tags:                     apisix_cleanup
+
+- name:                     Remove APISIX ETCD NFS directories
+  ansible.builtin.file:
+    path:                   "/{{ __persistentVolumePath }}/{{ __apisix_etcd_pv_name }}-{{ item }}"
+    state:                  absent
+  loop:                     "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Remove APISIX entries from NFS exports file
+  ansible.builtin.lineinfile:
+    path:                   "{{ __nfs_exports_destination }}"
+    regexp:                 "^/{{ __persistentVolumePath }}/{{ __apisix_etcd_pv_name }}-{{ item }}.*"
+    state:                  absent
+  loop:                     "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Re-export NFS file systems
+  ansible.builtin.command:  exportfs -ra
+  ignore_errors:            true
+  changed_when:             true
+  tags:                     apisix_cleanup
+
+- name:                     Display NFS cleanup completion message
+  ansible.builtin.debug:
+    msg:                    "APISIX NFS data cleanup completed on {{ inventory_hostname }}."
+  tags:                     apisix_cleanup

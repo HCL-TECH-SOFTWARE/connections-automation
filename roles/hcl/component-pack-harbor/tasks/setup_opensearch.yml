@@ -29,23 +29,38 @@
      __opensearch_replica_count:    "{{ count_workers }}"
   when:                      __enable_pod_auto_scaling |bool
 
+- name:                      Resolve docker registry URL for OpenSearch
+  set_fact:
+    __opensearch_registry_url: >-
+      {{
+        __docker_registry_url
+        if (__docker_registry_url is defined and 'hclcr.io' in __docker_registry_url)
+        else __opensearch_internal_registry_url
+      }}
+
 - name:                      "Render {{ __opensearch_master_env }}"
   template:
     src:                     "helmvars/opensearch_master.yml.j2"
     dest:                    "{{ __opensearch_master_env }}"
   become_user:               "{{ __sudo_user }}"
+  vars:
+    __docker_registry_url:   "{{ __opensearch_registry_url }}"
 
 - name:                      "Render {{ __opensearch_data_env }}"
   template:
     src:                     "helmvars/opensearch_data.yml.j2"
     dest:                    "{{ __opensearch_data_env }}"
   become_user:               "{{ __sudo_user }}"
+  vars:
+    __docker_registry_url:   "{{ __opensearch_registry_url }}"
 
 - name:                      "Render {{ __opensearch_client_env }}"
   template:
     src:                     "helmvars/opensearch_client.yml.j2"
     dest:                    "{{ __opensearch_client_env }}"
   become_user:               "{{ __sudo_user }}"
+  vars:
+    __docker_registry_url:   "{{ __opensearch_registry_url }}"
 
 - name:                      Get chart and version harbor OCI
   shell:                     "helm show all {{ __oci_helm_repository }}/opensearch --devel | grep -oP '^version:\\s*\\K[^ ]+'"

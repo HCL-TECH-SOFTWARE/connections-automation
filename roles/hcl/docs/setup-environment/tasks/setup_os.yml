@@ -41,14 +41,14 @@
 
 - name:          Install pre-requisites Zypper for SUSE
   zypper:
-    name:        ['nfs-client', 'gtk2', 'libXtst', 'xorg-x11-fonts', 'psmisc', 'glibc-32bit', 'gtk2-32bit', 'libXtst-32bit', 'libXft-32bit', 'unzip', 'vim', 'python3-pip', 'python-passlib']
+    name:        ['nfs-client', 'gtk2', 'libXtst6', 'xorg-x11-fonts', 'psmisc', 'glibc-32bit', 'gtk2-32bit', 'libXtst6-32bit', 'libXft2-32bit', 'unzip', 'vim', 'python3-pip', 'python3-passlib']
     state:       present
   when:
     - ansible_distribution == "SLES"
 
 - name:          Install pre-requisites Zypper for Conversion service
   zypper:
-    name:        ['ImageMagick', 'libSM7']
+    name:        ['ImageMagick', 'libSM6']
     state:       present
   when:
     - ansible_distribution == "SLES"

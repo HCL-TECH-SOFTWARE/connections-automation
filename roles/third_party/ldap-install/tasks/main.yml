@@ -1,9 +1,23 @@
 ---
 - name:                      Install OpenLDAP
   include_tasks:             install_openldap.yml
+  when: 
+    ansible_os_family == "RedHat"
 
 - name:                      Configure OpenLDAP
   include_tasks:             configure_openldap.yml
+  when: 
+    ansible_os_family == "RedHat"
+
+- name:                      prepare 389ds install 389 DS
+  include_tasks:             prepare_389ds_install.yml
+  when: 
+   - ansible_distribution == "SLES"    
+
+- name:                      Install 389 DS
+  include_tasks:             install_389ds.yml
+  when: 
+    - ansible_distribution == "SLES"
 
 # Note: __ldap_setup_mt and __ldap_setup_internal for internal use only, don't set to true
 - name:                      Import MT LDAP schema
@@ -21,5 +35,15 @@
   when:
     - __ldap_setup_mt | bool
 
+- name:                      Generate TLS Certificate
+  include_tasks:             generate_tls_cert.yml  
+
 - name:                      Configure SSL
   include_tasks:             configure_ssl.yml
+  when:
+  - ansible_os_family == "RedHat"
+
+- name:                      Configure SSL for `389 DS`
+  include_tasks:             configure_ssl_389ds.yml
+  when:
+  - ansible_distribution == "SLES"

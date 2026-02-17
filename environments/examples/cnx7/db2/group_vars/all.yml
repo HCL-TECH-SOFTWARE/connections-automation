@@ -116,7 +116,7 @@ enable_pod_auto_scaling:                         true
 #enable_es_metrics:                               false
 #enable_gk_flags:                                 false
 #setup_ms_teams_extensions:                       false
-#skip_configure_redis:                            True
+#skip_configure_cache_service:                     True
 
 kudos_boards_licence:                            "PASTE_YOUR_LICENCE_KEY_HERE"
 

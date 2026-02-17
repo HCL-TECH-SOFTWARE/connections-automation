@@ -1,0 +1,142 @@
+---
+- include_vars:      ../../ihs9/ibm-http-server-9-fix-install/vars/main.yml
+- include_vars:      ../../ihs9/ibm-http-server-9-install/vars/main.yml
+
+- name:              Stop IHS Server
+  include_role:
+    name:            roles/third_party/ibm/ihs/ibm-http-server-stop
+
+- name:              Stop IHS Adminctl Server
+  include_role:
+    name:            roles/third_party/ibm/ihs/ibm-http-adminctl-stop
+
+- name:              Check installed IBM packages
+  command:           "{{ __iim_install_location }}/eclipse/tools/imcl listInstalledPackages"
+  register:          installed_packages
+  changed_when:      false
+  failed_when:       false
+
+- name:              Determine IHS 8.5, Plug-ins, and Toolbox installation status
+  set_fact:
+    ihs85_installed:   "{{ 'com.ibm.websphere.IHS.v85' in installed_packages.stdout }}"
+    plg85_installed:   "{{ 'com.ibm.websphere.PLG.v85' in installed_packages.stdout }}"
+    wct85_installed:   "{{ 'com.ibm.websphere.WCT.v85' in installed_packages.stdout }}"
+
+- name:              Ensure Backup directory exists
+  file:
+    path:            "{{ __backup_dir }}"
+    state:           directory
+    mode:            '0755'
+
+- name:              Backup IHS, Plug-ins, and Toolbox directories
+  shell: |
+    rsync -av --exclude='*.sock' --exclude='adminSocket' --exclude='siddport' \
+      "{{ item }}/" "{{ __backup_dir }}/{{ item | basename }}/"
+  with_items:
+    - "{{ __ihs_install_location }}"
+    - "{{ __plg_install_location }}"
+    - "{{ __wct_install_location }}"
+  when:              ihs85_installed
+
+- name:              Uninstall IBM HTTP Server 8.5
+  command: >
+    {{ __iim_install_location }}/eclipse/tools/imcl uninstall com.ibm.websphere.IHS.v85
+    -installationDirectory {{ __ihs_install_location }}
+    -acceptLicense
+    -log {{ __logs_dir }}/ihs_uninstall.log
+  when:              ihs85_installed
+
+- name:              Uninstall Web Server Plug-ins V8.5
+  command: >
+    {{ __iim_install_location }}/eclipse/tools/imcl uninstall com.ibm.websphere.PLG.v85
+    -installationDirectory {{ __plg_install_location }}
+    -acceptLicense
+    -log {{ __logs_dir }}/plugins_uninstall.log
+  when:              plg85_installed
+
+- name:              Uninstall WebSphere Customization Toolbox V8.5
+  command: >
+    {{ __iim_install_location }}/eclipse/tools/imcl uninstall com.ibm.websphere.WCT.v85
+    -installationDirectory {{ __wct_install_location }}
+    -acceptLicense
+    -log {{ __logs_dir }}/toolbox_uninstall.log
+  when:              wct85_installed
+
+- name:              Cleanup IHS folders
+  file:
+    path:            "{{ item }}"
+    state:           absent
+  with_items:
+   - "{{ __ihs_install_location }}/"
+   - "{{ __plg_install_location }}/"
+   - "{{ __wct_install_location }}/"
+
+- name:              Download and extract IHS V9 fix pack files
+  include_tasks:     ../../ihs9/ibm-http-server-9-fix-install/tasks/download_and_extract_files.yml
+
+- name:              Install IBM HTTP Server V9 with JDK
+  command: >
+    {{ __iim_install_location }}/eclipse/tools/imcl install com.ibm.websphere.IHS.v90 com.ibm.java.jdk.v8
+    -repositories {{ __tmp_dir }}/ihsfixes/repository.config,{{ __tmp_dir }}/wassdk/repository.config
+    -installationDirectory {{ __ihs_install_location }}
+    -sharedResourcesDirectory {{ __imshared_location }}
+    -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }}
+    -log {{ __logs_dir }}/ihs_9_install.log
+    -acceptLicense
+  register:          ihs_install
+  changed_when:      ihs_install.rc == 0
+
+- name:              Install Web Server Plug-ins V9 with JDK
+  command: >
+    {{ __iim_install_location }}/eclipse/tools/imcl install com.ibm.websphere.PLG.v90 com.ibm.java.jdk.v8
+    -repositories {{ __tmp_dir }}/ihsfixes/repository.config,{{ __tmp_dir }}/wassdk/repository.config
+    -installationDirectory {{ __plg_install_location }}
+    -sharedResourcesDirectory {{ __imshared_location }}
+    -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }}
+    -log {{ __logs_dir }}/plugins_9_install.log
+    -acceptLicense
+  register:          plg_install
+  changed_when:      plg_install.rc == 0
+
+- name:              Install WebSphere Customization Toolbox V9 with JDK
+  command: >
+    {{ __iim_install_location }}/eclipse/tools/imcl install com.ibm.websphere.WCT.v90 com.ibm.java.jdk.v8
+    -repositories {{ __tmp_dir }}/wctfixes/repository.config,{{ __tmp_dir }}/wassdk/repository.config
+    -installationDirectory {{ __wct_install_location }}
+    -sharedResourcesDirectory {{ __imshared_location }}
+    -preferences com.ibm.cic.common.core.preferences.keepFetchedFiles={{ __iim_keep_fetched_files }},com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts={{ __iim_preserve_artifacts }}
+    -log {{ __logs_dir }}/wct_9_install.log
+    -acceptLicense
+  register:          wct_install
+  changed_when:      wct_install.rc == 0
+
+- name:              Configure Plugin and WCT
+  block:
+    - include_vars:  ../../ihs/ibm-http-config-plgwct/vars/main.yml
+    
+    - include_role:
+        name:        roles/third_party/ibm/ihs/ibm-http-config-plgwct
+  throttle:          1
+
+- name:              Restore IHS key files from backup
+  copy:
+    src:             "{{ __backup_dir }}/HTTPServer/{{ __ihs_hostname }}-key.{{ item }}"
+    dest:            "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.{{ item }}"
+    remote_src:      yes
+  with_items:
+    - crl
+    - kdb
+    - rdb
+    - sth
+
+- name:              Set flag to skip certificate clean up and generation
+  set_fact:
+    ihs_skip_cert_generation: true
+
+- name:              Overwrite admin.conf
+  template:
+    src:             "../../ihs9/ibm-http-server-9-install/templates/{{ __tpl_admin_conf }}"
+    dest:            "{{ __ihs_install_location }}/conf/admin.conf"
+
+- name:              Cleanup Binaries directory
+  file:              path={{ __tmp_dir }} state=absent
