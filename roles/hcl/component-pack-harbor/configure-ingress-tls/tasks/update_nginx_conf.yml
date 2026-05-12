@@ -38,6 +38,36 @@
     - not item.skipped | default(false)
     - not (enable_ingress_tls | default(true) | bool)
 
+- name:                      Replace {{ __controller_http_node_port }} with {{ __controller_https_node_port }} in customizer.conf - Collabora WebSocket (enable TLS)
+  replace:
+    path:                    "{{ __customizer_conf_location }}"
+    regexp:                  'http://([^:]+):{{ __controller_http_node_port }}'
+    replace:                 'https://\1:{{ __controller_https_node_port }}'
+    backup:                  yes
+  become:                    true
+  delegate_to:               "{{ item.item }}"
+  loop:                      "{{ customizer_conf_stat.results }}"
+  when:
+    - item.stat is defined
+    - item.stat.exists | default(false)
+    - not item.skipped | default(false)
+    - enable_ingress_tls | default(true) | bool
+
+- name:                      Replace {{ __controller_https_node_port }} with {{ __controller_http_node_port }} in customizer.conf - Collabora WebSocket (disable TLS)
+  replace:
+    path:                    "{{ __customizer_conf_location }}"
+    regexp:                  'https://([^:]+):{{ __controller_https_node_port }}'
+    replace:                 'http://\1:{{ __controller_http_node_port }}'
+    backup:                  yes
+  become:                    true
+  delegate_to:               "{{ item.item }}"
+  loop:                      "{{ customizer_conf_stat.results }}"
+  when:
+    - item.stat is defined
+    - item.stat.exists | default(false)
+    - not item.skipped | default(false)
+    - not (enable_ingress_tls | default(true) | bool)
+
 - name:                      Restart NGINX service
   systemd:
     name:                    nginx

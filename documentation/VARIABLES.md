@@ -65,7 +65,7 @@ db_username | LCUSER | Database user to be passed to the Connections installer
 db_password | password | Database user password to be passed to the Connections installer
 db_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE, else the default port will be 50000
 db_hostname | *none* - required | Database hostname
-db_jdbc_file | /opt/IBM/db2/V11.1/java | Database JDBC driver path
+db_jdbc_file | /opt/IBM/db2/V12.1/java | Database JDBC driver path
 
 ### DB2 Variables
 Name | Default | Description
@@ -73,10 +73,10 @@ Name | Default | Description
 db2_download_location | *none* - required | DB2 install kit location to download
 setup_db2_jdbc | false | true will install jdbc drivers to WAS nodes
 db2_user | db2inst1 | DB2 Instance owner
-db2_installation_folder | /opt/IBM/db2/V11.1 | DB2 installation folder path
+db2_installation_folder | /opt/IBM/db2/V12.1 | DB2 installation folder path
 db2_instance_homedir | /home/db2inst1 | DB2 Instance owner home directory
-db2_package_name | v11.1.4fp5_linuxx64_universal_fixpack.tar.gz | DB2 package name
-db2_license_file | CNB23ML.zip | DB2 license file name
+db2_package_name | special_71609_v12.1.3_linuxx64_universal_fixpack.tar.gz | DB2 package name
+db2_license_file | DB2_ESE_AUSI_Activation_12.1.zip | DB2 license file name
 db2_instance | inst1 | logical Database Manager environment for DB2
 db2_instance_type | ese | DB2 instance type
 db2_instance_group | db2group | DB2 instance group
@@ -144,7 +144,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5028.20250710_1103 | WebSphere Fix Pack
+was_fp_version | 8.5.5029.20260128_1103 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -158,9 +158,9 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5028.20250710_1103 | IHS Fix Pack version
-wct_version | 8.5.5028.20250710_1103 | WebSphere Toolbox Fix Pack version
-ihs_major_version | *none* - required | Install HTTP Server major version, should be set to "8".
+ihs_version | 9.0.5025.20250820_1643 | IHS Fix Pack version
+wct_version | 9.0.5025.20250820_1643 | WebSphere Toolbox Fix Pack version
+ihs_major_version | *none* - required | Install HTTP Server major version, should be set to "9".
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -312,7 +312,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.7.29-1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
+containerd_version | 2.2.2-1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -322,9 +322,9 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.34.3 | Kubernetes version to be installed
+kubernetes_version | 1.35.2 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
-kube_binaries_download_url | https://cdn.dl.k8s.io/release | Kubernetes binary download path
+kube_binaries_download_url | https://dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
@@ -337,12 +337,17 @@ ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw
 nginx_version | 1.26.1 | nginx version to be installed
 build_nginx | true | true will build and install NGINX with headers-more-nginx-module to allow removal of Server information from header
 nginx_install_dir | /etc/nginx | NGINX install location
+setup_k8s_no_cp | false | Setup NGINX without Component Pack location directives
 nginx_logs_dir | /var/log/nginx | NGINX logs location
+nginx_log_rotate | false | If true, enable NGINX log rotation
+nginx_log_rotate_period | daily | log rotation frequency when `nginx_log_rotate` is true.
+nginx_log_rotate_count | 30 | Number of rotated logs to keep when `nginx_log_rotate` is true.
 nginx_pid_loc | /run/nginx.pid | Used when build_nginx=true, NGINX pid file location
 nginx_exec_path | /usr/sbin/nginx | Used when build_nginx=true, NGINX executable location
 nginx_user | nginx | User to run the NGINX process
 nginx_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the NGINX TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
 haproxy_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the HAProxy TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
+setup_metrics_server | false | True will install Kubernetes Metrics Server (required for HPA CPU metrics)
 
 ### Component Pack Variables
 Name | Default | Description
@@ -427,10 +432,20 @@ opensearch_auto_expand_replicas | *none* | Whether the OpenSearch cluster should
 elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 mongoTerminationGracePeriodSeconds | 90 | The amount of time (in seconds) Kubernetes will wait for mongo7 pod to gracefully shut down before forcibly terminating it.
 bootstrap_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | If provided, this variable specifies the Subject Alternative Names (SANs) to be passed to the Component Pack bootstrap for TLS certificates generation. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
-create_ingress_nginx_secret | false | Determines whether Ansible should manage the Kubernetes Ingress NGINX TLS secret. If set to true, Ansible will delete the existing secret specified in `ingress_nginx_secret_name` (if provided) and create a new TLS secret using the generated certificate and key.
-ingress_nginx_secret_name | ingress-nginx-tls-secret | Name of the Kubernetes TLS secret to be used as the default certificate for the Ingress NGINX controller. If `create_ingress_nginx_secret: true`, Ansible will create this secret using the generated TLS certificate and key.
-ingress_nginx_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | Used when `create_ingress_nginx_secret: true`. If provided, this variable specifies the Subject Alternative Names (SANs) for the ingress_nginx certificate. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
-ingress_nginx_tls_enable | false | True will import the Kubernetes Ingress NGINX TLS secret to IHS and update IHS configuration to use TLS port for the Component Pack.
+ingress_controller | traefik | Ingress controller type. Options: `traefik`, `ingress-nginx`. Use `ingress-nginx` only if you need to use the EOL Ingress NGINX controller.
+create_cp_tls_secret | false | Determines whether Ansible should manage the Kubernetes CP TLS secret. If set to true, Ansible will delete the existing secret specified in `cp_tls_secret_name` (if provided) and create a new TLS secret using the generated certificate and key. This variable is also used by Traefik for compatibility.
+cp_tls_secret_name | cnx-tls-secret | Name of the Kubernetes TLS secret to be used as the default certificate for the Ingress controller. If `create_cp_tls_secret: true`, Ansible will create this secret using the generated TLS certificate and key.
+cnx_tls_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | Used when `create_cp_tls_secret: true`. If provided, this variable specifies the Subject Alternative Names (SANs) for the cnx-tls-secret certificate. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`. This variable is also reused by Traefik for compatibility.
+cp_tls_enable | false | True will import the Kubernetes cnx-tls-secret secret to IHS and update IHS configuration to use TLS port for the Component Pack.
+controller_http_node_port | 32080 | HTTP NodePort for ingress traffic. Used by both ingress-nginx and Traefik.
+controller_https_node_port | 32443 | HTTPS NodePort for ingress traffic. Used by both ingress-nginx and Traefik.
+ingress_traefik_default_class_enabled | true | Set to true to make Traefik the default ingress controller without a specified class.
+ingress_traefik_dashboard_enabled | false | Enable Traefik web dashboard. Access at `https://{{ cnx_component_pack_ingress }}:{{ controller_https_node_port }}/dashboard/`.
+ingress_traefik_dashboard_username | traefik-admin | Username for Traefik dashboard basic authentication. Used when `ingress_traefik_dashboard_enabled: true`.
+ingress_traefik_dashboard_password | password | Password for Traefik dashboard basic authentication. Used when `ingress_traefik_dashboard_enabled: true`.
+ingress_traefik_prometheus_enabled | false | Enable Prometheus metrics endpoint for Traefik (port 9100).
+ingress_traefik_log_level | INFO | Traefik logging level. Options: `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`, `PANIC`.
+ingress_traefik_access_logs_enabled | false | Enable HTTP access logging for Traefik.
 
 ### NFS Variables
 Name | Default | Description

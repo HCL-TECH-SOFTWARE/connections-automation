@@ -13,7 +13,7 @@ cnx_application_ingress:                         "connections.example.com"
 # haproxy_custom_cert_sans:                       'lb.example.com,web.example.com,web.internal.example.com'
 # ldap_custom_cert_sans:                          '*.example.com,*.sub.example.com'
 # bootstrap_custom_cert_sans:                     '*.example.com,*.sub.example.com'
-# ingress_nginx_custom_cert_sans:                 '*.example.com,*.sub.example.com'
+# cnx_tls_custom_cert_sans:                      '*.example.com,*.sub.example.com'
 
 
 # Usernames and password for eventual customization. Shown here are default usernames and password. Change it to customize it
@@ -53,17 +53,17 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
-ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP29
+ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was905
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was905FP25
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 cnx_fixes_repository_url:                        "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 
-cnx_fixes_version:                               "8.0.0.0_CR13"
+cnx_fixes_version:                               "8.0.0.0_CR14"
 cnx_fixes_files:
-  - { file_name: "HC8.0_CR13.zip" }
+  - { file_name: "HC8.0_CR14.zip" }
 
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
@@ -71,8 +71,9 @@ cnx_major_version:                               "8"
 
 cnx_updates_enabled:                             True
 
-# NEW - must set to "8" for now.
-ihs_major_version:                               "8"
+# IBM HTTP Server major version to install (supported values: "8" or "9")
+# Controls which version-specific installation and configuration roles will be used
+ihs_major_version:                               "9"
 
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
 

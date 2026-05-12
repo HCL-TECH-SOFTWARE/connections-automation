@@ -47,12 +47,22 @@
   when:
    - ansible_distribution == "SLES" and not __build_nginx|bool
 
-- name:                     Install prerequisites if building NGINX
+- name:                     Install prerequisites if building NGINX (RHEL < 10 or SLES)
   package:
     name:                   ['gcc', "pcre-devel", "openssl-devel", "zlib-devel"]
     state:                  present
   when:
     - __build_nginx|bool
+    - (ansible_os_family == "RedHat" and ansible_distribution_major_version | int < 10) or ansible_distribution == "SLES"
+
+- name:                     Install prerequisites if building NGINX (RHEL 10+)
+  package:
+    name:                   ['gcc', "pcre2-devel", "openssl-devel", "zlib-devel"]
+    state:                  present
+  when:
+    - __build_nginx|bool
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version | int >= 10
 
 - name:                     Install prerequisites for semanage
   package:
@@ -116,3 +126,19 @@
     cmd:                    tail -c 500M /var/log/nginx/access.log > /var/log/nginx/access.log.tmp && mv /var/log/nginx/access.log.tmp /var/log/nginx/access.log
   become:                   true
   ignore_errors:            true
+  when:                     not __nginx_log_rotate|bool
+
+- name:                     Install logrotate package
+  package:
+    name:                   logrotate
+    state:                  present
+  when:                     __nginx_log_rotate|bool
+
+- name:                     Configure Nginx log rotation
+  template:
+    src:                    "{{ __nginx_logrotate_conf_template }}"
+    dest:                   "{{ __nginx_logrotate_conf_location }}"
+    owner:                  root
+    group:                  root
+    mode:                   '0644'
+  when:                     __nginx_log_rotate|bool

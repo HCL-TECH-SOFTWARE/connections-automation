@@ -12,25 +12,31 @@
   ignore_errors:      true
   when:               inventory_hostname == groups['k8s_masters'][0]
 
-- name:               Use default kubeadm_config_template if specified kubernetes kubeadm_config_template does not exist
-  set_fact:
-   __kubeadm_config_template: "kubeadm.config.default.j2"
-  when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists.failed
+- name:               Validate kubeadm config includes UpgradeConfiguration
+  shell:              "grep -q '^kind: UpgradeConfiguration' {{ __kubeadm_config_location }}"
+  register:           upgrade_config_check
+  ignore_errors: true
+  changed_when: false
+  when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists is defined and not kubeadm_config_template_exists.failed
 
-- name:               Use default master config initialization file
-  template:
-    src:              "{{ __kubeadm_config_template }}"
-    dest:             "{{ __kubeadm_config_location }}"
-  when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists.failed
+- name:               Determine if kubeadm upgrade config is valid
+  set_fact:
+    kubeadm_config_available: "{{ upgrade_config_check is defined and upgrade_config_check.rc == 0 }}"
+  when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists is defined and not kubeadm_config_template_exists.failed
 
 - name:               Wait for the cluster to become healthy due to the latest restart
   pause:
     seconds:          30
 
-- name:               "Upgrade Kubernetes control plane - {{ inventory_hostname }}"
+- name:               "Upgrade Kubernetes control plane with config - {{ inventory_hostname }}"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} --config={{ __kubeadm_config_location }} -y"
-  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_available | default(false) | bool and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1) != true
+
+- name:               "Upgrade Kubernetes control plane without config - {{ inventory_hostname }}"
+  command:            "{{ item }}"
+  with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} -y"
+  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and not kubeadm_config_available | default(false) | bool and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1) != true
 
 - name:               "Upgrade Kubernetes {{ inventory_hostname }} - self contained environment"
   command:            "{{ item }}"

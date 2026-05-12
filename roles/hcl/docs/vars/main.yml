@@ -1,6 +1,6 @@
 ---
 __setup_environment:                       "{{ setup_environment | default(true) }}"
-__download_location:                       "{{ cnx_docs_download_location | default('http://connections.internal.example.com:8001/Docs') }}"
+__download_location:                       "{{ cnx_docs_download_location | default('http://example.com:8001/Docs') }}"
 __package_name:                            "{{ cnx_docs_package_name | default('HCL_Docs_v202.zip') }}"
 __docs_install_version:                    "{{ docs_install_version | default('2.0.2') }}"
 __docs_updates_enabled:                    "{{ docs_updates_enabled | default(true) }}"

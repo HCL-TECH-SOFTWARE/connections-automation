@@ -29,8 +29,8 @@ extraEnvVars:
 extraInitContainers:
   - name: setup-hcl-libs
     # REQUIRED: Provide your Docker registry URL and image tag
-    image: "{{ __docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
-    imagePullPolicy: IfNotPresent
+    image: "{{ __hcl_api_gateway_docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
+    imagePullPolicy: {{ 'Always' if 'latest' in __hcl_api_gateway_config_image_tag else 'IfNotPresent' }}
     securityContext:
       runAsNonRoot: true
       runAsUser: 1000

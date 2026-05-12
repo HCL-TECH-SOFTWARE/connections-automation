@@ -1,5 +1,5 @@
 # Please read every variable and replace with appropriate value
-# For details of variable meanings, please see https://docs.kudosapps.com/boards/cp/
+# Based on the config file from https://docs.huddo.com/assets/config/kubernetes/boards-cp.yaml
 
 global:
   repository: {{ __huddoboards_registry_url }}
@@ -31,10 +31,6 @@ webfront:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
     FORCE_POLLING: "true"
   ingress:
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
-    pathType: ImplementationSpecific
-    path: /boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
@@ -47,15 +43,14 @@ webfront:
 {% else %}
     - "{{ cnx_application_ingress }}"
 {% endif %}
+    traefik:
+      stripPrefix:
+        enabled: true
 
 core:
   image:
     tag: {{ __huddoboards_image_tag }}  
   ingress:
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
-    pathType: ImplementationSpecific
-    path: /api-boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
@@ -68,6 +63,9 @@ core:
 {% else %}
     - "{{ cnx_application_ingress }}"
 {% endif %}
+    traefik:
+      stripPrefix:
+        enabled: true
 
 licence:
   image:

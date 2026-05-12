@@ -40,16 +40,17 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections7
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
-ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP28
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP29
+ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was905
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was905FP25
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 
-# NEW - must set to "8" for now.
-ihs_major_version:                               "8"
+# IBM HTTP Server major version to install (supported values: "8" or "9")
+# Controls which version-specific installation and configuration roles will be used
+ihs_major_version:                               "9"
 
 iim_bin_file:                                    "agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip"
 iim_version:                                     "1.9.1003.20200730_2125"
@@ -108,10 +109,10 @@ enable_pod_auto_scaling:                         true
 #setup_connections_volumes:                       false
 #setup_bootstrap:                                 false
 #setup_connections_env:                           false
+#setup_community_ingress:                         false
 #setup_infrastructure:                            false
 #setup_customizer:                                false
 #setup_opensearch:                                false
-#setup_community_ingress:                         false
 #setup_teams:                                     false
 #setup_tailored_exp:                              false
 #setup_orientme:                                  false

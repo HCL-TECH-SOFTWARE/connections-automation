@@ -1,10 +1,10 @@
-- name:               Check if "{{ inventory_hostname }}" is already part of the cluster and in Ready status
-  shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep -v control-plane | grep Ready
+- name:               Check if "{{ inventory_hostname }}" is already part of the cluster and in Ready status 
+  shell:              kubectl get nodes --no-headers | awk '{print $1" "$2}' | grep -E '^({{ inventory_hostname }}|{{ inventory_hostname_short }})[[:space:]]+Ready$'
   changed_when:       true
   register:           node_already_joined
+  delegate_to:        "{{ groups['k8s_masters'][0] }}"
   become:             false
   ignore_errors:      true
-
 
 - name:               Save join command to the file
   template:

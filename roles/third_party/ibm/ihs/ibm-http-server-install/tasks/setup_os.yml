@@ -1,10 +1,10 @@
 ---
-- name:          Disable SELinux on RHEL8/RHEL9
+- name:          Disable SELinux on RHEL8/RHEL9/RHEL10
   selinux:
     state:       disabled
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
-    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
+    - ansible_distribution_major_version | int >= 8
   ignore_errors: true
   notify:        reboot
 
@@ -14,25 +14,35 @@
     state: present
   when: ansible_os_family == "Suse"
 
-# java 32 bits for Toolbox/WCT 8.5
+# java 32 bits for Toolbox/WCT 8.5 (i686 packages not available on RHEL 10+)
 - name:          Install pre-requisites Yum
   yum:
     name: ['glibc.i686', 'libgcc.i686']
     state: present
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version | int < 10
 
-- name:          Install pre-requisites Yum on RHEL8/RHEL9
+- name:          Install pre-requisites Yum on RHEL8/9
   yum:
     name:        ['gtk2', 'libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
     state:       present
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
-    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
+    - ansible_distribution_major_version | int >= 8
+    - ansible_distribution_major_version | int < 10
+
+- name:          Install pre-requisites Yum on RHEL10+
+  yum:
+    name:        ['libXtst', 'xorg-x11-fonts-Type1', 'psmisc', 'libnsl']
+    state:       present
+  when:
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version | int >= 10
 
 - name:          Install libxcrypt-compat package
   dnf:
     name:        libxcrypt-compat
     state:       present
   when:
-    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution == "AlmaLinux" or ansible_distribution == "RedHat"

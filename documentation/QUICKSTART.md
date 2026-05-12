@@ -19,7 +19,7 @@
 >
 > #### 3. TLS for Ingress Controller (CR11 and Later)
 > - Before upgrading from v8 CR10 or earlier, set `force_regenerate_ingress: true` in `all.yml` to ensure that Component Pack bootstrap automatically creates the certificate for the Ingress Controller.
-> - If you prefer to use Ansible to create the certificate with a custom SAN value, refer to the descriptions of `create_ingress_nginx_secret`, `ingress_nginx_secret_name`, and `ingress_nginx_custom_cert_sans` in [`VARIABLES.md`](VARIABLES.md) how to do so.
+> - If you prefer to use Ansible to create the certificate with a custom SAN value, refer to the descriptions of `create_cp_tls_secret`, `cp_tls_secret_name`, and `cnx_tls_custom_cert_sans` in [`VARIABLES.md`](VARIABLES.md) how to do so.
 > - After the initial deployment, these settings can be disabled in subsequent runs to prevent the certificates from being continuously regenerated, which may lead to unexpected behavior.
 >
 > #### 4. iFix needed for HCL Connections Docs

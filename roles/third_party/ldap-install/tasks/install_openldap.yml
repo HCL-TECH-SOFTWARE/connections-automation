@@ -103,7 +103,7 @@
   when:
     - not ldap_database_already_created.stat.exists
     - ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "AlmaLinux"
-    - ansible_distribution_major_version >= "8"
+    - ansible_distribution_major_version | int >= 8
 
 - name:                     "Render {{ __db_ldif_location }} for SUSE"
   template:

@@ -1,7 +1,6 @@
 - name:                     Uncordon done
   vars:
-    node_name:              "{{ inventory_hostname.split('.')[0] if ansible_distribution == 'SLES' else inventory_hostname }}"
-  command:                  "{{ item }}"
-  with_items:
-   - "kubectl uncordon {{ node_name }}"
+    node_name:              "{{ inventory_hostname.split('.')[0] if hostvars[inventory_hostname]['ansible_distribution'] == 'SLES' else inventory_hostname }}"
+  command:                  "kubectl uncordon {{ node_name }}"
   become:                   false
+  delegate_to:              "{{ groups['k8s_masters'][0] }}"

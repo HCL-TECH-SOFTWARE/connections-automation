@@ -96,6 +96,11 @@
   when:
     - ansible_distribution == "SLES"    
     
+- name:                     Check if containerd config already exists (before install, to detect upgrade vs fresh)
+  stat:
+    path:                   /etc/containerd/config.toml
+  register:                 containerd_config_before_install
+
 - name:                     Install containerd.io {{ __containerd_version }}
   package:
     name:                   containerd.io-{{ __containerd_version }}
@@ -109,8 +114,27 @@
     path:                   "/etc/containerd"
     state:                  directory
 
-- name:                     Configure containerd
+- name:                     Remove auto-created config.toml on fresh install (contains disabled_plugins cri)
+  file:
+    path:                   /etc/containerd/config.toml
+    state:                  absent
+  when:                     not containerd_config_before_install.stat.exists
+
+- name:                     Create config.toml with defaults on fresh install
   shell:                    containerd config default > /etc/containerd/config.toml
+  when:                     not containerd_config_before_install.stat.exists
+
+- name:                     Backup existing containerd config
+  copy:
+    src:                    /etc/containerd/config.toml
+    dest:                   /etc/containerd/config.toml.bak
+    remote_src:             yes
+    mode:                   '0644'
+  when:                     containerd_config_before_install.stat.exists
+
+- name:                     Migrate existing containerd config to current version
+  shell:                    containerd config migrate /etc/containerd/config.toml > /tmp/containerd-config-migrated.toml && mv /tmp/containerd-config-migrated.toml /etc/containerd/config.toml
+  when:                     containerd_config_before_install.stat.exists
 
 - name:                     Create registry host directory to configure docker.io mirror
   file:                     path=/etc/containerd/certs.d/docker.io state=directory mode=0644

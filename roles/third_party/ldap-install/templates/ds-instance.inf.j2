@@ -4,7 +4,7 @@ config_version = 2
 [slapd]
 instance_name = {{ __ds_instance_name }}
 root_dn = cn=Directory Manager
-root_password = {{ __ldap_user_admin_password }}
+root_password = {{ __ldap_slappasswd }}
 
 [backend-userroot]
 suffix = {{ __ldap_olc_suffix }}

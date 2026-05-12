@@ -1,0 +1,37 @@
+- name:                      Create {{ __conf_d_location }}
+  file:
+    path:                    "{{ __conf_d_location }}"
+    state:                   directory
+
+- name:                     "Render {{ __no_cp_conf_template }} to {{ __no_cp_conf_location }}"
+  template:
+    src:                    "{{ __no_cp_conf_template }}"
+    dest:                   "{{ __no_cp_conf_location }}"
+    backup:                 yes
+
+- name:                     Restart nginx service
+  service:
+    name:                   nginx
+    state:                  restarted
+    daemon_reload:          yes
+
+- name:                     Wait for NGINX port 443 to be ready
+  wait_for:
+    port:                   443
+    host:                   "{{ inventory_hostname }}"
+    timeout:                60
+    delay:                  5
+
+- name:                     Add the NGINX certificate to trust store (if DMGR is up)
+  block:
+    - include_role:
+        name:               roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+      vars:
+        __trust_cert_host: "{{ inventory_hostname }}"
+  delegate_to:             "{{ dmgr_hostname }}"
+  rescue:
+    - name:                 Display warning if certificate is not added
+      fail:
+        msg:                "Warning: Unable to add the NGINX certificate to the DMGR trust store. This might be because the DMGR is not running. Please add the certificate manually."
+      ignore_errors:        true
+  when:                     pool_server is not defined

@@ -1,6 +1,8 @@
 - name:                   Get Kubernetes version
   command:                "kubectl version --output=json"
   register:               kubectl_version_output
+  delegate_to:            "{{ groups['k8s_masters'][0] }}"
+  run_once:               true
   ignore_errors:          true
   become_user:            "{{ __kubectl_user }}"
 

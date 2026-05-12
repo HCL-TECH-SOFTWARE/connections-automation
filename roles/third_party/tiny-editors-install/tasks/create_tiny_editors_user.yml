@@ -7,7 +7,6 @@
     generate_ssh_key:         yes
     ssh_key_bits:             4096
     ssh_key_file:             .ssh/id_rsa
-    ssh_key_passphrase:       "{{ tinyeditors_password }}"
     shell:                    /bin/bash
     append:                   yes
     state:                    present
@@ -17,7 +16,7 @@
   command:                    ssh-keygen -p -m PEM -f /home/{{ __tinyeditors_username }}/.ssh/id_rsa -P "{{ tinyeditors_password }}" -N "{{ tinyeditors_password }}"
   when:
     - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
+    - ansible_distribution_major_version | int == 8
 
 - name:                       Get default group name for {{ __tinyeditors_username }}
   command:                    id -gn "{{ __tinyeditors_username }}"

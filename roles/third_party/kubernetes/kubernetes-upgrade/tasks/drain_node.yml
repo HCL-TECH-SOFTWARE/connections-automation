@@ -5,8 +5,12 @@
 - name:                  Get Kubernetes version
   command:               "kubectl version --output=json"
   register:              kubectl_version_output
-  ignore_errors:         true
   become:                false
+  changed_when:          false
+  delegate_to:           "{{ groups['k8s_masters'][0] }}"
+  retries:               3
+  delay:                 10
+  until:                 kubectl_version_output.rc == 0
 
 - name:                  Extract Kubernetes version
   set_fact:
@@ -15,18 +19,16 @@
 
 - name:                  Drain the node
   vars:
-    node_name:           "{{ inventory_hostname.split('.')[0] if ansible_distribution == 'SLES' else inventory_hostname }}"
-  command:               "{{ item }}"
-  with_items:
-   - "kubectl drain {{ node_name }} --delete-emptydir-data --ignore-daemonsets"
+    node_name:           "{{ inventory_hostname.split('.')[0] if hostvars[inventory_hostname]['ansible_distribution'] == 'SLES' else inventory_hostname }}"
+  command:               "kubectl drain {{ node_name }} --delete-emptydir-data --ignore-daemonsets"
   become:                false
+  delegate_to:           "{{ groups['k8s_masters'][0] }}"
   when:                  kubectl_version is version('1.20', '>=')
 
 - name:                  Drain the node (< v1.20)
   vars:
-    node_name:           "{{ inventory_hostname.split('.')[0] if ansible_distribution == 'SLES' else inventory_hostname }}"
-  command:               "{{ item }}"
-  with_items:
-   - "kubectl drain {{ node_name }} --delete-local-data --ignore-daemonsets"
+    node_name:           "{{ inventory_hostname.split('.')[0] if hostvars[inventory_hostname]['ansible_distribution'] == 'SLES' else inventory_hostname }}"
+  command:               "kubectl drain {{ node_name }} --delete-local-data --ignore-daemonsets"
   become:                false
+  delegate_to:           "{{ groups['k8s_masters'][0] }}"
   when:                  kubectl_version is version('1.20', '<')

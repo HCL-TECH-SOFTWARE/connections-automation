@@ -160,10 +160,11 @@ LoadModule actions_module modules/mod_actions.so
 #LoadModule userdir_module modules/mod_userdir.so
 LoadModule alias_module modules/mod_alias.so
 LoadModule rewrite_module modules/mod_rewrite.so
-LoadModule deflate_module modules/mod_deflate.so
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
+LoadModule ibm_upload_module modules/mod_ibm_upload.so
 LoadModule ibm_local_redirect_module modules/mod_ibm_local_redirect.so
 {% endif %}
+LoadModule deflate_module modules/mod_deflate.so
 
 #
 # ExtendedStatus controls whether the web server will generate "full"
@@ -271,7 +272,7 @@ DocumentRoot "{{ __ihs_install_location }}/htdocs"
 # http://publib.boulder.ibm.com/httpserv/manual70/mod/core.html#options
 # for more information.
 #
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
     Options FollowSymLinks Indexes
 {% else %}
     Options FollowSymLinks
@@ -906,7 +907,7 @@ TrackModules On
 # mod_whatkilledus.
 EnableExceptionHook On
 
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
 # mod_backtrace will record a backtrace of the crashing thread to the
 # error log at the time of a crash.  This is important information for
 # diagnosing the cause of the crash.
@@ -933,6 +934,12 @@ NetTrace client * dest file event senddata=65535 event recvdata=65535
 
 
 ProxyPreserveHost On
+
+{% if pool_server | default(false) | bool %}
+RewriteCond %{REMOTE_ADDR} !^192\.168\.
+RewriteCond %{REQUEST_URI} ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)
+RewriteRule ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)(.*)$ http://{{ __load_balancer_fqdn }}:30301/$1$2 [P,L]
+{% endif %}
 
 # OrientMe Config
 
@@ -1016,6 +1023,17 @@ RewriteCond %{REQUEST_URI} ^/$ [OR]
 RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
 
+{% if pool_server | default(false) | bool %}
+<IfModule mod_ibm_upload.c>
+# Files Uploads
+Include conf/ihs-upload-rewrite.conf
+</IfModule>
+
+RewriteCond %{REMOTE_ADDR} !^192\.168\.
+RewriteCond %{REQUEST_URI} ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)
+RewriteRule ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)(.*)$ http://{{ __load_balancer_fqdn }}:30301/$1$2 [P,L]
+{% endif %}
+
 # OrientMe Config
 
 ProxyPreserveHost On
@@ -1088,7 +1106,7 @@ SSLProtocolDisable SSLv2 SSLv3 TLSv10 TLSv11
 </IfModule>
 SSLDisable
 
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
 # configuration for HCL Connections file downloads
 alias /files_content /data/Connections/files/upload
 <Directory "/data/Connections/files/upload">
@@ -1104,13 +1122,16 @@ alias /files_content /data/Connections/files/upload
 </Location>
 
 <IfModule mod_ibm_upload.c>
+# BEGIN FILES UPLOADS CONFIG
     <Location /ihs/files>
         IBMUploadHandler On
         SetHandler ibm_upload_handler
         IBMUploadBaseStore /data/Connections/files/upload/files
         IBMUploadMethods POST,PUT
         IBMUploadURLPrefix /ihs
+        IBMUploadActivateResumable On
     </Location>
+# END FILES UPLOADS CONFIG    
 </IfModule>
 {% endif %}
 
@@ -1159,6 +1180,13 @@ RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
 </IfModule>
 
+{% if pool_server | default(false) | bool %}
+<IfModule mod_ibm_upload.c>
+# Files Uploads
+Include conf/ihs-upload-rewrite.conf
+</IfModule>
+{% endif %}
+
 # Allow CORS related access control headers in requests for /oauth2
 Header unset Access-Control-Allow-Origin
 SetEnvIf Origin "http(s)?://(((cnx-slack.*)?(\.conncloudk8s\.com))|localhost:3000)$" AccessControlAllowOrigin=$0
@@ -1180,4 +1208,4 @@ Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains
 
 # Apply CSP to all requests to prevent clickjacking but leave it open for Teams addin and Outlook addin
 Header unset Content-Security-Policy
-Header always set Content-Security-Policy "frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.office365.com"
+Header always set Content-Security-Policy "frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.office365.com *.office.com *.cloud.microsoft"

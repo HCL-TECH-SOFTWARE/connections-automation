@@ -1,7 +1,7 @@
 ---
 __setup_db2_jdbc:              "{{ setup_db2_jdbc | default(false) }}"
 __install_latest_db2:          "{{ install_latest_db2 | default(true) }}"
-__default_package_name:        "{{ 'special_50594_v12.1.0_linuxx64_universal_fixpack.tar.gz' if __install_latest_db2 else 'v11.5.9_linuxx64_universal_fixpack.tar.gz' }}"
+__default_package_name:        "{{ 'special_71609_v12.1.3_linuxx64_universal_fixpack.tar.gz' if __install_latest_db2 else 'v11.5.9_linuxx64_universal_fixpack.tar.gz' }}"
 __default_license_file:        "{{ 'DB2_ESE_AUSI_Activation_12.1.zip' if __install_latest_db2 else 'DB2_ESE_AUSI_Activation_11.5.zip' }}"
 __db2_default_install_path:    "{{ '/opt/IBM/db2/V12.1' if __install_latest_db2 else '/opt/IBM/db2/V11.5' }}"
 __install_version_db2:         "{{ 'V12.1' if __install_latest_db2 else 'V11.5' }}"
@@ -9,7 +9,7 @@ __default_jdbc_install_folder: "{{ '/opt/IBM/db2/V12.1/java' if __install_latest
 __default_jdbc_package_name:   "{{ 'v12.1_jdbc_sqlj.tar.gz' if __install_latest_db2 else 'v11.5.9_jdbc_sqlj.tar.gz' }}"
 __force_check_db2_version_mismatch: "{{ force_check_db2_version_mismatch | default(false) }}"
 
-__download_location:           "{{ db2_download_location | default('http://connections.internal.example.com:8001/DB2') }}"
+__download_location:           "{{ db2_download_location | default('http://example.com:8001/DB2') }}"
 __package_name:                "{{ db2_package_name | default(__default_package_name) }}"
 __license_file:                "{{ db2_license_file | default(__default_license_file) }}"
 
@@ -63,3 +63,4 @@ __param_nofile_soft:           "{{ db2_nofile_soft | default('1024') }}"
 __param_stack_soft:            "{{ db2_stack_soft | default('10240') }}"
 
 __db2_tunings_applied:          "{{ __db2_instance_homedir }}/tunings.success"
+__db2_enable_shared_group:      "{{ db2_enable_shared_group | default('NO') }}"

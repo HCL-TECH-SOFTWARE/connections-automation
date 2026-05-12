@@ -17,6 +17,14 @@ INSTALL_TYPE       = TYPICAL
 * ----------------------------------------------
 INSTANCE       = {{ __db2_instance }}
 {{ __db2_instance }}.TYPE       = {{ __db2_instance_type }}
+{# 
+   NOTE: ENABLE_SHARED_GROUP is supported in V12.1.3 for RHEL/Alma.
+   This keyword is NOT supported in V12.1.0 and will cause 'Unknown keyword' (rc 87).
+#}
+{% if __install_version_db2 == 'V12.1' %}
+{{ __db2_instance }}.ENABLE_SHARED_GROUP = {{ __db2_enable_shared_group }}
+{% endif %}
+
 *  Instance-owning user
 {{ __db2_instance }}.NAME       = {{ __db2_instance_name }}
 {{ __db2_instance }}.GROUP_NAME       = {{ __db2_instance_group }}

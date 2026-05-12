@@ -1,1 +1,2 @@
-{{ hostvars[groups['k8s_masters'][0]].join_command.stdout }} --control-plane --certificate-key {{ hostvars[groups['k8s_masters'][0]].master_certificate_key.content | b64decode | replace('\n', '') }} 
+{% set master0 = hostvars[groups['k8s_masters'][0]] %}
+{{ master0.join_command.stdout }} --control-plane{% if master0.master_certificate_key_value is defined %} --certificate-key {{ master0.master_certificate_key_value }}{% endif %}

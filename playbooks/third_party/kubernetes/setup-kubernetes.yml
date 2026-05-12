@@ -64,3 +64,10 @@
   any_errors_fatal:        true
   roles:
     - roles/third_party/helm-install
+
+- name:                    Install Metrics Server
+  hosts:                   k8s_masters
+  become:                  true
+  any_errors_fatal:        true
+  roles:
+    - roles/third_party/kubernetes/setup-metrics-server

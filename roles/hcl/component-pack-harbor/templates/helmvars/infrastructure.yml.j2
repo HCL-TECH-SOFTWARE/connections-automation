@@ -37,9 +37,7 @@ appregistry-client:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   ingress:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    controller: {{ __ingress_controller }}    
     enabled: true
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
@@ -53,19 +51,39 @@ appregistry-client:
     - host: "{{ cnx_application_ingress }}"
       paths: []
 {% endif %}
+{% if appreg_client_ingress_in_chart is defined and appreg_client_ingress_in_chart.rc == 0 %}
+    name: cnx-ingress-appreg-client
+{% else %}
+    # Chart is CR13 or below, do not rename the ingress.
     name: cnx-ingress-appreg
+{% endif %}
     tls: []
 appregistry-service:
   namespace: {{ __default_namespace }}
   deploymentType: hybrid_cloud
   replicaCount: {{ __replica_count }}
+  ingress:
+    controller: {{ __ingress_controller }}    
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-appreg-service
+    tls: [] 
 middleware-jsonapi:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   ingress:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /
+    controller: {{ __ingress_controller }}
     enabled: true
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
