@@ -48,7 +48,7 @@ __mw_proxy_address:             "{{ load_balancer_dns | default('localhost') }}"
 __mw_proxy_port:                "{{ mw_proxy_port | default('30301') }}"
 
 __customizer_conf_template:     "customizer.conf.j2"
-__customizer_conf_location:     "{{ __conf_d_location }}/customizer.conf" 
+__customizer_conf_location:     "{{ nginx_conf_file | default(__conf_d_location + '/customizer.conf') }}"
 
 __param_nofile_soft:            "64000"
 __param_nofile_hard:            "64000"
@@ -58,3 +58,15 @@ __nginx_repo_location:          "/etc/yum.repos.d/nginx.repo"
 __nginx_repo_location_suse:     "/etc/zypp/repos.d/nginx.repo"
 
 __ssl_root_ca:                  "{{ ssl_root_ca | default('/C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com') }}"
+
+__ihs_https_port:               "{{ ihs_https_port | default('443') }}"
+__no_cp_conf_template:          "no.cp.conf.j2"
+__no_cp_conf_location:          "{{ __conf_d_location }}/no.cp.conf"
+__setup_k8s_no_cp:              "{{ setup_k8s_no_cp | default('false') }}"
+
+# Nginx log rotation
+__nginx_log_rotate:             "{{ nginx_log_rotate | default(false) }}"
+__nginx_log_rotate_period:      "{{ nginx_log_rotate_period | default('daily') }}"
+__nginx_log_rotate_count:       "{{ nginx_log_rotate_count | default('30') }}"
+__nginx_logrotate_conf_template: "logrotate-nginx.j2"
+__nginx_logrotate_conf_location: "/etc/logrotate.d/nginx"

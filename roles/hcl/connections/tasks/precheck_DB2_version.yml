@@ -49,4 +49,4 @@
   run_once: yes
   when:
     - not db2_version_match.results[0].stdout|bool
-    - db2_installed_version.results[0].stdout_lines is search("12\\.1")
+    - db2_installed_version.results[0].stdout_lines is search("12\\.1")  

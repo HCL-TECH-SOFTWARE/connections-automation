@@ -5,13 +5,13 @@ __cnx_db_update_file:           "{{ cnx_db_update_file | default('65cr1-database
 
 __db_enable_upgrades:           "{{ db_enable_upgrades | default(false) }}"
 __db_version:                   "{{ db_version | default('8.0') }}"
-__download_location:            "{{ connections_wizards_download_location | default('connections.internal.example.com:8001/Connections7') }}"
+__download_location:            "{{ connections_wizards_download_location | default('example.com:8001/Connections7') }}"
 __package_name:                 "{{ connections_wizards_package_name | default('HCL_Connections_8.0_wizards_lin_aix.tar') }}"
 __db_extraction_folder:         "{{ db_extraction_folder | default('/opt/HCL/DB2Wizards') }}"
 __installation_folder:          "{{ __db_extraction_folder }}/Wizards"
 __keep_db_extraction_folder:    "{{ keep_db_extraction_folder | default(false)|bool }}"
 
-__docs_download_location:       "{{ cnx_docs_download_location | default('http://connections.internal.example.com:8001/Docs') }}"
+__docs_download_location:       "{{ cnx_docs_download_location | default('http://example.com:8001/Docs') }}"
 __docs_package_name:            "{{ cnx_docs_package_name | default('HCL_Docs_v202.zip') }}"
 __docs_extraction_folder:       "{{ docs_extraction_folder | default('/opt/HCL/InstallBinaries/Docs') }}"
 __docs_installation_folder:     "{{ __docs_extraction_folder }}/SetupDB"
@@ -21,10 +21,16 @@ __db2_default_install_path:     "{{ '/opt/IBM/db2/V12.1' if __install_latest_db2
 __db2_installation_folder:      "{{ db2_installation_folder | default(__db2_default_install_path) }}"
 __install_version_db2:          "{{ 'V12.1' if __install_latest_db2 else 'V11.5' }}"
 __db2_user:                     "{{ db2_user | default('db2inst1') }}"
-__db2_migration_cmd:            "{{ __db2_installation_folder }}/bin/db2 -td@ -vf"
-__db2_icec_migration_cmd:       "{{ __db2_installation_folder }}/bin/db2 -tvf"
 __db2_home:                     "/home/{{ __db2_user }}"
 __db2_instance_homedir:         "{{ db2_instance_homedir | default(__db2_home) }}"
+
+__db2_profile:                 "{{ __db2_instance_homedir }}/sqllib/db2profile"
+__db2_migration_cmd: >-
+  source {{ __db2_profile }} &&
+  db2 -td@ -vf
+__db2_icec_migration_cmd: >-
+  source {{ __db2_profile }} &&
+  db2 -tvf
 
 __cnx_force_repopulation:       "{{ cnx_force_repopulation | default(false) }}"
 __cnx_docs_force_repopulation:  "{{ cnx_docs_force_repopulation | default(false)|bool }}"

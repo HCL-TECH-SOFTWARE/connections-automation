@@ -11,9 +11,9 @@
   ansible.builtin.shell:
     cmd: |
                             kubectl create secret docker-registry {{ __hcl_api_gateway_image_pull_secret_name }} \
-                              --docker-server={{ __docker_registry_url }} \
-                              --docker-username={{ __docker_registry_username }} \
-                              --docker-password={{ __docker_registry_password }} \
+                              --docker-server={{ __hcl_api_gateway_docker_registry_url }} \
+                              --docker-username={{ __hcl_api_gateway_docker_registry_username }} \
+                              --docker-password={{ __hcl_api_gateway_docker_registry_password }} \
                               --namespace {{ __apisix_namespace }}
   become_user:              "{{ __sudo_user }}"
   register:                 hcl_api_gateway_image_pull_secret_created_result
@@ -25,13 +25,13 @@
     hcl_api_gateway_image_pull_secret_exists: "{{ hcl_api_gateway_image_pull_secret_created_result.rc == 0 }}"
   when:                     pool_server is not defined
 
-- name:                     "Login to OCI {{ __docker_registry_url }}"
-  ansible.builtin.shell:    "helm registry login -u {{ __docker_registry_username }} -p {{ __docker_registry_password }} {{ __docker_registry_url }}"
+- name:                     "Login to OCI {{ __hcl_api_gateway_docker_registry_url }}"
+  ansible.builtin.shell:    "helm registry login -u {{ __hcl_api_gateway_docker_registry_username }} -p {{ __hcl_api_gateway_docker_registry_password }} {{ __hcl_api_gateway_docker_registry_url }}"
   become_user:              "{{ __sudo_user }}"
   when:                     pool_server is not defined
 
 - name:                      Get HCL CNX APISIX Helm Chart and version harbor OCI
-  shell:                     "helm show all {{ __oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} --devel | grep -oP '^version:\\s*\\K[^ ]+'"
+  shell:                     "helm show all {{ __hcl_api_gateway_oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                  hcl_api_gateway_chart_version
   become_user:               "{{ __sudo_user }}"
 
@@ -78,7 +78,7 @@
 - name:                     Install the HCL CNX APISIX Helm Chart from repository
   ansible.builtin.shell:    |
                             helm upgrade --install {{ __hcl_api_gateway_release_name }} \
-                              {{ __oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} \
+                              {{ __hcl_api_gateway_oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} \
                               --version "{{ hcl_api_gateway_chart_version.stdout }}" \
                               --namespace "{{ __apisix_namespace }}" \
                               -f {{ __hcl_api_gateway_custom_values_temp_path }} \

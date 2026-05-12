@@ -21,18 +21,17 @@ __apisix_secrets_name:                        "{{ apisix_secrets_name | default(
 __apisix_admin_password:                      "{{ apisix_admin_password | default('password') }}"
 
 # New variables for HCL CNX APISIX chart from repository
-__docker_registry_url:                        "{{ docker_registry_url | default('hclcr.io/cnx') }}"
-__docker_registry_username:                   "{{ docker_registry_username | default('admin') }}"
-__docker_registry_password:                   "{{ docker_registry_password | default('password') }}"
-__oci_helm_repository:                        "oci://{{ __docker_registry_url }}"
+__hcl_api_gateway_docker_registry_url:        "{{ hcl_api_gateway_docker_registry_url | default(docker_registry_url) }}"
+__hcl_api_gateway_docker_registry_username:   "{{ hcl_api_gateway_docker_registry_username | default(docker_registry_username) }}"
+__hcl_api_gateway_docker_registry_password:   "{{ hcl_api_gateway_docker_registry_password | default(docker_registry_password) }}"
+# Helm registry auth — defaults to the docker registry credentials since both share the same OCI registry
+__hcl_api_gateway_oci_helm_repository:        "oci://{{ __hcl_api_gateway_docker_registry_url }}"
+__hcl_api_gateway_helm_repo_username:         "{{ hcl_api_gateway_helm_repo_username | default(__hcl_api_gateway_docker_registry_username) }}"
+__hcl_api_gateway_helm_repo_password:         "{{ hcl_api_gateway_helm_repo_password | default(__hcl_api_gateway_docker_registry_password) }}"
 __hcl_api_gateway_image_pull_secret_name:     "{{ hcl_api_gateway_image_pull_secret_name | default('myregkey') }}"
 
 __hcl_api_gateway_release_name:               "{{ hcl_api_gateway_release_name | default('hcl-api-gateway') }}"
 __hcl_api_gateway_chart_name:                 "{{ hcl_api_gateway_chart_name | default('hcl-api-gateway') }}"
-
-# If your Artifactory repo requires authentication for Helm, add these:
-__hcl_api_gateway_helm_repo_username:         "{{ hcl_api_gateway_helm_repo_username | default('') }}" # Populate from group_vars if needed
-__hcl_api_gateway_helm_repo_password:         "{{ hcl_api_gateway_helm_repo_password | default('') }}" # Populate from group_vars if needed
 
 # Docker Image details
 __hcl_api_gateway_config_image_tag:           "{{ hcl_api_gateway_config_image_tag | default(hcl_api_gateway_config_image_tag_version) }}"
@@ -55,7 +54,7 @@ __apisix_gateway_node_port_http:            "{{ apisix_gateway_node_port_http | 
 __apisix_gateway_node_port_https:           "{{ apisix_gateway_node_port_https | default(31443) }}"
 __apisix_ingress_class:                     "{{ apisix_ingress_class | default(__apisix_namespace ~ '-ingress-class') }}"
 
-__ingress_nginx_secret_name:                "{{ ingress_nginx_secret_name | default('ingress-nginx-tls-secret') }}"
+__cp_tls_secret_name:                       "{{ cp_tls_secret_name | default(ingress_nginx_secret_name | default('cnx-tls-secret')) }}"
 
 # StorageClass names
 __apisix_storage_class_name:                  "{{ storage_class_name_etcd | default(__apisix_namespace ~ '-storage-class') }}"

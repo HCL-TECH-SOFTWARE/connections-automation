@@ -37,9 +37,14 @@
   roles:
     - roles/hcl/apisix/configure-ihs
 
-# Import TLS certificate into IHS
-- name:                     Import TLS certificate into IHS
-  import_playbook:          enable-ingress-tls.yml
+- name:                    Import TLS certificate into IHS
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/component-pack-harbor/configure-ingress-tls
+  vars:
+    enable_ingress_tls:    "true"
+    triggered_by:          "apisix"
 
 # Deploy APISIX Helm Charts
 - name:                     Deploy APISIX Helm Charts

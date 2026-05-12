@@ -38,29 +38,41 @@
         else __opensearch_internal_registry_url
       }}
 
-- name:                      "Render {{ __opensearch_master_env }}"
-  template:
-    src:                     "helmvars/opensearch_master.yml.j2"
-    dest:                    "{{ __opensearch_master_env }}"
-  become_user:               "{{ __sudo_user }}"
-  vars:
-    __docker_registry_url:   "{{ __opensearch_registry_url }}"
+- name:                      Managed Render Block
+  block:
+    - name:                  Save original docker_registry_url value
+      set_fact:
+        __original_registry: "{{ __docker_registry_url | default(omit) }}"
 
-- name:                      "Render {{ __opensearch_data_env }}"
-  template:
-    src:                     "helmvars/opensearch_data.yml.j2"
-    dest:                    "{{ __opensearch_data_env }}"
-  become_user:               "{{ __sudo_user }}"
-  vars:
-    __docker_registry_url:   "{{ __opensearch_registry_url }}"
+    - name:                  Set temporary registry for rendering
+      set_fact:
+        __docker_registry_url: "{{ __opensearch_registry_url }}"
 
-- name:                      "Render {{ __opensearch_client_env }}"
-  template:
-    src:                     "helmvars/opensearch_client.yml.j2"
-    dest:                    "{{ __opensearch_client_env }}"
-  become_user:               "{{ __sudo_user }}"
-  vars:
-    __docker_registry_url:   "{{ __opensearch_registry_url }}"
+    - name:                   "Render {{ __opensearch_master_env }}"
+      template:
+        src:                  "helmvars/opensearch_master.yml.j2"
+        dest:                 "{{ __opensearch_master_env }}"
+      become_user:            "{{ __sudo_user }}"
+
+    - name:                   "Render {{ __opensearch_data_env }}"
+      template:
+        src:                  "helmvars/opensearch_data.yml.j2"
+        dest:                 "{{ __opensearch_data_env }}"
+      become_user:            "{{ __sudo_user }}"
+
+    - name:                   "Render {{ __opensearch_client_env }}"
+      template:
+        src:                  "helmvars/opensearch_client.yml.j2"
+        dest:                 "{{ __opensearch_client_env }}"
+      become_user:            "{{ __sudo_user }}"
+
+  always:
+    - name:                   Revert to original registry value
+      set_fact:
+        __docker_registry_url: "{{ __original_registry }}"
+      when: __original_registry is defined
+
+
 
 - name:                      Get chart and version harbor OCI
   shell:                     "helm show all {{ __oci_helm_repository }}/opensearch --devel | grep -oP '^version:\\s*\\K[^ ]+'"

@@ -4,7 +4,7 @@ x509_extensions     = v3_req
 prompt              = no
 
 [req_distinguished_name]
-CN                  = ca@ingress-nginx
+CN                  = {{ cnx_component_pack_ingress }}
 
 [v3_req]
 subjectAltName      = @alt_names

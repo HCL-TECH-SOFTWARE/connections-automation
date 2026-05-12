@@ -2,15 +2,15 @@
 - include_vars:              ../../../third_party/ibm/ihs/ibm-http-httpdconf/vars/main.yml
 - include_vars:              ../vars/main.yml
 
-- name:                      Delete /tmp/ingress-nginx-cert.pem if exists
+- name:                      Delete /tmp/cnx-tls-cert.pem if exists
   file:
-    path:                    /tmp/ingress-nginx-cert.pem
+    path:                    /tmp/cnx-tls-cert.pem
     state:                   absent
   become:                    true
   when:                      enable_ingress_tls | default(true) | bool
 
-- name:                      Save the ingress controller certificate to /tmp/ingress-nginx-cert.pem
-  shell:                     "openssl s_client -servername {{ __load_balancer_fqdn }} -connect {{ __load_balancer_fqdn }}:{{ __controller_https_node_port }} -showcerts < /dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/ingress-nginx-cert.pem"
+- name:                      Save the ingress controller certificate to /tmp/cnx-tls-cert.pem
+  shell:                     "openssl s_client -servername {{ __load_balancer_fqdn }} -connect {{ __load_balancer_fqdn }}:{{ __controller_https_node_port }} -showcerts < /dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/cnx-tls-cert.pem"
   register:                  cert_result
   retries:                   10
   delay:                     10  
@@ -23,7 +23,7 @@
   become:                    true
   when:                      enable_ingress_tls | default(true) | bool
 
-- name:                      Delete certificate with the same label from IHS keystore if exists
+- name:                      Clean up old ingress-nginx-cert certificate from IHS keystore if exists
   shell:                     "{{ __ihs_gsk_api }} -cert -delete -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -label 'ingress-nginx-cert'"
   ignore_errors:             true
   when:
@@ -31,8 +31,16 @@
     - "'ingress-nginx-cert' in ihs_cert_list.stdout"
   become:                    true
 
+- name:                      Delete certificate with the same label from IHS keystore if exists
+  shell:                     "{{ __ihs_gsk_api }} -cert -delete -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -label 'cnx-tls-cert'"
+  ignore_errors:             true
+  when:
+    - enable_ingress_tls | default(true) | bool
+    - "'cnx-tls-cert' in ihs_cert_list.stdout"
+  become:                    true
+
 - name:                      Import the ingress controller certificate to IHS
-  shell:                     "{{ __ihs_gsk_api }} -cert -add -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}  -label 'ingress-nginx-cert' -file /tmp/ingress-nginx-cert.pem"
+  shell:                     "{{ __ihs_gsk_api }} -cert -add -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }}  -label 'cnx-tls-cert' -file /tmp/cnx-tls-cert.pem"
   register:                  ihs_import_cert_output
   when:                      enable_ingress_tls | default(true) | bool
 
@@ -47,9 +55,9 @@
     msg:                     "{{ ihs_cert_list.stdout_lines }}"
   when:                      enable_ingress_tls | default(true) | bool
 
-- name:                      Clean up /tmp/ingress-nginx-cert.pem
+- name:                      Clean up /tmp/cnx-tls-cert.pem
   file:
-    path:                    /tmp/ingress-nginx-cert.pem
+    path:                    /tmp/cnx-tls-cert.pem
     state:                   absent
   become:                    true
   when:                      enable_ingress_tls | default(true) | bool
@@ -61,7 +69,9 @@
     replace:                 'https://\1:{{ __controller_https_node_port }}'
     backup:                  yes
   become:                    true
-  when:                      enable_ingress_tls | default(true) | bool
+  when:                     
+    - enable_ingress_tls | default(true) | bool
+    - triggered_by is not defined or triggered_by != 'apisix'
 
 - name:                      Replace {{ __controller_https_node_port }} with {{ __controller_http_node_port }} in httpd.conf (disable TLS)
   replace:
@@ -70,7 +80,9 @@
     replace:                 'http://\1:{{ __controller_http_node_port }}'
     backup:                  yes
   become:                    true
-  when:                      not (enable_ingress_tls | default(true) | bool)
+  when:
+    - not (enable_ingress_tls | default(true) | bool)
+    - triggered_by is not defined or triggered_by != 'apisix'
 
 - name:                      Replace {{ __mw_proxy_port }} with {{ __mw_proxy_port_https }} in httpd.conf (enable TLS)
   replace:
@@ -82,6 +94,7 @@
   when:
     - pool_server | default(false) | bool
     - enable_ingress_tls | default(true) | bool
+    - triggered_by is not defined or triggered_by != 'apisix'
 
 - name:                      Replace {{ __mw_proxy_port_https }} with {{ __mw_proxy_port }} in httpd.conf (disable TLS)
   replace:
@@ -93,6 +106,7 @@
   when:
     - pool_server | default(false) | bool
     - not (enable_ingress_tls | default(true) | bool)
+    - triggered_by is not defined or triggered_by != 'apisix'
 
 - name:                      Ensure SSLProxyEngine On is set in httpd.conf (enable TLS)
   lineinfile:

@@ -27,12 +27,10 @@ orient-analysis-service:
 orient-web-client:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
+  ingress:
+    controller: {{ __ingress_controller }}  
 #  service:
 #    nodePort:
-  ingress:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /
     enabled: true
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}

@@ -22,8 +22,8 @@
 # of the server's control files begin with "/" (or "drive:/" for Win32), the
 # server will use that explicit path.  If the filenames do *not* begin
 # with "/", the value of ServerRoot is prepended -- so "logs/foo.log"
-# with ServerRoot set to "/opt/IBM/HTTPServer" will be interpreted by the
-# server as "/opt/IBM/HTTPServer/logs/foo.log".
+# with ServerRoot set to "{{ __ihs_install_location }}" will be interpreted by the
+# server as "{{ __ihs_install_location }}/logs/foo.log".
 #
 
 ### Section 1: Global Environment
@@ -39,7 +39,7 @@
 #
 # Do NOT add a slash at the end of the directory path.
 #
-ServerRoot "/opt/IBM/HTTPServer"
+ServerRoot "{{ __ihs_install_location }}"
 
 #
 # The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
@@ -152,10 +152,11 @@ LoadModule actions_module modules/mod_actions.so
 #LoadModule userdir_module modules/mod_userdir.so
 LoadModule alias_module modules/mod_alias.so
 LoadModule rewrite_module modules/mod_rewrite.so
-LoadModule deflate_module modules/mod_deflate.so
-{% if pool_server is defined %}
-LoadModule ibm_local_redirect_module modules/mod_ibm_local_redirect.so
+{% if pool_server | default(false) | bool %}
+LoadModule ibm_upload_module modules/extra/mod_ibm_upload.so
+LoadModule ibm_local_redirect_module modules/extra/mod_ibm_local_redirect.so
 {% endif %}
+LoadModule deflate_module modules/mod_deflate.so
 
 #LoadModule cache_module modules/mod_cache.so
 #LoadModule cache_disk_module modules/mod_cache_disk.so
@@ -231,7 +232,7 @@ UseCanonicalName Off
 # documents. By default, all requests are taken from this directory, but
 # symbolic links and aliases may be used to point to other locations.
 #
-DocumentRoot "/opt/IBM/HTTPServer/htdocs"
+DocumentRoot "{{ __ihs_install_location }}/htdocs"
 
 #
 # Each directory to which the web server has access can be configured
@@ -258,7 +259,7 @@ DocumentRoot "/opt/IBM/HTTPServer/htdocs"
 #
 # This should be changed to whatever you set DocumentRoot to.
 #
-<Directory "/opt/IBM/HTTPServer/htdocs">
+<Directory "{{ __ihs_install_location }}/htdocs">
 
 #
 # Possible values for the Options directive are "None", "All",
@@ -272,7 +273,7 @@ DocumentRoot "/opt/IBM/HTTPServer/htdocs"
 # http://publib.boulder.ibm.com/httpserv/manual24/mod/core.html#options
 # for more information.
 #
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
     Options FollowSymLinks Indexes
 {% else %}
     Options FollowSymLinks
@@ -425,7 +426,7 @@ LogFormat "%{User-agent}i" agent
 # (Combined Logfile Format) you can use the following directive.
 #
 #CustomLog logs/access_log combined
-CustomLog "|/opt/IBM/HTTPServer/bin/rotatelogs /opt/IBM/HTTPServer/logs/access_log.%Y-%m-%d-%H_%M_%S 86400" combined
+CustomLog "|{{ __ihs_install_location }}/bin/rotatelogs {{ __ihs_install_location }}/logs/access_log.%Y-%m-%d-%H_%M_%S 86400" combined
 
 #
 # AddServerHeader
@@ -458,7 +459,7 @@ ServerTokens Prod
 # Set to "EMail" to also include a mailto: link to the ServerAdmin.
 # Set to one of:  On | Off | EMail
 #
-ServerSignature On
+ServerSignature {{ __server_signature }}
 
 #
 # Aliases: Add here as many aliases as you need (with no limit). The format is
@@ -473,9 +474,9 @@ ServerSignature On
 # We include the /icons/ alias for FancyIndexed directory listings.  If you
 # do not use FancyIndexing, you may comment this out.
 #
-Alias /icons/ "/opt/IBM/HTTPServer/icons/"
+Alias /icons/ "{{ __ihs_install_location }}/icons/"
 
-<Directory "/opt/IBM/HTTPServer/icons">
+<Directory "{{ __ihs_install_location }}/icons">
     Options MultiViews
     AllowOverride None
     Require all granted
@@ -489,7 +490,7 @@ Alias /icons/ "/opt/IBM/HTTPServer/icons/"
 # The same rules about trailing "/" apply to ScriptAlias directives as to
 # Alias.
 #
-ScriptAlias /cgi-bin/ "/opt/IBM/HTTPServer/cgi-bin/"
+ScriptAlias /cgi-bin/ "{{ __ihs_install_location }}/cgi-bin/"
 
 <IfModule mod_cgid.c>
 #
@@ -500,10 +501,10 @@ ScriptAlias /cgi-bin/ "/opt/IBM/HTTPServer/cgi-bin/"
 </IfModule>
 
 #
-# "/opt/IBM/HTTPServer/cgi-bin" should be changed to whatever your ScriptAliased
+# "{{ __ihs_install_location }}/cgi-bin" should be changed to whatever your ScriptAliased
 # CGI directory exists, if you have that configured.
 #
-<Directory "/opt/IBM/HTTPServer/cgi-bin">
+<Directory "{{ __ihs_install_location }}/cgi-bin">
     AllowOverride None
     Options None
     Require all granted
@@ -673,7 +674,7 @@ AddType image/x-icon .ico
 #   Alias /error/include/ "/your/include/path/"
 #
 # which allows you to create your own set of files by starting with the
-# /opt/IBM/HTTPServer/error/include/ files and copying them to /your/include/path/,
+# {{ __ihs_install_location }}/error/include/ files and copying them to /your/include/path/,
 # even on a per-VirtualHost basis.  The default include files will display
 # your IBM HTTP Server version number and your ServerAdmin email address
 # regardless of the setting of ServerSignature.
@@ -681,9 +682,9 @@ AddType image/x-icon .ico
 # The internationalized error documents require mod_alias, mod_include
 # and mod_negotiation.  To activate them, uncomment the following 30 lines.
 
-#    Alias /error/ "/opt/IBM/HTTPServer/error/"
+#    Alias /error/ "{{ __ihs_install_location }}/error/"
 #
-#    <Directory "/opt/IBM/HTTPServer/error">
+#    <Directory "{{ __ihs_install_location }}/error">
 #        AllowOverride None
 #        Options IncludesNoExec
 #        AddOutputFilter Includes html
@@ -830,7 +831,7 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 #<VirtualHost *:443>
 #SSLEnable
 #</VirtualHost>
-#KeyFile /opt/IBM/HTTPServer/ihsserverkey.kdb
+#KeyFile {{ __ihs_install_location }}/ihsserverkey.kdb
 #SSLDisable
 # End of example SSL configuration
 
@@ -876,7 +877,7 @@ TrackHooksOptions logslow
 # mod_whatkilledus.
 EnableExceptionHook On
 
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
 # mod_backtrace will record a backtrace of the crashing thread to the
 # error log at the time of a crash.  This is important information for
 # diagnosing the cause of the crash.
@@ -938,7 +939,7 @@ MaxMemFree 2048
  #SSLEnable
  #Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 #</VirtualHost>
-#KeyFile /opt/IBM/HTTPServer/conf/ihsserverkey.kdb
+#KeyFile {{ __ihs_install_location }}/conf/ihsserverkey.kdb
 #SSLDisable
 # End of example SSL configuration
 
@@ -951,7 +952,7 @@ MaxMemFree 2048
 # GlobalLog logs/cookie-debug.log "%h %l %u %t \"%r\" %>s %b %{User-Agent}i %D %{RH}e %{WAS}e %{Age}o %{Cache-Control}i exp=%{Expires}o %{Cache-Control}o SC=\"%{Set-Cookie}o\" C=\"%{Cookie}i\" %{Location}o"
 
 
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
 RewriteCond %{REMOTE_ADDR} !^192\.168\.
 RewriteCond %{REQUEST_URI} ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)
 RewriteRule ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)(.*)$ http://{{ __load_balancer_fqdn }}:30301/$1$2 [P,L]
@@ -1038,7 +1039,12 @@ RewriteCond %{REQUEST_URI} ^/$ [OR]
 RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
 
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
+<IfModule mod_ibm_upload.c>
+# Files Uploads
+Include conf/ihs-upload-rewrite.conf
+</IfModule>
+
 RewriteCond %{REMOTE_ADDR} !^192\.168\.
 RewriteCond %{REQUEST_URI} ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)
 RewriteRule ^/(files/customizer|files/app|communities/service/html|forums/html|search/web|homepage/web|social/home|mycontacts|wikis/home|blogs|news|activities/service/html|profiles/html|viewer)(.*)$ http://{{ __load_balancer_fqdn }}:30301/$1$2 [P,L]
@@ -1115,7 +1121,7 @@ SSLProtocolDisable SSLv2 SSLv3 TLSv10 TLSv11
 </IfModule>
 SSLDisable
 
-{% if pool_server is defined %}
+{% if pool_server | default(false) | bool %}
 # configuration for HCL Connections file downloads
 alias /files_content /data/Connections/files/upload
 <Directory "/data/Connections/files/upload">
@@ -1131,6 +1137,7 @@ alias /files_content /data/Connections/files/upload
 </Location>
 
 <IfModule mod_ibm_upload.c>
+# BEGIN FILES UPLOADS CONFIG
     <Location /ihs/files>
         IBMUploadHandler On
         SetHandler ibm_upload_handler
@@ -1138,11 +1145,12 @@ alias /files_content /data/Connections/files/upload
         IBMUploadMethods POST,PUT
         IBMUploadURLPrefix /ihs
     </Location>
+# END FILES UPLOADS CONFIG
 </IfModule>
 {% endif %}
 
-Keyfile "/opt/IBM/HTTPServer/{{ __ihs_hostname }}-key.kdb"
-SSLStashFile "/opt/IBM/HTTPServer/{{ __ihs_hostname }}-key.sth"
+Keyfile "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.kdb"
+SSLStashFile "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.sth"
 
 #Only the specified MIME types will be compressed.
 
@@ -1169,9 +1177,9 @@ Header append Vary User-Agent env=!dont-vary
 
 SetEnvIf Request_URI ^/acce(.*) no-gzip dont-vary
 
-LoadModule was_ap24_module /opt/IBM/WebSphere/Plugins/bin/64bits/mod_was_ap24_http.so
-#WebSpherePluginConfig "/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml"
-WebSpherePluginConfig "/opt/IBM/WebSphere/Plugins/config/{{ __ihs_hostname }}/plugin-cfg.xml"
+LoadModule was_ap24_module {{ __plg_install_location }}/bin/64bits/mod_was_ap24_http.so
+#WebSpherePluginConfig "{{ __was_install_location  }}/profiles/Dmgr01/config/cells/ConnectionsCell/nodes/{{ __ihs_hostname }}-node/servers/{{ __ihs_hostname }}/plugin-cfg.xml"
+WebSpherePluginConfig "{{ __plg_install_location }}/config/{{ __ihs_hostname }}/plugin-cfg.xml"
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
@@ -1185,6 +1193,13 @@ RewriteCond %{REQUEST_URI} ^/$ [OR]
 RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/homepage [L,R=301,NE]
 </IfModule>
+
+{% if pool_server | default(false) | bool %}
+<IfModule mod_ibm_upload.c>
+# Files Uploads
+Include conf/ihs-upload-rewrite.conf
+</IfModule>
+{% endif %}
 
 # Allow CORS related access control headers in requests for /oauth2
 Header unset Access-Control-Allow-Origin
@@ -1207,4 +1222,4 @@ Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains
 
 # Apply CSP to all requests to prevent clickjacking but leave it open for Teams addin and Outlook addin
 Header unset Content-Security-Policy
-Header always set Content-Security-Policy "frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.office365.com"
+Header always set Content-Security-Policy "frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.office365.com *.office.com *.cloud.microsoft"

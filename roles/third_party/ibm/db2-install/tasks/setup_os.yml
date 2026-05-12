@@ -7,8 +7,8 @@
 
 - name:              Install pre-requisites Zypper
   zypper:
-    name:            ['pam', 'pam-config', 'yast2-pam']
-    state:           present
+    name:           ['pam', 'pam-config', 'yast2-pam']
+    state: present
   when:
     - ansible_distribution == "SLES"
 
@@ -39,73 +39,76 @@
 
 - name:              Install pre-requisites Yum for CentOS 7 - epel-release
   yum:
-    name:            ['epel-release']
-    enablerepo:      "extras"
-    state:           present
+    name: ['epel-release']
+    enablerepo: "extras"
+    state: present
   when:
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
 
 - name:              Install EPEL release
   dnf:
-    name:            epel-release
-    state:           present
+    name: epel-release
+    state: present
   when:
     - ansible_distribution == "AlmaLinux"
 
 - name:              Install libxcrypt-compat package
   dnf:
-    name:            libxcrypt-compat
-    state:           present
+    name: libxcrypt-compat
+    state: present
   when:
-    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution in ["AlmaLinux", "RedHat"]
 
 - name:              Update all packages
   dnf:
-    name:            '*'
-    state:           latest
+    name: '*'
+    state: latest
   when:
     - ansible_distribution == "AlmaLinux"
 
 - name:              Install ksh
   dnf:
-    name:            ksh
-    state:           present
+    name: ksh
+    state: present
   when:
     - ansible_distribution == "AlmaLinux" or ansible_distribution == "RedHat"
 
 - name:              Install Development Tools group
   yum:
-    name:            "@Development tools"
-    state:           present
+    name: "@Development tools"
+    state: present
   when:
     - ansible_distribution == "CentOS"
 
 - name:              Install pre-requisites Yum
   yum:
-    name:            ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel.i686', 'numactl-libs.i686', 'numactl-libs.x86_64', 'unzip']
-    state:           present
+    name: ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel.i686', 'numactl-libs.i686', 'numactl-libs.x86_64', 'unzip']
+    state: present
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version | int < 9
 
 - name:              Install pre-requisites Yum
   yum:
-    name:            ['pam.i686']
-    state:           present
+    name: ['pam.i686']
+    state: present
   when:
     - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version | int < 9
 
-- name:                     Install EPEL Release on Almalinux
-  yum:
-    name:                   epel-release
-    state:                  present
+- name:              Install pre-requisites Yum (RHEL/AlmaLinux 9+)
+  dnf:
+    name: ['kernel-devel', 'kernel-headers', 'libaio', 'libstdc++-devel', 'numactl-libs', 'pam', 'unzip', 'acl']
+    state: present
   when:
-    - ansible_distribution ==  "AlmaLinux"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version | int >= 9
 
 - name:              Install pre-requisites Yum for RHEL 8/9
   yum:
-    name:            ['patch', 'make', 'gcc-c++']
-    state:           present
+    name: ['patch', 'make', 'gcc-c++']
+    state: present
   when:
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
@@ -115,6 +118,7 @@
     state:           disabled
   ignore_errors:     true
   notify:            reboot
+
 
 - name:                     "Configure nproc soft = {{ __param_nproc_soft }}"
   pam_limits:

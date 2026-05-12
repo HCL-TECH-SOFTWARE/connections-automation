@@ -27,7 +27,7 @@
   command: >
                           ldapadd -x
                           -D "cn=Directory Manager"
-                          -w "{{ __ldap_user_admin_password }}"
+                          -w "{{ __ldap_slappasswd }}"
                           -H "ldap://{{ inventory_hostname }}:389"
                           -f "{{ __users_ldif_location }}"
   register:               users_389

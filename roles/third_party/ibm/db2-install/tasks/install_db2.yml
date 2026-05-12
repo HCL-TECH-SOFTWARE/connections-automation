@@ -62,8 +62,9 @@
   command:                 "{{ __installation_folder }}/db2setup -r {{ __db2_server_rsp_location }}"
   when:
     - ansible_distribution != "SLES"
+    - not (ansible_distribution == "RedHat" and (ansible_distribution_major_version | int) >= 10)
 
-- name:                    "Install DB2 for SUSE"
+- name:                    "Install DB2 for SUSE or RHEL 10+"
   command:                 "{{ __installation_folder }}/db2setup -r {{ __db2_server_rsp_location }} -f sysreq"
   when:
-    - ansible_distribution == "SLES"
+    - (ansible_distribution == "RedHat" and (ansible_distribution_major_version | int) >= 10) or ansible_distribution == "SLES"

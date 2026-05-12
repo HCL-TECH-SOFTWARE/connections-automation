@@ -1,7 +1,9 @@
+
 - name:               Check if "{{ inventory_hostname }}" is already part of the cluster as master and in Ready status
   shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep control-plane | grep Ready
   changed_when:       true
   register:           master_already_joined
+  delegate_to:        "{{ groups['k8s_masters'][0] }}"
   when:
     - inventory_hostname != groups['k8s_masters'][0]
   become:             false
@@ -19,6 +21,21 @@
   file:
     dest:             "{{ __join_command_location }}"
     mode:             a+x
+  when:
+    - inventory_hostname != groups['k8s_masters'][0]
+    - master_already_joined.rc != 0
+
+- name:               Show generated control plane join command script
+  shell:              cat "{{ __join_command_location }}"
+  register:           control_plane_join_cmd
+  when:
+    - inventory_hostname != groups['k8s_masters'][0]
+    - master_already_joined.rc != 0
+  changed_when:       false
+
+- name:               Debug control plane join command
+  debug:
+    msg:              "{{ control_plane_join_cmd.stdout }}"
   when:
     - inventory_hostname != groups['k8s_masters'][0]
     - master_already_joined.rc != 0

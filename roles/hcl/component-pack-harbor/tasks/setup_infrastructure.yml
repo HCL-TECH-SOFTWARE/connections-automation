@@ -14,6 +14,12 @@
   become:                    false
   when:                      __record_cp_versions|bool
 
+- name:                      Check if the target infrastructure chart contains cnx-ingress-appreg-client ingress (v8 CR14+)
+  shell:                     "helm template {{ __oci_helm_repository }}/infrastructure --version {{ infrastructure_chart_version.stdout }} | grep 'name: cnx-ingress-appreg-client'"
+  register:                  appreg_client_ingress_in_chart
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true  
+
 - name:                      "Render {{ __infrastructure_env }}"
   template:
     src:                     "helmvars/infrastructure.yml.j2"
@@ -51,6 +57,11 @@
   shell:                     kubectl delete svc --namespace {{ __default_namespace }} haproxy-redis --ignore-not-found
   become_user:               "{{ __sudo_user }}"
   when:                      valkey_search_in_chart.rc == 0
+
+- name:                      Delete legacy cnx-ingress-appreg and cnx-ingress-orient-me ingresses if needed
+  shell:                     kubectl delete ingress cnx-ingress-appreg cnx-ingress-orient-me --namespace {{ __default_namespace }} --ignore-not-found
+  become_user:               "{{ __sudo_user }}"
+  when:                      appreg_client_ingress_in_chart.rc == 0
 
 - name:                      Upgrade infrastructure
   command:                   "helm upgrade infrastructure {{ __helm_repository_local_name }}/infrastructure -i --version {{ infrastructure_chart_version.stdout }} -f {{ __infrastructure_env }} --namespace {{ __default_namespace }}"

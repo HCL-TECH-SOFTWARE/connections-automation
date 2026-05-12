@@ -57,15 +57,11 @@ This playbook is useful for renewing Kubernetes self-generated, kubeadm-managed 
 ansible-playbook -i <your inventory.ini> playbooks/third_party/kubernetes/renew-kubernetes-cert.yml
 ```
 
-## Enable secure traffic to the Ingress Controller and mw-proxy
-This playbook imports the ingress-nginx TLS certificate to IHS keystore, updates IHS and NGINX configuration to use HTTPS for ingress resources and mw-proxy.
-```
-ansible-playbook -i <your inventory.ini> playbooks/hcl/harbor/enable-ingress-tls.yml
-```
+## Enable or Disable secure traffic to the Ingress Controller and mw-proxy
+This playbook imports the ingress-nginx TLS certificate to IHS keystore and updates IHS and NGINX
+configuration to use HTTPS or HTTP based on `cp_tls_enable` in `group_vars/all.yml`.
 
-## Disable secure traffic to the Ingress Controller and mw-proxy
-This playbook updates IHS configuration to use HTTP for ingress resources and mw-proxy.
+Set `cp_tls_enable: true` in `all.yml` to enable TLS, `cp_tls_enable: false` to disable.
 ```
-ansible-playbook -i <your inventory.ini> playbooks/hcl/harbor/disable-ingress-tls.yml
-
+ansible-playbook -i <your inventory.ini> playbooks/hcl/harbor/configure-ingress-tls.yml
 ```

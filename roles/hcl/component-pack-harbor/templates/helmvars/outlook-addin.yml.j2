@@ -27,7 +27,7 @@ env:
   CONNECTIONS_ROOT: ""
   # The top level multitentant domain without protocol.
   # This variable is used when starting the docker container to generate the manifest.xml files
-  MT_DOMAIN: {% if cnx_setup_mt is defined | default(false) and cnx_setup_mt|bool %} {{ frontend_domain }} {% else %} "" {% endif %}
+  MT_DOMAIN: {% if cnx_setup_mt is defined | default(false) and cnx_setup_mt|bool %} {{ frontend_domain }} {% else %} "" {% endif %} 
   # A comma delimited string of MT tenants (subdomains)
   # This variable is used when starting the docker container to generate the manifest.xml files for each tenant
   TENANTS: {% if cnx_setup_mt is defined | default(false) and cnx_setup_mt|bool %} {{ __outlook_tenant }} {% else %} "" {% endif %}
@@ -35,6 +35,7 @@ env:
 image:
   repository: {{ docker_registry_url }}
 ingress:
+  controller: {{ __ingress_controller }}
   hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
     - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"

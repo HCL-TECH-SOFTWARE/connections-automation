@@ -1,0 +1,4 @@
+---
+- name:          Install Metrics Server
+  include_tasks: install_metrics_server.yml
+  when:          __setup_metrics_server | bool

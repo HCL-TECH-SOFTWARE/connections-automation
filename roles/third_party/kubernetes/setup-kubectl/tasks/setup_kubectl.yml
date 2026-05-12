@@ -14,12 +14,22 @@
    - chown {{ __kubectl_user }} {{ __kubectl_user_home }}/.kube/config
   when:               inventory_hostname == groups['k8s_masters'][0]
 
-- name:               Copy .kube to controller
-  synchronize:
-    src:              "{{ __kubectl_user_home }}/.kube"
-    dest:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
-    mode:             pull
-  when:               inventory_hostname == groups['k8s_masters'][0]
+- name:               Ensure .kube temp directory exists on controller
+  local_action:
+    module:           file
+    path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}/.kube"
+    state:            directory
+    mode:             '0755'
+  run_once:           true
+  become:             false
+
+- name:               Copy admin.conf from first master to controller
+  fetch:
+    src:              /etc/kubernetes/admin.conf
+    dest:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}/.kube/config"
+    flat:             true
+  delegate_to:        "{{ groups['k8s_masters'][0] }}"
+  run_once:           true
 
 - name:               Copy .kube to all hosts
   copy:
@@ -30,7 +40,7 @@
 
 - name:               "Copy .kube to {{ __kubectl_user }}"
   copy:
-    src:              "/tmp/.kube_{{ groups['k8s_masters'][0] }}/"
+    src:              "/tmp/.kube_{{ groups['k8s_masters'][0] }}/.kube"
     dest:             "{{ __kubectl_user_home }}/"
     remote_src:       yes
   when:               inventory_hostname != groups['k8s_masters'][0]
@@ -43,6 +53,7 @@
     path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
   become:             false
   ignore_errors:      yes
+  when:               cleanup_kube_on_controller | default(true) | bool
 
 - name:               Cleanup .kube on /tmp
   file:

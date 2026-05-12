@@ -1,0 +1,14 @@
+{{ __nginx_logs_dir }}/access.log {{ __nginx_logs_dir }}/error.log {
+  {{ __nginx_log_rotate_period }}
+  rotate {{ __nginx_log_rotate_count }}
+  missingok
+  notifempty
+  compress
+  delaycompress
+  sharedscripts
+  postrotate
+    if systemctl is-active --quiet nginx; then
+      systemctl reload nginx >/dev/null 2>&1 || true
+    fi
+  endscript
+}

@@ -20,8 +20,8 @@ swaggerUi:
   enabled: true
   replicas: 1
   # REQUIRED: Provide your Docker registry URL and image tag
-  image: "{{ __docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
-  imagePullPolicy: IfNotPresent
+  image: "{{ __hcl_api_gateway_docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
+  imagePullPolicy: {{ 'Always' if 'latest' in __hcl_api_gateway_config_image_tag else 'IfNotPresent' }}
 {% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
   imagePullSecrets:
     - {{ __hcl_api_gateway_image_pull_secret_name }}
@@ -57,4 +57,4 @@ apisix:
   tls:
     enabled: true
     # REQUIRED: Secret name for APISIX TLS cert
-    secretName: "{{ __ingress_nginx_secret_name }}"
+    secretName: "{{ __cp_tls_secret_name }}"
