@@ -3,6 +3,12 @@
 > [!NOTE]
 > Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
 
+> [!IMPORTANT]
+> ### Upcoming Change: Ansible Controller Upgrade (CR16)
+> Starting with the **next release (CR16)**, this automation framework will require **ansible-core 2.19.x** running inside a **Python 3.11 virtualenv**. The current Ansible 2.9 setup will no longer be supported. Note that ansible-core 2.19.x is **not backward compatible** with older versions — after the CR16 changes are pushed to this repo, the code will work only with 2.19.x.
+>
+> To prepare your controller now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md). The existing playbooks in this release (CR15) remain fully compatible with Ansible 2.9.
+
 The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
 
 Connections development is committed to ensuring its ongoing maintenance and periodic updates of this repository, which are typically synchronized with each new CR release.  Additionally, we aim to maintain a consistent review schedule for pull requests (PRs) in alignment with these update cycles.
