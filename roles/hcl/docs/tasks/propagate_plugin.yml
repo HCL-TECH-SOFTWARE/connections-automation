@@ -6,8 +6,8 @@
   become:               false
   with_items:           "{{ groups['ihs_servers'] }}"
 
-- name:                 Copy the files to /opt/IBM/WebSphere/Plugins/config/
+- name:                 "Copy the files to {{ __plg_install_location }}/config/"
   copy:
     src:                "/tmp/wct_generated_plugins_docs_{{ inventory_hostname_short }}/plugin-cfg.xml"
-    dest:               "/opt/IBM/WebSphere/Plugins/config/{{ inventory_hostname_short }}/plugin-cfg.xml"
+    dest:               "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/plugin-cfg.xml"
     remote_src:         yes

@@ -1,0 +1,22 @@
+---
+
+# Common APISIX variables
+__apisix_namespace:                           "{{ apisix_namespace | default('apisix') }}"
+
+# Helm/K8s cleanup variables
+__apisix_storage_class_name:                  "{{ storage_class_name_etcd | default(__apisix_namespace ~ '-storage-class') }}"
+__apisix_etcd_pv_name:                        "{{ apisix_etcd_pv_name | default(__apisix_namespace ~ '-etcd') }}"
+__apisix_etcd_replicaset:                     "{{ apisix_etcd_replicaset | default('3') }}"
+__apisix_secrets_name:                        "{{ apisix_secrets_name | default('apisix-admin-secret') }}"
+__apisix_release_name:                        "{{ apisix_release_name | default('apisix') }}"
+__hcl_api_gateway_release_name:               "{{ hcl_api_gateway_release_name | default('hcl-api-gateway') }}"
+
+# IHS cleanup variables
+__ihs_install_location:                       "{{ ihs_install_location | default('/opt/IBM/HTTPServer') }}"
+__ihs_httpd_conf_file:                        "{{ __ihs_install_location }}/conf/httpd.conf"
+__apisix_route_path:                          "{{ apisix_route_path | default('/connections/api/v2') }}"
+__apisix_gateway_node_port_https:             "{{ apisix_gateway_node_port_https | default(31443) }}"
+
+# NFS cleanup variables
+__persistentVolumePath:                       "{{ persistentVolumePath | default('pv-connections') }}"
+__nfs_exports_destination:                    "{{ nfs_exports_destination | default('/etc/exports') }}"

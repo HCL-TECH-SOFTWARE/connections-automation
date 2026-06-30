@@ -1,0 +1,141 @@
+# Traefik Helm chart values for HCL Connections Component Pack
+# Based on Traefik chart from https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+
+global:
+  sendAnonymousUsage: false
+
+deployment:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9100"
+    prometheus.io/path: "/metrics"
+
+service:
+  type: NodePort
+
+ports:
+  web:
+    port: 8000
+    # Default http nodePort is 32080
+    nodePort: {{ __controller_http_node_port }}
+    
+  websecure:
+    port: 8443
+    # Default http nodePort is 32443
+    nodePort: {{ __controller_https_node_port }}
+      
+  metrics:
+    port: 9100
+
+providers:
+  kubernetesCRD: {}
+  kubernetesIngress: {}
+
+tlsStore:
+  default:
+    defaultCertificate:
+      # Default secret name is cnx-tls-secret
+      secretName: {{ __cp_tls_secret_name }}
+
+logs:
+  # See https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml for log options.
+  general:
+    # Default log level is INFO
+    level: {{ __ingress_traefik_log_level }}
+    format: json
+  # Optional: Enable Traefik access logs
+  access:
+    # Default access log enablement is false. Set to true for debugging.
+    enabled: {{ __ingress_traefik_access_logs_enabled }}
+    format: json
+
+# Optional section to enable prometheus
+{% if not __ingress_traefik_prometheus_enabled | bool %}
+metrics:
+  prometheus: null
+{% else %}
+metrics:
+  prometheus:
+    service:
+      enabled: true
+    # Add router labels for detailed monitoring.
+    addRoutersLabels: true
+{% endif %}
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+              app.kubernetes.io/instance: traefik
+          topologyKey: kubernetes.io/hostname
+
+priorityClassName: system-cluster-critical
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1000m"
+    memory: "512Mi"
+
+autoscaling:
+  enabled: true
+  # Metrics Server must be installed for autoscaling (HPA) to work.
+  # Adjust min/max based on worker node count and peak concurrent user load.
+  minReplicas: {{ __replica_count }}
+  maxReplicas: {{ __replica_count | int * 3 }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+ingressClass:
+  enabled: true
+  # Default isDefaultClass is true.
+  # Set to false on OpenShift to use Traefik as an ingress controller via appropriate ingress class in the Ingress resources.
+  isDefaultClass: {{ __ingress_traefik_default_class_enabled }}
+
+# Optional section to enable Traefik Dashboard
+{% if __ingress_traefik_dashboard_enabled | bool %}
+# Optional: Enable Traefik dashboard
+api:
+  dashboard: true
+  insecure: false
+
+ingressRoute:
+  dashboard:
+    enabled: true
+    matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+    entryPoints:
+      - websecure
+    services:
+      - name: api@internal
+        kind: TraefikService
+    middlewares:
+      - name: cnx-ingress-dashboard-auth
+        namespace: {{ __default_namespace }}
+        
+# Provide an authentication secret for the Traefik dashboard if enabled.
+# The secret should have a key "users" with value in the format "user:hashedpassword"
+extraObjects:
+  - apiVersion: traefik.io/v1alpha1
+    kind: Middleware
+    metadata:
+      name: cnx-ingress-dashboard-auth
+      namespace: {{ __default_namespace }}
+    spec:
+      basicAuth:
+        secret: cnx-ingress-dashboard-auth
+{% endif %}

@@ -6,5 +6,5 @@
   hosts:                    ihs_servers
   become:                   true
   roles:
-    - roles/third_party/ibm/ihs/ibm-http-httpdconf
+    - roles/third_party/ibm/ihs/ibm-http-httpdconf-setup
     - roles/third_party/ibm/ihs/ibm-http-server-restart

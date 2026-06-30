@@ -69,6 +69,17 @@
   with_sequence:                                    start=0 end={{ __mongo5_replicaset | int - 1 if __mongo5_replicaset | int != 0 else 0}}
   when:  __mongo5_replicaset | int != 0
 
+- name:                                             Setup PV folders for mongo7 data/db folder
+  file:
+    path:                                           "/pv-connections/mongo7-node-{{ item }}/data/db"
+    mode:                                           '0700'
+    state:                                          directory
+    owner:                                          "1001"
+    group:                                          "{{ nogroup }}"
+    recurse:                                        true
+  with_sequence:                                    start=0 end={{ __mongo7_replicaset | int - 1 if __mongo7_replicaset | int != 0 else 0}}
+  when:  __mongo7_replicaset | int != 0
+  
 - name:                                             Setup PV folders for solr
   file:
     path:                                           "/pv-connections/solr-data-solr-{{ item }}"

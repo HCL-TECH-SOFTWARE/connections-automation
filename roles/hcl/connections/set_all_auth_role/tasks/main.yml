@@ -141,6 +141,7 @@
     __app:                   "{{ item }}"
     __role_mapping_prop:
       - { __role: "READER", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+      - { __role: "CEC-READER", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
   with_items:
     - ICEC
   when:

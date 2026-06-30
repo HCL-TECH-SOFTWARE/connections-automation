@@ -3,12 +3,26 @@
     name:                  kubelet-{{ __kubernetes_version }}
     state:                 present
     disable_excludes:      all
+  when:                    ansible_distribution != "SLES"
+
+- name:                    Install Kubernetes binaries - kubelet for SUSE
+  zypper:
+    name:                  kubelet-{{ __kubernetes_version }}
+    state:                 present
+  when:                    ansible_distribution == "SLES"
 
 - name:                    Install Kubernetes binaries - kubeadm
   yum:
     name:                  kubeadm-{{ __kubernetes_version }}
     state:                 present
     disable_excludes:      all
+  when:                    ansible_distribution != "SLES"
+
+- name:                    Install Kubernetes binaries - kubeadm for SUSE
+  zypper:
+    name:                  kubeadm-{{ __kubernetes_version }}
+    state:                 present
+  when:                    ansible_distribution == "SLES"
 
 - name:                    Find kubectl
   shell:                   "whereis kubectl | awk '{ print $2 }'"

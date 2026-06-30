@@ -1,0 +1,28 @@
+- name:                      "Get default group name for {{ __tinyeditors_username }}"
+  command:                   id -gn "{{ __tinyeditors_username }}"
+  register:                  user_group
+  
+- name:                      Performing the required post-customization steps. Create Tiny Editors configuration directory if it does not exist
+  become:                    True
+  file:
+    path:                    "{{ __tinyeditors_config_file_path }}"
+    state:                   directory
+    owner:                   "{{ __tinyeditors_username }}"
+    group:                   "{{ user_group.stdout }}"
+  when:
+   - __install_tinyeditors |bool == true
+
+- name:                     "Render {{ __tinyeditors_conf_destination }}"
+  template:
+    src:                    "{{ __tinyeditors_conf_template }}"
+    dest:                   "{{ __tinyeditors_conf_destination }}"
+  when:
+   - __install_tinyeditors |bool == True
+
+- name:                      Remove Tiny Editors configuration directory if it exists
+  become:                    True
+  file:
+    path:                    "{{ __tinyeditors_config_file_path }}"
+    state:                   absent
+  when:
+   - __uninstall_tinyeditors |bool == true

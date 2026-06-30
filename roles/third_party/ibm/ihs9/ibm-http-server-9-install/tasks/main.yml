@@ -1,0 +1,16 @@
+---
+- name:          Setup Operating System
+  include_tasks: setup_os.yml
+
+- name:          Create user and group
+  include_tasks:  create_user_and_group.yml
+
+- name:          Check Vars
+  include_tasks: check_vars.yml
+
+- name:          Define Vars
+  include_tasks: define_vars.yml
+
+- name:          Install IBM HTTP Server V9
+  include_tasks: install_ihs_9.yml
+  when:          version_already_installed.rc != 0

@@ -1,7 +1,7 @@
 #Create LDAP Repository
 AdminTask.createIdMgrLDAPRepository('[-default true -id "{{ __ldap_repo }}" -adapterClassName com.ibm.ws.wim.adapter.ldap.LdapAdapter -ldapServerType "{{ __ldap_server_type }}" -sslConfiguration -certificateMapMode exactdn -supportChangeLog none -certificateFilter -loginProperties "{{ __ldap_login_properties }}"]')
 #Add LDAP Server
-AdminTask.addIdMgrLDAPServer('[-id "{{ __ldap_repo }}" -host "{{ __ldap_server }}" -bindDN "{{ __ldap_bind_user }}" -bindPassword "{{ __ldap_bind_pass }}" -referal ignore -sslEnabled false -ldapServerType "{{ __ldap_server_type }}" -sslConfiguration -certificateMapMode exactdn -certificateFilter -authentication simple -port 389]')
+AdminTask.addIdMgrLDAPServer('[-id "{{ __ldap_repo }}" -host "{{ __ldap_server }}" -bindDN "{{ __ldap_bind_user }}" -bindPassword "{{ __ldap_bind_pass }}" -referal ignore -sslEnabled "{{ __ldap_ssl_enabled }}" -ldapServerType "{{ __ldap_server_type }}" -sslConfiguration -certificateMapMode exactdn -certificateFilter -authentication simple -port "{{ __ldap_server_port }}"]')
 
 AdminTask.addIdMgrRepositoryBaseEntry('[-id "{{ __ldap_repo }}" -name "{{ __ldap_realm }}" -nameInRepository "{{ __ldap_realm }}"]')
 AdminTask.addIdMgrRealmBaseEntry('[-name defaultWIMFileBasedRealm -baseEntry "{{ __ldap_realm }}"]')

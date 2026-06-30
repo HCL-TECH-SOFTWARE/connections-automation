@@ -1,0 +1,71 @@
+---
+- name:                     Set ownership for generated cert/key files
+  become:                    yes
+  file:
+    path:                   "{{ __ds_instance_dir }}/certs"
+    owner:                  dirsrv
+    group:                  dirsrv
+    recurse:                yes
+  when: 
+    - not (ldap_ssl_already_created.stat.exists | default(false))
+
+- name:                     Import CA certificate into 389 DS
+  become:                    yes
+  command: >
+                            dsctl {{ __ds_instance_name }} tls import-ca
+                            {{ __ds_ca_cert_path }} {{ __ds_ca_nickname }}
+  register:                 import_ca
+  changed_when:             "'Imported' in import_ca.stdout or import_ca.rc == 0"
+  failed_when:              false
+  when: 
+    - not ldap_ssl_already_created.stat.exists
+
+- name:                     Import Server certificate + key into 389 DS
+  become:                    yes
+  command: >
+                            dsctl {{ __ds_instance_name }} tls import-server-key-cert
+                            {{ __ds_cert_path }} {{ __ds_cert_key_path }}
+  register:                 import_server
+  failed_when:              import_server.rc not in [0, 1]   
+  changed_when:             "'Imported' in import_server.stdout"
+  when: 
+     - not ldap_ssl_already_created.stat.exists
+
+- name:                     Enable TLS security=on
+  become:                    yes
+  command: >
+                            dsconf {{ __ds_instance_name }} config replace nsslapd-security=on
+  when: 
+     - not ldap_ssl_already_created.stat.exists
+
+- name:                     Set secure port 636
+  become:                    yes
+  command: >
+                            dsconf {{ __ds_instance_name }} config replace nsslapd-securePort=636
+  when: 
+     - not ldap_ssl_already_created.stat.exists
+
+- name:                     Set secure listen host
+  become:                    yes
+  command: >
+                           dsconf {{ __ds_instance_name }} config replace nsslapd-securelistenhost=0.0.0.0
+  when: 
+     - not ldap_ssl_already_created.stat.exists
+
+- name:                     "Create {{ __ldap_ssl_success_file }} file"
+  file:
+    path:                   "{{ __ldap_ssl_success_file }}"
+    state:                  touch
+
+- name:                     "Cleanup {{ __certs_ldif_location }}"
+  file:
+    path:                   "{{ __certs_ldif_location }}"
+    state:                  absent     
+
+- name:                     Restart 389 Directory Server service
+  become:                    yes
+  service:
+    name:                   "dirsrv@{{ __ds_instance_name }}"
+    state:                  restarted
+  when: 
+     - not ldap_ssl_already_created.stat.exists

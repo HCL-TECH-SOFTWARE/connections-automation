@@ -1,0 +1,35 @@
+---
+  - name:                 Clean up old certificates
+    command:              "rm -rf {{ item }}"
+    with_items:
+     - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.crl }}"
+     - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.rdb }}"
+     - "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.sth }}"
+     - "{{ __ihs_kdb_filename }}"
+
+  - name:                 Generate key DB
+    shell:                "{{ __ihs_install_location }}/bin/gskcapicmd -keydb -create -db {{__ihs_kdb_filename }} -type cms -pw {{ __ihs_kdb_password }} -stash"
+    args:
+      chdir:              "{{ __ihs_bin_directory }}"
+      creates:            "{{ __ihs_kdb_filename }}"
+
+  - name:                 Generate self signed certificate
+    shell:                "{{ __ihs_gsk_api }} -cert -create -db {{ __ihs_kdb_filename }} -pw {{ __ihs_kdb_password }} -sigalg SHA256WithRSA -size 4096 -dn \"{{ __ihs_cert_dn }}\" -san_dnsname {{ __ihs_hostname_fqdn }} -label {{ __ihs_hostname_fqdn }} -default_cert yes -expire 1825"
+    args:
+      chdir:              "{{ __ihs_bin_directory }}"
+
+  - name:                 Restart IHS to pick up the new certificate
+    include_role:
+      name:               roles/third_party/ibm/ihs/ibm-http-server-restart/
+
+  - name:                 Add IHS certificate to trust store (if DMGR is up)
+    block:
+      - include_role:
+          name:           roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+        vars:
+          __trust_cert_host: "{{ __ihs_hostname_fqdn }}"
+    delegate_to:             "{{ dmgr_hostname }}"
+    rescue:
+      - name:             Display warning if certificate is not added
+        debug:
+          msg:            "Warning: Unable to add the IHS certificate to the DMGR trust store. This might be because the DMGR is not running. Please add the certificate manually."

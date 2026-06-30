@@ -1,0 +1,109 @@
+# Ref https://help.hcl-software.com/connections/latest/admin/install/t_install_post_files_uploads.html
+
+<IfModule mod_rewrite.c>
+RewriteEngine On    
+
+#Uncomment to create log messages.    
+#RewriteLog logs/rewrite.log    
+#RewriteLogLevel 9    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]    
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]    
+RewriteRule ^/files/(basic|form|oauth)/api/myfilesync/feed(\?[^/]*)? /ihs/files/$1/api/myfilesync/feed$2 [PT,L]    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]    
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]    
+RewriteRule ^/files/(basic|form|oauth)/api/userlibrary/([^/]+)/feed(\?[^/]*)? /ihs/files/$1/api/userlibrary/$2/feed$3 [PT,L]
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]    
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]     
+RewriteRule ^/files/(basic|form|oauth)/api/communitylibrary/([^/]+)/feed(\?[^/]*)? /ihs/files/$1/api/communitylibrary/$2/feed$3 [PT,L]    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]     
+RewriteRule ^/files/(basic|form|oauth)/api/myfilesync/document/([^/]+)/entry(\?[^/]*)? /ihs/files/$1/api/myfilesync/document/$2/entry$3 [PT,L]
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]    
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]     
+RewriteRule ^/files/(basic|form|oauth)/api/library/([^/]+)/document/([^/]+)/entry(\?[^/]*)? /ihs/files/$1/api/library/$2/document/$3/entry$4 [PT,L]    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]     
+RewriteRule ^/files/(basic|form|oauth)/api/userlibrary/([^/]+)/document/([^/]+)/entry(\?[^/]*)? /ihs/files/$1/api/userlibrary/$2/document/$3/entry$4 [PT,L]    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]     
+RewriteRule ^/files/(basic|form|oauth)/api/myuserlibrary/document/([^/]+)/entry(\?[^/]*)? /ihs/files/$1/api/myuserlibrary/document/$2/entry$3 [PT,L]
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]    
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]    
+RewriteRule ^/files/(basic|form|oauth)/api/myuserlibrary/feed(\?[^/]*)? /ihs/files/$1/api/myuserlibrary/feed$2 [PT,L]    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]     
+RewriteRule ^/files/(basic|form|oauth)/api/communitylibrary/([^/]+)/document/([^/]+)/entry(\?[^/]*)? /ihs/files/$1/api/communitylibrary/$2/document/$3/entry$4 [PT,L]    
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]    
+RewriteRule ^/files/(basic|form|oauth)/api/library/([^/]+)/feed(\?[^/]*)? /ihs/files/$1/api/library/$2/feed$3 [PT,L]
+
+RewriteCond %{ENV:ENV-SKIP-IBM-UPLOAD-HANDLER} !=true [NC]
+RewriteCond %{HTTP:X-IBM-UPLOAD-METHOD} ^phases$ [NC]    
+RewriteCond %{HTTP:X-IBM-UPLOAD-TOKEN} ^[0-9a-zA-Z-]+$ [NC]    
+RewriteCond %{REQUEST_METHOD} !=GET [NC]    
+RewriteCond %{REQUEST_METHOD} !=OPTIONS [NC]    
+RewriteCond %{REQUEST_METHOD} !=HEAD [NC]    
+RewriteCond %{REQUEST_METHOD} !=DELETE [NC]    
+RewriteRule ^/files/(basic|form|oauth)/api/document/([^/]+)/entry(\?[^/]*)? /ihs/files/$1/api/document/$2/entry$3 [PT,L]
+
+</IfModule>

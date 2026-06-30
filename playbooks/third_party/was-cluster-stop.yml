@@ -1,0 +1,13 @@
+---
+  - name:                    Stop CNX Clusters
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+
+  - name:                    Stop Docs Clusters
+    hosts:                   dmgr
+    become:                  true
+    roles:
+      - { role: roles/hcl/docs/stop_docs_clusters,
+          when: groups.docs_servers is defined and groups.docs_servers|length > 0 }

@@ -1,0 +1,60 @@
+# hcl-api-gateway custom values for Helm deployment
+
+productUpstreams:
+  hcl:
+    # REQUIRED: Name of the default HCL backend upstream
+    defaultUpstream: hcl-backend
+
+upstreams:
+  - name: hcl-backend
+    scheme: https
+    externalNodes:
+      # REQUIRED: HCL backend URL or domain
+      - name: "{{ __frontend_fqdn }}"
+        # Do not override
+        type: Domain
+        # Do not override unless backend port is different
+        port: 443
+
+swaggerUi:
+  enabled: true
+  replicas: 1
+  # REQUIRED: Provide your Docker registry URL and image tag
+  image: "{{ __hcl_api_gateway_docker_registry_url }}/hcl-api-gateway-config:{{ __hcl_api_gateway_config_image_tag }}"
+  imagePullPolicy: {{ 'Always' if 'latest' in __hcl_api_gateway_config_image_tag else 'IfNotPresent' }}
+{% if hcl_api_gateway_image_pull_secret_exists is defined and hcl_api_gateway_image_pull_secret_exists|bool %}
+  imagePullSecrets:
+    - {{ __hcl_api_gateway_image_pull_secret_name }}
+{% endif %}
+
+apisix:
+  # REQUIRED: List of hosts for APISIX routes
+  hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+{% if  load_balancer_dns != frontend_fqdn %}
+    - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+{% endif %}
+{% else %}
+    - "{{ cnx_application_ingress }}"
+{% endif %}
+  # REQUIRED: Ingress class name
+  ingressClassName: "{{ __apisix_ingress_class }}"
+  # REQUIRED: Base path for routes
+  basePath: {{ __apisix_route_path }}
+  adminApi:
+    enabled: true
+    # REQUIRED: Admin API service name
+    serviceName: {{ __apisix_admin_service_name }}
+    # REQUIRED: Admin API service port
+    servicePort: {{ __apisix_admin_service_port }}
+  gatewayProxy:
+    enabled: true
+    # REQUIRED: Gateway proxy service name
+    serviceName: {{ __apisix_gateway_service_name }}
+    # REQUIRED: Gateway proxy service port
+    servicePort: {{ __apisix_gateway_service_port }}
+  tls:
+    enabled: true
+    # REQUIRED: Secret name for APISIX TLS cert
+    secretName: "{{ __cp_tls_secret_name }}"

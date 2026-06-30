@@ -22,6 +22,7 @@
     src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __extraction_folder }}"
     remote_src:          yes
+    validate_certs:      false
   when:
     - not tdi_already_installed.stat.exists
 

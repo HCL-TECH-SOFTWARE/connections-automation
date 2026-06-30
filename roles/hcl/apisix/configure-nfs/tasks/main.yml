@@ -1,0 +1,24 @@
+---
+- name:                                             Create NFS export directories for ETCD
+  ansible.builtin.file:
+    path:                                           "/{{ __persistentVolumePath }}/{{ __apisix_etcd_pv_name }}-{{ item }}"
+    state:                                          directory
+    mode:                                           '0700'
+    owner:                                          '1001'
+    group:                                          '1001'
+  with_sequence:                                    start=0 end={{ __apisix_etcd_replicaset | int - 1 if __apisix_etcd_replicaset | int != 0 else 0}}
+  when:
+    - __apisix_etcd_replicaset | int != 0
+
+- name:                                            Append NFS exports file with new entries for etcd PVs
+  ansible.builtin.lineinfile:
+    path:                                           "{{ __nfs_exports_destination }}"
+    line:                                           "/{{ __persistentVolumePath }}/{{ __apisix_etcd_pv_name }}-{{ item }}           {{ __nfs_client_network_address }}/{{ __nfs_export_netmask }}(rw,root_squash)"
+  with_sequence:                                    start=0 end={{ __apisix_etcd_replicaset | int - 1 if __apisix_etcd_replicaset | int != 0 else 0}}
+  when:  __apisix_etcd_replicaset | int != 0
+
+- name:                                             Export file systems
+  ansible.builtin.command:                          exportfs -ra
+
+- name:                                             Fail if there is nothing exported
+  ansible.builtin.shell:                            "exportfs -v | grep {{ __persistentVolumePath }}"

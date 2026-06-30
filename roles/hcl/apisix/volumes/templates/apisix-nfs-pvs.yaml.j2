@@ -1,0 +1,18 @@
+# Parameters for the PVs will be passed from the role's tasks.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+ name: "{{ pv_name }}-{{ item }}"
+ labels:
+    attachTo: {{ pv_name }}
+spec:
+  storageClassName: {{ __apisix_storage_class_name }}
+  capacity:
+   storage: {{ __apisix_volume_storage_capacity }}
+  accessModes:
+   - {{ __apisix_volume_access_mode }}
+  persistentVolumeReclaimPolicy: {{ __apisix_storage_class_reclaim_policy }}
+  volumeMode: Filesystem
+  nfs:
+    path: /{{ __persistentVolumePath }}/{{ pv_name }}-{{ item }}
+    server: {{ __nfsMasterAddress }}

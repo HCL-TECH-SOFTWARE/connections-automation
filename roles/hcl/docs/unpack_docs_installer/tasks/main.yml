@@ -14,6 +14,7 @@
     src:                 "{{ app_zip_name.files[0].path }}"
     dest:                "{{ __extraction_folder }}/{{ __app_name }}"
     remote_src:          yes
+    validate_certs:      false
   register:              unpacked_zip
   until:                 unpacked_zip is succeeded
 

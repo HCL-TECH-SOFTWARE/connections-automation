@@ -12,3 +12,7 @@
 - name:                       Configure customizer
   include_tasks:              configure_customizer.yml
   when:                       __setup_customizer |bool
+
+- name:                       Configure NGINX without Component Pack
+  include_tasks:              configure_no_cp_nginx_conf.yml
+  when:                       __setup_k8s_no_cp |bool

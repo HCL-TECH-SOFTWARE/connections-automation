@@ -11,7 +11,7 @@ __mssql_init_success_file:             "/opt/mssql/init.success"
 __mssql_setup_success_file:            "/opt/mssql/install.success"
 
 __jdbc_installation_folder:            "{{ mssql_jdbc_installation_folder | default('/opt/mssql/jdbc/lib') }}"
-__download_location:                   "{{ mssql_download_location | default('c7lb1.cnx.cwp.pnp-hcl.com:8001/MSSQL') }}"
+__download_location:                   "{{ mssql_download_location | default('connections.internal.example.com:8001/MSSQL') }}"
 __package_name:                        "{{ mssql_jdbc_package_name | default('sqljdbc_6.0.8112.200_enu.tar.gz') }}"
 __package_name_legacy:                 "sqljdbc_4.1.8112.200_enu.tar.gz"
 __package_name_legacy_40:              "sqljdbc_4.0.tar.gz"

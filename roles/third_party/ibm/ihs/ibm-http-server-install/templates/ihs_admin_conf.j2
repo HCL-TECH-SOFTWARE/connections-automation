@@ -7,7 +7,7 @@
 Listen {{ __ihs_admin_port }}
 
 # Directory where the Administration Server binaries are installed
-ServerRoot "/opt/IBM/HTTPServer"
+ServerRoot "{{ __ihs_install_location }}"
 
 # Name and location of the sockets file.
 # This file is used for communication between IHS Admin Child process
@@ -81,7 +81,7 @@ LoadModule ibm_admin_module 	modules/mod_ibm_admin.so
    AuthName "IBM Administration Server"
    AuthType Basic
    AuthBasicProvider file
-   AuthUserFile "/opt/IBM/HTTPServer/conf/admin.passwd"
+   AuthUserFile "{{ __ihs_install_location }}/conf/admin.passwd"
    require valid-user
    Allow from all
 </Location>

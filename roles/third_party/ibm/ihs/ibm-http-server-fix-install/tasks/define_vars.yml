@@ -1,52 +1,38 @@
 ---
-- name:              Use Fix Pack 23?
+- name:              Use Fix Pack 29?
   set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp23 }}"
+    __ihs_fp_files:    "{{ __ihs_fp_files_fp29 }}"
     __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
     __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp23 )
+  when:              ( __ihs_version == __ihs_fp_version_fp29 )
 
-- name:              Use Fix Pack 22?
+- name:              Use Fix Pack 28?
   set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp22 }}"
+    __ihs_fp_files:    "{{ __ihs_fp_files_fp28 }}"
     __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
     __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp22 )
+  when:              ( __ihs_version == __ihs_fp_version_fp28 )
 
-- name:              Use Fix Pack 21?
+- name:              Use Fix Pack 27?
   set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp21 }}"
+    __ihs_fp_files:    "{{ __ihs_fp_files_fp27 }}"
     __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
     __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp21 )
+  when:              ( __ihs_version == __ihs_fp_version_fp27 )
+  
+- name:              Use Fix Pack 26?
+  set_fact:
+    __ihs_fp_files:    "{{ __ihs_fp_files_fp26 }}"
+    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
+    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
+  when:              ( __ihs_version == __ihs_fp_version_fp26 )
 
-- name:              Use Fix Pack 20?
+- name:              Use Fix Pack 24?
   set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp20 }}"
+    __ihs_fp_files:    "{{ __ihs_fp_files_fp24 }}"
     __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
     __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp20 )
-
-- name:              Use Fix Pack 19?
-  set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp19 }}"
-    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
-    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp19 )
-
-- name:              Use Fix Pack 18?
-  set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp18 }}"
-    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
-    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp18 )
-
-- name:              Use Fix Pack 16?
-  set_fact:
-    __ihs_fp_files:    "{{ __ihs_fp_files_fp16 }}"
-    __ihs_version_check: "Updated to com.ibm.websphere.IHS.v85_{{ __ihs_version }}"
-    __ihs_version_id:    "\"id='com.ibm.websphere.IHS.v85' version='{{ __ihs_version }}'\""
-  when:              ( __ihs_version == __ihs_fp_version_fp16 )
+  when:              ( __ihs_version == __ihs_fp_version_fp24 )
 
 - name:              Is IIM Installed?
   command:           "egrep {{ __iim_product_id }} /var/ibm/InstallationManager/installed.xml"

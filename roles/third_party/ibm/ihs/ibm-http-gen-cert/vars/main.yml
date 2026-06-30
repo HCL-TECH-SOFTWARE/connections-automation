@@ -1,0 +1,13 @@
+---
+__ihs_install_location:    "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+
+__ihs_hostname:            "{{ ihs_hostname | default(inventory_hostname_short) }}"
+__ihs_hostname_fqdn:       "{{ inventory_hostname }}"
+__ihs_bin_directory:       "{{ __ihs_install_location }}/bin/"
+
+__ihs_kdb_password:        "{{ ihs_kdb_password | default('password') }}"
+__ihs_gsk_api:             "{{ __ihs_install_location }}/bin/gskcapicmd"
+__ihs_kdb_filename:        "{{ __ihs_install_location }}/{{__ihs_hostname}}-key.kdb"
+__ihs_cert_dn:             "cn={{ __ihs_hostname_fqdn }},o=pnp-hcl,c=US"
+
+__was_install_location:    "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"

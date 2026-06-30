@@ -5,28 +5,39 @@ global:
 haproxy:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
+# Redis sections can be omitted starting with CR13. They will be removed from the template in future releases.
+redis7:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  enabled: false
 redis:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
+  enabled: false
 redis-sentinel:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
-mongodb:
+  enabled: false
+valkey:
+  namespace: {{ __default_namespace }}
+  replicaCount: {{ __replica_count }}
+  enabled: true
+mongo7:
+  clusterDomain: {{ __default_clusterDomain }}
   namespace: {{ __default_namespace }}
   createSecret: false
   replicaCount: {{ __replica_count }}
-mongo5:
-  clusterDomain: cluster.local
-  namespace: {{ __default_namespace }}
-  createSecret: false
-  replicaCount: {{ __replica_count }}
+  enabled: {{ __setup_mongo7 }}
+  terminationGracePeriodSeconds: {{ __mongoTerminationGracePeriodSeconds }}
+{% if mongo_image_tag is defined %}
+  image:
+    tag: {{ mongo_image_tag }}
+{% endif %}
 appregistry-client:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   ingress:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    controller: {{ __ingress_controller }}    
     enabled: true
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
@@ -40,19 +51,39 @@ appregistry-client:
     - host: "{{ cnx_application_ingress }}"
       paths: []
 {% endif %}
+{% if appreg_client_ingress_in_chart is defined and appreg_client_ingress_in_chart.rc == 0 %}
+    name: cnx-ingress-appreg-client
+{% else %}
+    # Chart is CR13 or below, do not rename the ingress.
     name: cnx-ingress-appreg
+{% endif %}
     tls: []
 appregistry-service:
   namespace: {{ __default_namespace }}
   deploymentType: hybrid_cloud
   replicaCount: {{ __replica_count }}
+  ingress:
+    controller: {{ __ingress_controller }}    
+    enabled: true
+    hosts:
+{% if  __ingress_multi_domain_enabled == "true"  %}
+    - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
+      paths: []
+{% if  load_balancer_dns != frontend_fqdn %}
+    - host: "*.{{ frontend_fqdn.split('.', 1)[1] }}"
+      paths: []
+{% endif %}
+{% else %}
+    - host: "{{ cnx_application_ingress }}"
+      paths: []
+{% endif %}
+    name: cnx-ingress-appreg-service
+    tls: [] 
 middleware-jsonapi:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   ingress:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /
+    controller: {{ __ingress_controller }}
     enabled: true
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}
@@ -69,4 +100,3 @@ middleware-jsonapi:
     name: cnx-ingress-jsonapi
     tls: []
 replicaCount: {{ __replica_count }}
-

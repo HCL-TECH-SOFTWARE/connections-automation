@@ -36,6 +36,7 @@
     src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __extraction_folder }}"
     remote_src:          yes
+    validate_certs:      false
   register: download_and_unpack_component_pack
   until: download_and_unpack_component_pack is succeeded
   retries: 3

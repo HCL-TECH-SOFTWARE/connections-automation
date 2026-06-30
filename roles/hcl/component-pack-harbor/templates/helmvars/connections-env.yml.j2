@@ -17,6 +17,9 @@ integrations:
   msteams:
     auth:
       schema: {{ __msteams_auth_schema }}
+      sso:
+        url: {{ __msteams_auth_sso_url }}
+        reloginTimerMins: {{ __msteams_auth_sso_reloginTimerMins }}
     client:
       id: {{ __msteams_client_id }}
       secret: {{ __msteams_client_secret }}

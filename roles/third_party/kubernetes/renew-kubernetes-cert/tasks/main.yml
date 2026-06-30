@@ -1,0 +1,16 @@
+---
+  - name:               Renew Kubernetes certificates on each control plane node
+    include_tasks:      renew-kubernetes-cert.yml
+
+  - name:               Update kubectl user's $HOME/.kube/config
+    include_tasks:      ../../setup-kubectl/tasks/main.yml
+
+  - name:               Restart the control plane pods
+    include_tasks:      restart-control-plane-pods.yml
+    vars:
+      component:        "{{ item }}"
+    with_items:
+      - kube-apiserver
+      - kube-scheduler
+      - kube-controller-manager
+      - etcd

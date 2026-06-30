@@ -1,4 +1,7 @@
 ---
+- name:          Install necessary packages
+  include_tasks: setup_os.yml
+
 - name:          Allow pods to run on master in case of single node install
   include_tasks: taint_single_node.yml
 

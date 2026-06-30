@@ -26,29 +26,23 @@ logIt() {
 usage() {
 	logIt ""
 	logIt "Usage: ./configureRedis.sh [OPTION]"
-	logIt "This script will configure IBM Connections for communicating Redis traffic to OrientMe"
+	logIt "This script will configure HCL Connections for communicating Redis traffic to Homepage"
 	logIt ""
 	logIt "Options are:"
-	logIt "-m    	| --master		Kubernetes Master Server Hostname/IPAddress : The IP/Hostname of the Kubernetes master server. Required."
-	logIt "-po   	| --port		The external port that Redis is running on within Kubernetes. Required."
-	logIt "-ic   	| --ic_internal		FQHN of Connections HTTP server.  Include http / https  Required."
+	logIt "-m    	| --master	The host name or IP address of the external Kubernetes load balancer (eg. HAProxy) in an HA environment or the worker node in a single node environment. Required."
+	logIt "-po   	| --port		The external port that haproxy-redis is running on. The default port is 30379. Required."
+	logIt "-ic   	| --ic_internal		FQHN of the Connections deployment.  Include http / https  Required."
 
 	logIt ""
 	logIt "-pw   	| --password		Password for Redis Secret.  Must match value in Kubernetes secret.  Optional."
-	logIt "-cl   	| --clearpassword	Clear Password for Redis Secret.  Optional. Cannot be used with -pw option."
-	logIt "-ic_u	| --ic_user          	IC User with Auth Privlidges to configure the IBM Connections Highway Settings. Optional. If specified, must use -ic_p|--ic_pass option.."
-	logIt "-ic_p	| --ic_pass             Password for IC User with Auth Privlidges to configure the IBM Connections Highway Settings. Optional. If specified, must use -ic_u|--ic_user option.."
+	logIt "-ic_u	| --ic_user     Admin user with Auth privilege to configure the HCL Connections Highway Settings. Optional. If specified, must use -ic_p|--ic_pass option.."
+	logIt "-ic_p	| --ic_pass     Password for admin user with Auth privilege to configure the HCL Connections Highway Settings. Optional. If specified, must use -ic_u|--ic_user option.."
 
 	logIt ""
-	logIt "sample usage (set Redis Host and Redis Port) : ./configureRedis.sh -m <Master Server Hostname/IPAddress> -po <Redis Port> -ic <FQHN of Connections HTTP server> -ic_u wasadmin -ic_p passw0rd"
+	logIt "sample usage (set Redis Host and Redis Port) : ./configureRedis.sh -m <Kubernetes load balancer Hostname/IPAddress> -po <Redis Port> -ic <FQHN of Connections HTTP server> -ic_u wasadmin -ic_p passw0rd"
 	logIt ""
-	logIt "sample usage (set Redis Host, Redis Port and Redis Password) : ./configureRedis.sh -m <Master Server Hostname/IPAddress> -po <Redis Port> -ic <FQHN of Connections HTTP server> -pw <Redis Secret> -ic_u wasadmin -ic_p passw0rd"
+	logIt "sample usage (set Redis Host, Redis Port and Redis Password) : ./configureRedis.sh -m <Kubernetes load balancer Hostname/IPAddress> -po <Redis Port> -ic <FQHN of Connections deployment> -pw <Redis Secret> -ic_u wasadmin -ic_p passw0rd"
 	logIt ""
-	logIt "sample usage (Clear Redis Password - needed if disabling redis authenication after it is enabled) : ./configureRedis.sh -m <Master Server Hostname/IPAddress> -po <Redis Port> -ic <FQHN of Connections HTTP server> -cl -ic_u wasadmin -ic_p passw0rd"
-	logIt ""
-
-
-
 
 	exit 1
 }
@@ -154,7 +148,7 @@ redis_secret=false
 clear_redis_secret=false
 ic_auth=false
 ignoreResponseCode=false
-errorMsg302="Received a 302 response.  Possible root cause : You have specified http against a SSL/TLS protected IBM Connections Server. Please re-run the script, ensuring to specify https when setting the -ic parameter, should the IBM Connections Server be SSL/TLS protected."
+errorMsg302="Received a 302 response.  Possible root cause : You have specified http against a SSL/TLS protected HCL Connections Server. Please re-run the script, ensuring to specify https when setting the -ic parameter, should the HCL Connections Server be SSL/TLS protected."
 
 while [[ $# -gt 0 ]]
 do
@@ -201,7 +195,7 @@ done
 
 
 if [ "${MASTER_HOSTNAME}" = "" -o "${REDIS_PORT}" = "" -o "${IHS_FQHN}" = "" ]; then
-	logErr "Missing Kubernetes Master Hostname, Redis Port, or IC HTTP server definitions"
+	logErr "Missing Kubernetes load balancer or worker Hostname, Redis Port, or Connections URL"
 
 	logErr "MASTER_HOSTNAME = ${MASTER_HOSTNAME}"
 	logErr "REDIS_PORT = ${REDIS_PORT}"

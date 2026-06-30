@@ -20,8 +20,7 @@
 
 - name:              Mount everything if something is missing
   command:           mount -a
-  args:
-    warn:            no
+  
 
 - name:              Enable Kubernetes repository
   template:
@@ -36,8 +35,26 @@
     src:             "{{ __kubernetes_yum_rhel8_template }}"
     dest:            "{{ __kubernetes_yum_repo_location }}"
   when:
-   - ansible_os_family == "RedHat"
+   - ansible_os_family == "RedHat" or ansible_os_family == "AlmaLinux"
    - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
+
+- name:                     Remove Docker repository file
+  file:
+    path:                   /etc/zypp/repos.d/docker-ce.repo
+    state:                  absent
+  become:                   yes
+  when:
+    - ansible_distribution == "SLES"
+
+- name:              Remove existing Kubernetes repository from SUSE
+  command:           zypper removerepo kubernetes
+  when: 
+    - ansible_distribution == "SLES"
+
+- name:              Enable Kubernetes repository on SUSE
+  command:           zypper ar -f https://pkgs.k8s.io/core:/stable:/v{{ __kubernetes_major_minor_version }}/rpm/ kubernetes
+  when: 
+    - ansible_distribution == "SLES"
 
 - name:              Install prereqs for RHEL 8 / CentOS 8
   yum:
@@ -47,6 +64,13 @@
    - ansible_os_family == "RedHat"
    - ansible_distribution_major_version == "8"
 
+- name:              Install prereqs for SUSE
+  zypper:
+    name:            ['iproute2']
+    state:           present
+  when: 
+    - ansible_distribution == "SLES"
+    
 - name:              "Load br_netfilter as per https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#letting-iptables-see-bridged-traffic"
   modprobe:
     name:            br_netfilter
@@ -76,4 +100,4 @@
     persistent:      yes
   ignore_errors:     true
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_os_family == "RedHat" or "AlmaLinux"

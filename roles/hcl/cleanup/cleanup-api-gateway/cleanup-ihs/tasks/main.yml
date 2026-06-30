@@ -1,0 +1,38 @@
+---
+- name:                     Load shared APISIX cleanup variables
+  include_vars:             "{{ role_path }}/../vars/main.yml"
+
+- name:                     Display IHS cleanup plan
+  ansible.builtin.debug:
+    msg:                    "Starting cleanup of APISIX proxy rules from IHS on {{ inventory_hostname }}."
+  tags:                     apisix_cleanup
+
+- name:                     Backup httpd.conf before cleanup
+  ansible.builtin.command:  cp {{ __ihs_httpd_conf_file }} {{ __ihs_httpd_conf_file }}.backup_{{ ansible_date_time.epoch }}
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Remove APISIX proxy rules from IHS httpd.conf
+  ansible.builtin.shell:    |
+                            # Remove block if it exists
+                            sed -i '/# BEGIN APISIX PROXY RULES (HTTPS)/,/# END APISIX PROXY RULES (HTTPS)/d' {{ __ihs_httpd_conf_file }}
+                            # Remove any remaining APISIX proxy rules
+                            sed -i '/ProxyPass.*{{ __apisix_gateway_node_port_https }}.*{{ __apisix_route_path }}/d' {{ __ihs_httpd_conf_file }}
+                            sed -i '/ProxyPassReverse.*{{ __apisix_gateway_node_port_https }}.*{{ __apisix_route_path }}/d' {{ __ihs_httpd_conf_file }}
+                            sed -i '/ProxyPass.*\/ui.*{{ __apisix_gateway_node_port_https }}\/ui/d' {{ __ihs_httpd_conf_file }}
+                            sed -i '/ProxyPassReverse.*\/ui.*{{ __apisix_gateway_node_port_https }}\/ui/d' {{ __ihs_httpd_conf_file }}
+                            sed -i '/ProxyPass.*\/apisix.*{{ __apisix_gateway_node_port_https }}\/apisix/d' {{ __ihs_httpd_conf_file }}
+                            sed -i '/ProxyPassReverse.*\/apisix.*{{ __apisix_gateway_node_port_https }}\/apisix/d' {{ __ihs_httpd_conf_file }}
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Restart IHS to apply configuration changes
+  include_role:
+    name:                   roles/third_party/ibm/ihs/ibm-http-server-restart
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Display IHS cleanup completion message
+  ansible.builtin.debug:
+    msg:                    "APISIX proxy rules removed from IHS on {{ inventory_hostname }}."
+  tags:                     apisix_cleanup

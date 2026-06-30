@@ -1,3 +1,7 @@
+- name:               Check if single node installation is enabled
+  set_fact:
+    is_single_node_installation: "{{ ((groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1) }}"
+
 - name:               Check if "{{ inventory_hostname }}" is already part of the cluster as master and in Ready status
   shell:              kubectl get nodes | grep "{{ inventory_hostname }}" | grep control-plane | grep Ready
   changed_when:       true
@@ -7,31 +11,21 @@
   become:             false
   ignore_errors:      true
 
+- name:               Check if master certificate key file exists
+  stat:
+    path:             "{{ __master_certkey_location }}"
+  register:           master_certkey_file
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - not is_single_node_installation | bool
+
 - name:               Generate certificate key
   command:            kubeadm certs certificate-key
   register:           master_certificate_key_json
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
-
-- name:               Show me master_certificate_key_json
-  debug:
-    msg:              "{{ master_certificate_key_json }}"
-  when:
-    - inventory_hostname == groups['k8s_masters'][0]
-    - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
-  ignore_errors:      true
-
-- name:               Show me master_certificate_key_json.stdout
-  debug:
-    msg:              "{{ master_certificate_key_json.stdout }}"
-  when:
-    - inventory_hostname == groups['k8s_masters'][0]
-    - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
-  ignore_errors:      true
+    - master_already_initialized.rc | int != 0
+    - not is_single_node_installation | bool
 
 - name:               Save master certificate key
   template:
@@ -39,8 +33,43 @@
     dest:             "{{ __master_certkey_location }}"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - master_already_initialized.rc | int != 0
+    - master_certificate_key_json is defined
+    - master_certificate_key_json.stdout is defined
+    - "'skipped' not in master_certificate_key_json.stdout"
+    - not is_single_node_installation | bool
+
+- name:               Generate certificate key for existing cluster if missing
+  command:            kubeadm certs certificate-key
+  register:           master_certificate_key_json
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc | int == 0
+    - master_certkey_file is defined
+    - not master_certkey_file.stat.exists
+    - not is_single_node_installation | bool
+
+- name:               Save master certificate key for existing cluster
+  template:
+    src:              "{{ __master_certkey_template }}"
+    dest:             "{{ __master_certkey_location }}"
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc | int == 0
+    - master_certkey_file is defined
+    - not master_certkey_file.stat.exists
+    - master_certificate_key_json is defined
+    - master_certificate_key_json.stdout is defined
+    - "'skipped' not in master_certificate_key_json.stdout"
+    - not is_single_node_installation | bool
+
+- name:               Re-check if master certificate key file exists
+  stat:
+    path:             "{{ __master_certkey_location }}"
+  register:           master_certkey_file_final
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - not is_single_node_installation | bool
 
 - name:               Read the certificate key and save it to the variable
   slurp:
@@ -48,33 +77,48 @@
   register:           master_certificate_key
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - not is_single_node_installation | bool
+    - master_certkey_file_final.stat is defined
+    - master_certkey_file_final.stat.exists
 
-- name:               Show me master_certificate_key
-  debug:
-    msg:              "{{ master_certificate_key.content | b64decode | replace('\n', '') }}"
+- name:               Set master_certificate_key_value from file
+  set_fact:
+    master_certificate_key_value: "{{ master_certificate_key.content | b64decode | replace('\n', '') }}"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
-  ignore_errors:      true
+    - master_certificate_key is defined
+    - master_certificate_key.content is defined
+    - not is_single_node_installation | bool
 
 - name:               Initialize master for single node installation
   command:            kubeadm init --config={{ __kubeadm_config_location }}
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+    - master_already_initialized.rc | int != 0
+    - is_single_node_installation | bool
 
 - name:               Initialize master for HA
-  command:            kubeadm init --control-plane-endpoint "{{ __load_balancer_dns  }}:6443" --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key.content | b64decode | replace('\n', '') }}
+  command:            kubeadm init --control-plane-endpoint "{{ __load_balancer_dns  }}:6443" --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key_value }}
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - master_already_initialized.rc | int != 0
+    - master_certificate_key_value is defined
+    - not is_single_node_installation | bool
+
+- name:               Upload certs for existing cluster so new masters can join
+  command:            kubeadm init phase upload-certs --upload-certs --certificate-key {{ master_certificate_key_value }}
+  run_once:           true
+  when:
+    - inventory_hostname == groups['k8s_masters'][0]
+    - master_already_initialized.rc | int == 0
+    - master_certificate_key_value is defined
+    - groups['k8s_masters'] | length > 1
+    - not is_single_node_installation | bool
 
 - name:               Generate join command
   command:            kubeadm token create --print-join-command
+  run_once:           true
   register:           join_command
   when:
     - inventory_hostname == groups['k8s_masters'][0]
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) != true
+    - not is_single_node_installation | bool

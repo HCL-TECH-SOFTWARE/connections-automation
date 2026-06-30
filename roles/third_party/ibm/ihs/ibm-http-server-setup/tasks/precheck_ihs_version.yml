@@ -1,0 +1,25 @@
+---
+- name:              Check if IHS is already installed
+  command:           "egrep {{ __ihs_package_name }} /var/ibm/InstallationManager/installed.xml"
+  register:          ihs_already_installed
+  ignore_errors:     true
+
+- name:              Extract IHS version from installed.xml output
+  set_fact:
+    ihs_installed_version: "{{ (ihs_already_installed.stdout | regex_search(\"version='([0-9.]+_[0-9]+)\", '\\1'))[0] }}"
+  when:              ihs_already_installed.rc == 0
+
+- name:              Show extracted installed IHS version
+  debug:
+    msg:             "Installed IHS version is: {{ ihs_installed_version }}"
+  when:              ihs_already_installed.rc == 0
+
+- name:              Fetch installed IHS major version
+  set_fact:
+    ihs_major_version_installed: "{{ ihs_installed_version.split('.')[0] }}"
+  when:              ihs_already_installed.rc == 0
+
+- name:              Show installed IHS major version
+  debug:
+    msg:             "Installed IHS major version is: {{ ihs_major_version_installed }}"
+  when:              ihs_already_installed.rc == 0

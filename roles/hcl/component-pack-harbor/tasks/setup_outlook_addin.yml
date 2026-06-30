@@ -22,8 +22,8 @@
     dest:                    "{{ __outlook_addin_destination }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Get chart and version
-  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep connections-outlook-desktop | cut -d ':' -f2"
+- name:                      Get chart and version harbor OCI
+  shell:                     "helm show all {{ __oci_helm_repository }}/connections-outlook-desktop --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                  connections_outlook_desktop_chart_version
   become_user:               "{{ __sudo_user }}"
 

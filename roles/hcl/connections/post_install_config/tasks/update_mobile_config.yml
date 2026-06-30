@@ -14,3 +14,13 @@
       xpath:           "{{ __mobilecfg_mobileadmin_xpath }}"
       attribute:       "enabled"
       value:           "true"
+
+  # WARNING: Never set to false in Production deployments - this is a security risk
+  # When set to false, mobile app will accept untrusted certificates
+  # When true (default): mobile app rejects untrusted certificates (secure)
+  - name:              Update mobile-config.xml to set RejectUntrustedCertificates
+    replace:
+      path:            "{{ __mobile_config_file }}"
+      regexp:          '(<RejectUntrustedCertificates>)([^<]*)(</RejectUntrustedCertificates>)'
+      replace:         '\1{{ __mobilecfg_reject_untrusted_certs }}\3'
+    when:              cnx_mobile_reject_untrusted_certs is defined and cnx_mobile_reject_untrusted_certs is not none and cnx_mobile_reject_untrusted_certs != ''

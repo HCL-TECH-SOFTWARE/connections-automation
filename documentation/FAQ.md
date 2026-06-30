@@ -8,9 +8,9 @@
 
 [What if I have some issues?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-if-i-have-some-issues)
 
-[Flexnet package names are different then some default package names here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#flexnet-package-names-are-different-then-some-default-package-names-here)
+[My HCLSoftware package names are different then some default package names here](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#my-hclsoftware-package-names-are-different-then-some-default-package-names-here)
 
-[How can I use Flexnet package names for WebSphere?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-can-i-use-flexnet-package-names-for-websphere)
+[How can I use My HCLSoftware package names for WebSphere?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#how-can-i-use-my-hclsoftware-package-names-for-websphere)
 
 [What are the minimum system requirements to use this automation?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#what-are-the-minimum-system-requirements-to-use-this-automation)
 
@@ -42,6 +42,8 @@
 
 [Why are we using Nginx and Haproxy here?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#why-are-we-using-nginx-and-haproxy-here)
 
+[Docs thumbnails stop working after upgrading Connections. How to fix that?](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md#docs-thumbnails-stop-working-after-upgrading-connections-how-to-fix-that)
+
 ## What do I see here?
 
 This is the end to end automation used by HCL Connections development team(s) to test different features for HCL Connections, Component Pack for HCL Connections and HCL Connections Docs.
@@ -56,17 +58,17 @@ If you never used Ansible before, please start with this [quick start guide](htt
 
 The easiest way is just to open the issue/start the discussion here in Github. If you are using HCL Connections you can go through the official support channels as well, but this is the fastest and the most straight forward way to get in touch directly with the developers who are maintaining the upstream. 
 
-## Flexnet package names are different then some default package names here
+## My HCLSoftware package names are different then some default package names here
 
-Package names used as default in those scripts are the same package names used by HCL Connections development teams inside all internal environments, including those exposed to the customers from time to time. The names used in Flexnet are IBM's part IDs.
+Package names used as default in those scripts are the same package names used by HCL Connections development teams inside all internal environments, including those exposed to the customers from time to time. The names used in My HCLSoftware are IBM's part IDs.
 
-However, if needed, you should be able to search on both names through the Flexnet to set up whatever you need. We do use Flexnet names as overwrites in [examples](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml#L50-L58).
+However, if needed, you should be able to search on both names through the My HCLSoftware to set up whatever you need. We do use My HCLSoftware names as overwrites in [examples](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml#L50-L58).
 
-## How can I use Flexnet package names for WebSphere?
+## How can I use My HCLSoftware package names for WebSphere?
 
 You can always override default package names. Please report the issue in Github or open a pull request if something doesn't provide that functionality.
 
-For WebSphere, for example, this is how you overwrite default IBM names with those [HCL uses in Flexnet](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/flexnet_db2/group_vars/all.yml#L50-L58).
+For WebSphere, for example, this is how you overwrite default IBM names with those [HCL uses in My HCLSoftware](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml#L50-L58).
 
 ## What are the minimum system requirements to use this automation?
 
@@ -133,3 +135,8 @@ No, it's not. However, any node can be controller node (if you are using Linux o
 Nginx is used just as a reverse proxy example. You can use whatever web server you are used to use.
 
 Haproxy is definitely not mandatory, but if you are creating a Kubernetes cluster specifically with more then one master, you do need some load balancer in front of it. Also, if you are using Amazon EKS or RedHat OpenShift for your Component Pack installation, this Haproxy solves potential CORS issues for you. But no, Haproxy is not mandatory either.
+
+## Docs thumbnails stop working after upgrading Connections. How to fix that?
+
+Under certain circumstances, the references to Connections Docs shared libraries will be removed during the Connections upgrade.  To add them back, go to the WebSphere Integrated Solutions Console, navigate to All applications -> News.  Select "Shared library references" then "Reference shared libraries" to add DocsDaemonLib and ViewerDaemonLib to the News application, click OK.
+

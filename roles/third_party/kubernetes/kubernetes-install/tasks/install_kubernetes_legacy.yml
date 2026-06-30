@@ -1,0 +1,40 @@
+---
+- name:                    Install Kubernetes binaries - kubelet
+  yum:
+    name:                  kubelet-{{ __kubernetes_version }}-0
+    state:                 present
+    disable_excludes:      kubernetes
+
+- name:                    Install Kubernetes binaries - kubeadm
+  yum:
+    name:                  kubeadm-{{ __kubernetes_version }}-0
+    state:                 present
+    disable_excludes:      kubernetes
+
+- name:                    Find kubectl
+  shell:                   "whereis kubectl | awk '{ print $2 }'"
+  register:                kubectl_loc
+  ignore_errors:           true
+
+- name:                    Remove kubectl so the desire version will be installed {{ kubectl_loc.stdout }}
+  file:
+    path:                  "{{ kubectl_loc.stdout }}"
+    state:                 absent
+  ignore_errors:           true
+  when:
+   - kubectl_loc.rc == 0
+
+- name:                    Install Kubernetes binaries - kubectl
+  include_tasks:           install_kubectl.yml
+
+- name:                    Add extra params for Kubelet
+  template:
+    src:                   "{{ __kubelet_systemd_template }}"
+    dest:                  "{{ __kubelet_systemd_location }}"
+
+- name:                    Enable and start kubelet
+  service:
+    name:                  kubelet
+    state:                 started
+    daemon_reload:         yes
+    enabled:               yes

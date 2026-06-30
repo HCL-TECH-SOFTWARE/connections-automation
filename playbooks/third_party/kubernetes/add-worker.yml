@@ -1,16 +1,20 @@
 # Install and set up Kubernetes
 ---
 - name:                    Install Kubernetes
-  hosts:                   k8s_masters, k8s_workers
+  hosts:                   k8s_workers
   become:                  true
   roles:
     - roles/third_party/kubernetes/kubernetes-install
 
-- name:                    Setup and initialize Kubernetes master node
+- name:                    Generate worker join command on first master
   hosts:                   k8s_masters
   become:                  true
-  roles:
-    - roles/third_party/kubernetes/setup-master-node
+  tasks:
+    - name:                Generate join command
+      command:             kubeadm token create --print-join-command
+      register:            join_command
+      run_once:            true
+      when:                inventory_hostname == groups['k8s_masters'][0]
 
 - name:                    Setup kubectl on masters and workers
   hosts:                   k8s_masters, k8s_workers

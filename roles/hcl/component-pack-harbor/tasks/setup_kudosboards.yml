@@ -44,7 +44,7 @@
     - inventory_hostname == groups['component_pack_master'][0]
 
 - name:                      Upgrade kudos-boards-cp
-  command:                   "helm upgrade kudos-boards-cp {{ __huddoboards_chart_location }}/{{ __huddoboards_chart_name }}  -i -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }} --recreate-pods"
+  command:                   "helm upgrade kudos-boards-cp {{ __huddoboards_chart_location }}/{{ __huddoboards_chart_name }}  -i -f {{ __kudos_boards_destination }} --namespace {{ __default_namespace }}"
   become_user:               "{{ __sudo_user }}"
   when:
     - inventory_hostname == groups['component_pack_master'][0]

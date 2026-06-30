@@ -12,4 +12,6 @@ extendedKeyUsage = serverAuth
 subjectAltName=@alt_names
 
 [alt_names]
-DNS.1={{ inventory_hostname }}
+{% for name in __nginx_cert_san_list %}
+DNS.{{ loop.index }} = {{ name }}
+{% endfor %}

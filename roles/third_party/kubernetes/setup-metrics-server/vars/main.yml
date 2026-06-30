@@ -1,0 +1,3 @@
+---
+__setup_metrics_server:         "{{ setup_metrics_server | default(false) | lower }}"
+__kubectl_user:                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"

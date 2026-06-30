@@ -25,7 +25,7 @@
   tags:               always
 
 - name:               Uninstall calico- Delete calico.yaml manifest
-  command:            kubectl delete -f calico.yaml
+  command:            kubectl delete -f calico.yaml --ignore-not-found=true
   when:               calico_already_provisioned.rc == 0 and inventory_hostname == groups['k8s_masters'][0]
   become:             false
   tags:               always

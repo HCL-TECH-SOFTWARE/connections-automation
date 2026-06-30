@@ -13,9 +13,7 @@ teams-share-service:
   namespace: {{ __default_namespace }}
   replicaCount: {{ __replica_count }}
   ingress:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/rewrite-target: /
+    controller: {{ __ingress_controller }}
     enabled: true
     hosts:
 {% if  __ingress_multi_domain_enabled == "true"  %}

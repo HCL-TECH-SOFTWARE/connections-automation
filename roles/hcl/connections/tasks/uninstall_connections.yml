@@ -45,12 +45,12 @@
 
 - name:              Uninstall Connections Software
   shell: |
-    mkdir -p /opt/IBM/CTemp
-    export IATEMPDIR=/opt/IBM/CTemp
+    mkdir -p {{ __tmp_dir }}/CTemp
+    export IATEMPDIR={{ __tmp_dir }}/CTemp
     export CHECK_DISK_SPACE=OFF
     {{ __iim_install_location }}/eclipse/tools/imcl -acceptLicense -sVP -log {{ __log_uninstall_file }} input {{ __rsp_uninstall_file }}
   environment:
-    IATEMPDIR: "/opt/IBM/CTemp"
+    IATEMPDIR: "{{ __tmp_dir }}/CTemp"
   register:          cout
 
 - name:              Remove Connections installation folder

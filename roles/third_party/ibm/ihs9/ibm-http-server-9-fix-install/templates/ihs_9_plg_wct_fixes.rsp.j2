@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+  <variables>
+    <variable name='sharedLocation' value='{{ __imshared_location }}'/>
+  </variables>
+  <server>
+    <repository location='{{ __tmp_dir }}/ihsfixes'/>
+    <repository location='{{ __tmp_dir }}/wctfixes'/>
+    <repository location='{{ __tmp_dir }}/wassdk'/>
+  </server>
+  <profile id='IBM HTTP Server V9.0' installLocation='{{ __ihs_version }}'>
+    <data key='cic.selector.arch' value='x86_64'/>
+    <data key='user.ihs.allowNonRootSilentInstall' value='true'/>
+    <data key='user.ihs.httpPort' value='80'/>
+    <data key='user.ihs.installHttpService' value='false'/>
+  </profile>
+  <install>
+    <!-- IBM SDK, Java Technology Edition, Version 8 8.0.7.5 -->
+    <offering profile='IBM HTTP Server V9.0' id='com.ibm.java.jdk.v8' version='{{ __was_fp_sdk_version_latest }}' features='com.ibm.sdk.8'/>
+    <!-- IBM HTTP Server for WebSphere Application Server 9.0.5.11 -->
+    <offering profile='IBM HTTP Server V9.0' id='com.ibm.websphere.IHS.v90' version='{{ __ihs_fp_version_latest }}' features='core.feature'/>
+  </install>
+  <profile id='Web Server Plug-ins for IBM WebSphere Application Server V9.0' installLocation='{{ __plg_install_location }}'>
+    <data key='cic.selector.arch' value='x86_64'/>
+  </profile>
+  <install>
+    <!-- Web Server Plug-ins for IBM WebSphere Application Server 9.0.5.11 -->
+    <offering profile='Web Server Plug-ins for IBM WebSphere Application Server V9.0' id='com.ibm.websphere.PLG.v90' version='{{ __ihs_fp_version_latest }}' features='core.feature'/>
+    <!-- IBM SDK, Java Technology Edition, Version 8 8.0.7.5 -->
+    <offering profile='Web Server Plug-ins for IBM WebSphere Application Server V9.0' id='com.ibm.java.jdk.v8' version='{{ __was_fp_sdk_version_latest }}' features='com.ibm.sdk.8'/>
+  </install>
+  <profile id='WebSphere Customization Toolbox V9.0' installLocation='{{ __wct_install_location }}'>
+    <data key='cic.selector.arch' value='x86_64'/>
+  </profile>
+  <install>
+    <!-- WebSphere Customization Toolbox 9.0.5.11 -->
+    <offering profile='WebSphere Customization Toolbox V9.0' id='com.ibm.websphere.WCT.v90' version='{{ __ihs_fp_version_latest }}' features='core.feature,pct'/>
+    <!-- IBM SDK, Java Technology Edition, Version 8 8.0.7.5 -->
+    <offering profile='WebSphere Customization Toolbox V9.0' id='com.ibm.java.jdk.v8' version='{{ __was_fp_sdk_version_latest }}' features='com.ibm.sdk.8'/>
+  </install>
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${sharedLocation}'/>
+</agent-input>

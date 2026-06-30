@@ -39,7 +39,7 @@ See [Sample Inventories](https://github.com/HCL-TECH-SOFTWARE/connections-automa
 Name | Default | Description
 ---- | --------| -------------
 setup_fake_ldap_users | true | true creates dummy ldap users
-ldap_bind_user | cn=Admin,dc=cnx,dc=pnp-hcl,dc=com | Ldap bind user
+ldap_bind_user | cn=Directory Manager if ansible_distribution == 'SLES' else cn=Admin,dc=cnx,dc=pnp-hcl,dc=com | Ldap bind user. Defaults to cn=Admin,dc=cnx,dc=pnp-hcl,dc=com. On SLES, this value is fixed to cn=Directory Manager.
 ldap_bind_pass | password | Password for simple authentication
 ldap_realm | dc=cnx,dc=pnp-hcl,dc=com | This directive specifies the DN suffix of queries that will be passed to this backend database
 ldap_admin_user | Admin | Ldap admin user
@@ -55,6 +55,7 @@ ldap_search_filter | (objectclass=inetOrgPerson) | Ldap search filter
 ldap_map_guid | entryUUID | mapping for guid property
 ldap_map_uid | uid | mapping for uid property
 ldap_server_type | CUSTOM | LDAP Server type of LDAP repo in WebSphere configuration
+ldap_custom_cert_sans | unique domain(*.`{{ldap_server}}`) | If provided, this variable specifies the Subject Alternative Names (SANs) for the LDAP TLS cert. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
 
 ### Database Variables
 Name | Default | Description
@@ -62,9 +63,9 @@ Name | Default | Description
 db_type | DB2 | Database type to be passed to the Connections installer
 db_username | LCUSER | Database user to be passed to the Connections installer
 db_password | password | Database user password to be passed to the Connections installer
-db_port | 50000 | TCP/IP service port
+db_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE, else the default port will be 50000
 db_hostname | *none* - required | Database hostname
-db_jdbc_file | /opt/IBM/db2/V11.1/java | Database JDBC driver path
+db_jdbc_file | /opt/IBM/db2/V12.1/java | Database JDBC driver path
 
 ### DB2 Variables
 Name | Default | Description
@@ -72,16 +73,16 @@ Name | Default | Description
 db2_download_location | *none* - required | DB2 install kit location to download
 setup_db2_jdbc | false | true will install jdbc drivers to WAS nodes
 db2_user | db2inst1 | DB2 Instance owner
-db2_installation_folder | /opt/IBM/db2/V11.1 | DB2 installation folder path
+db2_installation_folder | /opt/IBM/db2/V12.1 | DB2 installation folder path
 db2_instance_homedir | /home/db2inst1 | DB2 Instance owner home directory
-db2_package_name | v11.1.4fp5_linuxx64_universal_fixpack.tar.gz | DB2 package name
-db2_license_file | CNB23ML.zip | DB2 license file name
+db2_package_name | special_71609_v12.1.3_linuxx64_universal_fixpack.tar.gz | DB2 package name
+db2_license_file | DB2_ESE_AUSI_Activation_12.1.zip | DB2 license file name
 db2_instance | inst1 | logical Database Manager environment for DB2
 db2_instance_type | ese | DB2 instance type
 db2_instance_group | db2group | DB2 instance group
 db2_instance_autostat | YES |  True will enable the DB2 database instance for automatically start
 db2_instance_svcname | db2c_db2inst1 | DB2 instance service name
-db2_instance_port | 50000 | TCP/IP service port
+db2_instance_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE; otherwise, the default port will be 50000
 db2_instance_fcm_port | 60000 | port used by the Fast Communications Manager
 db2_instance_max_lnodes | 6 | Maximum node counts
 db2_instance_text_search | NO | Yes configures integrated Db2 Text Search server
@@ -89,7 +90,7 @@ db2_instance_fenced_user | db2fenc1 | Fenced user to run user defined functions 
 db2_instance_fenced_group | db2group | Fenced user group
 db2_instance_fenced_homedir | /home/db2fenc1 | Fenced user home directory
 db2_instance_default_lang | EN | DB2 instance default language
-install_latest_db2 | true | true will install IBM DB2 v11.5.6. false will install IBM DB2 v11.1
+install_latest_db2 | true | true will install IBM DB2 v12.1 false will install IBM DB2 v11.5.9
 force_check_db2_version_mismatch | false | true terminates the script if already installed version (if any) on the system is different than the version that user expects
 
 ### Oracle Variables
@@ -143,7 +144,7 @@ was_repository_url | *none* - required | WebSphere install kit download location
 was_fixes_repository_url | *none* - required | WebSphere Fix Pack kit location to download
 was_major_version | 8 | WebSphere major version
 was_version | 8.5.5000.20130514_1044 | WebSphere Base version
-was_fp_version | 8.5.5022.20220703_1123 | WebSphere Fix Pack
+was_fp_version | 8.5.5029.20260128_1103 | WebSphere Fix Pack
 java_version | 8.0.6015.20200826_0935 | (only for Java upgrade during FP16/18 install)
 was_username | wasadmin | WAS admin user
 was_password | password | WAS admin user password
@@ -157,8 +158,9 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 8.5.5022.20220703_1123 | IHS Fix Pack version
-wct_version | 8.5.5022.20220703_1123 | WebSphere Toolbox Fix Pack version
+ihs_version | 9.0.5025.20250820_1643 | IHS Fix Pack version
+wct_version | 9.0.5025.20250820_1643 | WebSphere Toolbox Fix Pack version
+ihs_major_version | *none* - required | Install HTTP Server major version, should be set to "9".
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
 plg_install_location | /opt/IBM/WebSphere/Plugins | IBM WebSphere Plugin installation folder path
@@ -207,6 +209,7 @@ cnx_package | HCL_Connections_8.0_lin.tar | Connections install kit file
 connections_wizards_package_name | HCL_Connections_8.0_wizards_lin_aix.tar | Connections Wizard kit file
 setup_connections_wizards | true | true will run the Connections database wizard
 cnx_force_repopulation | false | true will drop the Connections databases and recreate them in `setup-connections-wizards.yml` playbook
+keep_db_extraction_folder | false | true will keep the database wizard installation kit for reuse
 cnx_major_version | "8" | Connections major version to install
 cnx_fixes_version | *none* - optional | If defined (eg. 8.0.0.0_CR3) will install the CR version
 cnx_fixes_files | *none* - optional | If defined (eg. HC8.0_CR3.zip") and cnx_fixes_version is set, will download the CR install kit
@@ -223,6 +226,7 @@ cnx_message_store_nfs | /nfs/data/messageStores | Connections bus SIB NFS share
 cnx_enable_invite | false | true will configure selfregistration-config.xml for Invite
 cnx_enable_moderation | false | true will configure and enable Moderation
 global_moderator | *none* - optional | Global moderator user
+connections_extended_user | *none* - optional | User to have EMPLOYEE_EXTENDED role for external collaboration
 cnx_enable_full_icec | false | true will configure full CEC
 cnx_enable_lang_selector | false | true will enable and add additional languages to the language selector
 enable_homepage_switcher | true | set `com.ibm.orient.isHomepageSwitcherEnabled` in LotusConnections-config.xml
@@ -237,7 +241,7 @@ cnx_db_update_file | 65cr1-database-updates.zip | File name to download for data
 db_type | DB2 | Database type to be passed to the Connections installer
 db_username | LCUSER | Database user to be passed to the Connections installer
 db_password | password | Database user password to be passed to the Connections installer
-db_port | 50000 | Database user password to be passed to the Connections installer
+db_port | 50001 if ansible_distribution == 'SLES' else 50000 | The default TCP/IP service port will be set to 50001 if ansible_distribution is SUSE, else the default port will be 50000
 smtp_hostname | *none* - required | <for future use, you can set it to *localhost*>
 ifix_apar | *none* - required when install Connections fix | APAR number of fix
 ifix_file | *none* - required when install Connections fix | fix file name from `{{ cnx_repository_url }}`
@@ -248,6 +252,9 @@ restrict_reader_access__trusted_realms | *none* - optional | true will set appli
 sametime_host | *none* | Sametime server hostname
 sametime_ltpa_files | *none* | LTPA key file to import to WebSphere
 sametime_ltpa_key_password | *none* | Password of the LTPA key file
+cnx_ic360_cluster | Apps | Cluster running IC360
+sharepoint_client_id | *none* - optional | If defined, will configure Sharepoint widget
+sharepoint_tenant_id | *none* - optional | If defined, will configure Sharepoint widget
 
 
 ### Docs Variables
@@ -295,6 +302,7 @@ tinyeditors_customization_path | /opt/IBM/SharedArea/customization | Connections
 tinyeditors_provision_path | /opt/IBM/SharedArea/provision/webresources | Connections provision path
 tinyeditors_download_location | *none* - required | Tiny Editors kit download location
 tinyeditors_package_name | TinyEditorsForConnections.zip | Tiny Editors install kit file
+tinysvc_link_common | 'Apps' if cnx_deploy_type is 'small' else 'Infra' if cnx_deploy_type is 'medium' else 'Common' | Determines the target cluster for deploying Tiny Editors Services. The Tiny Services need to be mapped wherever Common is located.
 hcl_program_folder | /opt/HCL | Location to store Tiny Editors program folders
 tinyeditors_config_file_path | /opt/ephox | Tiny Editors post install configuration folder location
 tinyeditors_config_file_name | application.conf | Tiny Editors post install configuration file name
@@ -304,7 +312,7 @@ uninstall_tinyeditors | true | true will uninstall Tiny Editors
 ### Component Pack Infra Variables
 Name | Default | Description
 ---- | --------| -------------
-containerd_version | 1.6.21-3.1.el7 | Containerd version to be installed
+containerd_version | 2.2.2-1 | Containerd version to be installed. Refer https://download.docker.com/linux to find available versions.
 docker_version | 20.10.12 | Docker version to be installed
 docker_insecure_registries | {{ docker_registry_url }} | Docker insecure-registries setting
 registry_port | 5000 | The registry defaults to listening on port 5000
@@ -314,19 +322,32 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.27.0 | Kubernetes version to be installed
-kube_binaries_install_dir | /usr/bin | kuberneters binary install directory
-kube_binaries_download_url | https://storage.googleapis.com/kubernetes-release/release | kuberneters binary download path
+kubernetes_version | 1.35.2 | Kubernetes version to be installed
+kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
+kube_binaries_download_url | https://dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.25.0 | Calico version to be installed
-helm_version | 3.11.3 | Helm version to be installed
-haproxy_version | 2.6.6 | HAProxy version to be installed
+calico_version | 3.31.3 | Calico version to be installed
+helm_version | 3.19.0 | Helm version to be installed
+haproxy_version | 3.1.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
-
+nginx_version | 1.26.1 | nginx version to be installed
+build_nginx | true | true will build and install NGINX with headers-more-nginx-module to allow removal of Server information from header
+nginx_install_dir | /etc/nginx | NGINX install location
+setup_k8s_no_cp | false | Setup NGINX without Component Pack location directives
+nginx_logs_dir | /var/log/nginx | NGINX logs location
+nginx_log_rotate | false | If true, enable NGINX log rotation
+nginx_log_rotate_period | daily | log rotation frequency when `nginx_log_rotate` is true.
+nginx_log_rotate_count | 30 | Number of rotated logs to keep when `nginx_log_rotate` is true.
+nginx_pid_loc | /run/nginx.pid | Used when build_nginx=true, NGINX pid file location
+nginx_exec_path | /usr/sbin/nginx | Used when build_nginx=true, NGINX executable location
+nginx_user | nginx | User to run the NGINX process
+nginx_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the NGINX TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
+haproxy_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the HAProxy TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
+setup_metrics_server | false | True will install Kubernetes Metrics Server (required for HPA CPU metrics)
 
 ### Component Pack Variables
 Name | Default | Description
@@ -339,14 +360,17 @@ was_defer_restart | *none* | Set to true to defer interim WAS restarts
 cp_replica_count | 1 | replica count to set in Helm charts for infrastructure, Orient Me and other apps
 skip_pod_checks | true | True will check if pods are in Running state during setup_infrastructure
 skip_connections_integration | false | True will skip profiles migration for Orient Me, Activities Plus, Outlook Desktop Plugin, ES metrics and MS Teams integration
-skip_configure_redis | false | True will skip Redis configuration. Redis is required for Orient Me, so only skip if you do not plan to deploy Orient Me
+skip_configure_cache_service | false | True will skip cache service (Valkey) configuration in WebSphere. Cache service is required for Orient Me, so only skip if you do not plan to deploy Orient Me
 credentials_name | myregkey | Kubernetes secret name for Docker registry credentials
 es_key_password | password | Elasticsearch Key password
 es_ca_password | password | Elasticsearch CA password
-redis_secret | password |  Redis secret used in bootstrap
+cache_service_secret | password | Cache service (Valkey) secret used in bootstrap
 search_secret | password | search secret used in bootstrap
 solr_secret | password | Solr secret used in bootstrap
-force_regenerate_certs | false | When true, bootstrap installation overwrites existing certs/secrets
+force_regenerate_certs | false | When set to true, the bootstrap installation will overwrite any existing certs/secret for all components managed by the bootstrap repository
+force_regenerate_ingress | false | When set to true, bootstrap installation overwrites existing certs/secret for ingress-nginx
+force_regenerate_mongo | false | When set to true, bootstrap installation overwrites existing certs/secret for mongo
+force_regenerate_opensearch | false | When set to true, bootstrap installation overwrites existing certs/secret for opensearch
 default_namespace | connections | Kubernetes namespace
 nfsMasterAddress | hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] | NFS master IP
 persistentVolumePath | pv-connections | Persistent volume location to be created
@@ -360,10 +384,10 @@ setup_bootstrap | true | True will run bootstrap to creates secrets and certific
 setup_connections_env | true | True will setup connections-env configmap
 setup_infrastructure | true | True will setup infrastructure for Orient Me and other apps
 setup_customizer | true | True will deploy mw-proxy and setup customizations
+mongo_image_tag | *none* | If defined, will set the image.tag for the middleware-mongodb image
 elasticsearch_default_version | 7 | Default ElasticSearch version
 elasticsearch_default_port | 30098 | ElasticSearch port
 elasticsearch_replica_count | 3 | Replica count to set in Helm charts for Elasticsearch
-elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
 setup_elasticsearch | false | True will deploy ElasticSearch 5 (for Connections 6.5CR1)
 setup_elasticsearch7 | false | True will deploy ElasticSearch 7 (for Connections 7)
 setup_opensearch | True | True will deploy OpenSearch
@@ -378,8 +402,8 @@ huddo_boards_licence | *none* | Activities Plus license key
 huddoboards_registry_url | quay.io/huddo | huddoboards registry url
 huddoboards_registry_username | admin | huddoboards registry user name
 huddoboards_registry_password | password | huddoboards registry password
-huddoboards_image_tag | 2023-07-04 |  huddoboards image tag in huddoboards registry
-huddoboards_chart_name | huddo-boards-cp-1.1.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
+huddoboards_image_tag | 2026-02-04 |  huddoboards image tag in huddoboards registry
+huddoboards_chart_name | huddo-boards-cp-1.4.0.tgz | huddoboards chart name in huddoboards_registry_url. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_chart_location | https://docs.huddo.com/assets/config/kubernetes | kudos boards chart location. Refer https://docs.huddo.com/boards/cp/#deploy-boards-helm-chart
 huddoboards_credentials_name | huddoboardsregkey | Kubernetes secret name for huddoboards registry credentials
 setup_elasticstack | false | True will setup ElasticStack
@@ -390,6 +414,8 @@ enable_es_metrics | true | True will configure ElasticSearch
 enable_gk_flags | true | True will configure Tailored Experience features for communities (for Connections 7 onwards)
 setup_teams | true | True will deploy Microsoft Teams integration (for Connections 7 onwards)
 setup_ms_teams_extensions | true | True will Microsoft Teams extensions (for Connections 7 onwards)
+integrations_msoutlook_tenant_id | changeme | Tenant ID to configure Microsoft Outlook integration
+integrations_msoutlook_client_id | changeme | Client ID to configure Microsoft Outlook integration
 integrations_msteams_tenant_id | changeme | Tenant ID to configure Microsoft Teams integration
 integrations_msteams_client_id | changeme | Client ID to configure Microsoft Teams integration
 integrations_msteams_client_secret | changeme | Kubernetes secret name for Microsoft Teams integration
@@ -403,6 +429,23 @@ opensearch_watermark_flood_stage | none | Controls the flood stage watermark for
 opensearch_watermark_high | *none* | Controls the high watermark for disk usage for opensearch. Make sure that the opensearch_watermark_flood_stage is more than or equal to opensearch_watermark_high
 opensearch_watermark_low | *none* | Controls the low watermark for disk usage for opensearch. Make sure that the opensearch_watermark_high is more than or equal to opensearch_watermark_low
 opensearch_auto_expand_replicas | *none* | Whether the OpenSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
+elasticsearch_auto_expand_replicas | *none* | Whether the ElasticSearch cluster should automatically add replica shards based on the number of data nodes. Specify a lower bound and upper limit (for example, 0–9) or all for the upper limit. For example, if you have 5 data nodes and set index.auto_expand_replicas to 0–3, then the cluster does not automatically add another replica shard. However, if you set this value to 0-all and add 2 more nodes for a total of 7, the cluster will expand to now have 6 replica shards
+mongoTerminationGracePeriodSeconds | 90 | The amount of time (in seconds) Kubernetes will wait for mongo7 pod to gracefully shut down before forcibly terminating it.
+bootstrap_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | If provided, this variable specifies the Subject Alternative Names (SANs) to be passed to the Component Pack bootstrap for TLS certificates generation. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`.
+ingress_controller | traefik | Ingress controller type. Options: `traefik`, `ingress-nginx`. Use `ingress-nginx` only if you need to use the EOL Ingress NGINX controller.
+create_cp_tls_secret | false | Determines whether Ansible should manage the Kubernetes CP TLS secret. If set to true, Ansible will delete the existing secret specified in `cp_tls_secret_name` (if provided) and create a new TLS secret using the generated certificate and key. This variable is also used by Traefik for compatibility.
+cp_tls_secret_name | cnx-tls-secret | Name of the Kubernetes TLS secret to be used as the default certificate for the Ingress controller. If `create_cp_tls_secret: true`, Ansible will create this secret using the generated TLS certificate and key.
+cnx_tls_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balancer_dns}}`) | Used when `create_cp_tls_secret: true`. If provided, this variable specifies the Subject Alternative Names (SANs) for the cnx-tls-secret certificate. The value should be a comma-separated string eg. `'*.example.com,*.sub.example.com'`. This variable is also reused by Traefik for compatibility.
+cp_tls_enable | false | True will import the Kubernetes cnx-tls-secret secret to IHS and update IHS configuration to use TLS port for the Component Pack.
+controller_http_node_port | 32080 | HTTP NodePort for ingress traffic. Used by both ingress-nginx and Traefik.
+controller_https_node_port | 32443 | HTTPS NodePort for ingress traffic. Used by both ingress-nginx and Traefik.
+ingress_traefik_default_class_enabled | true | Set to true to make Traefik the default ingress controller without a specified class.
+ingress_traefik_dashboard_enabled | false | Enable Traefik web dashboard. Access at `https://{{ cnx_component_pack_ingress }}:{{ controller_https_node_port }}/dashboard/`.
+ingress_traefik_dashboard_username | traefik-admin | Username for Traefik dashboard basic authentication. Used when `ingress_traefik_dashboard_enabled: true`.
+ingress_traefik_dashboard_password | password | Password for Traefik dashboard basic authentication. Used when `ingress_traefik_dashboard_enabled: true`.
+ingress_traefik_prometheus_enabled | false | Enable Prometheus metrics endpoint for Traefik (port 9100).
+ingress_traefik_log_level | INFO | Traefik logging level. Options: `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`, `PANIC`.
+ingress_traefik_access_logs_enabled | false | Enable HTTP access logging for Traefik.
 
 ### NFS Variables
 Name | Default | Description

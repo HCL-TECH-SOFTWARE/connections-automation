@@ -23,6 +23,7 @@
     src:                 "{{ __download_location }}/{{ __package_name }}"
     dest:                "{{ __db_extraction_folder }}"
     remote_src:          yes
+    validate_certs:      false
   when:
     - (not migrations_already_done.stat.exists) or (__cnx_force_repopulation |bool) or (__db_enable_upgrades |bool)
   retries:               3

@@ -3,6 +3,13 @@
     src:                    "{{ __modules_containerd_conf_template }}"
     dest:                   "{{ __modules_containerd_conf_location }}"
 
+- name:                     Install kernel extra modules
+  package:
+    name:                   ['kernel-modules-extra']
+    state:                  present
+  when:
+    - ansible_os_family == "RedHat"
+
 - name:                     Load kernel modules
   modprobe:
     name:                   "{{ item }}"

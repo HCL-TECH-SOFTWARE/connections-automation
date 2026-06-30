@@ -53,6 +53,10 @@ cnx_major_version:                               "8"
 
 cnx_updates_enabled:                             True
 
+# IBM HTTP Server major version to install (supported values: "8" or "9")
+# Controls which version-specific installation and configuration roles will be used
+ihs_major_version:                               "9"
+
 dmgr_hostname:                                   "{{ hostvars[groups['dmgr'][0]]['inventory_hostname'] }}"
 
 smtp_hostname:                                   localhost

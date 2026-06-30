@@ -23,12 +23,35 @@
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version == "8" or ansible_distribution_major_version == "9"
 
+- name:          Install pre-requisites Yum on AlmaLinux
+  yum:
+    name:        ['python3-pip']
+    state:       present
+  when:
+    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version == "9"
+
 - name:          Install pre-requisites Yum for Conversion service
   yum:
     name:        ['ImageMagick', 'libSM.i686']
     state:       present
   when:
     - ansible_os_family == "RedHat"
+    - inventory_hostname in groups["conversion_servers"]
+
+- name:          Install pre-requisites Zypper for SUSE
+  zypper:
+    name:        ['nfs-client', 'gtk2', 'libXtst6', 'xorg-x11-fonts', 'psmisc', 'glibc-32bit', 'gtk2-32bit', 'libXtst6-32bit', 'libXft2-32bit', 'unzip', 'vim', 'python3-pip', 'python3-passlib']
+    state:       present
+  when:
+    - ansible_distribution == "SLES"
+
+- name:          Install pre-requisites Zypper for Conversion service
+  zypper:
+    name:        ['ImageMagick', 'libSM6']
+    state:       present
+  when:
+    - ansible_distribution == "SLES"
     - inventory_hostname in groups["conversion_servers"]
 
 - name:          Set file descriptors limits
@@ -43,4 +66,4 @@
     name:        pexpect
     state:       latest
   when:
-    - ansible_distribution == "RedHat"
+    - ansible_distribution == "RedHat" or ansible_distribution == "AlmaLinux"

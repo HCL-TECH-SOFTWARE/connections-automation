@@ -1,0 +1,13 @@
+---
+# Single playbook to enable or disable TLS across the environment.
+# Set cp_tls_enable: true  in group_vars/all.yml to enable  TLS (nginx/IHS → https/32443)
+# Set cp_tls_enable: false in group_vars/all.yml to disable TLS (nginx/IHS → http/32080)
+
+- name:                    Configure Ingress TLS based on cp_tls_enable
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/component-pack-harbor/configure-ingress-tls
+  vars:
+    enable_ingress_tls:    "{{ cp_tls_enable | default(false) | bool }}"
+

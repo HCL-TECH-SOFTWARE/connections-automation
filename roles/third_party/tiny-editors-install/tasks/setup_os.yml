@@ -23,6 +23,13 @@
   when:
     - ansible_os_family == "RedHat"
 
+- name:                       Install pre-requisites Zypper for SUSE
+  zypper:
+    name:                     ['python3-pip', 'acl']
+    state:                    present
+  when:
+    - ansible_distribution == "SLES"
+
 - name:                       Install Pexpect
   pip:
     name:                     pexpect

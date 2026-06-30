@@ -4,8 +4,8 @@
     dest:                    "{{ __opensearchstack_env }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Get chart and version
-  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep opensearchstack | cut -d ':' -f2"
+- name:                      Get chart and version harbor OCI
+  shell:                     "helm show all {{ __oci_helm_repository }}/opensearchstack --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                  opensearchstack_chart_version
   become_user:               "{{ __sudo_user }}"
 

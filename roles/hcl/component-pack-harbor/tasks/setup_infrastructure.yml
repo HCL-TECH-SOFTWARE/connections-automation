@@ -1,5 +1,5 @@
-- name:                      Get chart and version
-  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep infrastructure | cut -d ':' -f2"
+- name:                      Get chart and version harbor OCI
+  shell:                     "helm show all {{ __oci_helm_repository }}/infrastructure --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                  infrastructure_chart_version
   become_user:               "{{ __sudo_user }}"
 
@@ -14,11 +14,54 @@
   become:                    false
   when:                      __record_cp_versions|bool
 
+- name:                      Check if the target infrastructure chart contains cnx-ingress-appreg-client ingress (v8 CR14+)
+  shell:                     "helm template {{ __oci_helm_repository }}/infrastructure --version {{ infrastructure_chart_version.stdout }} | grep 'name: cnx-ingress-appreg-client'"
+  register:                  appreg_client_ingress_in_chart
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true  
+
 - name:                      "Render {{ __infrastructure_env }}"
   template:
     src:                     "helmvars/infrastructure.yml.j2"
     dest:                    "{{ __infrastructure_env }}"
   become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if old mongo security job is deployed
+  shell:                     kubectl get job check-and-update-mongo7-security -n {{ __default_namespace }} -o jsonpath='{.spec.template.spec.containers[*].image}' | grep bitnami
+  register:                  old_mongo_security_job_deployed
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Delete old mongo security job if deployed
+  shell:                     kubectl delete job --namespace {{ __default_namespace }} check-and-update-mongo7-security
+  become_user:               "{{ __sudo_user }}"
+  when:                      old_mongo_security_job_deployed.rc == 0
+
+- name:                      Check if the target infrastructure chart contains Valkey (v8 CR13+)
+  shell:                     helm show chart {{ __oci_helm_repository }}/infrastructure --version {{ infrastructure_chart_version.stdout }} | grep -i 'valkey'
+  register:                  valkey_search_in_chart
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Delete legacy Redis server if needed
+  shell:                     kubectl delete sts,pdb,svc --namespace {{ __default_namespace }} redis-server --ignore-not-found
+  become_user:               "{{ __sudo_user }}"
+  when:                      valkey_search_in_chart.rc == 0
+
+- name:                      Delete legacy Redis Sentinel if needed
+  shell:                     kubectl delete sts,deploy,pdb,svc --namespace {{ __default_namespace }} redis-sentinel --ignore-not-found
+  become_user:               "{{ __sudo_user }}"
+  when:                      valkey_search_in_chart.rc == 0
+
+- name:                      Delete haproxy-redis if needed
+  shell:                     kubectl delete svc --namespace {{ __default_namespace }} haproxy-redis --ignore-not-found
+  become_user:               "{{ __sudo_user }}"
+  when:                      valkey_search_in_chart.rc == 0
+
+- name:                      Delete legacy cnx-ingress-appreg and cnx-ingress-orient-me ingresses if needed
+  shell:                     kubectl delete ingress cnx-ingress-appreg cnx-ingress-orient-me --namespace {{ __default_namespace }} --ignore-not-found
+  become_user:               "{{ __sudo_user }}"
+  when:                      appreg_client_ingress_in_chart.rc == 0
 
 - name:                      Upgrade infrastructure
   command:                   "helm upgrade infrastructure {{ __helm_repository_local_name }}/infrastructure -i --version {{ infrastructure_chart_version.stdout }} -f {{ __infrastructure_env }} --namespace {{ __default_namespace }}"
@@ -26,6 +69,12 @@
 
 - name:                      Wait for mongo5 to come up
   shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=role=mongo5 --timeout=300s
+  when:                      __setup_mongo5|bool
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Wait for mongo7 to come up
+  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=role=mongo7 --timeout=300s
+  when:                      __setup_mongo7|bool
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if appregistry-client is up and running
@@ -49,17 +98,30 @@
 - name:                      Check if mongo5 is up and running
   shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mongo5 | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks|bool
+  when:                      not __skip_pod_checks|bool and __setup_mongo5|bool
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Check if redis-sentinel is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i redis-sentinel | grep -i Running
+- name:                      Check if mongo7 is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i mongo7 | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks|bool
+  when:                      not __skip_pod_checks|bool and __setup_mongo7|bool
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Check if redis-server is up and running
-  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i redis-server | grep -i Running
+# Skip Valkey check for older deployment
+- name:                      Check if Valkey is deployed
+  shell:                     kubectl get sts valkey-server -n {{ __default_namespace }}
+  register:                  valkey_is_deployed
+  become_user:               "{{ __sudo_user }}"
+  ignore_errors:             true
+
+- name:                      Check if valkey-sentinel is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i valkey-sentinel | grep -i Running
   changed_when:              true
-  when:                      not __skip_pod_checks|bool
+  when:                      valkey_is_deployed.rc == 0 and not __skip_pod_checks|bool
+  become_user:               "{{ __sudo_user }}"
+
+- name:                      Check if valkey-server is up and running
+  shell:                     kubectl get pods -n {{ __default_namespace }} | grep -i valkey-server | grep -i Running
+  changed_when:              true
+  when:                      valkey_is_deployed.rc == 0 and not __skip_pod_checks|bool
   become_user:               "{{ __sudo_user }}"

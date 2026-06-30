@@ -1,0 +1,22 @@
+---
+- name:                      Import ingress controller certificate to IHS and update config
+  include_tasks:             import_ingress_cert_to_ihs.yml
+
+- name:                      Verify HAProxy mwproxy_https configuration if installed
+  shell: |
+    if [ -f "{{ __haproxy_config_file }}" ]; then
+      grep -q 'frontend haproxy_mwproxy_https' "{{ __haproxy_config_file }}" && \
+      grep -q 'backend masters_mwproxy_https' "{{ __haproxy_config_file }}" || \
+      { echo "HAProxy mwproxy_https configuration is missing. Please run the setup-haproxy playbook first."; exit 1; }
+    fi
+  changed_when:              false
+  delegate_to:               "{{ item }}"
+  loop:                      "{{ groups['k8s_load_balancers'] | default([]) }}"
+  when:
+    - enable_ingress_tls | default(true) | bool
+    - triggered_by is not defined or triggered_by != 'apisix'
+
+- name:                      Update NGINX configuration for TLS (mw-proxy and Collabora WebSocket)
+  include_tasks:             update_nginx_conf.yml
+  when:
+    - triggered_by is not defined or triggered_by != 'apisix'

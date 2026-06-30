@@ -6,8 +6,8 @@
     __setup_opensearch:      "{{ __setup_opensearch|bool }}"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Get chart and version
-  shell:                     "cat {{ __ansible_cache_charts }}/helm_repo_version_list | grep orientme | cut -d ':' -f2"
+- name:                      Get chart and version harbor OCI
+  shell:                     "helm show all {{ __oci_helm_repository }}/orientme --devel | grep -oP '^version:\\s*\\K[^ ]+'"
   register:                  orientme_chart_version
   become_user:               "{{ __sudo_user }}"
 
@@ -23,11 +23,11 @@
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade orientme
-  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait --timeout 10m"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for people-migrate pod to become ready
-  shell:                     kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout=300s
+  shell:                     "kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout={{ __people_migrate_timeout }}s"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if orientme is up and running

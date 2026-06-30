@@ -1,13 +1,4 @@
-- name:                     "Verify if ssl is already configured"
-  stat:
-    path:                   "{{ __ldap_ssl_success_file }}"
-  register:                 ldap_ssl_already_created
-
-- name:                     "Generate {{ __ldap_cert_path }} and {{ __ldap_cert_key_path }}"
-  command:                  openssl req -new -x509 -nodes -newkey rsa:2048 -out {{ __ldap_cert_path }} -keyout {{ __ldap_cert_key_path }} -days 1460 -batch
-  when:
-    - not ldap_ssl_already_created.stat.exists
-
+---
 - name:                     Set up ownership
   file:
     dest:                   "/etc/openldap/certs"

@@ -10,6 +10,10 @@
   include_tasks:             configure_credentials.yml
   when:                      __setup_credentials |bool
 
+- name:                      Set __helm_repository_local_name for harbor OCI
+  set_fact:
+    __helm_repository_local_name: "{{ __oci_helm_repository }}"
+
 - name:                      Configure PSP
   include_tasks:             configure_psp.yml
 
@@ -24,6 +28,10 @@
 - name:                      Setup connections-env
   include_tasks:             setup_connenv.yml
   when:                      __setup_connections_env |bool
+
+- name:                      Setup Community Ingress Controller
+  include_tasks:             setup_community_ingress.yml
+  when:                      __setup_community_ingress |bool  
 
 - name:                      Setup infrastructure
   include_tasks:             setup_infrastructure.yml
@@ -42,7 +50,7 @@
   when:                      __setup_opensearch |bool
 
 - name:                      Check if opensearch is deployed and pod is in running state
-  shell:                     "kubectl wait -n {{ __default_namespace }} --for=jsonpath='{.status.phase}'=Running  pods --selector app.kubernetes.io/name='opensearch' --timeout=1s"
+  shell:                     "kubectl wait -n {{ __default_namespace }} --for=jsonpath='{.status.phase}'=Running  pods --selector app.kubernetes.io/name='opensearch' --timeout=5s"
   register:                  opensearch_pod_running
   become_user:               "{{ __sudo_user }}"
   ignore_errors:             true
@@ -51,10 +59,6 @@
   set_fact:
     __setup_opensearch:      true
   when:                      opensearch_pod_running.stdout != ""
-
-- name:                      Setup Community Ingress Controller
-  include_tasks:             setup_community_ingress.yml
-  when:                      __setup_community_ingress |bool
 
 - name:                      Setup Teams
   include_tasks:             setup_teams.yml

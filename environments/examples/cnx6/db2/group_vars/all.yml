@@ -37,9 +37,9 @@ tdi_download_location:                           http://{{ groups['installer'][0
 connections_wizards_download_location:           http://{{ groups['installer'][0] }}:8001/Connections6.5
 iim_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP23
+was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP23
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP24
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections6.5
 cnx_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/Connections6.5CR1
@@ -112,6 +112,11 @@ component_pack_package_name:                     hybridcloud_6501.zip
 
 enable_pod_auto_scaling:                         false
 
+mongo_replicaset:                                3
+es_replicaset:                                   3
+solr_replicaset:                                 3
+zookeeper_replicaset:                            3
+
 #setup_installation:                              false
 #setup_images:                                    false
 #setup_credentials:                               false
@@ -135,7 +140,7 @@ setup_outlook_addin:                             false
 #enable_es_metrics:                               false
 enable_gk_flags:                                 false
 setup_ms_teams_extensions:                       false
-#skip_configure_redis:                            True
+#skip_configure_cache_service:                     True
 
 elasticsearch_default_port:                      30099
 

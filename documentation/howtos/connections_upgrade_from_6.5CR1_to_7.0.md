@@ -15,7 +15,7 @@ NOTE: If this is the very first document you are landing on, please ensure that 
 The easiest and most straight forward way to set up any end-to-end HCL Connections installation is to simply:
 
 * Set up your inventory file the way you want (we will use [this example file for setting up 6.5CR1- inventory.ini](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/inventory.ini) and [group_vars](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx6/db2/group_vars/all.yml))
-* Use CentOS 7 Or RHEL 8.5 (the later CentOS 7 Or RHEL 8.5 the better)
+* Use AlmaLinux 9 Or RHEL 9 (the later the better)
 
 ...and simply run your playbook with
 
@@ -44,7 +44,7 @@ Please note that [files in this folder ](https://github.com/HCL-TECH-SOFTWARE/co
 
 ### Choosing operating system version
 
-For this scenario, let's say you are using CentOS 7.9 (latest in this moment). Be always sure, as whenever installing any of the components mentioned here, using automation or manually, to configure machine properly and just to be on the safe side run yum update before you start.
+For this scenario, let's say you are using AlmaLinux 9. Be always sure, as whenever installing any of the components mentioned here, using automation or manually, to configure machine properly and just to be on the safe side run yum update before you start.
 
 ### Installing end-to-end HCL Connections 6.5CR1
 

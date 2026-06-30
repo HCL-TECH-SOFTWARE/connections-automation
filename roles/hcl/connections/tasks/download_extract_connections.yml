@@ -37,6 +37,7 @@
     url:             "{{ cnx_repository_url }}/{{ item.file_name }}"
     dest:            "{{ __tmp_dir }}/cnx/{{ item.file_name }}"
     mode:            0755
+    validate_certs:  false
   with_items:        "{{ __ccm_files }}"
   when:              (ccm_install is defined)
 
@@ -45,6 +46,7 @@
     url:             "{{ cnx_fixes_repository_url }}/{{ item.file_name }}"
     dest:            "{{ __tmp_dir }}/cnx-cr/{{ item.file_name }}"
     mode:            0755
+    validate_certs:  false
   with_items:        "{{ __cnx_fixes_files }}"
   when:             (__cnx_fixes_version != '')
 

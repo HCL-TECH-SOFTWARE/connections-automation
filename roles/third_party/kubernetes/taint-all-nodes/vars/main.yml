@@ -1,2 +1,3 @@
 ---
 __kubectl_allow_pods_on_master: "/tmp/kubectl.allow.pods.on.master.success"
+__kubectl_user:                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"

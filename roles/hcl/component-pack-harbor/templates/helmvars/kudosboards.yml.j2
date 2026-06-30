@@ -1,5 +1,5 @@
 # Please read every variable and replace with appropriate value
-# For details of variable meanings, please see https://docs.kudosapps.com/boards/cp/
+# Based on the config file from https://docs.huddo.com/assets/config/kubernetes/boards-cp.yaml
 
 global:
   repository: {{ __huddoboards_registry_url }}
@@ -31,9 +31,6 @@ webfront:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
     FORCE_POLLING: "true"
   ingress:
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
-    path: /boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
@@ -46,14 +43,14 @@ webfront:
 {% else %}
     - "{{ cnx_application_ingress }}"
 {% endif %}
+    traefik:
+      stripPrefix:
+        enabled: true
 
 core:
   image:
     tag: {{ __huddoboards_image_tag }}  
   ingress:
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
-    path: /api-boards/(.*)
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
@@ -66,6 +63,9 @@ core:
 {% else %}
     - "{{ cnx_application_ingress }}"
 {% endif %}
+    traefik:
+      stripPrefix:
+        enabled: true
 
 licence:
   image:
@@ -117,7 +117,11 @@ migration:
 
     # -------- DB2 variables ------------
     CONNECTIONS_DB_TYPE: db2
+{% if ansible_distribution == "SLES" %}
+    CONNECTIONS_DB_PORT: 50001
+{% else %}
     CONNECTIONS_DB_PORT: 50000
+{% endif %}
     # Connection string is built from other variables:
     # CONNECTIONS_DB_CONNECT_STRING: HOSTNAME=${host};PORT=${port};PROTOCOL=TCPIP;UID=${user};PWD=${password};CHARSET=UTF8;
 

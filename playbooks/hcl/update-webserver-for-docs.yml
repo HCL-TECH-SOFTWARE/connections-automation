@@ -1,0 +1,6 @@
+---
+- name:        Update webserver plugin for Docs
+  hosts:       ihs_servers, proxy_servers
+  become:      true
+  roles:
+    - roles/hcl/docs/update_webserver

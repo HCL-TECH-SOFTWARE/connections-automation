@@ -1,0 +1,20 @@
+---
+- name:          Remove existing metrics-server deployment if present
+  shell:         kubectl delete deployment metrics-server -n kube-system --ignore-not-found
+  become_user:   "{{ __kubectl_user }}"
+
+- name:          Apply Metrics Server manifest
+  shell:         kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  become_user:   "{{ __kubectl_user }}"
+
+- name:          Patch Metrics Server to allow self-signed kubelet certificates
+  shell: >
+    kubectl patch deployment metrics-server
+    -n kube-system
+    --type=json
+    -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+  become_user:   "{{ __kubectl_user }}"
+
+- name:          Wait for Metrics Server to be ready
+  shell:         kubectl rollout status deployment/metrics-server -n kube-system --timeout=120s
+  become_user:   "{{ __kubectl_user }}"

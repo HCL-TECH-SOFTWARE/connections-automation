@@ -1,0 +1,13 @@
+---
+- name:                         Check if '{{ __apisix_namespace }}' namespace exists
+  ansible.builtin.shell: |
+                                kubectl get namespace {{ __apisix_namespace }}
+  register:                     namespace_result
+  ignore_errors:                true
+  become_user:                  "{{ __sudo_user }}"
+
+- name:                         Create namespace '{{ __apisix_namespace }}'
+  ansible.builtin.shell: |
+                                kubectl create namespace {{ __apisix_namespace }}
+  when:                         namespace_result.rc != 0
+  become_user:                  "{{ __sudo_user }}"

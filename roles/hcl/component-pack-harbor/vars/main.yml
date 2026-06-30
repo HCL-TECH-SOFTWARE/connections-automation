@@ -1,5 +1,5 @@
 ---
-__kubernetes_version:                        "{{ kubernetes_version | default('1.27.0') }}"
+__kubernetes_version:                        "{{ kubernetes_version | default('1.35.2') }}"
 __python_path:                               "{{ python_path | default('/usr/bin/python3') }}"
 __ansible_cache:                             "/tmp/k8s_ansible"
 __sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) }}"
@@ -13,6 +13,7 @@ __enable_pod_auto_scaling:                   "{{ enable_pod_auto_scaling | defau
 __skip_connections_integration:              "{{ skip_connections_integration | default(false) }}"
 
 __helm_repository:                           "{{ component_pack_helm_repository | default('https://hclcr.io/chartrepo/cnx') }}"
+__oci_helm_repository:                       "oci://{{ __docker_registry_url }}"
 __helm_repository_local_name:                "{{ helm_repository_local_name | default('v-connections-helm' ) }}"
 __helm_repo_username:                        "{{ docker_registry_username | default('icdeploy') }}"
 __helm_repo_password:                        "{{ docker_registry_password | default('sometoken') }}"
@@ -42,6 +43,8 @@ __setup_outlook_addin:                       "{{ setup_outlook_addin | default(t
 __enable_es_metrics:                         "{{ enable_es_metrics | default(true) |lower }}"
 __enable_gk_flags:                           "{{ enable_gk_flags | default(true) |lower }}"
 __setup_ms_teams_extensions:                 "{{ setup_ms_teams_extensions | default(true) |lower }}"
+__setup_mongo7:                              "{{ setup_mongo7 | default(true) |lower }}"
+__setup_mongo5:                              "{{ setup_mongo5 | default(false) |lower }}"
 
 __replica_count:                             "{{ cp_replica_count | default(1) }}"
 
@@ -52,8 +55,8 @@ __docker_registry_password:                  "{{ docker_registry_password | defa
 __huddoboards_registry_url:                  "{{ huddoboards_registry_url | default('quay.io/huddo') }}"
 __huddoboards_registry_username:             "{{ huddoboards_registry_username | default('admin') }}"
 __huddoboards_registry_password:             "{{ huddoboards_registry_password | default('password') }}"
-__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2023-07-04') }}"
-__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-1.1.0.tgz') }}"
+__huddoboards_image_tag:                     "{{ huddoboards_image_tag | default('2026-03-29') }}"
+__huddoboards_chart_name:                    "{{ huddoboards_chart_name | default('huddo-boards-cp-2.0.0.tgz') }}"
 __huddoboards_chart_location:                "{{ huddoboards_chart_location | default('https://docs.huddo.com/assets/config/kubernetes') }}"
 
 __network_host:                              "{{ network_host | default('_site_') }}"
@@ -69,15 +72,21 @@ __skip_pod_checks:                           "{{ skip_pod_checks | default(true)
 __setup_images_bin:                          "{{ __support_folder }}/setupImages.sh"
 
 __credentials_name:                          "{{ credentials_name | default('myregkey') }}"
-__huddoboards_credentials_name:               "{{ huddoboards_credentials_name | default('huddoboardsregkey') }}"
+__huddoboards_credentials_name:              "{{ huddoboards_credentials_name | default('huddoboardsregkey') }}"
 __default_namespace:                         "{{ default_namespace | default('connections') }}"
+__default_clusterDomain:                     "{{ default_clusterDomain | default('cluster.local') }}"
 
 __ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) |lower }}"
+
+__msoutlook_tenant_id:                       "{{ integrations_msoutlook_tenant_id | default('changeme') }}"
+__msoutlook_client_id:                       "{{ integrations_msoutlook_client_id | default('changeme') }}"
 
 __msteams_tenant_id:                         "{{ integrations_msteams_tenant_id | default('changeme') }}"
 __msteams_client_id:                         "{{ integrations_msteams_client_id | default('changeme') }}"
 __msteams_client_secret:                     "{{ integrations_msteams_client_secret | default('changeme') }}"
-__msteams_auth_schema:                       "{{ integrations_msteams_auth_schema | default('0') }}"
+__msteams_auth_schema:                       "{{ integrations_msteams_auth_schema | default('3') }}"
+__msteams_auth_sso_url:                      "{{ integrations_msteams_auth_sso_url | default('changeme.tokenexchangeurl') }}"
+__msteams_auth_sso_reloginTimerMins:         "{{ integrations_msteams_auth_sso_reloginTimerMins | default('110') }}"
 
 __ce_on_prem:                                "{{ ce_on_prem | default('false') }}"
 __ic_admin_username:                         "{{ was_username | default('wasadmin') }}"
@@ -88,11 +97,17 @@ __k8s_master_ip:                             "{{ hostvars[groups['k8s_masters'][
 __master_ip:                                 "{{ load_balancer_dns | default( __k8s_master_ip ) }}"
 __es_ca_password:                            "{{ es_ca_password | default('password') }}"
 __es_key_password:                           "{{ es_key_password | default('password') }}"
-__redis_secret:                              "{{ redis_secret | default('password') }}"
+# redis_secret was replaced by cache_service_secret starting with CNX v8 CR13. Only set redis_secret if it is needed and with a different password.
+__cache_service_secret:                      "{{ cache_service_secret | default('password') }}"
+__redis_secret:                              "{{ redis_secret | default(__cache_service_secret) }}"
 __search_secret:                             "{{ search_secret | default('password') }}"
 __solr_secret:                               "{{ solr_secret | default('password') }}"
-__skip_configure_redis:                      "{{ skip_configure_redis | default('false') }}"
+# skip_configure_redis was replaced by skip_configure_cache_service starting with CNX v8 CR13
+__skip_configure_cache_service:              "{{ skip_configure_cache_service | default(skip_configure_redis | default('false')) }}"
 __force_regenerate_certs:                    "{{ force_regenerate_certs | default('false') }}"
+__force_regenerate_ingress:                  "{{ force_regenerate_ingress | default('false') }}"
+__force_regenerate_mongo:                    "{{ force_regenerate_mongo | default('false') }}"
+__force_regenerate_opensearch:               "{{ force_regenerate_opensearch | default('false') }}"
 
 __nfsMasterAddress:                          "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
 __persistentVolumePath:                      "{{ persistentVolumePath | default('pv-connections') }}"
@@ -198,3 +213,34 @@ __opensearchstack_env:                       "{{ __ansible_cache_charts }}/opens
 __setup_opensearchstack:                     "{{ setup_opensearchstack | default(false) |lower }}"
 __opensearch_dashboard_username:             "{{ opensearch_dashboard_username | default('admin') }}"
 __opensearch_dashboard_password:             "{{ opensearch_dashboard_password | default('password') }}"
+
+__people_migrate_timeout:                    "{{ people_migrate_timeout | default('300') | int }}"
+__mongoTerminationGracePeriodSeconds:        "{{ mongoTerminationGracePeriodSeconds | default('90') | int }}"
+
+__create_cp_tls_secret:                      "{{ create_cp_tls_secret | default(create_ingress_nginx_secret | default(false)) |lower }}"
+__cp_tls_secret_name:                        "{{ cp_tls_secret_name | default(ingress_nginx_secret_name | default('cnx-tls-secret')) }}"
+__cnx_tls_cert_dir:                          "/tmp/cnx-tls"
+__cnx_tls_cert_file:                         "cnx-tls.crt"
+__cnx_tls_key_file:                          "cnx-tls.key"
+__cp_tls_enable:                             "{{ cp_tls_enable | default(ingress_nginx_tls_enable | default(false)) | bool }}"
+
+__ingress_controller:                        "{{ ingress_controller | default('traefik') }}"
+__ingress_traefik_default_class_enabled:     "{{ ingress_traefik_default_class_enabled | default(true) | bool }}"
+__ingress_traefik_dashboard_enabled:         "{{ ingress_traefik_dashboard_enabled | default(false) | bool }}"
+__ingress_traefik_dashboard_username:        "{{ ingress_traefik_dashboard_username | default('traefik-admin') }}"
+__ingress_traefik_dashboard_password:        "{{ ingress_traefik_dashboard_password | default('password') }}"
+__ingress_traefik_prometheus_enabled:        "{{ ingress_traefik_prometheus_enabled | default(false) | bool }}"
+__ingress_traefik_log_level:                 "{{ ingress_traefik_log_level | default('INFO') }}"
+__ingress_traefik_access_logs_enabled:       "{{ ingress_traefik_access_logs_enabled | default(false) | bool }}"
+__ingress_traefik_template:                  "cnx-ingress-traefik-values.j2"
+__ingress_openssl_config_template:           "ingress-openssl.cnf.j2"
+
+__mw_proxy_port:                             "{{ mw_proxy_port | default('30301') }}"
+__mw_proxy_port_https:                       "{{ mw_proxy_port_https | default('30443') }}"
+
+__haproxy_config_dir:                         "/etc/haproxy"
+__haproxy_config_file:                        "{{ __haproxy_config_dir }}/haproxy.cfg"
+
+# Internal variable — do not modify.
+# Specifies the URL of the internal container registry from which OpenSearch image is pulled during deployment.
+__opensearch_internal_registry_url:           "internal.repository.example.com"

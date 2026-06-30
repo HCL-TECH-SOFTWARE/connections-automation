@@ -29,6 +29,7 @@
     src:                 "{{ __docs_download_location }}/{{ __docs_package_name }}"
     dest:                "{{ __docs_extraction_folder }}"
     remote_src:          yes
+    validate_certs:      false
   when:
     - not docs_migrations_already_done.stat.exists
 

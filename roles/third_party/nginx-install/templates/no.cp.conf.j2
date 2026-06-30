@@ -1,0 +1,75 @@
+#jinja2: trim_blocks:False
+proxy_redirect          off;
+proxy_set_header        Host            $host;
+proxy_set_header        X-Real-IP       $remote_addr;
+proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_connect_timeout   65;
+proxy_send_timeout      65;
+proxy_read_timeout      300;
+proxy_buffers           4 256k;
+proxy_buffer_size       128k;
+proxy_busy_buffers_size 256k;
+large_client_header_buffers  8 64k;
+client_header_buffer_size    64k;
+client_max_body_size    1024m;
+proxy_http_version      1.1;
+
+server {
+        listen          443 ssl;
+        server_name {{ inventory_hostname }};
+        ssl_certificate {{ __nginx_crt_file }};
+        ssl_certificate_key {{ __nginx_key_file }};
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+        ssl_protocols TLSv1.2;
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on;
+
+        proxy_ssl_session_reuse on;
+        proxy_ssl_protocols TLSv1.2;
+
+        server_tokens off;
+        {% if __build_nginx | bool %}
+        more_clear_headers Server;
+        {% endif %}
+
+        rewrite_log on;
+
+        proxy_cache_bypass $http_cache_control;
+        proxy_ignore_headers "Set-Cookie";
+        add_header X-Proxy-Cache $upstream_cache_status;
+
+        location / {
+                location = /robots.txt {
+                    add_header  Content-Type  text/plain;
+                    return 200 "User-agent: *\nDisallow: /\n";
+                }
+
+                proxy_pass https://{{ ic_internal }}:{{ __ihs_https_port |int }};
+        }
+}
+
+server {
+    listen          80;
+    rewrite_log on;
+    server_name {{ inventory_hostname }};
+
+    proxy_cache_bypass $http_cache_control;
+    proxy_ignore_headers "Set-Cookie";
+    add_header X-Proxy-Cache $upstream_cache_status;
+
+    server_tokens off;
+    {% if __build_nginx | bool %}
+    more_clear_headers Server;
+    {% endif %}
+
+    location /basic_status {
+        stub_status;
+        allow all;
+    }
+
+    location / {
+            proxy_pass https://{{ ic_internal }}:{{ __ihs_https_port |int }};
+    }
+}

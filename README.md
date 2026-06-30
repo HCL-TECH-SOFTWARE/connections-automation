@@ -1,5 +1,8 @@
 # HCL Connections and Component Pack Deployment Automation Framework
 
+> [!NOTE]
+> Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
+
 The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
 
 Connections development is committed to ensuring its ongoing maintenance and periodic updates of this repository, which are typically synchronized with each new CR release.  Additionally, we aim to maintain a consistent review schedule for pull requests (PRs) in alignment with these update cycles.
@@ -8,12 +11,12 @@ Before you start, please be sure to check out [Frequently Asked Questions](https
 
 For HCL Connections 8 dependencies this means that:
 
-* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from FlexNet, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
+* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from My HCLSoftware, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
 * HCL Connections Wizard will populate the database with needed schemas and grants.
 * If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 23. By default, FP23 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 29. By default, FP29 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
@@ -36,8 +39,8 @@ For Component Pack for HCL Connections 8 it means:
 * Nginx will be set up and configured to support Customizer.
 * Haproxy will be set up configured to be the control plane for Kubernetes cluster and Component Pack.
 * NFS will be set up for Component Pack.
-* Containerd(container runtime) v1.4.12 will be installed with the optimisations required by the version of Kubernetes.
-* Kubernetes 1.27.0 will be set up.
+* Containerd(container runtime) will be installed with the optimisations required by the version of Kubernetes.
+* Kubernetes will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
 * Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using OpenSearch.
 
@@ -51,10 +54,10 @@ To learn more about how to install Ansible on your local machine or Ansible cont
 
 Supported OSs:
 
-* CentOS 7+
+* AlmaLinux 9
 * RHEL 9
 
-NOTE: Recommended OS for this automation is CentOS 7.9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on CentOS 7.9/RHEL 9. While it is being tested, in different scenarios, using version 8+ on CentOS you may hit different issues that are eventually not being tested.
+NOTE: Recommended OS for this automation is AlmaLinux 9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on AlmaLinux 9/RHEL 9.  Since CentOS 7 is officially end of life, automation support for it will eventually be dropped.
 
 ### Have files ready for download
 
@@ -62,8 +65,7 @@ To be able to use this automation you will need to be able to download the packa
 
 The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as a single Ruby one liner to open web server on specific port so that automation can connect and download it.
 
-#### Note: There is a known issue in IBM WebSphere 8.5.5 Fixpack 22 where retrieve from port using TLS v1.3 or v1.2 ciphers may not work. See [PH49497: RETRIEVE FROM PORT NOT HONORING SSL PROTOCOL](https://www.ibm.com/support/pages/apar/PH49497) for details.  The problem is fixed in Fixpack 23.  If Fixpack 22 is needed, contact HCL Connections support or IBM WebSphere support for the iFix 8.5.5.22-WS-WAS-IFPH49497.zip and put it in the was855FP22 directory as the example below.
-This is the example data folder structure we are following at HCL.  Please refer to FlexNet when verifying the size and timestamps of the packages.
+This is the example data folder structure we are following at HCL.  Please refer to My HCLSoftware when verifying the size and timestamps of the packages.
 
 ```
 [root@c7lb1 packages]# ls -la *
@@ -79,21 +81,24 @@ Connections7:
 -r-xr-xr-x.  1 root       root       2001305600 Jan 20  2021 HCL_Connections_7.0_lin.tar
 -r-xr-xr-x.  1 root       root        817807360 Oct 29  2020 HCL_Connections_7.0_wizards_lin_aix.tar
 -rw-r--r--.  1 root       root        125556954 Feb  4  2021 LO100079-IC7.0.0.0-Common-Fix.jar
--rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections7.0_XXXXXX_vX.X.X.XX.zip
+-rw-rw-r--   1 pnott      pnott        66176887 Aug 16  2021 TinyEditorsForConnections8.0_XXXXXX_vX.X.X.XX.zip
 -rw-rw-r--   1 pnott      pnott        37928960 Feb 25  2022 tdisol_70_java8_linux_XXXX.tar
 -rwxr--r--.  1 root       root        185705657 May  6  2021 updateInstaller.zip
+-rw-rw-r--   1 pnott      pnott        10834989 Aug  4  2022 sharedlib.zip
 
 Connections8:
 -r-xr-xr-x   1 root root  2172108800 Aug 22 05:20 HCL_Connections_8.0_lin.tar
 -r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_lin.tar.sha256
 -r-xr-xr-x   1 root root   661821440 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar
 -r-xr-xr-x   1 root root          66 Aug 22 05:20 HCL_Connections_8.0_wizards_lin_aix.tar.sha256
--r-xr-xr-x   1 root root             Jan 26 16:41 HC8.0_CR4.zip
+-r-xr-xr-x   1 root root             Apr 10 16:41 HC8.0_CR7.zip
 
 DB2:
--rw-r--r--.  1 dmenges dmenges    3993254 Oct 16 13:13 DB2_ESE_AUSI_Activation_11.5.zip
--rw-r--r--.  1 dmenges orion    250880000 Jun  3 10:48 v11.5.6_jdbc_sqlj.tar.gz
--rw-r--r--.  1 dmenges orion   1861783964 Apr 23  2020 v11.5.6_linuxx64_universal_fixpack.tar.gz
+-rw-r--r--. 1 root            root               1389624 Aug 13  2021 DB2_ESE_AUSI_Activation_11.5.zip
+-rw-r--r--  1 root            root               8787640 Feb 25 19:13 v12.1_jdbc_sqlj.tar.gz
+-rw-r--r--  1 root            root            1581707810 Feb 25 19:13 special_50594_v12.1.0_linuxx64_universal_fixpack.tar.gz
+-rw-rw-r--  1 root            root               8707627 Aug 28 06:53 v11.5.9_jdbc_sqlj.tar.gz
+-rw-r--r--  1 root            root            1966221224 Apr  8 18:09 v11.5.9_linuxx64_universal_fixpack.tar.gz
 
 Docs:
 -r-xr-xr-x.  1 root orion 737753769 Sep  7  2020 HCL_Docs_v202.zip
@@ -109,8 +114,10 @@ Oracle:
 
 TDI:
 -r-xr-xr-x.  1 root orion  76251327 May  6  2020 7.2.0-ISS-SDI-FP0006.zip
+-r-xr-xr-x.  1 pnott pnott 130768662 Jul 15 2025 7.2.0-ISS-SDI-FP0014.zip
 -r-xr-xr-x.  1 root orion 644894720 Apr 30  2020 SDI_7.2_XLIN86_64_ML.tar
 -rw-r--r--   1 sabrinayee sabrinayee 130165047 Sep  8 19:40 ibm-java-jre-8.0-6.25-linux-x86_64.tgz
+-rw-r--r--   1 pnott pnott 134928623 Jul 15 2025 ibm-java-jre-8.0-8.45-linux-x86_64.tgz
 
 cp:
 -rw-r--r--   1 sabrinayee sabrinayee 5550666926 Mar  7  2022 ComponentPack_7.0.0.2.zip
@@ -127,29 +134,20 @@ was855:
 -rw-r--r--.  1 dmenges orion  998887246 Apr 23  2020 WAS_V8.5.5_SUPPL_3_OF_3.zip
 -rw-r--r--.  1 root    root   215292676 Aug 12  2020 agent.installer.linux.gtk.x86_64_1.9.1003.20200730_2125.zip
 
-was855FP22:
--rw-r--r--   1 root  root      291085 Nov 17 19:35 8.5.5.22-WS-WAS-IFPH49497.zip
--rw-rw-r--   1 pnott pnott 1036290018 Aug 30 16:21 8.5.5-WS-WAS-FP022-part1.zip
--rw-rw-r--   1 pnott pnott  198986174 Aug 30 16:21 8.5.5-WS-WAS-FP022-part2.zip
--rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:22 8.5.5-WS-WAS-FP022-part3.zip
--rw-rw-r--   1 pnott pnott  475703540 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part1.zip
--rw-rw-r--   1 pnott pnott  778170802 Aug 30 16:28 8.5.5-WS-WASSupplements-FP022-part2.zip
--rw-rw-r--   1 pnott pnott 1960491965 Aug 30 16:29 8.5.5-WS-WASSupplements-FP022-part3.zip
--rw-rw-r--   1 pnott pnott  249260151 Aug 30 16:33 8.5.5-WS-WCT-FP022-part1.zip
--rw-rw-r--   1 pnott pnott 1963965494 Aug 30 16:34 8.5.5-WS-WCT-FP022-part2.zip
-
-was855FP23:
--rw-rw-r-- 1 pnott pnott 1043662686 Mar 31 10:50 8.5.5-WS-WAS-FP023-part1.zip
--rw-rw-r-- 1 pnott pnott  198696280 Mar 31 10:52 8.5.5-WS-WAS-FP023-part2.zip
--rw-rw-r-- 1 pnott pnott 1966668297 Mar 31 11:12 8.5.5-WS-WAS-FP023-part3.zip
--rw-rw-r-- 1 pnott pnott  482766367 Mar 31 11:21 8.5.5-WS-WASSupplements-FP023-part1.zip
--rw-rw-r-- 1 pnott pnott  778868291 Mar 31 11:25 8.5.5-WS-WASSupplements-FP023-part2.zip
--rw-rw-r-- 1 pnott pnott 1966668297 Mar 31 11:38 8.5.5-WS-WASSupplements-FP023-part3.zip
--rw-rw-r-- 1 pnott pnott  255537504 Mar 31 11:46 8.5.5-WS-WCT-FP023-part1.zip
--rw-rw-r-- 1 pnott pnott 1970142229 Mar 31 12:01 8.5.5-WS-WCT-FP023-part2.zip
+was855FP29:
+-rw-rw-r-- 1 pnott pnott 1101651839 Apr 28 13:08 8.5.5-WS-WAS-FP029-part1.zip
+-rw-rw-r-- 1 pnott pnott  198789133 Apr 28 13:07 8.5.5-WS-WAS-FP029-part2.zip
+-rw-rw-r-- 1 pnott pnott 2018259127 Apr 28 13:09 8.5.5-WS-WAS-FP029-part3.zip
+-rw-rw-r-- 1 pnott pnott  533258243 Apr 28 13:07 8.5.5-WS-WASSupplements-FP029-part1.zip
+-rw-rw-r-- 1 pnott pnott  785692894 Apr 28 13:07 8.5.5-WS-WASSupplements-FP029-part2.zip
+-rw-rw-r-- 1 pnott pnott 2018259127 Apr 28 13:08 8.5.5-WS-WASSupplements-FP029-part3.zip
+-rw-rw-r-- 1 pnott pnott  301891126 Apr 28 13:06 8.5.5-WS-WCT-FP029-part1.zip
+-rw-rw-r-- 1 pnott pnott 2021732150 Apr 28 13:07 8.5.5-WS-WCT-FP029-part2.zip
 ```
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
+
+Refer to this [inventory](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml) how to override the default WebSphere installation file names.
 
 ### Inventory files
 
@@ -419,7 +417,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
-Follow the steps in [Installing MongoDB 5 for Component Pack](https://opensource.hcltechsw.com/connections-doc/admin/install/installing_mongodb_5_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
+Follow the steps in [Installing MongoDB 7 for Component Pack](https://help.hcl-software.com/connections/v8-cr10/admin/install/installing_mongodb_7_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
 
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 
@@ -528,7 +526,7 @@ Desired kubernetes version can be set using
 kubernetes_version
 ```
 
-This set of automation will install by default 1.27.0 and should be always able to install the Kubernetes versions supported by Component Pack.
+This set of automation should be always able to install the Kubernetes versions supported by Component Pack.
 
 To install Kubernetes, execute:
 
@@ -561,6 +559,13 @@ Once your Component Pack installation is done, run this playbook to set up some 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/connections-post-install.yml
 ```
+
+## Optional: Installing HCL API Gateway
+
+If you want to install the optional HCL API Gateway for advanced API management and gateway features, please refer to the dedicated guide:
+
+- [Installing HCL API Gateway with Ansible](documentation/howtos/hcl_api_gateway_deployment.md)
+
 
 ## Troubleshooting
 

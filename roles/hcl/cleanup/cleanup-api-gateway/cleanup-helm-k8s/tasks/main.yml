@@ -1,0 +1,63 @@
+---
+- name:                     Load shared APISIX cleanup variables
+  include_vars:             "{{ role_path }}/../vars/main.yml"
+
+- name:                     Display cleanup plan
+  ansible.builtin.debug:
+    msg:                    "Starting cleanup of APISIX Helm releases and Kubernetes resources in namespace '{{ __apisix_namespace }}'."
+  tags:                     apisix_cleanup
+
+# --- Clean up Helm Charts ---
+- name:                     Delete HCL API Gateway Helm release
+  ansible.builtin.shell:    |
+                            helm uninstall {{ __hcl_api_gateway_release_name }} -n {{ __apisix_namespace }} --ignore-not-found
+  changed_when:             true
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Delete Core APISIX Helm release
+  ansible.builtin.shell:    |
+                            helm uninstall {{ __apisix_release_name }} -n {{ __apisix_namespace }} --ignore-not-found
+  changed_when:             true
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+# --- Clean up Secrets ---
+- name:                     Delete APISIX secrets
+  ansible.builtin.shell:    |
+                            kubectl delete secret {{ __apisix_secrets_name }} -n {{ __apisix_namespace }} --ignore-not-found
+  changed_when:             true
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+# --- Clean up ETCD PVCs and PVs ---
+- name:                     Remove finalizers and delete all ETCD PVCs
+  ansible.builtin.shell:    |
+                            kubectl patch pvc data-{{ __apisix_etcd_pv_name }}-{{ item }} -n {{ __apisix_namespace }} -p '{"metadata":{"finalizers":null}}' || true
+                            kubectl delete pvc data-{{ __apisix_etcd_pv_name }}-{{ item }} -n {{ __apisix_namespace }} --ignore-not-found
+  loop:                     "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  ignore_errors:            true
+  changed_when:             true
+  tags:                     apisix_cleanup
+
+- name:                     Remove finalizers and delete all ETCD PVs
+  ansible.builtin.shell:    |
+                            kubectl patch pv {{ __apisix_etcd_pv_name }}-{{ item }} -p '{"metadata":{"finalizers":null}}' || true
+                            kubectl delete pv {{ __apisix_etcd_pv_name }}-{{ item }} --ignore-not-found
+  loop:                     "{{ range(0, __apisix_etcd_replicaset | int) | list }}"
+  ignore_errors:            true
+  changed_when:             true
+  tags:                     apisix_cleanup
+
+# --- Clean up StorageClasses ---
+- name:                     Delete APISIX StorageClass
+  ansible.builtin.shell:    |
+                            kubectl delete sc {{ __apisix_storage_class_name }} --ignore-not-found
+  changed_when:             true
+  ignore_errors:            true
+  tags:                     apisix_cleanup
+
+- name:                     Display Helm/K8s cleanup completion message
+  ansible.builtin.debug:
+    msg:                    "APISIX Helm releases and Kubernetes resources cleanup completed."
+  tags:                     apisix_cleanup

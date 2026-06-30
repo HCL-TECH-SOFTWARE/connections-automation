@@ -1,0 +1,17 @@
+---
+- name:                 Backup httpd.conf
+  command:              cp {{ __ihs_install_location }}/conf/httpd.conf {{ __ihs_install_location }}/conf/httpd.conf_{{ __now }}
+  ignore_errors:        true
+
+- name:                 Generate self signed certificate
+  include_role:
+    name:               roles/third_party/ibm/ihs9/ibm-http-9-gen-cert
+
+- name:                 "Am I going to enable ActivitiesPlus?"
+  debug:
+    msg:                "{{ __setup_huddoboards }}"
+
+- name:                 "Generate httpd.conf"
+  template:
+    src:                "httpd.conf.j2"
+    dest:               "{{ __ihs_install_location }}/conf/httpd.conf"
