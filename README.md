@@ -5,9 +5,14 @@
 
 > [!IMPORTANT]
 > ### Upcoming Change: Ansible Controller Upgrade (CR16)
-> Starting with the **next release (CR16)**, this automation framework will require **ansible-core 2.19.x** running inside a **Python 3.11 virtualenv**. The current Ansible 2.9 setup will no longer be supported. Note that ansible-core 2.19.x is **not backward compatible** with older versions — after the CR16 changes are pushed to this repo, the code will work only with 2.19.x.
+> 
+> **Phase 1 (Current - CR15):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
+> 
+> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be independent — the `main` branch will remain Ansible 2.9 compatible.
+> 
+> **Phase 3 (CR16):** Starting with **CR16**, this automation framework will require **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. The Ansible 2.9 setup will no longer be supported. ⚠️ **Note:** ansible-core 2.19.x is **not backward compatible** with older versions.
 >
-> To prepare your controller now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md). The existing playbooks in this release (CR15) remain fully compatible with Ansible 2.9.
+> **Action:** To prepare now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) to upgrade your Ansible controller to 2.19.x. This ensures a smooth transition when you upgrade to CR16.
 
 The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
 
