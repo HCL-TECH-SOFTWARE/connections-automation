@@ -4,9 +4,9 @@
 > Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
 
 > [!IMPORTANT]
-> ### Upcoming Change: Ansible Controller Upgrade (CR16)
+> ### Upcoming Change: Ansible Controller Upgrade (CR15 & CR16)
 > 
-> **Phase 1 (Current - CR15):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
+> **Phase 1 (Current):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
 > 
 > **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be independent — the `main` branch will remain Ansible 2.9 compatible.
 > 
