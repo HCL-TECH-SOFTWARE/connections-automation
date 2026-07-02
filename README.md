@@ -1,34 +1,34 @@
 # HCL Connections and Component Pack Deployment Automation Framework
 
 > [!IMPORTANT]
-> ### Upcoming Change: Ansible Controller Upgrade (CR15 & CR16)
+> ### Upcoming Change: Ansible Controller Upgrade & CentOS 7 Deprecation (CR15 & CR16)
 > 
 > **Phase 1 (Current):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
 > 
-> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be independent — the `main` branch will remain Ansible 2.9 compatible **without CR15 changes**.
+> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be maintained in parallel with CR16 for a limited time to allow for migration.
 > 
-> **Phase 3 (CR16):** Starting with **CR16**, this automation framework will require **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. The Ansible 2.9 setup will no longer be supported. ⚠️ **Note:** ansible-core 2.19.x is **not backward compatible** with older versions.
+> **Phase 3 (CR16):** Starting with **CR16**, this automation framework will require **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. The Ansible 2.9 setup will no longer be supported. ⚠️
 >
-> **Action:** To prepare now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) to upgrade your Ansible controller to 2.19.x. This ensures a smooth transition when you upgrade to CR16.
+> **Action:** To prepare now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) to upgrade your Ansible controller to 2.19.x. This ensures a smooth transition when you upgrade to CR15 or later.
 
 
 > [!NOTE]
 > Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
 
-The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
+The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer's unique Connections deployment scenarios and requirements.
 
-Connections development is committed to ensuring its ongoing maintenance and periodic updates of this repository, which are typically synchronized with each new CR release.  Additionally, we aim to maintain a consistent review schedule for pull requests (PRs) in alignment with these update cycles.
+Connections development is committed to ensuring its ongoing maintenance and periodic updates of this repository, which are typically synchronized with each new CR release.  Additionally, we aim to maintain backward compatibility as much as possible while evolving the automation framework.
 
 Before you start, please be sure to check out [Frequently Asked Questions](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/FAQ.md).
 
 For HCL Connections 8 dependencies this means that:
 
-* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from My HCLSoftware, will be applied only to IBM DB2 v11.5. If you want to learn more about using HCL Connections with different database backends, please [check out this document](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/documentation/howtos/setup_connections_with_different_database_backends.md).
+* Database will be installed (IBM DB2, Oracle or Microsoft SQL Server), configured as per Performance tunning guide for HCL Connections, and license applied. Please note: the license, the same one from your My HCL Software entitlements, needs to be provided.
 * HCL Connections Wizard will populate the database with needed schemas and grants.
-* If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server properly.
+* If needed for demo or even production purposes, OpenLDAP will be spun up and seeded with some demo users. OpenLDAP will be spun up with SSL enabled, as needed later for setting up IBM WebSphere Application Server.
 * IBM TDI will be installed, configured, and run to populate profiles database in IBM DB2 with users from OpenLDAP
 * IBM Installation Manager will be set up on the nodes where IBM WebSphere Application Server Network Deployment needs to be installed.
-* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 29. By default, FP29 is going to be installed. Deployment manager and nodeagents profiles are going to be created, application security enabled, TLS certificated imported from LDAP, LDAP configured up to the point where it is ready to install HCL Connections 8.
+* IBM WebSphere Application Server Network Deployment will be set up where needed. Currently we tested it with Fixpack 29. By default, FP29 is going to be installed. Deployment manager and nodeagents will be configured as needed.
 * IBM HTTP Server is going to be installed, patched with the same fixpack as IBM WebSphere Application Server, and added to the deployment manager.
 * NFS server will be installed, including master and clients configurations and proper folders set.
 
@@ -54,12 +54,12 @@ For Component Pack for HCL Connections 8 it means:
 * Containerd(container runtime) will be installed with the optimisations required by the version of Kubernetes.
 * Kubernetes will be set up.
 * Component Pack will be set up by default using latest community Kubernetes Ingress, Grafana and Prometheus for monitoring out of the box.
-* Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using OpenSearch.
+* Post installation tasks needed for configuring Component Pack and the WebSphere-side of Connections to work together are also going to be executed, including enabling searches and Metrics using Open Search and Prometheus.
 
 ## Requirements:
 
-* Ansible 2.9 installed on your machine
-* SSH access (passwordless makes stuff easier, but not mandatory) to the machine(s) you want to provision. Be sure that key forwarding is properly set on your controller and on all machines that you plan to manage with.
+* Ansible 2.9 installed on your machine (see upgrade notice above for future requirements)
+* SSH access (passwordless makes stuff easier, but not mandatory) to the machine(s) you want to provision. Be sure that key forwarding is properly set on your controller and on all machines that you provision.
 * Your user (or any user used for the purposes of provisioning) having passwordless sudo acces on the nodes being provisioned.
 
 To learn more about how to install Ansible on your local machine or Ansible controller, please check out [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
@@ -69,13 +69,16 @@ Supported OSs:
 * AlmaLinux 9
 * RHEL 9
 
-NOTE: Recommended OS for this automation is AlmaLinux 9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on AlmaLinux 9/RHEL 9.  Since CentOS 7 is officially end of life, automation support for it will eventually be dropped.
+> [!WARNING]
+> **CentOS 7 Deprecation Notice:** Since CentOS 7 is officially end of life, automation support for it will be dropped in a future release. We strongly recommend migrating to **AlmaLinux 9** or **RHEL 9** before then.
+
+NOTE: Recommended OS for this automation is AlmaLinux 9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on AlmaLinux 9/RHEL 9.
 
 ### Have files ready for download
 
 To be able to use this automation you will need to be able to download the packages.
 
-The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as a single Ruby one liner to open web server on specific port so that automation can connect and download it.
+The suggestion is to have them all downloaded in a single location, and for this you would need at least 50G of disk space. Run a small HTTP server just to be able to serve them, it can be as simple as `python3 -m http.server 8080` from the packages folder.
 
 This is the example data folder structure we are following at HCL.  Please refer to My HCLSoftware when verifying the size and timestamps of the packages.
 
@@ -159,7 +162,7 @@ was855FP29:
 
 Of course, you can drop it all to a single folder, or restructure it whatever way you prefer.
 
-Refer to this [inventory](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml) how to override the default WebSphere installation file names.
+Refer to this [inventory](https://github.com/HCL-TECH-SOFTWARE/connections-automation/blob/main/environments/examples/cnx7/myhclsoftware_db2/group_vars/all.yml) how to override the default WebSphere installation location, or adjust components.
 
 ### Inventory files
 
@@ -167,7 +170,7 @@ Inventory files live in environments folder. To keep things simple, there are tw
 * inventory.ini which has all FQDNs of the hosts in different groups
 * group_vars/all.yml with the variables you can customize.
 
-We strongly recommend using the current model for handling variables. However, if you still want to stick with the old model, the only thing you need to add is cnx_was_servers group to your old connections inventory file. Otherwise, it is backwards compatible.
+We strongly recommend using the current model for handling variables. However, if you still want to stick with the old model, the only thing you need to add is cnx_was_servers group to your old connections inventory.
 
 ### SSH User
 
@@ -181,7 +184,7 @@ Example:
 
     remote_user = sysadmin
 
-The `ansible.cfg` allows a lot of settings, see the example file at https://github.com/ansible/ansible/blob/devel/examples/ansible.cfg and it can stay in the root of your Ansible project, or can be placed in `~/.ansible.cfg`, then it will work for all of your Ansible projects.
+The `ansible.cfg` allows a lot of settings, see the example file at https://github.com/ansible/ansible/blob/devel/examples/ansible.cfg and it can stay in the root of your Ansible project, or can be placed in /etc/ansible directory.
 
 ### Supported layouts
 
@@ -189,7 +192,7 @@ Those scripts should be able to support both single node installations and HA en
 
 * We tested with a single WAS node (DMGR, IHS, and Node agent co-located)
 * We tested with a proper distributed WAS (two separate WAS nodes, two separate IHSs behind internal load balancer, DMGR on a dedicated machine)
-* Kubernetes can be single node installation or any type of HA. Scaling is also supported by those scripts (you can add new masters or workers if you created your Kubernetes environment using those scripts in the first place).
+* Kubernetes can be single node installation or any type of HA. Scaling is also supported by those scripts (you can add new masters or workers if you created your Kubernetes environment using those scripts).
 
 ### Cache folders
 
@@ -198,13 +201,13 @@ Running those scripts specifically for Component Pack will create two cache fold
 * /tmp/k8s_cache and
 * /home/${YOURUSER}/generated_charts
 
-The second one will have all the values generated when running Helm installs. Those value files are used by Helm to install Component Pack. Values you see inside are coming from a variables inside your automation.
+The second one will have all the values generated when running Helm installs. Those value files are used by Helm to install Component Pack. Values you see inside are coming from a variables inside your inventory file.
 
 ## Setting up HCL Connections with its dependencies
 
 This scenario is useful in multiple cases:
 * If you want to spin up a demo environment where you want to be able to quickly log in and start using it
-* If you want to spin up a production ready environment that you know will work, see it work, and then start replacing component by component (like switching/adding LDAP servers, switching databases, etc).
+* If you want to spin up a production ready environment that you know will work, see it work, and then start replacing component by component (like switching/adding LDAP servers, switching databases, replacing NFS, etc)
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/setup-connections-complete.yml
@@ -251,7 +254,7 @@ To install Oracle 19c only, execute:
 ansible-playbook -i environments/examples/cnx8/oracle/inventory.ini playbooks/third_party/setup-oracle.yml
 ```
 
-Running this playbook will set up the prerequisites for Oracle 19c (like setting up big enough swap on the node dedicated for Oracle database) but it will also set up the JDBC for HCL Connections and HCL Connections Docs.
+Running this playbook will set up the prerequisites for Oracle 19c (like setting up big enough swap on the node dedicated for Oracle database) but it will also set up the JDBC for HCL Connections and everything needed for HCL Connections to use the Oracle database.
 
 JDBC drivers for Oracle will be only installed if you have setup_oracle_jdbc set to true as mentioned above.
 
@@ -302,7 +305,7 @@ ldap_user_password: "password"
 ldap_user_admin_password: "password"
 ```
 
-This will create 2500 fake accounts, starting with user id 'fakeuser1' and going to 'fakeuser2499'. First of them in this case (fakeuser1) will get 'ldap_user_admin_password' set, and all others are going to get 'ldap_user_password'. On top of that, it you will get automatically 10 more users created being set as external. Be sure to set in this case one of those users as HCL Connections admin user before the Connections installation like here:
+This will create 2500 fake accounts, starting with user id 'fakeuser1' and going to 'fakeuser2499'. First of them in this case (fakeuser1) will get 'ldap_user_admin_password' set, and all others are going to get a default 'ldap_user_password'.
 
 ```
 connections_admin: fakeuser1
@@ -367,7 +370,9 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third
 
 ### Installing HCL Connections
 
-By default, use of NFS is enabled, which means HCL Connections would try to mount the folders for shared data and message store. Note that NFS is needed if you plan to install HCL Docs later on a separate server.  If you don't want it to be mounted and don't plan to install HCL Docs on a separate server, set:
+By default, use of NFS is enabled, which means HCL Connections would try to mount the folders for shared data and message store. Note that NFS is needed if you plan to install HCL Docs later on a separate machine.
+
+If you don't want to use NFS and you are installing everything on a single node, use:
 
 ```
 skip_nfs_mount_for_connections: true
@@ -419,7 +424,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/s
 
 ### Running post installation tasks
 
-If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post installation bits and pieces to make the Connections deployment accessible.  Otherwise, continue to the Component Pack deployment before testing the deployment.
+If you don't plan on installing the Component Pack and `cnx_application_ingress` is set to a host that can access the Connections server frontend (eg. IHS) via a browser now, run this playbook to set up some post-installation configurations:
 
 ```
 ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/connections-post-install.yml
@@ -429,7 +434,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/c
 
 To set up Component Pack, you should have the WebSphere-side of Connections already up and running and be able to log in successfully.
 
-Follow the steps in [Installing MongoDB 7 for Component Pack](https://help.hcl-software.com/connections/v8-cr10/admin/install/installing_mongodb_7_for_component_pack_8.html) till the point the image is imported into containerd. This is a manual step.
+Follow the steps in [Installing MongoDB 7 for Component Pack](https://help.hcl-software.com/connections/v8-cr10/admin/install/installing_mongodb_7_for_component_pack_8.html) till the point the image is built and pushed to a registry.
 
 Access to the HCL Harbor registry is needed to install the Component Pack. You can provide the Harbor credentials (and Quay credentials if enabling Huddo Boards) as environment variables.
 
@@ -465,7 +470,9 @@ This playbook will:
 * Set up Kubernetes
 * Install and configure Component Pack to work with Connections
 
-By default, Component Pack will consider first node in [nfs_servers] to be your NFS master also, and by default it will consider that on NFS master, all needed folders for Component Pack live in /pv-connections. You can rewrite it with:
+By default, Component Pack will consider first node in [nfs_servers] to be your NFS master also, and by default it will consider that on NFS master, all needed folders for Component Pack live in /pv-components directory with additional /pv-data and /pv-apps directories.
+
+You can change this by setting in your inventory the master and the path:
 
 ```
 nfsMasterAddress: "172.29.31.1"
@@ -474,7 +481,7 @@ persistentVolumePath: "nfs"
 
 This translates to //172.29.31.1:/nfs
 
-Note: The Component Pack installation and configuration contains tasks with an impact on the WebSphere-side of Connections side which require restarts of WebSphere and Connections itself, and which will be executed.
+Note: The Component Pack installation and configuration contains tasks with an impact on the WebSphere-side of Connections side which require restarts of WebSphere and Connections itself, and which will be done automatically as a part of the installation.
 
 ### Setting up Nginx
 
@@ -531,7 +538,7 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/third
 
 ### Setting up Kubernetes
 
-This will install Kubernetes, set up kubectl and Helm and make the Kubernetes cluster ready for Component Pack to be installed. However, this is really a minimum way of installing a stable Kubernetes using kubeadm. We do advice using more battle-proven solutions like kubespray or kops (or anything else) for production-ready Kubernetes clusters.
+This will install Kubernetes, set up kubectl and Helm and make the Kubernetes cluster ready for Component Pack to be installed. However, this is really a minimum way of installing a stable Kubernetes on a single or multiple nodes. For HA installations, there are better ways of installing Kubernetes.
 
 Desired kubernetes version can be set using
 ```
@@ -593,10 +600,10 @@ As a rule of thumb, be sure that:
 
 * User that is running Ansible can SSH into all the servers mentioned inside your inventory files.
 * User that is running Ansible have passwordless sudo access on all the servers mentioned inside your inventory files.
-* User that is running Ansible has key forwarding enabled. Automation will try to SSH from one machine to another to execute specific tasks, run rsync etc. which can fail if key forwarding is not properly configured.
+* User that is running Ansible has key forwarding enabled. Automation will try to SSH from one machine to another to execute specific tasks, run rsync etc. which can fail if key forwarding is not properly enabled on your machine and on all the machines involved.
 * Ansible is using Python. It *can* happen that something doesn't work as expected in your own scenario, depending on OS level, changes in distribution, etc.
 
-If you run into a problem while running a playbook, examine the output to determine the specific command that is failing.  It is often best to try to manually run this command and to troubleshoot the specific problem before trying to run the playbook again. Based on this investigation, you'll either resolve the problem that prevented the step from completing, or you will have successfully run the command manually.  You can then run the playbook again and it will either complete the step or skip the step if no further work is needed.
+If you run into a problem while running a playbook, examine the output to determine the specific command that is failing.  It is often best to try to manually run this command and to troubleshoot from there.
 
 # HCL Connections Docs Automation Scripts
 This set of scripts is able to spin up end-to-end HCL Connections Docs on top of an existing HCL Connections deployed by the ansible scripts described above.
@@ -626,13 +633,13 @@ ansible-playbook -i environments/examples/cnx8/db2/inventory.ini playbooks/hcl/s
 ```
 
 ### HCL Connections Docs Troubleshooting
-* If HCL Connections Docs configuration adjustment is needed after the install, it can be done in `/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/${CELLNAME}/IBMDocs-config` on the WebSphere Deployment Manager.  Make sure to do a full re-synchronize to propagate any changes to all Docs nodes.
-* If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [documentation](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/text/functional_verification_of_installation.html) to check if the HCL Docs and File Viewer extensions are installed and active within HCL Connections. If the modules are not listed, on the HCL Connections server, go to `{{cnx_data_path_on_cnx_server}}` based on the inventory file, then go to `/provision/webresources` in that location to make sure the jars are there. Also, go to the WAS admin console to make sure `HCLDocsProxyCluster` Proxy server cluster is running.
-* If you wish to re-install a HCL Connections Docs component, first cd to `/opt/HCL/<component>/installer` (`/opt/HCL/<component>/extension/installer` for Docs or Viewer extension) then run `sudo ./uninstall.sh` (`sudo ./uninstall_node.sh on subsequent nodes if exist`, ) to uninstall the component.  Delete the .success file in `/opt/HCL/<component>/` then run the playbook again.  It is recommended to comment out the prior steps in the playbook to save time.
+* If HCL Connections Docs configuration adjustment is needed after the install, it can be done in `/opt/IBM/WebSphere/AppServer/profiles/Dmgr01/config/cells/${CELLNAME}/IBMDocs-config` on the WebSphere machine where Connections is installed.
+* If options are not available in HCL Connections Files to create Document/Spreadsheet/Presentation, follow Step#3 in [documentation](https://help.hcltechsw.com/docs/v2.0.1/onprem/install_guide/guide/plan_en_docs.html).
+* If you wish to re-install a HCL Connections Docs component, first cd to `/opt/HCL/<component>/installer` (`/opt/HCL/<component>/extension/installer` for Docs or Viewer extension) then run `sudo ./uninstall.sh`.
 
 ## Acknowledgments
 
-This project was inspired by the [Ansible WebSphere/Connections 6.0 automation done by Enio Basso](https://github.com/ebasso/ansible-ibm-websphere). It is done in a way that it can interoperate with the mentioned project or parts of it.
+This project was inspired by the [Ansible WebSphere/Connections 6.0 automation done by Enio Basso](https://github.com/ebasso/ansible-ibm-websphere). It is done in a way that it can interoperate with the original project in case the HCL Connections is already installed.
 
 ## License
 
@@ -640,4 +647,4 @@ This project is licensed under Apache 2.0 license.
 
 ## Disclaimer
 
-The code listed here is not officially supported and is solely intended to be used as-is. It serves as an accelerator for customers wishing to automate their own HCL Connections deployments and HCL Technologies Ltd would welcome any feedback. HCL Technologies Ltd does not make any warranty about the completeness, reliability and accuracy of this code. Any action you take by using this code is strictly at your own risk, and HCL Technologies Ltd will not be liable for any losses and damages in connection with the use of this code.
+The code listed here is not officially supported and is solely intended to be used as-is. It serves as an accelerator for customers wishing to automate their own HCL Connections deployments and HCL Docs. Use of this code is at your own risk.
