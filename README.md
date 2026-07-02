@@ -1,5 +1,19 @@
 # HCL Connections and Component Pack Deployment Automation Framework
 
+> [!IMPORTANT]
+> ### Upcoming Change: Ansible Controller Upgrade (CR15 & CR16) & CentOS 7 Deprecation Notice
+> 
+> **Phase 1 (Current):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
+> 
+> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be independent — the `main` branch will remain Ansible 2.9 compatible **without CR15 changes**.
+> 
+> **Phase 3 (CR16):** Starting with **CR16**, this automation framework will require **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. The Ansible 2.9 setup will no longer be supported.
+>
+> ⚠️ **CentOS 7 Deprecation:** Since CentOS 7 is officially end of life, automation support for it will eventually be dropped. 
+>
+> **Action:** To prepare now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) to upgrade your Ansible controller to 2.19.x. This ensures a smooth transition when you upgrade to CR15 or later.
+
+
 > [!NOTE]
 > Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
 
