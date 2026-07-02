@@ -5,7 +5,7 @@
 > 
 > **Phase 1 (Current):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
 > 
-> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be maintained in parallel with CR16 for a limited time to allow for migration.
+> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be independent — the `main` branch will remain Ansible 2.9 compatible **without CR15 changes**.
 > 
 > **Phase 3 (CR16):** Starting with **CR16**, this automation framework will require **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. The Ansible 2.9 setup will no longer be supported.
 >
