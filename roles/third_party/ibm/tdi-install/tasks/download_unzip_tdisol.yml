@@ -20,7 +20,7 @@
         url:                 "{{ __cnx_download_location }}/{{ __cnx_package_name }}.sha256"
         method:              HEAD
       register: checksum_file_exists
-      ignore_errors: yes
+      failed_when: false
 
     - name:                  "Download checksum file if it exists to the {{ __cnx_extraction_folder }}/{{ __cnx_package_name }}.sha256"
       get_url:

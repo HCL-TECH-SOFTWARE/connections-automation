@@ -1,0 +1,22 @@
+---
+# Ansible Galaxy collection requirements for deployment-ansible and devops repos.
+# Install with: ansible-galaxy collection install -r requirements.yml
+#
+# Standardized for ansible-core 2.19.x / Python 3.11.x / Jinja2 3.1.x
+# See documentation/CONTROLLER_SETUP.md for full controller setup instructions.
+
+collections:
+  - name: amazon.aws
+    version: ">=8.0.0"
+  - name: community.aws
+    version: ">=8.0.0"
+  - name: community.general
+    version: ">=9.0.0"
+  - name: ansible.posix
+    version: ">=1.5.0"
+  - name: kubernetes.core
+    version: ">=4.0.0"
+  - name: community.crypto
+    version: ">=2.20.0"
+  - name: community.docker
+    version: ">=3.10.0"

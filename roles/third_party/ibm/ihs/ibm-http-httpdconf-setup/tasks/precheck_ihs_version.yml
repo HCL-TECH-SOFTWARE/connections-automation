@@ -2,7 +2,8 @@
 - name:              Check if IHS is already installed
   command:           "egrep {{ __ihs_package_name }} /var/ibm/InstallationManager/installed.xml"
   register:          ihs_already_installed
-  ignore_errors:     true
+  failed_when:       false
+  changed_when:      false
 
 - name:              Extract IHS major version
   set_fact:

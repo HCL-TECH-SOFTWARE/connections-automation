@@ -2,4 +2,4 @@
   shell:                   ctr -n k8s.io i rm $(ctr -n k8s.io i ls -q)
   ignore_errors:           true
   when:
-   - __force_destroy_containerd_images|bool == true
+   - __force_destroy_containerd_images | bool

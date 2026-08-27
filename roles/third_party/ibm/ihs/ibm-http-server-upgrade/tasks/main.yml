@@ -138,5 +138,12 @@
     src:             "../../ihs9/ibm-http-server-9-install/templates/{{ __tpl_admin_conf }}"
     dest:            "{{ __ihs_install_location }}/conf/admin.conf"
 
+- name:              Create symbolic link for index.html
+  file:
+    src:             "{{ __ihs_install_location }}/htdocs/index_ihs.html"
+    dest:            "{{ __ihs_install_location }}/htdocs/index.html"
+    state:           link
+    mode:            '0755'
+
 - name:              Cleanup Binaries directory
   file:              path={{ __tmp_dir }} state=absent

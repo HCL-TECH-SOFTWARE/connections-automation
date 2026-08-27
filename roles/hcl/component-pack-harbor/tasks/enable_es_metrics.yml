@@ -52,7 +52,7 @@
   become_user:               "{{ __sudo_user }}"
   when:
     - __elasticsearch_default_version == "5"
-    - __setup_opensearch |bool == false
+    - not __setup_opensearch | bool
 
 - name:                      Retrieve signer certificates for ES7
   shell:                     "{{ item }}"
@@ -62,7 +62,7 @@
   become_user:               "{{ __sudo_user }}"
   when:
     -  __elasticsearch_default_version == "7"
-    - __setup_opensearch |bool == false
+    - not __setup_opensearch | bool
 
 - name:                      Retrieve signer certificates for Opensearch
   shell:                     "{{ item }}"
@@ -71,7 +71,7 @@
    - kubectl get secret opensearch-secret -n {{ __default_namespace }} -o=jsonpath="{.data['opensearch-metrics\.p12']}" | base64 -d > "{{ __es_certs_dir_temp}}"/opensearch-metrics.p12
   become_user:               "{{ __sudo_user }}"
   when:
-    - __setup_opensearch |bool == true
+    - __setup_opensearch | bool
 
 - name:                      Create the archive
   archive:
@@ -95,10 +95,10 @@
   become:                    false
 
 - name:                      Cleanup {{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip on controller
-  local_action:
-    module:                  file
+  file:
     state:                   absent
     path:                    "{{ __es_certs_dir_temp }}-{{ ansible_date_time.iso8601_basic_short }}.zip"
+  delegate_to:               localhost
   become:                    false
   ignore_errors:             yes
 
@@ -127,14 +127,14 @@
     src:                    "{{ __es_merge_template }}"
     dest:                   "{{ __es_merge_destination }}"
   delegate_to:              "{{ dmgr_hostname }}"
-  when:                      __setup_opensearch |bool == false
+  when:                      not __setup_opensearch | bool
 
 - name:                     "Render {{ __opensearch_merge_template }} to {{ __es_merge_destination }} on {{ dmgr_hostname }}"
   template:
     src:                    "{{ __opensearch_merge_template }}"
     dest:                   "{{ __es_merge_destination }}"
   delegate_to:              "{{ dmgr_hostname }}"
-  when:                      __setup_opensearch |bool == true
+  when:                      __setup_opensearch | bool
 
 - name:                     "Merge certificates with {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __es_merge_destination }}"
   command:
@@ -277,10 +277,10 @@
   ignore_errors:             yes
 
 - name:                      Cleanup stuff on controller
-  local_action:
-    module:                  file
+  file:
     state:                   absent
     path:                    "/tmp/{{ groups['k8s_masters'][0] }}"
+  delegate_to:               localhost
   become:                    false
   ignore_errors:             yes
 

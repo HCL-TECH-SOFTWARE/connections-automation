@@ -1,0 +1,43 @@
+# Python pip requirements for the Ansible controller.
+# Install with: pip install -r pip-requirements.txt
+#
+# Standardized for ansible-core 2.19.x / Python 3.11.x / Jinja2 3.1.x
+# See documentation/CONTROLLER_SETUP.md for full controller setup instructions.
+
+# Ansible core (2.19.x maintained until Nov 2026)
+ansible-core>=2.19,<2.20
+
+# Jinja2 templating engine (pulled by ansible-core, pinned for consistency)
+Jinja2>=3.1,<3.2
+
+# AWS modules (amazon.aws, community.aws)
+boto3>=1.34,<2
+botocore>=1.34,<2
+
+# Kubernetes / Helm modules (kubernetes.core)
+kubernetes>=29.0.0,<31
+jsonpatch>=1.33
+
+# Docker modules (community.docker)
+docker>=7.0.0,<8
+
+# Used by roles: passlib (Docker registry htpasswd)
+passlib>=1.7.4
+
+# Used by roles: jmespath (json_query filter, taint-all-nodes)
+jmespath>=1.0.1
+
+# Used by roles: pexpect (expect module for WAS/TDI/Docs interactive installs)
+pexpect>=4.9
+
+# Used by roles: lxml (XML manipulation in post-install-config)
+lxml>=5.0.0
+
+# Used by roles: netaddr (ipaddr filter in networking tasks)
+netaddr>=0.10.0
+
+# YAML parsing with C library (performance)
+PyYAML>=6.0
+
+# Used by community.crypto
+cryptography>=42.0.0

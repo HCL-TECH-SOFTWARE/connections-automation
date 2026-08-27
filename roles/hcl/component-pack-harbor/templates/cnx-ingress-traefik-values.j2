@@ -10,8 +10,15 @@ deployment:
     prometheus.io/port: "9100"
     prometheus.io/path: "/metrics"
 
+# Use service.spec.type for Traefik Helm chart v4+ and service.type for older versions to maintain compatibility.
+{% if __ingress_traefik_chart_version is version('40', '>=') %}
+service:
+  spec:
+    type: NodePort
+{% else %}
 service:
   type: NodePort
+{% endif %}
 
 ports:
   web:
@@ -30,6 +37,8 @@ ports:
 providers:
   kubernetesCRD: {}
   kubernetesIngress: {}
+  kubernetesIngressNGINX:
+    enabled: {{ __ingress_traefik_nginx_enabled }}
 
 tlsStore:
   default:
@@ -37,17 +46,30 @@ tlsStore:
       # Default secret name is cnx-tls-secret
       secretName: {{ __cp_tls_secret_name }}
 
-logs:
-  # See https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml for log options.
+# See https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml for log options.
+{% if __ingress_traefik_chart_version is version('41', '>=') %}
+# Helm chart v41+ uses the new log syntax.
+log:
+  # Default log level is INFO
+  level: {{ __ingress_traefik_log_level }}
+  format: json
+
+# Optional: Enable Traefik access logs
+accessLog:
+  # Default access log enablement is false. Set to true for debugging.
+  enabled: {{ __ingress_traefik_access_logs_enabled }}
+  format: json
+
+{% else %}
+# Helm chart v40 uses old log syntax.
+logs:  
   general:
-    # Default log level is INFO
     level: {{ __ingress_traefik_log_level }}
     format: json
-  # Optional: Enable Traefik access logs
   access:
-    # Default access log enablement is false. Set to true for debugging.
     enabled: {{ __ingress_traefik_access_logs_enabled }}
     format: json
+{% endif %}
 
 # Optional section to enable prometheus
 {% if not __ingress_traefik_prometheus_enabled | bool %}
@@ -127,7 +149,7 @@ ingressRoute:
       - name: cnx-ingress-dashboard-auth
         namespace: {{ __default_namespace }}
         
-# Provide an authentication secret for the Traefik dashboard if enabled.
+# Create a secret called cnx-ingress-dashboard-auth for Traefik Dashboard authentication if enabled.
 # The secret should have a key "users" with value in the format "user:hashedpassword"
 extraObjects:
   - apiVersion: traefik.io/v1alpha1

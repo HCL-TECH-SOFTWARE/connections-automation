@@ -33,6 +33,5 @@
 
 - name:                  Update HCL Connections
   import_playbook:       hcl/setup-connections-ifix.yml
-
 - name:                  Setup Component Pack
   import_playbook:       hcl/setup-component-pack.yml

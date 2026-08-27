@@ -15,7 +15,7 @@
     path:                "{{ __docs_extraction_folder }}"
     state:               absent
   when:
-    - not docs_database_already_created.stat.exists and __keep_db_extraction_folder == false
+    - not docs_database_already_created.stat.exists and not __keep_db_extraction_folder
 
 - name:                  Check if installation folder exists
   stat:

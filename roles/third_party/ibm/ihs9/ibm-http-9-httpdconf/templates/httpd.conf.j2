@@ -1122,12 +1122,11 @@ SSLProtocolDisable SSLv2 SSLv3 TLSv10 TLSv11
 SSLDisable
 
 {% if pool_server | default(false) | bool %}
-# configuration for HCL Connections file downloads
-alias /files_content /data/Connections/files/upload
-<Directory "/data/Connections/files/upload">
- Order Deny,Allow
- Deny from all
- Allow from env=REDIRECT_FILES_CONTENT
+# BEGIN FILES LOCAL REDIRECT CONFIG
+alias /files_content {{ __files_content_dir }}
+
+<Directory "{{ __files_content_dir }}">
+  Require env REDIRECT_FILES_CONTENT
 </Directory>
 
 <Location /files>
@@ -1135,13 +1134,14 @@ alias /files_content /data/Connections/files/upload
     IBMLocalRedirectKeepHeaders X-LConn-Auth,Cache-Control,Content-Type,Content-Disposition,Last-Modified,ETag,Content-Language,Set-Cookie,Title,X-UA-Compatible
     SetEnv FILES_CONTENT true
 </Location>
+# END FILES LOCAL REDIRECT CONFIG
 
 <IfModule mod_ibm_upload.c>
 # BEGIN FILES UPLOADS CONFIG
     <Location /ihs/files>
         IBMUploadHandler On
         SetHandler ibm_upload_handler
-        IBMUploadBaseStore /data/Connections/files/upload/files
+        IBMUploadBaseStore {{ __files_content_dir }}/files
         IBMUploadMethods POST,PUT
         IBMUploadURLPrefix /ihs
     </Location>

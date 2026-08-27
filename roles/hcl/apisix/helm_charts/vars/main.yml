@@ -11,12 +11,12 @@ __apisix_namespace:                          "{{ apisix_namespace | default('api
 __apisix_release_name:                       "{{ apisix_release_name | default('apisix') }}"
 __apisix_chart_registry_url:                 "{{ apisix_chart_registry_url | default('https://charts.apiseven.com') }}"
 __apisix_chart_version:                      "{{ apisix_chart_version | default('2.12.0') }}"
-__ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) |lower }}"
+__ingress_multi_domain_enabled:              "{{ ingress_multi_domain_enabled | default(false) }}"
 
 # APISIX Admin API settings
 __apisix_admin_service_name:                  "{{ apisix_admin_service_name | default( __apisix_release_name ~ '-admin') }}"
 __apisix_admin_service_port:                  "{{ apisix_admin_service_port | default(9180) }}"
-__apisix_enable_admin_ui:                     "{{ apisix_enable_admin_ui | default(true) | lower }}"
+__apisix_enable_admin_ui:                     "{{ apisix_enable_admin_ui | default(true) }}"
 __apisix_secrets_name:                        "{{ apisix_secrets_name | default('apisix-admin-secret') }}"
 __apisix_admin_password:                      "{{ apisix_admin_password | default('password') }}"
 

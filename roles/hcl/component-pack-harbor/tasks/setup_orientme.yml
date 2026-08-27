@@ -16,18 +16,18 @@
     msg:                     "{{ orientme_chart_version.stdout }}"
 
 - name:                      Record orientme chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "orientme chart = {{ orientme_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade orientme
-  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait --timeout 10m"
+  command:                   "helm upgrade orientme {{ __helm_repository_local_name }}/orientme -i --version {{ orientme_chart_version.stdout }} -f {{ __orientme_env }} --namespace {{ __default_namespace }} --wait --timeout 10m --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/orientme'"
   become_user:               "{{ __sudo_user }}"
 
-- name:                      Wait for people-migrate pod to become ready
-  shell:                     "kubectl wait --namespace {{ __default_namespace }} --for=condition=ready pod --selector=app=people-migrate --timeout={{ __people_migrate_timeout }}s"
+- name:                      Wait for people-migrate deployment to become ready
+  shell:                     "kubectl rollout status deployment/people-migrate --namespace {{ __default_namespace }} --timeout={{ __people_migrate_timeout }}s"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if orientme is up and running

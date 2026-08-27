@@ -14,14 +14,14 @@
     msg:                     "{{ connections_env_chart_version.stdout }}"
 
 - name:                      Record connections-env chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "connections-env chart = {{ connections_env_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade connections-env
-  command:                   "helm upgrade connections-env {{ __helm_repository_local_name }}/connections-env -i --version {{ connections_env_chart_version.stdout }} -f {{ __connections_env_install_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade connections-env {{ __helm_repository_local_name }}/connections-env -i --version {{ connections_env_chart_version.stdout }} -f {{ __connections_env_install_env }} --namespace {{ __default_namespace }} --wait --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/connections-env'"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if connections-env configmap is created

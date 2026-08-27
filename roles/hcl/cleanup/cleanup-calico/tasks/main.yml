@@ -1,9 +1,14 @@
+- name:               Import calico vars from install-network-addons
+  include_vars:
+    file:             "{{ role_path }}/../../../third_party/kubernetes/install-network-addons/vars/main.yml"
+  tags:               always
+
 - name:               Check if calico is already deployed
   shell:              "kubectl  get deployment --all-namespaces | grep calico-kube-controllers"
   changed_when:       true
   register:           calico_already_provisioned
   become:             false
-  ignore_errors:      true
+  failed_when:        false
   tags:               always
 
 - name:               Restart calico-node daemonset

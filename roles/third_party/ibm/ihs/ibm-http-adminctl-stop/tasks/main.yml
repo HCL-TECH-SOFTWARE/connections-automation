@@ -2,7 +2,8 @@
 - name:          "Is AdminCtl Running?"
   shell:         ps -p `cat "{{ __ihs_install_location }}/logs/admin.pid"`
   register:      ihs_is_running
-  ignore_errors: true
+  failed_when:   false
+  changed_when:  false
 
 - name:          "Stop AdminCtl"
   command:       "{{ __ihs_install_location }}/bin/adminctl stop"

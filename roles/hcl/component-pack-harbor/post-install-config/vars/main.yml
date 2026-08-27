@@ -3,7 +3,7 @@ __cnx_major_version:            "{{ cnx_major_version | default('8') }}"
 __setup_teams:                  "{{ hostvars[groups['component_pack_master'][0]]['setup_teams'] | default(true)|bool }}"
 __setup_kudosboards:            "{{ hostvars[groups['component_pack_master'][0]]['setup_kudosboards'] | default(true)|bool }}"
 __setup_huddoboards:            "{{ setup_huddoboards | default(__setup_kudosboards) }}"
-__setup_huddoboards_ext:        "{{ setup_huddoboards_ext | default(false) |lower }}"
+__setup_huddoboards_ext:        "{{ setup_huddoboards_ext | default(false) }}"
 
 __was_install_location:         "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
 __profile_name:                 "{{ profile_name | default('Dmgr01') }}"

@@ -50,7 +50,7 @@
     - role: roles/third_party/tiny-editors-install
       vars:
         uninstall_tinyeditors: false
-      when: install_tinyeditors | default(false) | lower | bool
+      when: install_tinyeditors | default(false) | bool
 
 - name:                    Restart DMGR
   hosts:                   dmgr

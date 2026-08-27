@@ -3,14 +3,14 @@
   ignore_errors:           true
   tags:                    k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+   - __force_destroy_kubernetes | bool
 
 - name:                    Cleanup K8S
   command:                 yum remove kubeadm kubectl kubelet kubernetes-cni kube* -y
   ignore_errors:           true
   tags:                    k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+   - __force_destroy_kubernetes | bool
    - ansible_distribution != "SLES"
   
 - name:                    Cleanup K8S on SUSE
@@ -18,16 +18,17 @@
   ignore_errors:           true
   tags:                    k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+   - __force_destroy_kubernetes | bool
    - ansible_distribution == "SLES"
 
 - name:                    Find kubectl
   shell:                   "whereis kubectl | awk '{ print $2 }'"
   register:                kubectl_loc
-  ignore_errors:           true
+  failed_when:             false
+  changed_when:            false
   tags:                    k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+   - __force_destroy_kubernetes | bool
 
 - name:                    Delete kubectl if exists {{ kubectl_loc.stdout }}
   file:
@@ -36,7 +37,7 @@
   ignore_errors:           true
   tags:                    k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true and kubectl_loc.rc == 0
+   - __force_destroy_kubernetes | bool and kubectl_loc.rc == 0
 
 - name:                    Cleanup folders
   file:
@@ -44,7 +45,7 @@
     state:                 absent
   tags:                    k8s_cleanup
   when:
-   - __force_destroy_kubernetes == true
+   - __force_destroy_kubernetes | bool
   with_items:
    - "{{ __ansible_cache }}"
    - "{{ __helm_install_dir }}"
@@ -60,14 +61,14 @@
   ignore_errors:           true
   tags:                    db2_cleanup
   when:
-   - __force_destroy_db2 == true
+   - __force_destroy_db2 | bool
 
 - name:                    Kill all db2 processes
   shell:                   ps -ef | grep db2 | awk {'print $2'} | xargs kill -9
   ignore_errors:           true
   tags:                    db2_cleanup
   when:
-   - __force_destroy_db2 == true
+   - __force_destroy_db2 | bool
 
 - name:                    Cleanup DB2 folders
   file:
@@ -75,7 +76,7 @@
     state:                 absent
   tags:                    db2_cleanup
   when:
-   - __force_destroy_db2 == true
+   - __force_destroy_db2 | bool
   with_items:
    - "{{ __db2_instance_fenced_homedir }}"
    - "{{ __db2_instance_homedir }}"
@@ -87,7 +88,7 @@
     state:                 absent
   tags:                    tdi_cleanup
   when:
-   - __force_destroy_tdi == true
+   - __force_destroy_tdi | bool
   with_items:
    - "{{ __tdi_sol_dest }}"
    - "{{ __tdi_user_install_dir }}"
@@ -98,7 +99,7 @@
   ignore_errors:           true
   tags:                    ihs_cleanup
   when:
-   - __force_destroy_ihs == true
+   - __force_destroy_ihs | bool
 
 - name:                    Cleanup IHSs folders
   file:
@@ -107,7 +108,7 @@
   tags:                    ihs_cleanup
   ignore_errors:           true
   when:
-   - __force_destroy_ihs == true
+   - __force_destroy_ihs | bool
   with_items:
    - "{{ __ihs_install_location }}"
    - "{{ __iim_install_location }}"
@@ -120,7 +121,7 @@
   ignore_errors:           true
   tags:                    was_cleanup
   when:
-   - __force_destroy_websphere == true
+   - __force_destroy_websphere | bool
 
 - name:                    Cleanup WebSphere/Connections folders
   file:
@@ -129,7 +130,7 @@
   tags:                    was_cleanup
   ignore_errors:           true
   when:
-   - __force_destroy_websphere == true
+   - __force_destroy_websphere | bool
   with_items:
    - "{{ __iim_install_location_dir }}"
    - "{{ __websphere_base_location }}"
@@ -141,7 +142,7 @@
   ignore_errors:           true
   tags:                    oracle_cleanup
   when:
-   - __force_destroy_oracle == true
+   - __force_destroy_oracle | bool
 
 - name:                    Cleanup oracle folders
   file:
@@ -149,7 +150,7 @@
     state:                 absent
   tags:                    oracle_cleanup
   when:
-   - __force_destroy_oracle == true
+   - __force_destroy_oracle | bool
   with_items:
    - "{{ __ora_rsp_oracle_base }}"
    - "{{ __oraclfmap_oracle_base }}"

@@ -22,7 +22,8 @@
   shell:                     kubectl cluster-info | head -1
   register:                  cluster_flavor_check
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
+  changed_when:              false
 
 - debug: var=cluster_flavor_check
   run_once: true
@@ -32,7 +33,7 @@
   changed_when:              true
   register:                  helm_version
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
 
 - name:                      Check if prom-operator is already deployed helm2
   shell:                     helm ls | grep prom-operator | grep -i DEPLOYED
@@ -42,7 +43,7 @@
   changed_when:              true
   register:                  prom_operator_already_provisioned_helm2
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
 
 - name:                      Check if prom-operator is already deployed helm3
   shell:                     helm ls --all-namespaces | grep prom-operator | grep -i DEPLOYED
@@ -52,7 +53,7 @@
   changed_when:              true
   register:                  prom_operator_already_provisioned_helm3
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
 
 - name:                      Delete CRD if required helm-2
   shell: |

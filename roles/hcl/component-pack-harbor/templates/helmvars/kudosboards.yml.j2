@@ -3,11 +3,12 @@
 
 global:
   repository: {{ __huddoboards_registry_url }}
-  imagePullSecret: {{ __huddoboards_credentials_name }} 
+  imagePullSecret: {{ __huddoboards_credentials_name }}
   env:
     APP_URI: https://{{ frontend_fqdn }}/boards
 
 minio:
+  enabled: true
   image:
     tag: {{ __huddoboards_image_tag }}
   nfs:
@@ -16,17 +17,20 @@ minio:
   persistentVolumePath: {{ persistentVolumePath }}
 {% endif %}
 
+s3:
+  enabled: false
+
 app:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
 
 notification:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
 
 webfront:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
   env:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
     FORCE_POLLING: "true"
@@ -35,7 +39,7 @@ webfront:
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
-{% if  __ingress_multi_domain_enabled == "true"  %}
+{% if __ingress_multi_domain_enabled | bool %}
     - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
 {% if  load_balancer_dns != frontend_fqdn %}
     - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
@@ -49,13 +53,13 @@ webfront:
 
 core:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
   ingress:
     # This hostname must match other Ingresses defined in your CP environment
     # If all ingresses start with * you must match the pattern, or all traffic will be routed to Boards and everything will break
     # kubectl get ingresses --all-namespaces
     hosts:
-{% if  __ingress_multi_domain_enabled == "true"  %}
+{% if __ingress_multi_domain_enabled | bool %}
     - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
 {% if  load_balancer_dns != frontend_fqdn %}
     - "*.{{ frontend_fqdn.split('.', 1)[1] }}"
@@ -69,7 +73,7 @@ core:
 
 licence:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
   env:
     # Register your Organisation and download your Free 'Activities Plus' licence key from store.kudosapps.com
     LICENCE: {{ __huddo_boards_licence }}
@@ -82,7 +86,7 @@ licence:
 
 user:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
   env:
     # CONNECTIONS_NAME: HCL Connections
     CONNECTIONS_CLIENT_ID: kudosboards
@@ -92,11 +96,11 @@ user:
 
 provider:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
 
 events:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
   env:
     NOTIFIER_EMAIL_HOST: smtp.example.com
     NOTIFIER_EMAIL_USERNAME: user123
@@ -106,7 +110,7 @@ events:
 
 migration:
   image:
-    tag: {{ __huddoboards_image_tag }}  
+    tag: {{ __huddoboards_image_tag }}
   env:
     API_GATEWAY: https://{{ frontend_fqdn }}/api-boards
     CONNECTIONS_ACTIVITIES_ADMIN_USERNAME: connectionsadmin

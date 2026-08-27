@@ -15,7 +15,7 @@
   changed_when:       true
   register:           calico_already_provisioned
   become_user:        "{{ __kubectl_user }}"
-  ignore_errors:      true
+  failed_when:        false
 
 - name:              Uninstall old version of calico
   command:           kubectl delete -f /tmp/calico.yaml --ignore-not-found=true

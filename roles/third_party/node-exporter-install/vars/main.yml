@@ -11,6 +11,6 @@ __prometheus_exporters_common_log_dir:   "/var/log/prometheus"
 __prometheus_node_exporter_version:      "0.18.1"
 __prometheus_node_exporter_release_name: "node_exporter-{{ __prometheus_node_exporter_version }}.linux-amd64"
 
-__prometheus_url:                        "{% if prometheus_node_exporter_url is not defined %}{% if __prometheus_node_exporter_version is version_compare('0.13.0', '>=') %}https://github.com/prometheus/node_exporter/releases/download/v{{ __prometheus_node_exporter_version }}/{{ __prometheus_node_exporter_release_name }}.tar.gz{% else %}https://github.com/prometheus/node_exporter/releases/download/{{ __prometheus_node_exporter_version }}/{{ __prometheus_node_exporter_release_name }}.tar.gz{% endif %}{% else %}{{ prometheus_node_exporter_url }}{% endif %}"
+__prometheus_url:                        "{% if prometheus_node_exporter_url is not defined %}{% if __prometheus_node_exporter_version is version('0.13.0', '>=') %}https://github.com/prometheus/node_exporter/releases/download/v{{ __prometheus_node_exporter_version }}/{{ __prometheus_node_exporter_release_name }}.tar.gz{% else %}https://github.com/prometheus/node_exporter/releases/download/{{ __prometheus_node_exporter_version }}/{{ __prometheus_node_exporter_release_name }}.tar.gz{% endif %}{% else %}{{ prometheus_node_exporter_url }}{% endif %}"
 
 __node_exporter_port:                    "{{ node_exporter_port | default('9108') }}"

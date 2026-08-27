@@ -23,7 +23,7 @@
     creates:                "{{ __ds_instance_dir }}"
   register:                  dscreate_result
   become:                    true
-  failed_when:              dscreate_result.rc != 0
+  failed_when:               dscreate_result.rc != 0
   when:
     - not ldap_database_already_created.stat.exists
 

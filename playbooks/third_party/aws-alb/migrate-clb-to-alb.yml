@@ -1,0 +1,255 @@
+# Migrate DNS from Classic Load Balancer (CLB) to Application Load Balancer (ALB)
+#
+# This playbook switches a Route 53 record from a CLB to an existing ALB and
+# optionally decommissions the CLB afterward.
+#
+# Prerequisites:
+#   1. ALB must already be created (via setup-app-load-balancer.yml)
+#   2. ALB target groups should show healthy targets
+#   3. The CLB is still serving traffic on the DNS record
+#
+# Required variables (pass via group_vars or -e):
+#   clb_name              Name of the Classic Load Balancer to migrate from
+#   dns_record            The Route 53 FQDN to update (e.g. connections.cnx-example.net)
+#
+# Optional variables:
+#   hostedzone            Route 53 hosted zone (default: cnx-example.net)
+#   region                AWS region (default: us-east-2)
+#   alb_name              ALB name prefix — must match the prefix used by setup-app-load-balancer.yml.
+#                         When omitted, derived from dns_record (characters before the first dot).
+#   decommission_clb      Set to true to delete the CLB after DNS switch (default: false)
+#
+# Usage:
+#   # Step 1: Switch DNS from CLB to ALB
+#   ansible-playbook -i environments/<env>/inventory.ini \
+#     playbooks/third_party/aws-alb/migrate-clb-to-alb.yml \
+#     -e clb_name=my-classic-lb \
+#     -e dns_record=connections.cnx-example.net
+#
+#   # Step 2: After grace period, decommission the CLB
+#   ansible-playbook -i environments/<env>/inventory.ini \
+#     playbooks/third_party/aws-alb/migrate-clb-to-alb.yml \
+#     -e clb_name=my-classic-lb \
+#     -e dns_record=connections.cnx-example.net \
+#     -e decommission_clb=true
+---
+
+- name:                    Migrate DNS from CLB to ALB
+  hosts:                   localhost
+  connection:              local
+  gather_facts:            false
+  vars:
+    __hostedzone:          "{{ hostedzone | default('cnx-example.net') }}"
+    __region:              "{{ region | default('us-east-2') }}"
+    __alb_prefix:          "{{ alb_name | default(dns_record.split('.')[0]) }}"
+    __alb_full_name:       "{{ __alb_prefix }}-app-alb"
+    __decommission_clb:    "{{ decommission_clb | default(false) | bool }}"
+
+  tasks:
+    # --- Validation ---
+    - name:                Validate required variables
+      assert:
+        that:
+          - clb_name is defined and clb_name | length > 0
+          - dns_record is defined and dns_record | length > 0
+        fail_msg:          >-
+          Required variables missing. Pass -e clb_name=<name> -e dns_record=<fqdn>.
+
+    # --- Gather CLB info ---
+    - name:                "Look up Classic Load Balancer: {{ clb_name }}"
+      community.aws.elb_classic_lb_info:
+        names:
+          -                "{{ clb_name }}"
+        region:            "{{ __region }}"
+      register:            clb_info
+
+    - name:                Validate CLB exists
+      assert:
+        that:
+          - clb_info.elbs | length > 0
+        fail_msg:          "CLB '{{ clb_name }}' not found in region {{ __region }}."
+
+    - name:                Store CLB details
+      set_fact:
+        clb_dns_name:      "{{ clb_info.elbs[0].dns_name }}"
+        clb_hosted_zone:   "{{ clb_info.elbs[0].canonical_hosted_zone_name_id }}"
+        clb_sg_ids:        "{{ clb_info.elbs[0].security_groups }}"
+
+    - name:                Display CLB info
+      debug:
+        msg:               "CLB '{{ clb_name }}' found — DNS: {{ clb_dns_name }}"
+
+    # --- Gather ALB info ---
+    - name:                "Look up Application Load Balancer: {{ __alb_full_name }}"
+      community.aws.elb_application_lb_info:
+        names:             "{{ __alb_full_name }}"
+        region:            "{{ __region }}"
+      register:            alb_info
+
+    - name:                Validate ALB exists
+      assert:
+        that:
+          - alb_info.load_balancers | length > 0
+        fail_msg:          >-
+          ALB '{{ __alb_full_name }}' not found in region {{ __region }}.
+          Ensure the ALB was created via setup-app-load-balancer.yml first.
+
+    - name:                Store ALB details
+      set_fact:
+        alb_dns_name:      "{{ alb_info.load_balancers[0].dns_name }}"
+        alb_hosted_zone:   "{{ alb_info.load_balancers[0].canonical_hosted_zone_id }}"
+        alb_arn:           "{{ alb_info.load_balancers[0].load_balancer_arn }}"
+
+    - name:                Display ALB info
+      debug:
+        msg:               "ALB '{{ __alb_full_name }}' found — DNS: {{ alb_dns_name }}"
+
+    # --- Check ALB target group health ---
+    - name:                Get ALB target group ARNs
+      set_fact:
+        alb_tg_arns:       "{{ alb_info.load_balancers[0].availability_zones | default([]) }}"
+
+    - name:                Look up target groups for ALB
+      community.aws.elb_target_group_info:
+        region:            "{{ __region }}"
+      register:            all_tgs
+
+    - name:                Filter target groups belonging to this ALB
+      set_fact:
+        alb_tgs:           "{{ all_tgs.target_groups | selectattr('load_balancer_arns', 'contains', alb_arn) | list }}"
+
+    - name:                Check health of each ALB target group
+      command:             >-
+        aws elbv2 describe-target-health
+        --target-group-arn {{ item.target_group_arn }}
+        --region {{ __region }}
+        --query 'TargetHealthDescriptions[*].TargetHealth.State'
+        --output text
+      loop:                "{{ alb_tgs }}"
+      loop_control:
+        label:             "{{ item.target_group_name }}"
+      register:            tg_health_results
+      changed_when:        false
+
+    - name:                Display target group health
+      debug:
+        msg:               "{{ item.item.target_group_name }}: {{ item.stdout }}"
+      loop:                "{{ tg_health_results.results }}"
+      loop_control:
+        label:             "{{ item.item.target_group_name }}"
+
+    - name:                Warn if any target groups have unhealthy targets
+      debug:
+        msg:               >-
+          WARNING: Target group '{{ item.item.target_group_name }}' has unhealthy targets.
+          Resolve before proceeding in production.
+      loop:                "{{ tg_health_results.results }}"
+      loop_control:
+        label:             "{{ item.item.target_group_name }}"
+      when:                "'unhealthy' in item.stdout"
+
+    # --- Switch DNS ---
+    - name:                "Switch Route 53 record {{ dns_record }} from CLB to ALB"
+      amazon.aws.route53:
+        state:             present
+        zone:              "{{ __hostedzone }}"
+        record:            "{{ dns_record }}"
+        type:              A
+        alias:             true
+        alias_hosted_zone_id: "{{ alb_hosted_zone }}"
+        overwrite:         true
+        value:             "{{ alb_dns_name }}"
+
+    - name:                Display DNS switch result
+      debug:
+        msg:               >-
+          DNS record {{ dns_record }} now points to ALB {{ alb_dns_name }}.
+          Allow a few minutes for DNS propagation.
+
+    # --- Post-switch verification ---
+    - name:                Wait for DNS propagation
+      pause:
+        seconds:           30
+        prompt:            "Waiting 30 seconds for DNS propagation..."
+
+    - name:                "Verify DNS resolution for {{ dns_record }}"
+      command:             "dig +short {{ dns_record }}"
+      register:            dns_verify
+      changed_when:        false
+
+    - name:                Display DNS resolution
+      debug:
+        msg:               "{{ dns_record }} resolves to: {{ dns_verify.stdout_lines | join(', ') }}"
+
+    - name:                "Test HTTPS connectivity to {{ dns_record }}"
+      uri:
+        url:               "https://{{ dns_record }}/"
+        method:            HEAD
+        validate_certs:    false
+        follow_redirects:  none
+        status_code:       [200, 301, 302]
+        timeout:           10
+      register:            https_test
+      failed_when:         false
+
+    - name:                Display HTTPS test result
+      debug:
+        msg:               "HTTPS test: {{ https_test.status | default('FAILED - ' + (https_test.msg | default('unknown error'))) }}"
+
+    # --- Decommission CLB (gated) ---
+    - name:                "Skip CLB decommission (decommission_clb={{ __decommission_clb }})"
+      debug:
+        msg:               >-
+          CLB '{{ clb_name }}' has NOT been deleted. Keep it running for 24-48 hours
+          as a rollback target. Re-run with -e decommission_clb=true to delete.
+      when:                not __decommission_clb
+
+    - name:                "Delete Classic Load Balancer: {{ clb_name }}"
+      command:             >-
+        aws elb delete-load-balancer
+        --load-balancer-name {{ clb_name }}
+        --region {{ __region }}
+      when:                __decommission_clb
+
+    - name:                Display CLB deletion result
+      debug:
+        msg:               "CLB '{{ clb_name }}' has been deleted."
+      when:                __decommission_clb
+
+    # --- Clean up CLB security group (gated) ---
+    - name:                Attempt to delete CLB security groups
+      amazon.aws.ec2_security_group:
+        group_id:          "{{ item }}"
+        region:            "{{ __region }}"
+        state:             absent
+      loop:                "{{ clb_sg_ids }}"
+      when:                __decommission_clb
+      register:            sg_cleanup
+      failed_when:         false
+
+    - name:                Display security group cleanup results
+      debug:
+        msg:               >-
+          Security group {{ item.item }}:
+          {{ 'deleted' if item is not failed else 'skipped (still in use or already deleted)' }}
+      loop:                "{{ sg_cleanup.results }}"
+      loop_control:
+        label:             "{{ item.item }}"
+      when:                __decommission_clb
+
+    - name:                Migration summary
+      debug:
+        msg:
+          - "============================================"
+          - "CLB → ALB Migration Complete"
+          - "============================================"
+          - "DNS record:  {{ dns_record }}"
+          - "Old target:  CLB {{ clb_name }} ({{ clb_dns_name }})"
+          - "New target:  ALB {{ __alb_full_name }} ({{ alb_dns_name }})"
+          - "CLB deleted: {{ __decommission_clb }}"
+          - "============================================"
+          - "Next steps:"
+          - "  - Verify all Connections features via browser"
+          - "  - If hostname changed, run migrate-nginx-to-alb.yml for WAS/CP config updates"
+          - "  - If CLB not yet deleted, re-run with -e decommission_clb=true after grace period"
+          - "============================================"

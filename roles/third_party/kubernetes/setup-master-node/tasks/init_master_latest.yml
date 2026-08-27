@@ -9,7 +9,7 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
   become:             false
-  ignore_errors:      true
+  failed_when:        false
 
 - name:               Check if master certificate key file exists
   stat:
@@ -45,9 +45,9 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc | int == 0
+    - not is_single_node_installation | bool    
     - master_certkey_file is defined
     - not master_certkey_file.stat.exists
-    - not is_single_node_installation | bool
 
 - name:               Save master certificate key for existing cluster
   template:
@@ -56,12 +56,12 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc | int == 0
+    - not is_single_node_installation | bool    
     - master_certkey_file is defined
     - not master_certkey_file.stat.exists
     - master_certificate_key_json is defined
     - master_certificate_key_json.stdout is defined
     - "'skipped' not in master_certificate_key_json.stdout"
-    - not is_single_node_installation | bool
 
 - name:               Re-check if master certificate key file exists
   stat:
@@ -86,9 +86,9 @@
     master_certificate_key_value: "{{ master_certificate_key.content | b64decode | replace('\n', '') }}"
   when:
     - inventory_hostname == groups['k8s_masters'][0]
+    - not is_single_node_installation | bool    
     - master_certificate_key is defined
     - master_certificate_key.content is defined
-    - not is_single_node_installation | bool
 
 - name:               Initialize master for single node installation
   command:            kubeadm init --config={{ __kubeadm_config_location }}
@@ -102,8 +102,8 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc | int != 0
+    - not is_single_node_installation | bool    
     - master_certificate_key_value is defined
-    - not is_single_node_installation | bool
 
 - name:               Upload certs for existing cluster so new masters can join
   command:            kubeadm init phase upload-certs --upload-certs --certificate-key {{ master_certificate_key_value }}
@@ -111,9 +111,9 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc | int == 0
+    - not is_single_node_installation | bool    
     - master_certificate_key_value is defined
     - groups['k8s_masters'] | length > 1
-    - not is_single_node_installation | bool
 
 - name:               Generate join command
   command:            kubeadm token create --print-join-command

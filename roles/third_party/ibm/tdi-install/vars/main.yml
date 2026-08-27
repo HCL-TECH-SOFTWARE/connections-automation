@@ -1,10 +1,10 @@
 
 ---
 __tdi_upgrade:                  "{{ tdi_upgrade_enable | default(true) }}"
-__upgrade_tdi_jre:              "{{ upgrade_tdi_jre | default(false) |lower }}"
+__upgrade_tdi_jre:              "{{ upgrade_tdi_jre | default(false) }}"
 
 __cnx_major_version:            "{{ cnx_major_version | default('8') }}"
-__cnx_updates_enabled:          "{{ cnx_updates_enabled | default(false) |lower }}"
+__cnx_updates_enabled:          "{{ cnx_updates_enabled | default(false) }}"
 
 __download_location:            "{{ tdi_download_location | default('http://example.com:8001/TDI') }}"
 __oracle_download_location:     "{{ oracle_download_location | default('http://example.com:8001/Oracle') }}"
@@ -47,7 +47,7 @@ __tdi_properties_template:      "profiles_tdi.properties.j2"
 __tdi_properties_dest:          "{{ __tdi_sol_dest }}/TDI/profiles_tdi.properties"
 
 __mssql_jdbc_location:          "{{ mssql_jdbc_location | default('/opt/mssql/jdbc/lib/sqljdbc_4.1/enu/jre7') }}"
-__mssql_jdbc_jre8_location:     "{{ mssql_jdbc_location | default('/opt/mssql/jdbc/lib/sqljdbc_6.0/enu/jre8') }}"
+__mssql_jdbc_jre8_location:     "{{ mssql_jdbc_location | default('/opt/mssql/jdbc/lib/sqljdbc_13.4/enu/jars') }}"
 
 __oracle_jdbc_location:         "{{ oracle_jdbc_location | default('/opt/oracle') }}"
 

@@ -3,7 +3,8 @@
   ansible.builtin.shell: |
                                 kubectl get namespace {{ __apisix_namespace }}
   register:                     namespace_result
-  ignore_errors:                true
+  failed_when:                  false
+  changed_when:                 false
   become_user:                  "{{ __sudo_user }}"
 
 - name:                         Create namespace '{{ __apisix_namespace }}'

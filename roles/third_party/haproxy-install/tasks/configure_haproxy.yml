@@ -9,8 +9,9 @@
     dest:                    "{{ __haproxy_exec_dest }}"
     owner:                   "{{ __haproxy_user }}"
     state:                   link
+    force:                   yes
   when:
-    - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
+    - ansible_facts['distribution'] not in ['RedHat', 'SLES']
 
 - name:                      Copy init file to /etc/init.d/
   copy:
@@ -20,6 +21,14 @@
     remote_src:              yes
   when:
     - ansible_facts['distribution'] not in ['RedHat', 'AlmaLinux', 'SLES']
+
+- name:                      Install systemd unit file
+  template:
+    src:                     haproxy.service.j2
+    dest:                    /etc/systemd/system/haproxy.service
+    mode:                    '0644'
+  when:
+    - ansible_facts['distribution'] not in ['RedHat', 'SLES']
 
 - name:                      Reload systemd
   systemd:

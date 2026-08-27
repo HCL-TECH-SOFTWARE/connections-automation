@@ -17,7 +17,7 @@
   command:                          openssl req -newkey rsa:4096 -config {{ __docker_cnf_location }} -nodes -sha256 -keyout {{ __certs_folder }}/key.pem -x509 -days 365 -out {{ __certs_folder }}/cert.pem -subj "/CN={{ inventory_hostname }}"
   when:
     - inventory_hostname == groups['docker_registry'][0]
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+    - (groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1
 
 - name:                             Cleanup temp certificate
   file:
@@ -50,10 +50,10 @@
   become:                           false
 
 - name:                             Cleanup stuff on controller
-  local_action:
-    module:                         file
+  file:
     state:                          absent
     path:                           /tmp/certs
+  delegate_to:                      localhost
   become:                           false
   ignore_errors:                    yes
 
@@ -123,7 +123,7 @@
   when:
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
-   - "ansible_version.full is version_compare('2.9.999', '<=')"
+   - "ansible_version.full is version('2.9.999', '<=')"
 
 - name:                             "Save Docker Registry status when ansible_version >= 2.10"
   set_fact:
@@ -131,7 +131,7 @@
   when:
    - inventory_hostname == groups['docker_registry'][0]
    - ansible_os_family == "RedHat"
-   - "ansible_version.full is version_compare('2.10', '>=')"
+   - "ansible_version.full is version('2.10', '>=')"
 
 - name:                             Fail if Docker Registry is not running
   fail:

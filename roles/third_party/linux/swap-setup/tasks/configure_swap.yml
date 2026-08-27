@@ -1,78 +1,99 @@
-- name:                       Check if swap file exists
-  stat:
-    path:                     "{{ __swapfile_location }}"
-  register:                   swap_file_exists
-  changed_when:               false
+---
+ - name:                       Get root filesystem available space (MB)
+   ansible.builtin.shell:      df -P -B1M / | awk 'NR==2{print $4}'
+   register:                   root_avail_mb_cmd
+   changed_when:               false
 
-- name:                       Check if swap is on
-  shell:                      swapon --show | grep "{{ __swapfile_location }}"
-  register:                   swap_enabled
-  changed_when:               false
-  failed_when:                false 
+ - name:                       Set root_avail_mb
+   ansible.builtin.set_fact:
+     root_avail_mb:           "{{ root_avail_mb_cmd.stdout | int }}"
 
-- name:                       Disable swap
-  command:                    swapoff "{{ __swapfile_location }}"
-  changed_when:               false
-  failed_when:                false
-  register:                   swap_disabled
-  when: >
-    swap_file_exists.stat.exists
-    and swap_enabled.rc > 0
-    and (not swap_enabled
-       or (swap_enabled and swap_file_exists.stat.size != ({{ __swapfile_size }} * 0.75 * 1024 * 1024)))
+ - name:                       Set desired swap size from __swapfile_size
+   ansible.builtin.set_fact:
+     desired_swap_size_mb:    "{{ __swapfile_size | int }}"
 
-- name:                       Remove the "{{ __swapfile_location }}"
-  file:
-    path:                     "{{ __swapfile_location }}"
-    state:                    absent
-  when:
-    - not swap_enabled
+ - name:                       Cap swap size at 10% of disk when using default
+   ansible.builtin.set_fact:
+     desired_swap_size_mb:    "{{ (root_avail_mb | int // 10) if (desired_swap_size_mb | int > root_avail_mb | int // 10) else (desired_swap_size_mb | int) }}"
+   when:                       swapfile_size is not defined
 
-- name:                       Create or change the size of the swap file
-  command:                    dd if=/dev/zero of="{{ __swapfile_location }}" count={{ __swapfile_size }} bs=1MiB
-  register:                   swap_file_created
-  when: >
-    not swap_file_exists.stat.exists
-    or swap_file_exists.stat.size != ({{ __swapfile_size }} * 0.75 * 1024 * 1024)
-  
-- name:                       Change swap file permissions
-  file:
-    path:                     "{{ __swapfile_location }}"
-    owner:                    root
-    group:                    root
-    mode:                     0600
+ - name:                       Enforce minimum swap size when using default
+   ansible.builtin.set_fact:
+     desired_swap_size_mb:    "{{ [desired_swap_size_mb | int, 2048] | max }}"
+   when:                       swapfile_size is not defined
 
-- name:                       Check if swap file is formated
-  shell:                      file "{{ __swapfile_location }}" | grep 'swap file'
-  register:                   swap_file_formatted
-  changed_when:               false
-  failed_when:                false
+ - name:                       Fail if desired swap size exceeds available disk space
+   ansible.builtin.fail:
+     msg: >-
+       CRITICAL SYSTEM RESOURCE SHORTAGE: Required swap size ({{ desired_swap_size_mb }}MB)
+       exceeds remaining available disk space ({{ root_avail_mb }}MB)!
+       Please free up disk space or adjust configuration before provisioning.
+   when:                       desired_swap_size_mb | int > root_avail_mb | int
 
-- name:                       Format swap file
-  command:                    mkswap "{{ __swapfile_location }}"
-  when:
-    - swap_file_formatted.rc > 0 or swap_file_created.changed
+ - name:                       Sync final calculated size back to HCL internal variable
+   ansible.builtin.set_fact:
+     __swapfile_size:         "{{ desired_swap_size_mb | int }}"
 
-- name:                       Add swap entry to fstab
-  mount:
-    name:                     none
-    src:                      "{{ __swapfile_location }}"
-    fstype:                   swap
-    opts:                     sw
-    passno:                   0
-    dump:                     0
-    state:                    present
+ - name:                       Check if swap file exists
+   ansible.builtin.stat:
+     path:                    "{{ __swapfile_location }}"
+   register:                  swap_file_exists
+   changed_when:              false
 
-- name:                       Turn swap on
-  shell:                      swapon -a
+ - name:                       If swap file exists and wrong size, disable and remove
+   block:
+     - name:                    Disable existing swap file
+       ansible.builtin.command: swapoff "{{ __swapfile_location }}"
+       ignore_errors:           true
 
-- name:                       Configure swappiness
-  sysctl:
-    name:                     vm.swappiness
-    value:                    1
-    state:                    present
+     - name:                    Remove existing swap file
+       ansible.builtin.file:
+         path:                  "{{ __swapfile_location }}"
+         state:                 absent
+   when:                       swap_file_exists.stat.exists and (swap_file_exists.stat.size != (desired_swap_size_mb | int * 1024 * 1024))
 
-- name:                       "Create {{ __swapfile_success }}"
-  file:
-    path:                     "{{ __swapfile_success }}" 
-    state:                    touch
+ - name:                       Create swap file
+   ansible.builtin.command:    dd if=/dev/zero of="{{ __swapfile_location }}" bs=1M count={{ desired_swap_size_mb }}
+   args:
+     creates:                  "{{ __swapfile_location }}"
+   register:                   swap_file_created
+
+ - name:                       Set swapfile permissions
+   ansible.builtin.file:
+     path:                    "{{ __swapfile_location }}"
+     owner:                    root
+     group:                    root
+     mode:                     '0600'
+
+ - name:                       Check swap signature
+   ansible.builtin.command:    blkid -o value -s TYPE "{{ __swapfile_location }}"
+   register:                   blkid_type
+   failed_when:                false
+   changed_when:               false
+
+ - name:                       Make swap if not already formatted
+   ansible.builtin.command:    mkswap "{{ __swapfile_location }}"
+   when:                       blkid_type.stdout != 'swap'
+
+ - name:                       Ensure swap is in fstab
+   ansible.posix.mount:
+     path:                    none
+     src:                     "{{ __swapfile_location }}"
+     fstype:                  swap
+     opts:                    sw
+     state:                   present
+
+ - name:                       Activate swap space
+   ansible.builtin.command:    swapon -a
+   changed_when:               false
+
+ - name:                       Configure swappiness
+   ansible.posix.sysctl:
+     name:                    vm.swappiness
+     value:                   "1"
+     state:                   present
+
+ - name:                       Create swap success marker
+   ansible.builtin.file:
+     path:                    "{{ __swapfile_success }}"
+     state:                   touch

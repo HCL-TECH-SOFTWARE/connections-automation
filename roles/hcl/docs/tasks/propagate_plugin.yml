@@ -1,10 +1,8 @@
-- name:                 Synchronize /tmp/wct_generated_plugins_docs_{{ item }} from Dmgr to each IHS server
-  synchronize:
-    src:                /tmp/wct_generated_plugins_docs_{{ hostvars[item]['inventory_hostname_short'] }}/
-    dest:               /tmp/wct_generated_plugins_docs_{{ hostvars[item]['inventory_hostname_short'] }}/
-  delegate_to:          "{{ groups['dmgr'][0] }}"
-  become:               false
-  with_items:           "{{ groups['ihs_servers'] }}"
+- name:                 Loop over IHS servers for plugin synchronization
+  include_tasks:        sync_ihs_plugins.yml
+  loop:                 "{{ groups['ihs_servers'] }}"
+  loop_control:
+    loop_var:           my_ihs_host
 
 - name:                 "Copy the files to {{ __plg_install_location }}/config/"
   copy:

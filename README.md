@@ -1,21 +1,25 @@
 # HCL Connections and Component Pack Deployment Automation Framework
 
 > [!IMPORTANT]
-> ### Upcoming Change: Ansible Controller Upgrade (CR15 & CR16) & CentOS 7 Deprecation Notice
-> 
-> **Phase 1 (Current):** The `main` branch continues to support **Ansible 2.9**. No changes required at this time.
-> 
-> **Phase 2 (CR15 Release):** When CR15 is released, it will ship with code base upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**. However, this CR15 release branch will be independent — the `main` branch will remain Ansible 2.9 compatible **without CR15 changes**.
-> 
-> **Phase 3 (CR16):** Starting with **CR16**, this automation framework will require **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. The Ansible 2.9 setup will no longer be supported.
+> ### Ansible Controller Upgrade (CR15 & CR16) & CentOS 7 Deprecation Notice
 >
-> ⚠️ **CentOS 7 Deprecation:** Since CentOS 7 is officially end of life, automation support for it will eventually be dropped. 
+> **Phase 1:** The `main` branch supported **Ansible 2.9**.
 >
-> **Action:** To prepare now, see the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) to upgrade your Ansible controller to 2.19.x. This ensures a smooth transition when you upgrade to CR15 or later.
-
+> **Phase 2 (CR15 Release - Current):** The CR15 release ships with the codebase upgraded to **ansible-core 2.19.x** running in a **Python 3.11 virtualenv**.
+>
+> 📌 **Note on `main`**: The `main` branch remains unchanged (Ansible 2.9 compatible) and does not contain CR15 updates.
+>
+> 🌿 **CR15 Branch Location**: CR15 code is available exclusively in the dedicated `CR15-release` branch.
+>
+> **Phase 3 (CR16):** Starting with **CR16**, the `main` branch will be upgraded to the same codebase, requiring **ansible-core 2.19.x** in a **Python 3.11 virtualenv**. Support for Ansible 2.9 will be formally dropped.
+>
+> **Action:** See the [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) to upgrade your Ansible controller to 2.19.x. This ensures a smooth transition when deploying CR15 or preparing for CR16.
+>
+> ⚠️ **CentOS 7 Deprecation:** Since CentOS 7 is officially end of life, automation support for it will eventually be dropped.
+>
 
 > [!NOTE]
-> Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](documentation/QUICKSTART.md) before you begin the installation.
+> Refer to the [Special Attention for WebSphere FP27 Installation/Upgrade](../QUICKSTART.md) before you begin the installation.
 
 The goal of the HCL Connections and Component Pack Deployment Automation Framework is to provide a solid foundation that can be readily adapted and customized to suit a customer’s unique Connections deployment requirements. This framework is used by the Connections team for internal deployments and can be used as an accelerator to reduce the overhead of deploying a connections environment.
 
@@ -60,11 +64,13 @@ For Component Pack for HCL Connections 8 it means:
 
 ## Requirements:
 
-* Ansible 2.9 installed on your machine
+* Ansible core 2.19.x with Python 3.11.x and Jinja2 3.1.x installed on your controller. See [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) for detailed installation instructions.
 * SSH access (passwordless makes stuff easier, but not mandatory) to the machine(s) you want to provision. Be sure that key forwarding is properly set on your controller and on all machines that you plan to manage with.
 * Your user (or any user used for the purposes of provisioning) having passwordless sudo acces on the nodes being provisioned.
+* Required Ansible collections installed via `ansible-galaxy collection install -r requirements.yml`
+* Required Python packages installed via `pip install -r pip-requirements.txt`
 
-To learn more about how to install Ansible on your local machine or Ansible controller, please check out [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
+To learn more about how to install Ansible on your local machine or Ansible controller, please check out [Controller Setup Guide](documentation/CONTROLLER_SETUP.md) or [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 
 Supported OSs:
 
@@ -72,6 +78,16 @@ Supported OSs:
 * RHEL 9
 
 NOTE: Recommended OS for this automation is AlmaLinux 9/RHEL 9. All HCL Connections, Docs and Component Pack builds are done on AlmaLinux 9/RHEL 9.  Since CentOS 7 is officially end of life, automation support for it will eventually be dropped.
+
+### System Requirements: ulimit Configuration
+
+**Important:** For CEC v2 and containerized workloads, proper file descriptor limits must be configured on all Kubernetes worker nodes. The automation framework automatically configures these limits, but understanding the requirements is critical for troubleshooting.
+
+**Key requirement:** `ulimit -n` must be set to at least **65536** on all Kubernetes worker nodes.
+
+This is especially critical for environments using **containerd v2**, where `LimitNOFILE=infinity` is no longer the default. For detailed information, verification steps, and troubleshooting guidance, see:
+
+- [System Requirements: ulimit Configuration](documentation/howtos/system_requirements_ulimit_configuration.md)
 
 ### Have files ready for download
 
@@ -118,8 +134,8 @@ Docs:
 -r-xr-xr-x.  1 root orion 737753769 Sep  7  2020 HCL_Docs_v202.zip
 
 MSSQL:
--rw-r--r--.  1 dmenges dmenges  838550 Mar  1 10:01 sqljdbc_4.1.8112.200_enu.tar.gz
--rw-r--r--.  1 dmenges dmenges 2186950 Mar  1 10:01 sqljdbc_6.0.8112.200_enu.tar.gz
+-rw-rw-r-- 1 ajaykumar-patel ajaykumar-patel    7661205 Jun 24 04:49 sqljdbc_13.4.0.0_enu.tar.gz
+-rw-rw-r-- 1 ajaykumar-patel ajaykumar-patel     838550 Jun 24 05:30 sqljdbc_4.1.8112.200_enu.tar.gz
 
 Oracle:
 -rwxr--r--.  1 root       root       3059705302 Jan 25 15:12 LINUX.X64_193000_db_home.zip

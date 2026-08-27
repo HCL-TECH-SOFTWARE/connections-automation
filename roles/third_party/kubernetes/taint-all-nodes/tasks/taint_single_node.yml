@@ -3,18 +3,19 @@
   register:               kubectl_version_output
   delegate_to:            "{{ groups['k8s_masters'][0] }}"
   run_once:               true
-  ignore_errors:          true
+  failed_when:            false
+  changed_when:           false
   become_user:            "{{ __kubectl_user }}"
 
 - name:                   Extract Kubernetes version
   set_fact:
-    kubectl_version:      "{{ kubectl_version_output.stdout | from_json | json_query('serverVersion.gitVersion') | replace('v', '') }}"
+    kubectl_version:      "{{ (kubectl_version_output.stdout | from_json).serverVersion.gitVersion | regex_replace('^v', '') }}"
   when:                   kubectl_version_output.stdout is defined
 
 - name:                   "[Single Node] Allow pods to run on master for kubernetes < v1.24"
   command:                kubectl taint nodes --all node-role.kubernetes.io/master- --overwrite
   when:
-   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+   - (groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1
    - inventory_hostname == groups['k8s_masters'][0]
   become_user:            "{{ __kubectl_user }}"
   ignore_errors:          true
@@ -22,7 +23,7 @@
 - name:                   "[Single Node] Allow pods to run on master for kubernetes v1.24 and above"
   command:                kubectl taint nodes --all node-role.kubernetes.io/control-plane:NoSchedule- --overwrite
   when:
-   - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== [] and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+   - (groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1
    - inventory_hostname == groups['k8s_masters'][0]
    - kubectl_version is version('1.24.0', '>=')
   become_user:            "{{ __kubectl_user }}"
@@ -33,5 +34,5 @@
     node_name:          "{{ inventory_hostname.split('.')[0]|lower if ansible_distribution == 'SLES' else inventory_hostname|lower }}"
   command:              "kubectl label nodes {{ node_name }} type=infrastructure --overwrite"
   when:
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+    - (groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1
   become_user:          "{{ __kubectl_user }}"

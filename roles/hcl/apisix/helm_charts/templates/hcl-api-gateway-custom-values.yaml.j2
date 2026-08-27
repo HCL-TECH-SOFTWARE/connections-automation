@@ -30,7 +30,7 @@ swaggerUi:
 apisix:
   # REQUIRED: List of hosts for APISIX routes
   hosts:
-{% if  __ingress_multi_domain_enabled == "true"  %}
+{% if __ingress_multi_domain_enabled | bool %}
     - "*.{{ load_balancer_dns.split('.', 1)[1] }}"
 {% if  load_balancer_dns != frontend_fqdn %}
     - "*.{{ frontend_fqdn.split('.', 1)[1] }}"

@@ -1,0 +1,41 @@
+---
+# migrate-hostname: Update WAS configuration to use the new cnx_application_ingress hostname.
+# This role updates LotusConnections-config.xml dynamicHosts, WAS SSO domains, and the WAS trust store.
+
+- name:                        "Update LCC dynamicHosts to {{ cnx_application_ingress }}"
+  xml:
+    path:                      "{{ __lcc_full_path }}"
+    namespaces:                "{{ __lcc_namespaces }}"
+    xpath:                     "{{ item.xpath }}"
+    attribute:                 "{{ item.attribute }}"
+    value:                     "{{ item.value }}"
+  with_items:
+    - { xpath: "{{ __lcc_dynamic_host_xpath }}", attribute: "enabled", value: "true" }
+    - { xpath: "{{ __lcc_dynamic_host_href_xpath }}", attribute: "href", value: "{{ __lcc_dynamic_host_href }}" }
+    - { xpath: "{{ __lcc_dynamic_host_href_xpath }}", attribute: "ssl_href", value: "{{ __lcc_dynamic_host_ssl_href }}" }
+
+- name:                        Update WAS SSO domain names
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-config-sso-update
+
+- name:                        "Check if {{ cnx_application_ingress }} is resolvable from this host"
+  command:                     "getent hosts {{ cnx_application_ingress }}"
+  register:                    dns_check
+  failed_when:                 false
+  changed_when:                false
+
+- name:                        "Add {{ cnx_application_ingress }} certificate to WAS trust store"
+  include_role:
+    name:                      roles/third_party/ibm/wasnd/was-dmgr-config-add-cert-truststore
+  vars:
+    __trust_cert_host:         "{{ cnx_application_ingress }}"
+  when:                        dns_check.rc == 0
+
+- name:                        "WARNING - trust store update skipped (DNS not resolvable)"
+  debug:
+    msg:                       >-
+      {{ cnx_application_ingress }} is not resolvable from this host.
+      The trust store cert will need to be added later after DNS (Route53) is configured.
+      Re-run this playbook or run: ansible-playbook -i <inventory>
+      playbooks/third_party/aws-alb/migrate-nginx-to-alb.yml
+  when:                        dns_check.rc != 0

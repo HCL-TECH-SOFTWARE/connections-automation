@@ -45,4 +45,5 @@
 - name:              Is Product already Installed?
   command:           "egrep {{ __was_fp_id }} /var/ibm/InstallationManager/installed.xml"
   register:          version_already_installed
-  ignore_errors:     true
+  failed_when:       false
+  changed_when:      false

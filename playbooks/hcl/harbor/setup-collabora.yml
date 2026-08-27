@@ -1,0 +1,49 @@
+﻿---
+# Deploy Collabora Online and configure the reverse proxy.
+
+- name:                    Deploy Collabora Online
+  hosts:                   component_pack_master
+  become:                  true
+  roles:
+    - roles/hcl/collabora
+
+# Configure nginx to handle Collabora WebSocket paths.
+- name:                    Configure nginx WebSocket reverse proxy for Collabora
+  hosts:                   k8s_load_balancers
+  become:                  true
+  roles:
+    - role: roles/hcl/collabora/configure-nginx
+      when: (lb_type | default('') | lower) != 'alb'
+
+# Configure IHS as HTTP/HTTPS reverse proxy for Collabora (WebSocket handled by nginx).
+- name:                    Configure IHS reverse proxy for Collabora
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - role: roles/hcl/collabora/configure-ihs
+    - role: roles/third_party/ibm/ihs/ibm-http-server-restart
+
+- name:                    Configure Ingress TLS based on cp_tls_enable
+  hosts:                   ihs_servers
+  become:                  true
+  roles:
+    - roles/hcl/component-pack-harbor/configure-ingress-tls
+  vars:
+    enable_ingress_tls:    "{{ cp_tls_enable | default(false) | bool }}"
+    triggered_by:          "collabora"
+
+# Print verification URLs
+- name:                    Collabora Online - Verification URLs
+  hosts:                   component_pack_master
+  become:                  true
+  tasks:
+    - name:                Show Collabora URLs
+      ansible.builtin.debug:
+        msg:
+          - "============================================="
+          - "Collabora Online deployment complete"
+          - "============================================="
+          - "WOPI discovery   : https://{{ collabora_server_name | default(cnx_application_ingress | default(inventory_hostname)) }}{{ ':8443' if (lb_type | default('') | lower == 'clb') else '' }}/hosting/discovery"
+          - "Admin console    : https://{{ collabora_server_name | default(cnx_application_ingress | default(inventory_hostname)) }}{{ ':8443' if (lb_type | default('') | lower == 'clb') else '' }}/browser/dist/admin/admin.html"
+          - "Cluster overview : https://{{ collabora_server_name | default(cnx_application_ingress | default(inventory_hostname)) }}{{ ':8443' if (lb_type | default('') | lower == 'clb') else '' }}/browser/dist/admin/adminClusterOverview.html"
+          - "============================================="

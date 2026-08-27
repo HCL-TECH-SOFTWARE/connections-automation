@@ -24,7 +24,7 @@
         url:              "{{ cnx_repository_url }}/{{ __cnx_package }}.sha256"
         method:              HEAD
       register: checksum_file_exists
-      ignore_errors: yes
+      failed_when: false
 
     - name:               "Download checksum file if it exists to the {{ __tmp_dir }}/cnx/{{ __cnx_package }}.sha256"
       get_url:

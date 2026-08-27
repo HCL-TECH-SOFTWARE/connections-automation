@@ -22,7 +22,7 @@
    - "db2stop force"
    - "db2start"
   when:
-    - db2_tunings_already_applied.stat.exists == false
+    - not db2_tunings_already_applied.stat.exists
 
 - name:                  "Create {{ __db2_tunings_applied }} file"
   file:

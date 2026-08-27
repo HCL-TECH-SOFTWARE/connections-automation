@@ -1,0 +1,412 @@
+- name:                        Register instance ids of frontend LB server (haproxy)
+  shell:                       cat $HOME/id_file_cp
+  register:                    cpidfile
+
+- name:                        Set fact to read frontend LB instance id
+  set_fact:
+    frontendinstances:         "{{ cpidfile.stdout_lines }}"
+
+- name:                        Register instance ids of cnx servers
+  shell:                       cat $HOME/id_file_cnx
+  register:                    cnxidfile
+
+- name:                        Set fact to read cnx server instance id
+  set_fact:
+    cnxinstances:              "{{ cnxidfile.stdout_lines }}"
+
+# Port definitions
+- set_fact:
+    mwproxyport:               "{{ ((__cp_tls_enable | bool) | ternary(__mw_proxy_port_https, __mw_proxy_port)) | int }}"
+    mwproxyprotocol:           "{{ (__cp_tls_enable | bool) | ternary('https', 'http') }}"
+    grafanaport:               31111
+    cnxport:                   443
+    collaboraport:             "{{ ((__cp_tls_enable | bool) | ternary(__controller_https_node_port, __controller_http_node_port)) | int }}"
+    collaboraprotocol:         "{{ (__cp_tls_enable | bool) | ternary('https', 'http') }}"
+
+# Build target dictionaries for ALB target group registration
+- set_fact:
+    host_mwproxy_instance:     "{{ host_mwproxy_instance | default([]) + [dict(Id=item[0], Port=item[1] | int)] }}"
+  loop:                        "{{ frontendinstances | product([mwproxyport]) | list }}"
+
+- set_fact:
+    host_grafana_instance:     "{{ host_grafana_instance | default([]) + [dict(Id=item[0], Port=item[1] | int)] }}"
+  loop:                        "{{ frontendinstances | product([grafanaport]) | list }}"
+
+- set_fact:
+    host_cnx_instance:         "{{ host_cnx_instance | default([]) + [dict(Id=item[0], Port=item[1] | int)] }}"
+  loop:                        "{{ cnxinstances | product([cnxport]) | list }}"
+
+# Build Collabora/Traefik target dict
+- set_fact:
+    host_collabora_instance:   "{{ host_collabora_instance | default([]) + [dict(Id=item[0], Port=item[1] | int)] }}"
+  loop:                        "{{ frontendinstances | product([collaboraport]) | list }}"
+
+- name:                        Gather information about cnx instance
+  amazon.aws.ec2_instance_info:
+    instance_ids:
+                               - "{{ cnxinstances.0 }}"
+    region:                    "{{ __region }}"
+  register:                    instanceinfo
+
+- name:                        Derive ALB name prefix from CNX instance Name tag
+  set_fact:
+    dnsname:                   "{{ item.tags.Name | truncate(6, True, '') }}"
+  loop:                        "{{ instanceinfo.instances }}"
+
+- name:                        Override ALB name prefix from inventory alb_name variable
+  set_fact:
+    dnsname:                   "{{ alb_name }}"
+  when:                        alb_name is defined and alb_name | length > 0
+
+# --- Security Group ---
+- name:                        Create ALB security group
+  amazon.aws.ec2_security_group:
+    name:                      "{{ dnsname }}-app-alb-sg"
+    description:               "ALB security group - allows HTTP/HTTPS from internet"
+    vpc_id:                    "{{ vpcid }}"
+    region:                    "{{ __region }}"
+    state:                     present
+    rules:
+      - proto:                 tcp
+        ports:
+          -                    80
+        cidr_ip:               0.0.0.0/0
+        rule_desc:             allow HTTP from internet
+      - proto:                 tcp
+        ports:
+          -                    443
+        cidr_ip:               0.0.0.0/0
+        rule_desc:             allow HTTPS from internet
+
+- set_fact:
+    securitygrp:               "{{ dnsname }}-app-alb-sg"
+
+# --- Pre-flight: delete target groups whose port/protocol has drifted ---
+# AWS does not allow modifying Port or Protocol on an existing target group,
+# so we must delete and let the next tasks recreate it.
+- name:                        Look up existing target groups
+  community.aws.elb_target_group_info:
+    region:                    "{{ __region }}"
+  register:                    __all_tgs
+
+- name:                        Build map of desired target groups
+  set_fact:
+    __desired_tgs:
+      - name:                  "{{ dnsname }}-mw-proxy"
+        port:                  "{{ mwproxyport | int }}"
+        protocol:              "{{ mwproxyprotocol | upper }}"
+      - name:                  "{{ dnsname }}-grafana"
+        port:                  "{{ grafanaport | int }}"
+        protocol:              HTTP
+      - name:                  "{{ dnsname }}-connections"
+        port:                  "{{ cnxport | int }}"
+        protocol:              HTTPS
+      - name:                  "{{ dnsname }}-collabora"
+        port:                  "{{ collaboraport | int }}"
+        protocol:              "{{ collaboraprotocol | upper }}"
+
+- name:                        Delete target groups with drifted port or protocol
+  community.aws.elb_target_group:
+    name:                      "{{ item.name }}"
+    state:                     absent
+    region:                    "{{ __region }}"
+  loop:                        "{{ __desired_tgs }}"
+  loop_control:
+    label:                     "{{ item.name }}"
+  vars:
+    __existing:                "{{ __all_tgs.target_groups | selectattr('target_group_name', 'equalto', item.name) | list }}"
+  when:
+    - __existing | length > 0
+    - (__existing[0].port | int) != (item.port | int) or
+      (__existing[0].protocol | upper) != (item.protocol | upper)
+
+# --- Target Groups ---
+# TG 1: mw-proxy (haproxy:{{ mwproxyport }} → workers:{{ mwproxyport }} → mw-proxy/customizer)
+- name:                        Create target group for mw-proxy (customizer paths)
+  community.aws.elb_target_group:
+    name:                      "{{ dnsname }}-mw-proxy"
+    protocol:                  "{{ mwproxyprotocol }}"
+    port:                      "{{ mwproxyport }}"
+    vpc_id:                    "{{ vpcid }}"
+    region:                    "{{ __region }}"
+    health_check_protocol:     "{{ mwproxyprotocol }}"
+    health_check_path:         /
+    health_check_port:         "{{ mwproxyport }}"
+    successful_response_codes: "200,301"
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   3
+    unhealthy_threshold_count: 2
+    targets:                   "{{ host_mwproxy_instance }}"
+    state:                     present
+
+# TG 2: grafana (haproxy:31111 → workers:31111 → Grafana)
+- name:                        Create target group for Grafana
+  community.aws.elb_target_group:
+    name:                      "{{ dnsname }}-grafana"
+    protocol:                  http
+    port:                      "{{ grafanaport }}"
+    vpc_id:                    "{{ vpcid }}"
+    region:                    "{{ __region }}"
+    health_check_protocol:     http
+    health_check_path:         /grafana/
+    health_check_port:         "{{ grafanaport }}"
+    successful_response_codes: "200,302"
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   3
+    unhealthy_threshold_count: 2
+    targets:                   "{{ host_grafana_instance }}"
+    state:                     present
+
+# TG 3: connections/IHS (IHS server:443)
+- name:                        Create target group for Connections IHS
+  community.aws.elb_target_group:
+    name:                      "{{ dnsname }}-connections"
+    protocol:                  https
+    port:                      "{{ cnxport }}"
+    vpc_id:                    "{{ vpcid }}"
+    region:                    "{{ __region }}"
+    health_check_protocol:     https
+    health_check_path:         /
+    health_check_port:         "{{ cnxport }}"
+    successful_response_codes: "200,301,302"
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   3
+    unhealthy_threshold_count: 2
+    targets:                   "{{ host_cnx_instance }}"
+    state:                     present
+
+# TG 4: Collabora Online (haproxy:32443 → Traefik → collabora-online)
+- name:                        Create target group for Collabora Online
+  community.aws.elb_target_group:
+    name:                      "{{ dnsname }}-collabora"
+    protocol:                  "{{ collaboraprotocol }}"
+    port:                      "{{ collaboraport }}"
+    vpc_id:                    "{{ vpcid }}"
+    region:                    "{{ __region }}"
+    health_check_protocol:     "{{ collaboraprotocol }}"
+    health_check_path:         /cool/hosting/discovery
+    health_check_port:         "{{ collaboraport }}"
+    successful_response_codes: "200,301,302,404"
+    health_check_interval:     15
+    health_check_timeout:      3
+    healthy_threshold_count:   3
+    unhealthy_threshold_count: 2
+    targets:                   "{{ host_collabora_instance }}"
+    state:                     present
+
+# --- ALB Creation ---
+# All listener rules are scoped in task-level vars to avoid set_fact pollution.
+- name:                        Create Application Load Balancer
+  vars:
+    __base_rules:
+      # P1: robots.txt → fixed-response 200 (block crawlers)
+      - Conditions:
+          - Field:             path-pattern
+            Values:
+              - '/robots.txt'
+        Priority:              '1'
+        Actions:
+          - Type:              fixed-response
+            FixedResponseConfig:
+              StatusCode:      "200"
+              ContentType:     text/plain
+              MessageBody:     "User-agent: *\nDisallow: /\n"
+      # P2: Customizer paths → mw-proxy
+      - Conditions:
+          - Field:             path-pattern
+            Values:
+              - '/files/customizer*'
+              - '/files/app*'
+              - '/communities/service/html*'
+              - '/forums/html*'
+              - '/search/web*'
+        Priority:              '2'
+        Actions:
+          - TargetGroupName:   "{{ dnsname }}-mw-proxy"
+            Type:              forward
+      # P3: Customizer paths continued → mw-proxy
+      - Conditions:
+          - Field:             path-pattern
+            Values:
+              - '/homepage/web*'
+              - '/social/home*'
+              - '/mycontacts*'
+              - '/wikis/home*'
+              - '/blogs*'
+        Priority:              '3'
+        Actions:
+          - TargetGroupName:   "{{ dnsname }}-mw-proxy"
+            Type:              forward
+      # P4: Customizer paths continued → mw-proxy
+      - Conditions:
+          - Field:             path-pattern
+            Values:
+              - '/news*'
+              - '/activities/service/html*'
+              - '/profiles/html*'
+              - '/viewer*'
+        Priority:              '4'
+        Actions:
+          - TargetGroupName:   "{{ dnsname }}-mw-proxy"
+            Type:              forward
+      # P5: Grafana → grafana TG
+      - Conditions:
+          - Field:             path-pattern
+            Values:
+              - '/grafana*'
+        Priority:              '5'
+        Actions:
+          - TargetGroupName:   "{{ dnsname }}-grafana"
+            Type:              forward
+    __ws_rule_cool:
+      # P6: Collabora WebSocket paths (cool + controller) → Traefik via HAProxy
+      # Matches nginx: location ~ ^/(cool|controller)/(adminws|ws|.+/ws)$
+      # ALB uses glob wildcards (* = any chars incl. /), split across P6+P7 due to 5-value limit.
+      # /browser/*, /hosting/*, and non-WS /cool/* fall through to IHS (default TG).
+      Conditions:
+        - Field:               path-pattern
+          Values:
+            - '/cool/adminws'
+            - '/cool/ws'
+            - '/cool/*/ws'
+            - '/controller/adminws'
+            - '/controller/ws'
+      Priority:                '6'
+      Actions:
+        - TargetGroupName:     "{{ dnsname }}-collabora"
+          Type:                forward
+    __ws_rule_controller:
+      # P7: Collabora controller nested WebSocket paths → Traefik via HAProxy
+      # Covers: /controller/{segment}/ws (e.g. /controller/x/ws)
+      Conditions:
+        - Field:               path-pattern
+          Values:
+            - '/controller/*/ws'
+      Priority:                '7'
+      Actions:
+        - TargetGroupName:     "{{ dnsname }}-collabora"
+          Type:                forward
+    __https_rules:             "{{ __base_rules + [__ws_rule_cool, __ws_rule_controller] }}"
+  community.aws.elb_application_lb:
+    name:                      "{{ dnsname }}-app-alb"
+    region:                    "{{ __region }}"
+    subnets:                   "{{ subnetid }}"
+    security_groups:
+      -                        "{{ securitygrp }}"
+    scheme:                    internet-facing
+    idle_timeout:              "{{ __idle_timeout }}"
+    listeners:
+      # --- HTTP Listener (port 80) - redirect all to HTTPS ---
+      - Protocol:              HTTP
+        Port:                  80
+        DefaultActions:
+          - Type:              redirect
+            RedirectConfig:
+              Protocol:        HTTPS
+              Port:            "443"
+              StatusCode:      HTTP_301
+      # --- HTTPS Listener (port 443) ---
+      - Protocol:              HTTPS
+        Port:                  443
+        SslPolicy:             "{{ __ssl_policy }}"
+        Certificates:
+          - CertificateArn:    "{{ certificatearn }}"
+        DefaultActions:
+          - Type:              forward
+            TargetGroupName:   "{{ dnsname }}-connections"
+        Rules:                 "{{ __https_rules }}"
+    state:                     present
+
+# --- Post-creation: gather ALB info ---
+- name:                        Gather information about the ALB
+  community.aws.elb_application_lb_info:
+    names:                     "{{ dnsname }}-app-alb"
+    region:                    "{{ __region }}"
+  register:                    alb_info
+
+- name:                        Display ALB DNS name
+  debug:
+    var:                       alb_info.load_balancers[0].dns_name
+
+# --- Route53 ALIAS record ---
+- name:                        Create Route53 ALIAS record pointing to ALB
+  amazon.aws.route53:
+    state:                     present
+    zone:                      "{{ __hostedzone }}"
+    record:                    "{{ dnsname + '.' + __hostedzone }}"
+    type:                      A
+    alias:                     true
+    alias_hosted_zone_id:      "{{ alb_info.load_balancers[0].canonical_hosted_zone_id }}"
+    overwrite:                 true
+    value:                     "{{ alb_info.load_balancers[0].dns_name }}"
+
+# --- Security Group Rules: allow ALB → backend instances ---
+- name:                        Get ALB security group info
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-name:              "{{ securitygrp }}"
+    region:                    "{{ __region }}"
+  register:                    alb_sg_info
+
+- name:                        Set ALB security group ID
+  set_fact:
+    alb_sg_id:                 "{{ alb_sg_info.security_groups[0].group_id }}"
+
+- name:                        Get frontend LB security group info
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-id:                "{{ __sg_frontend_lb }}"
+    region:                    "{{ __region }}"
+  register:                    frontend_sg_info
+
+- name:                        Get IHS security group info
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-id:                "{{ __sg_ihs_server }}"
+    region:                    "{{ __region }}"
+  register:                    ihs_sg_info
+
+- name:                        Add ALB ingress rules to frontend LB security group
+  amazon.aws.ec2_security_group:
+    name:                      "{{ frontend_sg_info.security_groups[0].group_name }}"
+    group_id:                  "{{ __sg_frontend_lb }}"
+    description:               "{{ frontend_sg_info.security_groups[0].description }}"
+    region:                    "{{ __region }}"
+    vpc_id:                    "{{ vpcid }}"
+    purge_rules:               false
+    purge_rules_egress:        false
+    rules:
+      - proto:                 tcp
+        ports:                 "{{ mwproxyport }}"
+        group_id:              "{{ alb_sg_id }}"
+        rule_desc:             "ALB to haproxy mw-proxy port"
+      - proto:                 tcp
+        ports:                 "{{ grafanaport }}"
+        group_id:              "{{ alb_sg_id }}"
+        rule_desc:             "ALB to haproxy grafana port"
+      - proto:                 tcp
+        ports:                 "{{ collaboraport }}"
+        group_id:              "{{ alb_sg_id }}"
+        rule_desc:             "ALB to haproxy Traefik port for Collabora"
+
+- name:                        Add ALB ingress rules to IHS security group
+  amazon.aws.ec2_security_group:
+    name:                      "{{ ihs_sg_info.security_groups[0].group_name }}"
+    group_id:                  "{{ __sg_ihs_server }}"
+    description:               "{{ ihs_sg_info.security_groups[0].description }}"
+    region:                    "{{ __region }}"
+    vpc_id:                    "{{ vpcid }}"
+    purge_rules:               false
+    purge_rules_egress:        false
+    rules:
+      - proto:                 tcp
+        ports:                 "{{ cnxport }}"
+        group_id:              "{{ alb_sg_id }}"
+        rule_desc:             "ALB to IHS HTTPS port"
+        
+- name:                        Display URL to access ALB
+  debug:
+    msg:                       "ALB is accessible at https://{{ dnsname + '.' + __hostedzone }}. Wait ~5 minutes after ALB creation for DNS propagation and ALB health checks to complete before accessing the URL."

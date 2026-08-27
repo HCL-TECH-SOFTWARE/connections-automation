@@ -11,7 +11,7 @@ __mssql_init_success_file:             "/opt/mssql/init.success"
 __mssql_setup_success_file:            "/opt/mssql/install.success"
 
 __jdbc_installation_folder:            "{{ mssql_jdbc_installation_folder | default('/opt/mssql/jdbc/lib') }}"
-__download_location:                   "{{ mssql_download_location | default('connections.internal.example.com:8001/MSSQL') }}"
+__download_location:                   "{{ mssql_download_location | default('installer1.internal.example.com:8001/MSSQL') }}"
 __package_name:                        "{{ mssql_jdbc_package_name | default('sqljdbc_6.0.8112.200_enu.tar.gz') }}"
 __package_name_legacy:                 "sqljdbc_4.1.8112.200_enu.tar.gz"
 __package_name_legacy_40:              "sqljdbc_4.0.tar.gz"
@@ -21,4 +21,4 @@ __mssql_create_admin_user:             "{{ mssql_create_admin_user | default(tru
 __mssql_admin_user_name:               "{{ db_username | default('LCUSER') }}"
 __mssql_admin_user_password:           "{{ db_password | default('Pa55w0rd') }}"
 
-__upgrade_tdi_jre:                     "{{ upgrade_tdi_jre | default(false) |lower }}"
+__upgrade_tdi_jre:                     "{{ upgrade_tdi_jre | default(false) }}"

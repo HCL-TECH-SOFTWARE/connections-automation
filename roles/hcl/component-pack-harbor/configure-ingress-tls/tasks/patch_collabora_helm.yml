@@ -1,0 +1,81 @@
+---
+# If Collabora Online is already deployed, re-render its Helm values and run
+# `helm upgrade --install` so the chart's TLS configuration (ssl.* params, TLS
+# secret volumes, ingress backend-protocol, probe scheme) matches the current
+# cp_tls_enable state. This avoids a mixed/broken state when operators toggle
+# TLS after the initial Collabora deployment, or forget to re-run TLS after
+# upgrading Collabora.
+- include_vars:              "{{ role_path }}/../../collabora/vars/main.yml"
+  run_once:                  true
+
+- name:                      Get Collabora Helm release metadata (existence + version check)
+  ansible.builtin.shell: |
+    helm get metadata {{ __collabora_release_name }} -n {{ __collabora_namespace }} \
+      -o json | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])'
+  register:                  __collabora_metadata_check
+  changed_when:              false
+  failed_when:               false
+  become_user:               "{{ __sudo_user }}"
+  delegate_to:               "{{ groups['component_pack_master'][0] }}"
+  run_once:                  true
+
+- name:                      Skip Collabora Helm patch (release not found or unable to query)
+  ansible.builtin.debug:
+    msg: >-
+      Collabora Online release '{{ __collabora_release_name }}' not found or is not accessible in
+      namespace '{{ __collabora_namespace }}'. Skipping Helm chart patch.
+  when:                      __collabora_metadata_check.rc != 0
+  run_once:                  true
+
+- name:                      Patch Collabora Helm release with current TLS state
+  when:                      __collabora_metadata_check.rc == 0
+  run_once:                  true
+  delegate_to:               "{{ groups['component_pack_master'][0] }}"
+  block:
+    - name:                  Set chart version + image-pull-secret facts for re-render
+      ansible.builtin.set_fact:
+        # Pin to the deployed version so this task never silently upgrades the chart.
+        collabora_chart_version:           "{{ __collabora_metadata_check.stdout | trim }}"
+        # Existing release was created with this secret; keep referencing it on re-render.
+        collabora_image_pull_secret_exists: true
+
+    - name:                  Ensure Helm values temp directory exists
+      ansible.builtin.file:
+        path:                "{{ __collabora_values_temp_path | dirname }}"
+        state:               directory
+        owner:               "{{ __sudo_user }}"
+        mode:                '0755'
+      become_user:           "{{ __sudo_user }}"
+
+    - name:                  Re-render Helm values for cp_tls_enable={{ cp_tls_enable | default(false) }}
+      ansible.builtin.template:
+        src:                 "{{ role_path }}/../../collabora/templates/collabora-values.yaml.j2"
+        dest:                "{{ __collabora_values_temp_path }}"
+        owner:               "{{ __sudo_user }}"
+        mode:                '0640'
+      become_user:           "{{ __sudo_user }}"
+
+    - name:                  Helm upgrade Collabora with new TLS values
+      ansible.builtin.shell: |
+        helm upgrade {{ __collabora_release_name }} \
+          {{ __collabora_oci_helm_repository }}/{{ __collabora_umbrella_chart_name }} \
+          --version "{{ collabora_chart_version }}" \
+          --namespace "{{ __collabora_namespace }}" \
+          -f "{{ __collabora_values_temp_path }}" \
+          --set-string global.annotations.source-registry="{{ __collabora_oci_helm_repository }}/{{ __collabora_umbrella_chart_name }}"
+      register:              __helm_patch_result
+      become_user:           "{{ __sudo_user }}"
+
+    - name:                  Display Helm upgrade output
+      ansible.builtin.debug:
+        var:                 __helm_patch_result.stdout_lines
+
+    - name:                  Wait for Collabora Online pods to be Ready
+      ansible.builtin.command:
+        cmd: >-
+          kubectl wait --for=condition=Ready pods
+          -n {{ __collabora_namespace }}
+          --timeout={{ __pod_wait_timeout }}
+          -l app.kubernetes.io/name=collabora-online,type=main
+      become_user:           "{{ __sudo_user }}"
+      changed_when:          false

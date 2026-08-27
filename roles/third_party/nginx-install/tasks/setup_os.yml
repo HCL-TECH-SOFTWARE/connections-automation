@@ -1,13 +1,15 @@
 - name:                     Check if Nginx is installed
   shell:                    "nginx -V"
   register:                 nginx_check
-  ignore_errors:            true
+  failed_when:              false
+  changed_when:             false
 
 - name:                     Check if more_clear_headers module is installed
   shell:                    "nginx -V 2>&1 | grep headers-more"
   register:                 nginx_headers_more_module_check
   when:                     nginx_check.rc == 0
-  ignore_errors:            true
+  failed_when:              false
+  changed_when:             false
 
 - name:                     Override __build_nginx if Nginx is installed but no more_clear_headers module
   set_fact:

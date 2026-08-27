@@ -34,3 +34,48 @@
     state:             present
   when:
     ansible_distribution == "SLES"
+
+- name:                Install prerequisites for semanage on RedHat 9
+  package:
+    name:              "{{ item }}"
+    state:             present
+  with_items:
+    - python3-libselinux
+    - python3-libsemanage
+    - policycoreutils-python-utils
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "9"
+    - ansible_distribution != "SLES"
+
+- name:                Install prerequisites for semanage on SUSE
+  package:
+    name:              "{{ item }}"
+    state:             present
+  with_items:
+    - selinux-tools
+  when:
+   - ansible_distribution == "SLES"
+
+- name:                Disable SELinux
+  selinux:
+    state:             disabled
+  ignore_errors:       true
+  notify:              reboot
+
+- name:                Stop AppArmor service
+  ansible.builtin.systemd_service:
+    name:              apparmor
+    state:             stopped
+  become:              true
+  when:
+   - ansible_distribution == "SLES"
+
+- name:                Disable AppArmor service
+  ansible.builtin.systemd_service:
+    name:              apparmor
+    enabled:           false
+  become:              true
+  notify:              reboot
+  when:
+   - ansible_distribution == "SLES"

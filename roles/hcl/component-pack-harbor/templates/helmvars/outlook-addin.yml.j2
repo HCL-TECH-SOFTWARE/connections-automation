@@ -37,7 +37,7 @@ image:
 ingress:
   controller: {{ __ingress_controller }}
   hosts:
-{% if  __ingress_multi_domain_enabled == "true"  %}
+{% if __ingress_multi_domain_enabled | bool %}
     - host: "*.{{ load_balancer_dns.split('.', 1)[1] }}"
       paths: []
 {% if  load_balancer_dns != frontend_fqdn %}

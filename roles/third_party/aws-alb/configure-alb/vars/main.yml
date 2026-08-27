@@ -1,0 +1,14 @@
+#AWS ALB Vars
+__hostedzone:                                      "{{ hostedzone | default('cnx-example.net') }}"
+__region:                                          "{{ region | default('us-east-2') }}"
+__idle_timeout:                                    "{{ idle_timeout | default(300) }}"
+__ssl_policy:                                      "{{ ssl_policy | default('ELBSecurityPolicy-TLS13-1-2-2021-06') }}"
+__cp_tls_enable:                                   "{{ cp_tls_enable | default(ingress_nginx_tls_enable | default(false)) | bool }}"
+__mw_proxy_port:                                   "{{ mw_proxy_port | default('30301') }}"
+__mw_proxy_port_https:                             "{{ mw_proxy_port_https | default('30443') }}"
+__controller_https_node_port:                      "{{ controller_https_node_port | default('32443') }}"
+__controller_http_node_port:                       "{{ controller_http_node_port | default('32080') }}"
+
+# Security group IDs for backend instances
+__sg_frontend_lb:                                  "{{ sg_frontend_lb | default('') }}"
+__sg_ihs_server:                                   "{{ sg_ihs_server | default('') }}"

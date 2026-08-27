@@ -110,6 +110,7 @@
       - { __role: "filesync-user", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "files-owner", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
       - { __role: "metrics-reader", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
+      - { __role: "collabora-editor", __everyone: "no", __allauth: "{{ __allauth_value }}", __users: '""', __groups: '""', __allauth_trusted: "{{ __allauth_trusted_value }}", __mappeduseraccessids: '""', __mappedgroupaccessids: '""' }
   with_items:
     - Files
   when:

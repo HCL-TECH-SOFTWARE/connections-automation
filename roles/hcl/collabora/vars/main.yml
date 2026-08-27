@@ -1,0 +1,80 @@
+---
+# Variables for Collabora Online Helm deployment.
+
+__sudo_user:                              "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+__collabora_namespace:                    "{{ collabora_namespace | default('connections') }}"
+__ingress_multi_domain_enabled:           "{{ ingress_multi_domain_enabled | default(false) }}"
+__lb_type:                                "{{ lb_type | default('') }}"
+__lb_tcp_port:                            "{{ lb_tcp_port | default('8443') }}"
+
+# Helm release and chart details
+__collabora_release_name:                 "{{ collabora_release_name | default('collabora-online') }}"
+__pod_wait_timeout:                       "{{ pod_wait_timeout | default('600s') }}"
+__collabora_values_temp_path:             "/home/{{ __sudo_user }}/generated_charts/collabora-values.yaml"
+
+# Collabora Enterprise (Umbrella Chart) Docker/OCI registry variables
+# Precedence: collabora_docker_registry_url (explicit) > innersource toggle > docker_registry_url (fallback)
+__collabora_docker_registry_url:          "{{ collabora_docker_registry_url | default('hclcr.io/cnx-collabora') }}"
+__collabora_docker_registry_username:     "{{ collabora_docker_registry_username | default(docker_registry_username) }}"
+__collabora_docker_registry_password:     "{{ collabora_docker_registry_password | default(docker_registry_password) }}"
+__collabora_oci_helm_repository:          "oci://{{ __collabora_docker_registry_url }}"
+__collabora_image_pull_secret:            "{{ collabora_image_pull_secret | default('myregkey') }}"
+__collabora_umbrella_chart_name:          "{{ collabora_umbrella_chart_name | default('collabora-online-umbrella') }}"
+
+# Collabora image registry and tags
+__collabora_online_image:                 "{{ collabora_online_image | default('collabora-online') }}"
+__collabora_online_image_tag:             "{{ collabora_online_image_tag | default('') }}"
+__cool_controller_image:                  "{{ cool_controller_image | default('cool-controller') }}"
+__cool_controller_image_tag:              "{{ cool_controller_image_tag | default('') }}"
+
+# server_name must match the external browser-facing FQDN (cnx_application_ingress)
+__collabora_server_name:                  "{{ collabora_server_name | default( groups['internal_lb'][0] if 'internal_lb' in groups else cnx_application_ingress | default(inventory_hostname) ) }}"
+__collabora_wopi_host:                    "{{ collabora_wopi_host | default( 'https://' ~ cnx_application_ingress | default(inventory_hostname) ) }}"
+
+__collabora_num_prespawn_children:        "{{ collabora_num_prespawn_children | default(2) }}"
+__collabora_per_doc_limit_load_secs:      "{{ collabora_per_doc_limit_load_secs | default(300) }}"
+__collabora_per_doc_idle_timeout_secs:    "{{ collabora_per_doc_idle_timeout_secs | default(300) }}"
+__collabora_extra_params:                 "{{ collabora_extra_params | default('') }}"
+
+# Admin console credentials
+__collabora_admin_secret_name:            "{{ collabora_admin_secret_name | default('collabora-admin-secret') }}"
+__collabora_admin_username:               "{{ collabora_admin_username | default('admin') }}"
+__collabora_admin_password:               "{{ collabora_admin_password | default('admin') }}"
+
+# TLS configuration
+__collabora_ingress_tls_secret:           "{{ collabora_ingress_tls_secret | default('cnx-tls-secret') }}"
+__collabora_tls_secret_mount_path:        "{{ collabora_tls_secret_mount_path | default('/etc/coolwsd/certs') }}"
+__cp_tls_enable:                          "{{ cp_tls_enable | default(false) }}"
+
+# Ingress settings
+__collabora_ingress_class:                "{{ collabora_ingress_class | default('nginx') }}"
+
+__collabora_replica_count:                "{{ collabora_replica_count | default(1) }}"
+__collabora_autoscaling_enabled:          "{{ collabora_autoscaling_enabled | default(true) }}"
+__collabora_autoscaling_minreplicas:      "{{ collabora_autoscaling_minreplicas | default(2) }}"
+__collabora_autoscaling_maxreplicas:      "{{ collabora_autoscaling_maxreplicas | default(100) }}"
+__collabora_autoscaling_mem_pct:          "{{ collabora_autoscaling_mem_pct | default(60) }}"
+__collabora_autoscaling_cpu_pct:          "{{ collabora_autoscaling_cpu_pct | default(80) }}"
+
+__collabora_memory_request:               "{{ collabora_memory_request | default('6000M') }}"
+__collabora_memory_limit:                 "{{ collabora_memory_limit | default('8000M') }}"
+__collabora_cpu_request:                  "{{ collabora_cpu_request | default('4000m') }}"
+__collabora_cpu_limit:                    "{{ collabora_cpu_limit | default('8000m') }}"
+
+# Controller-specific settings
+__controller_replica_count:               "{{ controller_replica_count | default(1) }}"
+__controller_resource_name:               "{{ controller_resource_name | default('collabora-online') }}"
+
+__controller_hashmap_parallel:            "{{ controller_hashmap_parallel | default('false') }}"
+__controller_namespaced_role:             "{{ controller_namespaced_role | default('false') }}"
+__controller_stats_interval:             "{{ controller_stats_interval | default(2000) }}"
+__controller_doc_migrator_enabled:        "{{ controller_doc_migrator_enabled | default('true') }}"
+__controller_doc_migrator_mem_util:       "{{ controller_doc_migrator_mem_util | default(60) }}"
+__controller_doc_migrator_mem_limit:      "{{ controller_doc_migrator_mem_limit | default('8000M') }}"
+__controller_leader_election:             "{{ controller_leader_election | default('false') }}"
+__controller_expected_document_memory:    "{{ controller_expected_document_memory | default('115M') }}"
+
+
+__collabora_controller_ws_service_url:   "{{ collabora_controller_ws_service_url | default(__collabora_release_name ~ '-cool-controller.' ~ __collabora_namespace ~ '.svc.cluster.local') }}"
+__collabora_controller_ws_service_port:  "{{ collabora_controller_ws_service_port | default('9000') }}"
+__collabora_controller_ws_endpoint:      "{{ collabora_controller_ws_endpoint | default('ws://' ~ __collabora_controller_ws_service_url ~ ':' ~ __collabora_controller_ws_service_port) ~ '/controller/ws' }}"

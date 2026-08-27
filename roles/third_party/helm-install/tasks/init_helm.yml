@@ -3,14 +3,14 @@
   changed_when:      true
   register:          helm_version
   become:            false
-  ignore_errors:     true
+  failed_when:       false
 
 - name:              Check Helm Version
   shell:             helm version --short|awk -F "," '{print $1}'|awk -F ":" '{print $1}'|awk -F "." '{print $1}'|sed "s/\"//g"|sed "s/v//g"
   changed_when:      true
   register:          helm_ver
   become:            false
-  ignore_errors:     true
+  failed_when:       false
 
 - debug: var=helm_version.stdout
 
@@ -24,7 +24,7 @@
   changed_when:      true
   register:          helm_already_initialized
   become:            false
-  ignore_errors:     true
+  failed_when:       false
 
 - name:              Init Helm and create tiller service account
   command:           "helm init --service-account tiller --stable-repo-url=https://charts.helm.sh/stable"

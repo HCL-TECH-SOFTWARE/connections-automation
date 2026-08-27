@@ -1,0 +1,128 @@
+# Tasks to deploy Collabora Online in the Kubernetes cluster using Helm
+
+- name:                   Check if {{ __collabora_namespace }} namespace exists
+  ansible.builtin.shell:
+    cmd:                  kubectl get namespace {{ __collabora_namespace }}
+  register:               __ns_exists
+  failed_when:            false
+  changed_when:           false
+  become_user:            "{{ __sudo_user }}"
+
+- name:                   Create {{ __collabora_namespace }} namespace
+  ansible.builtin.shell:
+    cmd:                  kubectl create namespace {{ __collabora_namespace }}
+  when:                   __ns_exists.rc != 0
+  become_user:            "{{ __sudo_user }}"
+
+- name:                   Ensure Helm values temp directory exists
+  ansible.builtin.file:
+    path:                 "{{ __collabora_values_temp_path | dirname }}"
+    state:                directory
+    owner:                "{{ __sudo_user }}"
+    mode:                 '0755'
+  become_user:            "{{ __sudo_user }}"
+
+- name:                   Render IngressClass manifest
+  ansible.builtin.template:
+    src:                  ingress-class.yaml.j2
+    dest:                 "{{ __collabora_values_temp_path | dirname }}/ingress-class.yaml"
+    owner:                "{{ __sudo_user }}"
+    mode:                 '0640'
+  become_user:            "{{ __sudo_user }}"
+
+- name:                   Create nginx compatible IngressClass
+  ansible.builtin.command:
+    cmd:                  kubectl apply -f "{{ __collabora_values_temp_path | dirname }}/ingress-class.yaml"
+  become_user:            "{{ __sudo_user }}"
+
+# --- Admin credentials secret ---
+- name:                   Create Collabora admin credentials secret
+  ansible.builtin.shell: |
+                          kubectl create secret generic {{ __collabora_admin_secret_name }} \
+                            --from-literal=admin-username="{{ __collabora_admin_username }}" \
+                            --from-literal=admin-password="{{ __collabora_admin_password }}" \
+                            -n "{{ __collabora_namespace }}" \
+                            --dry-run=client -o yaml | kubectl apply -f -
+  become_user:            "{{ __sudo_user }}"
+
+# --- Enterprise registry authentication ---
+- name:                   Login to Artifactory Helm/OCI registry
+  ansible.builtin.shell:
+    cmd:                  "helm registry login -u {{ __collabora_docker_registry_username }} -p {{ __collabora_docker_registry_password }} {{ __collabora_docker_registry_url }}"
+  become_user:            "{{ __sudo_user }}"
+  no_log:                 true
+  ignore_errors:          true     
+  register:               registry_login_result
+  when:                   __collabora_docker_registry_password | string | replace('"', '') | trim | length > 0  
+
+- name:                   Fail and report if login failed
+  ansible.builtin.fail:
+    msg:                  "Registry login failed: {{ registry_login_result | string | regex_replace(__collabora_docker_registry_password, '********') }}"
+  when:                   registry_login_result.failed | default(false)
+
+- name:                   Create image pull secret
+  ansible.builtin.shell:
+    cmd: |
+                          kubectl create secret docker-registry {{ __collabora_image_pull_secret }} \
+                            --docker-server={{ __collabora_docker_registry_url }} \
+                            --docker-username={{ __collabora_docker_registry_username }} \
+                            --docker-password={{ __collabora_docker_registry_password }} \
+                            --namespace {{ __collabora_namespace }} \
+                            --dry-run=client -o yaml | kubectl apply -f -
+  become_user:            "{{ __sudo_user }}"
+  register:               collabora_image_pull_secret_result
+  when:                   __collabora_docker_registry_password | string | replace('"', '') | trim | length > 0
+
+- name:                   Set image_pull_secret_exists fact
+  ansible.builtin.set_fact:
+    collabora_image_pull_secret_exists: "{{ collabora_image_pull_secret_result.rc == 0 }}"
+  when:                   __collabora_docker_registry_password | string | replace('"', '') | trim | length > 0
+
+- name:                   Fetch Collabora umbrella chart version from OCI
+  ansible.builtin.shell: |
+                          helm show chart {{ __collabora_oci_helm_repository }}/{{ __collabora_umbrella_chart_name }} --devel | grep -oP '^version:\s*\K\S+'
+  register:               __collabora_chart_version_raw
+  become_user:            "{{ __sudo_user }}"
+
+- name:                   Validate Collabora chart version was fetched
+  ansible.builtin.assert:
+    that:                 __collabora_chart_version_raw.stdout | length > 0
+    fail_msg:             "Failed to fetch Collabora chart version from OCI registry {{ __collabora_oci_helm_repository }}"
+
+- name:                   Set Collabora chart version fact
+  ansible.builtin.set_fact:
+    collabora_chart_version: "{{ __collabora_chart_version_raw.stdout }}"
+
+# --- Render Helm values ---
+- name:                   Render Helm values
+  ansible.builtin.template:
+    src:                  collabora-values.yaml.j2
+    dest:                 "{{ __collabora_values_temp_path }}"
+    owner:                "{{ __sudo_user }}"
+    mode:                 '0640'
+  become_user:            "{{ __sudo_user }}"
+
+# --- Deploy via Helm ---
+- name:                   Deploy Collabora Online via Helm
+  ansible.builtin.shell: |
+                          helm upgrade --install {{ __collabora_release_name }} \
+                            {{ __collabora_oci_helm_repository }}/{{ __collabora_umbrella_chart_name }} \
+                            --version "{{ collabora_chart_version }}" \
+                            --namespace "{{ __collabora_namespace }}" \
+                            -f "{{ __collabora_values_temp_path }}" \
+                            --set-string global.annotations.source-registry="{{ __collabora_oci_helm_repository }}/{{ __collabora_umbrella_chart_name }}"
+  become_user:            "{{ __sudo_user }}"
+  register:               __helm_result
+
+- name:                   Display Helm deployment output
+  ansible.builtin.debug:
+    var:                  __helm_result.stdout_lines
+
+- name:                   Wait for Collabora Online pods to be Ready
+  ansible.builtin.command:
+    cmd: >-
+                          kubectl wait --for=condition=Ready pods
+                            -n {{ __collabora_namespace }}
+                            --timeout={{ __pod_wait_timeout }}
+                            -l app.kubernetes.io/name=collabora-online,type=main
+  become_user:            "{{ __sudo_user }}"

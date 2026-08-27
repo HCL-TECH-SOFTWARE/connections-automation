@@ -29,6 +29,8 @@ See [Sample Inventories](https://github.com/HCL-TECH-SOFTWARE/connections-automa
 
 [Component Pack Infra Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#component-pack-infra-variables)
 
+[ALB Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#alb-variables)
+
 [Component Pack Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#component-pack-variables)
 
 [NFS Variables](https://github.com/HCL-TECH-SOFTWARE/connections-automation/tree/main/documentation/VARIABLES.md#nfs-variables)
@@ -75,7 +77,7 @@ setup_db2_jdbc | false | true will install jdbc drivers to WAS nodes
 db2_user | db2inst1 | DB2 Instance owner
 db2_installation_folder | /opt/IBM/db2/V12.1 | DB2 installation folder path
 db2_instance_homedir | /home/db2inst1 | DB2 Instance owner home directory
-db2_package_name | special_71609_v12.1.3_linuxx64_universal_fixpack.tar.gz | DB2 package name
+db2_package_name | v12.1.4_linuxx64_universal_fixpack.tar.gz | DB2 package name
 db2_license_file | DB2_ESE_AUSI_Activation_12.1.zip | DB2 license file name
 db2_instance | inst1 | logical Database Manager environment for DB2
 db2_instance_type | ese | DB2 instance type
@@ -158,8 +160,8 @@ Name | Default | Description
 ---- | --------| -------------
 ihs_repository_url | *none* - required | IHS install kit download location
 ihs_fixes_repository_url | *none* - required | IHS Fix Pack kit location to download
-ihs_version | 9.0.5025.20250820_1643 | IHS Fix Pack version
-wct_version | 9.0.5025.20250820_1643 | WebSphere Toolbox Fix Pack version
+ihs_version | 9.0.5027.20260306_2357 | IHS Fix Pack version
+wct_version | 9.0.5027.20260306_2357 | WebSphere Toolbox Fix Pack version
 ihs_major_version | *none* - required | Install HTTP Server major version, should be set to "9".
 ihs_username | ihsadmin | IHS admin user
 ihs_password | *none* - required | IHS admin user password
@@ -197,7 +199,7 @@ jre_package_version | ibm-java-x86_64-80 | JRE package version, used when upgrad
 jre_package_name | ibm-java-jre-8.0-5.30-linux-x86_64.tgz | JRE package file, used when upgrade_tdi_jre=true
 db_jdbc_file | /opt/IBM/db2/V11.1/java or /opt/IBM/db2/V11.5/java | DB2 JDBC driver folder
 oracle_jdbc_location | /opt/oracle | Oracle JDBC driver folder
-mssql_jdbc_location | /opt/mssql/jdbc/lib/sqljdbc_4.1/enu/jre7 or /opt/mssql/jdbc/lib/sqljdbc_6.0/enu/jre8 | MSSQL JDBC driver folder
+mssql_jdbc_location | /opt/mssql/jdbc/lib/sqljdbc_4.1/enu/jre7 | Legacy MSSQL JDBC driver folder for TDI JRE 7. Current TDI JRE 8 installs use /opt/mssql/jdbc/lib/sqljdbc_13.4/enu/jars.
 
 
 ### Connections Variables
@@ -322,16 +324,16 @@ component_pack_helm_repository | https://hclcr.io/chartrepo/cnx | Helm repo url,
 registry_user | admin | Docker Registry user name
 registry_password | password | Docker Registry user password
 overlay2_enabled | true | true enables OverlayFS storage driver
-kubernetes_version | 1.35.2 | Kubernetes version to be installed
+kubernetes_version | 1.36.2 | Kubernetes version to be installed
 kube_binaries_install_dir | /usr/bin | Kubernetes binary install directory
 kube_binaries_download_url | https://dl.k8s.io/release | Kubernetes binary download path
 ic_internal | localhost | Connections server internal frontend host (eg. IHS host)
 load_balancer_dns | localhost | Specify a DNS name for the control plane.
 pod_subnet | 192.168.0.0/16 | Specify range of IP addresses for the pod network. If set, the control plane will automatically allocate CIDRs for every node.
 kubectl_user |  ansible_env['SUDO_USER'] | Kubectl is setup for all the users listed here
-calico_version | 3.31.3 | Calico version to be installed
-helm_version | 3.19.0 | Helm version to be installed
-haproxy_version | 3.1.3 | HAProxy version to be installed. For RedHat, and AlmaLinux, the version available via the yum install command will be installed.
+calico_version | 3.32.1 | Calico version to be installed
+helm_version | 3.21.2 | Helm version to be installed
+haproxy_version | 3.4.1 | HAProxy version to be installed. AlmaLinux uses source-build like other distros. For RedHat, the version available via the yum install command will be installed.
 haproxy_url | *none* | Alternative HAProxy tar download location
 ssl_root_ca | /C=US/ST=CA/L=Sunnyvale/O=HCL America Inc/OU=Software/CN=hcltechsw.com | SSL Root CA Certificate
 nginx_version | 1.26.1 | nginx version to be installed
@@ -348,6 +350,21 @@ nginx_user | nginx | User to run the NGINX process
 nginx_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the NGINX TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
 haproxy_custom_cert_sans | unique({{cnx_component_pack_ingress}},{{cnx_application_ingress}},{{k8s_load_balancers}}) | If provided, this variable specifies the Subject Alternative Names (SANs) for the HAProxy TLS cert. The value should be a comma-separated string eg. `'lb.example.com,web.example.com,web.internal.example.com'`.
 setup_metrics_server | false | True will install Kubernetes Metrics Server (required for HPA CPU metrics)
+
+### ALB Variables
+Name | Default | Description
+---- | --------| -------------
+vpcid | *none* - required | AWS VPC ID where the Application Load Balancer and backend instances reside. This must match the VPC that contains your frontend load balancer and IHS instances.
+subnetid | *none* - required | List of AWS subnet IDs in which to create the ALB. Use at least two subnets in different Availability Zones for high availability.
+region | *none* - required | AWS region where the ALB and related resources are created (for example, `ap-south-1`).
+hostedzone | *none* - required | Route53 public hosted zone used for the ALB DNS record (for example, `cnx-example.net`).
+certificatearn | *none* - required | ACM certificate ARN bound to the ALB HTTPS listener. The certificate must cover the external Connections hostname (for example, `*.cnx-example.net`).
+idle_timeout | 300 | ALB idle timeout in seconds. Controls how long the ALB keeps idle connections open.
+ssl_policy | ELBSecurityPolicy-TLS13-1-2-2021-06 | SSL policy to use on the ALB HTTPS listener. This defines the allowed TLS protocol versions and cipher suites.
+sg_frontend_lb | *none* - required | Security group ID of the frontend load balancer (HAProxy) instance that receives customizer, Grafana, and Collabora (Traefik) traffic from the ALB.
+sg_ihs_server | *none* - required | Security group ID of the IHS/Connections server instance that receives default HTTPS traffic from the ALB.
+controller_https_node_port | 32443 | Traefik HTTPS NodePort on the HAProxy node. Used as the Collabora target group port when `cp_tls_enable` is true.
+controller_http_node_port | 32080 | Traefik HTTP NodePort on the HAProxy node. Used as the Collabora target group port when `cp_tls_enable` is false.
 
 ### Component Pack Variables
 Name | Default | Description
@@ -439,7 +456,9 @@ cnx_tls_custom_cert_sans | unique domain(\*.`{{frontend_fqdn}}`,\*.`{{load_balan
 cp_tls_enable | false | True will import the Kubernetes cnx-tls-secret secret to IHS and update IHS configuration to use TLS port for the Component Pack.
 controller_http_node_port | 32080 | HTTP NodePort for ingress traffic. Used by both ingress-nginx and Traefik.
 controller_https_node_port | 32443 | HTTPS NodePort for ingress traffic. Used by both ingress-nginx and Traefik.
+ingress_traefik_chart_version | 41.0.2 | Traefik Helm chart version
 ingress_traefik_default_class_enabled | true | Set to true to make Traefik the default ingress controller without a specified class.
+ingress_traefik_nginx_enabled | true | true will enable the Kubernetes Ingress NGINX provider.
 ingress_traefik_dashboard_enabled | false | Enable Traefik web dashboard. Access at `https://{{ cnx_component_pack_ingress }}:{{ controller_https_node_port }}/dashboard/`.
 ingress_traefik_dashboard_username | traefik-admin | Username for Traefik dashboard basic authentication. Used when `ingress_traefik_dashboard_enabled: true`.
 ingress_traefik_dashboard_password | password | Password for Traefik dashboard basic authentication. Used when `ingress_traefik_dashboard_enabled: true`.

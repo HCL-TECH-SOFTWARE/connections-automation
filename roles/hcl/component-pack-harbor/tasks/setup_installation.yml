@@ -23,4 +23,12 @@
 - name:                  "Login to Harbor OCI {{ __helm_repository }}"
   shell:                 "helm registry login -u {{ __helm_repo_username }} -p {{ __helm_repo_password }} {{ __docker_registry_url }}"
   become_user:           "{{ __sudo_user }}"
-  when:                  pool_server is not defined
+  no_log:                 true
+  ignore_errors:          true     
+  register:               registry_login_result  
+  when:                   __helm_repo_password | string | replace('"', '') | trim | length > 0  
+
+- name:                   Fail and report if login failed
+  ansible.builtin.fail:
+    msg:                  "Registry login failed: {{ registry_login_result | string | regex_replace(__helm_repo_password, '********') }}"
+  when:                   registry_login_result.failed | default(false)  
