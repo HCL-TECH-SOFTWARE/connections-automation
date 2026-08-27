@@ -5,7 +5,7 @@
   changed_when:            true
   register:                kubectl_configured
   become_user:             "{{ __sudo_user }}"
-  ignore_errors:           true
+  failed_when:             false
 
 - name:                    Fail if kubectl is not configured
   fail:

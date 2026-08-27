@@ -2,7 +2,8 @@
 - name:                       Register current db2 version
   shell:                      runuser -l "{{ __db2_user }}" -c 'db2level' | grep "DB2 v" | cut -d'"' -f 2
   register:                   db2_installed_version
-  ignore_errors:              true
+  failed_when:                false
+  changed_when:               false
   delegate_to:               "{{ item }}"
   with_items:
    - "{{ groups['db2_servers'] }}"
@@ -16,7 +17,8 @@
 - name:                       "Check if existing DB2 installed version is same as expected one to be installed"
   shell:                      grep -iq {{ __install_version_db2 }} <<< {{ db2_installed_version.results[0].stdout_lines }} && echo "true" || echo "false"
   register:                   db2_version_match
-  ignore_errors:              true
+  failed_when:                false
+  changed_when:               false
   delegate_to:               "{{ item }}"
   with_items:
    - "{{ groups['db2_servers'] }}"
@@ -25,7 +27,7 @@
   set_fact:
     __db2_default_install_path:   "/opt/IBM/db2/V11.1"
   delegate_to: "{{ item }}"
-  with_items: "{{ play_hosts }}"
+  with_items: "{{ ansible_play_batch }}"
   run_once: yes
   when:
     - db2_version_match.results[0].stdout == "false"
@@ -35,7 +37,7 @@
   set_fact:
     __db2_default_install_path:   "/opt/IBM/db2/V11.5"
   delegate_to: "{{ item }}"
-  with_items: "{{ play_hosts }}"
+  with_items: "{{ ansible_play_batch }}"
   run_once: yes
   when:
     - db2_version_match.results[0].stdout == "false"

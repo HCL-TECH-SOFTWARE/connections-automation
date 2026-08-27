@@ -1,9 +1,9 @@
 ---
 - name:              "Create version summary file {{ __cp_versions_file }}"
-  local_action:
-    module:          file
+  file:
     path:            "{{ __cp_versions_file }}"
     state:           touch
+  delegate_to:       localhost
   become:            false
   when:              __record_cp_versions|bool
 
@@ -12,7 +12,7 @@
   changed_when:      true
   register:          helm_installed
   become_user:       "{{ __sudo_user }}"
-  ignore_errors:     true
+  failed_when:       false
 
 - name:              Fail if Helm is not installed
   fail:
@@ -23,9 +23,9 @@
 - debug:             var=helm_installed.stdout
 
 - name:              Record Helm version
-  local_action:
-    module:          shell
+  shell:
     cmd:             printf '%s\n' "" "----- {{ ansible_date_time.date }} {{ ansible_date_time.time }} -----" "Helm version:" "{{ helm_installed.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:       localhost
   become:            false
   when:              __record_cp_versions|bool
 
@@ -34,7 +34,7 @@
   changed_when:      true
   register:          kubectl_configured
   become_user:       "{{ __sudo_user }}"
-  ignore_errors:     true
+  failed_when:       false
 
 - name:              Fail if kubectl is not configured
   fail:
@@ -45,9 +45,9 @@
 - debug:             var=kubectl_configured.stdout.split('\n')
 
 - name:              Record K8s status
-  local_action:
-    module:          shell
+  shell:
     cmd:             printf '%s\n' "K8s status:" "{{ kubectl_configured.stdout }}" "" >> "{{ __cp_versions_file }}"
+  delegate_to:       localhost
   become:            false
   when:              __record_cp_versions|bool
 

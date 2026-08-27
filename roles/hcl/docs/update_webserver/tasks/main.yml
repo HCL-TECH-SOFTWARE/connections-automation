@@ -6,7 +6,7 @@
       grep -E '<Uri .*Name="/docs/.*>' "{{ __plg_install_location }}/config/{{ inventory_hostname_short }}/plugin-cfg.xml"
     register:                is_docs_in_plugin_cfg
     failed_when:             false
-    changed_when:            false 
+    changed_when:            false
     when:                    inventory_hostname in groups["ihs_servers"][0]
 
   - name:                    Set fact if Docs URI is found

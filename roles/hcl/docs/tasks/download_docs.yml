@@ -89,7 +89,8 @@
 - name:                  Get default python version on RHEL 8 (for v2.0.1)
   command:               python --version
   register:              python_default_version
-  ignore_errors:         true
+  failed_when:           false
+  changed_when:          false
   when:
     - __docs_install_version is version('2.0.2', '<')
     - ansible_os_family == "RedHat"

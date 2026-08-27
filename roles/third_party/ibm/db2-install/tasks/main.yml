@@ -3,7 +3,7 @@
   shell:                      ps -ef | grep "{{ __db2_instance_name }}" | grep -v root
   changed_when:               true
   register:                   db2_running
-  ignore_errors:              true
+  failed_when:                false
   delegate_to:               "{{ item }}"
   with_items:
    - "{{ groups['db2_servers'] }}"

@@ -5,7 +5,7 @@
                             kubectl delete secret {{ __hcl_api_gateway_image_pull_secret_name }} -n {{ __apisix_namespace }}
   become_user:              "{{ __sudo_user }}"
   ignore_errors:            true
-  when:                     pool_server is not defined
+  when:                     __hcl_api_gateway_docker_registry_password | string | replace('"', '') | trim | length > 0
 
 - name:                     Create image pull secret
   ansible.builtin.shell:
@@ -17,18 +17,26 @@
                               --namespace {{ __apisix_namespace }}
   become_user:              "{{ __sudo_user }}"
   register:                 hcl_api_gateway_image_pull_secret_created_result
-  when:                     pool_server is not defined
+  when:                     __hcl_api_gateway_docker_registry_password | string | replace('"', '') | trim | length > 0
 
 # Set a fact based on the image pull secret creation result
 - name: Set image_pull_secret_exists fact
   ansible.builtin.set_fact:
     hcl_api_gateway_image_pull_secret_exists: "{{ hcl_api_gateway_image_pull_secret_created_result.rc == 0 }}"
-  when:                     pool_server is not defined
+  when:                     __hcl_api_gateway_docker_registry_password | string | replace('"', '') | trim | length > 0
 
 - name:                     "Login to OCI {{ __hcl_api_gateway_docker_registry_url }}"
   ansible.builtin.shell:    "helm registry login -u {{ __hcl_api_gateway_docker_registry_username }} -p {{ __hcl_api_gateway_docker_registry_password }} {{ __hcl_api_gateway_docker_registry_url }}"
   become_user:              "{{ __sudo_user }}"
-  when:                     pool_server is not defined
+  no_log:                   true
+  ignore_errors:            true     
+  register:                 registry_login_result  
+  when:                     __hcl_api_gateway_docker_registry_password | string | replace('"', '') | trim | length > 0
+
+- name:                     Fail and report if login failed
+  ansible.builtin.fail:
+    msg:                    "Registry login failed: {{ registry_login_result | string | regex_replace(__hcl_api_gateway_docker_registry_password, '********') }}"
+  when:                     registry_login_result.failed | default(false)
 
 - name:                      Get HCL CNX APISIX Helm Chart and version harbor OCI
   shell:                     "helm show all {{ __hcl_api_gateway_oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }} --devel | grep -oP '^version:\\s*\\K[^ ]+'"
@@ -82,7 +90,8 @@
                               --version "{{ hcl_api_gateway_chart_version.stdout }}" \
                               --namespace "{{ __apisix_namespace }}" \
                               -f {{ __hcl_api_gateway_custom_values_temp_path }} \
-                              --wait --timeout {{ __hcl_api_gateway_helm_timeout }}
+                              --wait --timeout {{ __hcl_api_gateway_helm_timeout }} \
+                              --set-string global.annotations.source-registry="{{ __hcl_api_gateway_oci_helm_repository }}/{{ __hcl_api_gateway_chart_name }}"
   become_user:              "{{ __sudo_user }}"
 
 - name:                     Wait for HCL CNX APISIX pods to be ready

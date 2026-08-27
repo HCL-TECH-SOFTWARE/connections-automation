@@ -20,7 +20,7 @@
 - name: restrict_reader_access__trusted_realms should be set to true
   assert:
     that:
-    - restrict_reader_access__trusted_realms|bool == true
+    - restrict_reader_access__trusted_realms | bool
     msg: "Set the value of 'restrict_reader_access__trusted_realms' to true in the inventory file."
 
 - name: was_username should be defined

@@ -176,7 +176,7 @@
       changed_when:          true
       register:              prom_operator_already_provisioned
       become_user:           "{{ __sudo_user }}"
-      ignore_errors:         true
+      failed_when:           false
 
     - name:                  Render cnx_ingress_values.j2 from local host to remote host $HOME/cnx-ingress-values.yml (relative path, ./template/)
       template:
@@ -268,11 +268,19 @@
       become_user:           "{{ __sudo_user }}"
       when:                  __ingress_traefik_dashboard_enabled | bool
 
+    - name:                  Update Traefik CRDs - Vanilla Kubernetes
+      shell:                 >
+        helm show crds traefik/traefik --version {{ __ingress_traefik_chart_version }}
+        | kubectl apply --server-side --force-conflicts -f -
+      become_user:           "{{ __sudo_user }}"
+      when:
+       - ("api." not in cluster_flavor_check.stdout)
+
     - name:                  Install Traefik - Vanilla Kubernetes
       shell:                 >
         helm upgrade cnx-ingress traefik/traefik
         --install
-        --version 39.0.8
+        --version {{ __ingress_traefik_chart_version }}
         --namespace {{ __default_namespace }}
         -f {{ __ansible_cache_charts }}/cnx-ingress-traefik-values.yml
         --wait
@@ -281,17 +289,25 @@
        - ("api." not in cluster_flavor_check.stdout)
       become_user:           "{{ __sudo_user }}"
 
+    - name:                  Clean up old Traefik chart downloads - OpenShift
+      file:
+        path:                "{{ __ansible_cache_charts }}/traefik"
+        state:               absent
+      become_user:           "{{ __sudo_user }}"
+      when:
+       - ("api." in cluster_flavor_check.stdout)      
+
     - name:                  Download and Prepare the Traefik Helm Chart - OpenShift
-      shell:                 >
-        helm pull traefik/traefik --version 39.0.8 --untar --destination {{ __ansible_cache_charts }}
-        rm {{ __ansible_cache_charts }}/traefik/crds/gateway-standard-install.yaml
+      shell:                 |
+        helm pull traefik/traefik --version {{ __ingress_traefik_chart_version }} --untar --destination {{ __ansible_cache_charts }}
+        rm -f {{ __ansible_cache_charts }}/traefik/crds/gateway-standard-install.yaml
       become_user:           "{{ __sudo_user }}"
       when:
        - ("api." in cluster_flavor_check.stdout)
 
     - name:                  Install Traefik Custom Resource Definitions (CRDs) - OpenShift
       shell:                 >
-        kubectl apply -f {{ __ansible_cache_charts }}/traefik/crds/ --server-side
+        kubectl apply -f {{ __ansible_cache_charts }}/traefik/crds/ --server-side --force-conflicts
       when:
        - ("api." in cluster_flavor_check.stdout)
       become_user:           "{{ __sudo_user }}"

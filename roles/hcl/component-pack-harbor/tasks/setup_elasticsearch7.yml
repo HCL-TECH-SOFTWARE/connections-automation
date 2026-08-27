@@ -25,9 +25,9 @@
     msg:                     "{{ elasticsearch7_chart_version.stdout }}"
 
 - name:                      Record elasticsearch7 chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "elasticsearch7 chart = {{ elasticsearch7_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 

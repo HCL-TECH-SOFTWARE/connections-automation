@@ -1,10 +1,10 @@
 - name:                  "Going to update tdisol from Connections kit: {{ __cnx_updates_enabled }} "
   debug:
-    var:                 "{{ __cnx_updates_enabled }}"
+    var:                 __cnx_updates_enabled
 
-- name:                  "Going to update tdisol from a separate tdisol tar: {{ tdi_sol_location }}"
+- name:                  "Going to update tdisol from a separate tdisol tar: {{ tdi_sol_location | default('N/A') }}"
   debug:
-    var:                 tdi_sol_location is defined
+    var:                 tdi_sol_location
   when:
     - tdi_sol_location is defined
 
@@ -155,7 +155,7 @@
     dest:                "{{ __jdbc_destination }}"
     remote_src:          yes
   with_items:
-   - "sqljdbc42.jar"
+   - "mssql-jdbc-13.4.0.jre8.jar"
   when:
     - "'mssql_servers' in groups"
     - "'1.8' in jre_version_stat.stdout"

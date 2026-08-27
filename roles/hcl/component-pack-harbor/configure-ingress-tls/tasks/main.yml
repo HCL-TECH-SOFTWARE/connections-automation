@@ -9,7 +9,7 @@
       grep -q 'backend masters_mwproxy_https' "{{ __haproxy_config_file }}" || \
       { echo "HAProxy mwproxy_https configuration is missing. Please run the setup-haproxy playbook first."; exit 1; }
     fi
-  changed_when:              false
+  changed_when: false
   delegate_to:               "{{ item }}"
   loop:                      "{{ groups['k8s_load_balancers'] | default([]) }}"
   when:
@@ -20,3 +20,10 @@
   include_tasks:             update_nginx_conf.yml
   when:
     - triggered_by is not defined or triggered_by != 'apisix'
+    - (lb_type | default('')) != 'alb'
+
+# Skip when triggered by 'apisix' or 'collabora' since those playbooks will call the necessary TLS configuration tasks directly and we want to avoid redundant execution.
+- name:                      Patch Collabora Online Helm chart to match TLS state
+  include_tasks:             patch_collabora_helm.yml
+  when:
+    - triggered_by is not defined or triggered_by not in ['apisix', 'collabora']

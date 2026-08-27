@@ -15,11 +15,11 @@
   when:               inventory_hostname == groups['k8s_masters'][0]
 
 - name:               Ensure .kube temp directory exists on controller
-  local_action:
-    module:           file
+  file:
     path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}/.kube"
     state:            directory
     mode:             '0755'
+  delegate_to:        localhost
   run_once:           true
   become:             false
 
@@ -47,10 +47,10 @@
   become_user:        "{{ __kubectl_user }}"
 
 - name:               Cleanup .kube on controller
-  local_action:
-    module:           file
+  file:
     state:            absent
     path:             "/tmp/.kube_{{ groups['k8s_masters'][0] }}"
+  delegate_to:        localhost
   become:             false
   ignore_errors:      yes
   when:               cleanup_kube_on_controller | default(true) | bool

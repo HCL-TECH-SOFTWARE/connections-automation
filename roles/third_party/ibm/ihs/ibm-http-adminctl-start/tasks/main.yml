@@ -2,7 +2,8 @@
 - name:          "Is AdminCtl Running?"
   shell:         ps -p `cat "{{ __ihs_install_location }}/logs/admin.pid"`
   register:      ihs_is_running
-  ignore_errors: true
+  failed_when:   false
+  changed_when:  false
 
 - name:          "Start AdminCtl"
   command:       "{{ __ihs_install_location }}/bin/adminctl start"
@@ -14,7 +15,8 @@
 - name:          "Is AdminCtl Running?"
   shell:         ps -p `cat "{{ __ihs_install_location }}/logs/admin.pid"`
   register:      ihs_is_running
-  ignore_errors: true
+  failed_when:   false
+  changed_when:  false
   when:          (ihs_start.rc is defined) and (ihs_start.rc == 0)
 
 - name:          Wait 10 seconds for AdminCtl to activate

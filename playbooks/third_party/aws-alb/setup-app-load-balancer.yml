@@ -1,0 +1,16 @@
+# Setup AWS Application Load Balancer
+---
+- name:                    Get Instance ID for Frontend LB (haproxy node)
+  hosts:                   frontend_lb
+  roles:
+    - roles/third_party/aws-alb/k8s_instanceids
+
+- name:                    Get Instance IDs for CNX servers (IHS node)
+  hosts:                   was_servers
+  roles:
+    - roles/third_party/aws-alb/cnx_instanceids
+
+- name:                    Configure ALB
+  hosts:                   localhost
+  roles:
+    - roles/third_party/aws-alb/configure-alb

@@ -16,7 +16,7 @@
   shell:              "grep -q '^kind: UpgradeConfiguration' {{ __kubeadm_config_location }}"
   register:           upgrade_config_check
   ignore_errors: true
-  changed_when: false
+  changed_when:  false
   when:               inventory_hostname == groups['k8s_masters'][0] and kubeadm_config_template_exists is defined and not kubeadm_config_template_exists.failed
 
 - name:               Determine if kubeadm upgrade config is valid
@@ -41,7 +41,7 @@
 - name:               "Upgrade Kubernetes {{ inventory_hostname }} - self contained environment"
   command:            "{{ item }}"
   with_items:         "kubeadm upgrade apply v{{ __kubernetes_version }} -y"
-  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+  when:               inventory_hostname in groups["k8s_masters"] and inventory_hostname == groups['k8s_masters'][0] and (groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1
 
 - name:               "Upgrade Kubernetes cluster secondary master and workers - {{ inventory_hostname }}"
   command:            "{{ item }}"

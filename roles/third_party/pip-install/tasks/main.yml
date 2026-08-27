@@ -2,7 +2,7 @@
   shell:                      /usr/local/bin/pip --version
   changed_when:               true
   register:                   pip_already_installed
-  ignore_errors:              true
+  failed_when:                false
 
 - name:                       Download pip installer
   get_url:

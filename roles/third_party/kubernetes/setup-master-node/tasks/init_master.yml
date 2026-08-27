@@ -5,7 +5,7 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
   become:             false
-  ignore_errors:      true
+  failed_when:        false
 
 - name:               Generate certificate key
   command:            kubeadm alpha certs certificate-key
@@ -63,7 +63,7 @@
   when:
     - inventory_hostname == groups['k8s_masters'][0]
     - master_already_initialized.rc != 0
-    - ((groups.k8s_workers | difference(groups.k8s_masters) | list)== []  and (groups.k8s_masters|length) == 1 and (groups.k8s_workers|length) == 1 ) == true
+    - (groups.k8s_workers | difference(groups.k8s_masters) | list) == [] and (groups.k8s_masters | length) == 1 and (groups.k8s_workers | length) == 1
 
 - name:               Initialize master for HA with load balancer dns
   command:            kubeadm init --control-plane-endpoint "{{ __load_balancer_dns  }}:6443" --pod-network-cidr "{{ __pod_subnet }}" --upload-certs --certificate-key {{ master_certificate_key.content | b64decode | replace('\n', '') }}

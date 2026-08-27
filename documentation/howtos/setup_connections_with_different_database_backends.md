@@ -180,25 +180,25 @@ mssql_download_location=http://installer1.internal.example.com:8001/MSSQL
 
 db_username=LCUSER
 db_password=Pa55w0rd
-db_hostname=c7cl7db1.internal.cnx-dev.net
+db_hostname=db1.internal.example.com
 db_port=1433
 db_jdbc_file=/opt/mssql/jdbc/lib/sqljdbc_6.0/enu/jre8
 db_type="SQL Server"
 
-activities_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-blogs_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-dogear_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-communities_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-files_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-forums_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-homepage_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-metrics_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-mobile_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-profiles_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-push_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-wikis_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-icec_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
-ic360_db={ 'server': 'c7cl7db1.internal.cnx-dev.net' }
+activities_db={ 'server': 'db1.internal.example.com' }
+blogs_db={ 'server': 'db1.internal.example.com' }
+dogear_db={ 'server': 'db1.internal.example.com' }
+communities_db={ 'server': 'db1.internal.example.com' }
+files_db={ 'server': 'db1.internal.example.com' }
+forums_db={ 'server': 'db1.internal.example.com' }
+homepage_db={ 'server': 'db1.internal.example.com' }
+metrics_db={ 'server': 'db1.internal.example.com' }
+mobile_db={ 'server': 'db1.internal.example.com' }
+profiles_db={ 'server': 'db1.internal.example.com' }
+push_db={ 'server': 'db1.internal.example.com' }
+wikis_db={ 'server': 'db1.internal.example.com' }
+icec_db={ 'server': 'db1.internal.example.com' }
+ic360_db={ 'server': 'db1.internal.example.com' }
 ```
 
 ### Under the hood

@@ -20,7 +20,7 @@
     src:                    "{{ __db_config_template }}"
     dest:                   "{{ __openldap_servers_folder_location }}"
   when:
-    - ansible_os_family == "AlmaLinux" or "RedHat"
+    - ansible_os_family in ["AlmaLinux", "RedHat"]
 
 - name:                     Copy DB_CONFIG
   copy:

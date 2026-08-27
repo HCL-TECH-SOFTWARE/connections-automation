@@ -42,7 +42,7 @@ iim_repository_url:                              http://{{ groups['installer'][0
 was_repository_url:                              http://{{ groups['installer'][0] }}:8001/was855
 was_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was855FP29
 ihs_repository_url:                              http://{{ groups['installer'][0] }}:8001/was905
-ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was905FP25
+ihs_fixes_repository_url:                        http://{{ groups['installer'][0] }}:8001/was905FP27
 cnx_docs_download_location:                      http://{{ groups['installer'][0] }}:8001/Docs
 cnx_repository_url:                              http://{{ groups['installer'][0] }}:8001/Connections7
 component_pack_download_location:                http://{{ groups['installer'][0] }}:8001/cp

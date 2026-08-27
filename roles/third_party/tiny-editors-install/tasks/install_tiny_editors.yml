@@ -25,7 +25,7 @@
   poll:                      5
   no_log:                    true
   when:
-   - __install_tinyeditors |bool == true
+   - __install_tinyeditors | bool
 
 - name:                      "Uninstall Tiny Editors"
   expect:
@@ -39,14 +39,14 @@
   poll:                      5
   no_log:                    true
   when:
-   - __uninstall_tinyeditors |bool == true
+   - __uninstall_tinyeditors | bool
 
 - name:                      Check tinyeditors_install_performed stdout for success message
   debug:
     var:                     tinyeditors_install_performed.stdout_lines
   when:
     - tinyeditors_install_performed is defined
-    - __install_tinyeditors |bool == true
+    - __install_tinyeditors | bool
   failed_when:               "'Install complete' not in tinyeditors_install_performed.stdout"
 
 - name:                      Check tinyeditors_uninstall_performed stdout for success message
@@ -54,7 +54,7 @@
     var:                     tinyeditors_uninstall_performed.stdout_lines
   when:
     - tinyeditors_uninstall_performed is defined
-    - __uninstall_tinyeditors |bool == true
+    - __uninstall_tinyeditors | bool
     - "'No integration code detected in web resources' not in tinyeditors_uninstall_performed.stdout"
   failed_when:               "'Uninstall complete' not in tinyeditors_uninstall_performed.stdout"
 

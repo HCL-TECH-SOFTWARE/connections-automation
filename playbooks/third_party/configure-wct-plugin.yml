@@ -11,7 +11,7 @@
 - name:                    Rerun Docs update_webserver script if installed
   import_playbook:         ../hcl/update-webserver-for-docs.yml
   vars:
-    restart_ihs:           false
+    restart_ihs:           false  
   when:
     - groups['proxy_servers'] is defined
 

@@ -4,7 +4,7 @@
   register:           node_already_joined
   delegate_to:        "{{ groups['k8s_masters'][0] }}"
   become:             false
-  ignore_errors:      true
+  failed_when:        false
 
 - name:               Save join command to the file
   template:

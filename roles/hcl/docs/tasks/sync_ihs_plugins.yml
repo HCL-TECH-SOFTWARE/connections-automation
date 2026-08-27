@@ -1,0 +1,7 @@
+# sync_ihs_plugins.yml
+- name:                 "Synchronize /tmp/wct_generated_plugins_docs_{{ hostvars[my_ihs_host]['inventory_hostname_short'] }} from Dmgr to IHS"
+  synchronize:
+    src:                "/tmp/wct_generated_plugins_docs_{{ hostvars[my_ihs_host]['inventory_hostname_short'] }}/"
+    dest:               "/tmp/wct_generated_plugins_docs_{{ hostvars[my_ihs_host]['inventory_hostname_short'] }}/"
+  delegate_to:          "{{ groups['dmgr'][0] }}"
+  become:               false

@@ -2,7 +2,7 @@
   shell:                    ps -ef | grep db2 | grep -v root
   changed_when:             true
   register:                 db2_running
-  ignore_errors:            true
+  failed_when:              false
 
 - debug:
     msg:                    "DB2 is already up and running"

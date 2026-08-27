@@ -3,7 +3,7 @@
   changed_when:              true
   register:                  customizer_completed
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
 
 - name:                      Get nobody/nogroup
   set_fact:
@@ -77,14 +77,14 @@
     msg:                     "{{ customizer_chart_version.stdout }}"
 
 - name:                      Record mw-proxy chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "mw-proxy chart = {{ customizer_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade mw-proxy
-  command:                   "helm upgrade mw-proxy {{ __helm_repository_local_name }}/mw-proxy -i --version {{ customizer_chart_version.stdout }} -f {{ __customizer_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade mw-proxy {{ __helm_repository_local_name }}/mw-proxy -i --version {{ customizer_chart_version.stdout }} -f {{ __customizer_env }} --namespace {{ __default_namespace }} --wait --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/mw-proxy'"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if customizer is up and running

@@ -1,7 +1,7 @@
 __nfsMasterAddress:                          "{{ nfsMasterAddress | default( hostvars[groups['nfs_servers'][0]]['ansible_default_ipv4']['address'] ) }}"
 __nfs_master_source:                         "{{ nfs_master_source | default('/pv-connections') }}"
 
-__preserve_nfs_data:                         "{{ preserve_nfs_data | default(true) |lower }}"
+__preserve_nfs_data:                         "{{ preserve_nfs_data | default(true) }}"
 
 __cnx_message_store:                         "{{ cnx_message_store  | default('/opt/HCL/MessageStore') }}"
 __cnx_message_store_nfs:                     "{{ cnx_message_store_nfs | default('/nfs/data/messageStores') }}"

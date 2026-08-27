@@ -1,8 +1,37 @@
 ---
-- name:                 "Verifiy if Profile already exists"
+- name:                 "Verify if Profile already exists"
   stat:
     path:               "{{ __was_install_location }}/profiles/{{ __profile_name }}"
   register:             profile_already_exists
+
+- name:                 "Check if DMGR process is running"
+  shell:                "pgrep -f 'com.ibm.ws.runtime.WsServer.*dmgr'"
+  register:             dmgr_process_check
+  failed_when:          false
+  changed_when:         false
+
+- name:                 "Set DMGR running status"
+  set_fact:
+    dmgr_is_running:    "{{ dmgr_process_check.rc == 0 }}"
+
+- name:                 "Check if other WebSphere/Java processes are running"
+  shell:                "pgrep -f 'com.ibm.websphere|com.ibm.ws.runtime'"
+  register:             was_other_processes_check
+  failed_when:          false
+  changed_when:         false
+
+- name:                 "Set other WAS processes status"
+  set_fact:
+    was_other_processes_running: "{{ was_other_processes_check.rc == 0 }}"
+
+- name:                 "Force kill rogue WAS processes when profile missing"
+  shell:                "pkill -9 -f 'com.ibm.websphere|com.ibm.ws.runtime'"
+  register:             pkill_result
+  ignore_errors:        true
+  changed_when:         pkill_result.rc == 0
+  when:
+    - not profile_already_exists.stat.exists
+    - was_other_processes_running
 
 - name:                 Use small topology names
   set_fact:
@@ -34,22 +63,39 @@
     {{ __bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __rsp_file }} {{ __cluster_name }}
   register:             cout
   changed_when:         cout.rc == 0
+  failed_when: >
+    cout.rc not in [0, 1] or
+    (
+      cout.rc == 1 and
+      (
+        'WASX7023E' in ((cout.stdout | default('')) ~ (cout.stderr | default(''))) or
+        'WASX7246E' in ((cout.stdout | default('')) ~ (cout.stderr | default(''))) or
+        'AuthenticationException' in ((cout.stdout | default('')) ~ (cout.stderr | default('')))
+      )
+    )
   retries: 3
   delay: 30
-  until: cout is not search("is already in progress")
-  when:                 pool_server is not defined
-
+  until: "'is already in progress' not in ((cout.stdout | default('')) ~ (cout.stderr | default('')))"
+  when:
+    - pool_server is not defined
+    - profile_already_exists.stat.exists
+    - dmgr_is_running
+    
 - name:                 "Kill process in pid file if the cluster is not shutdown after three attempts"
   shell:                "kill -9 $(cat '{{ __was_install_location }}/profiles/{{ __app_profile_name }}/logs/{{ item }}-{{ inventory_hostname_short }}/{{ item }}-{{ inventory_hostname_short }}.pid')"
   register:             cout
-  ignore_errors:        true
+  failed_when:          false
+  changed_when:         false
   loop:                 "{{ __cluster_name.split(' ') }}"
-  when:                 pool_server is not defined
+  when:
+    - pool_server is not defined
+    - profile_already_exists.stat.exists
 
 - name:                 Verify if server is running (pool server)
   shell:                "fuser 2809/tcp"
   register:             server_is_running
-  ignore_errors:        true
+  failed_when:          false
+  changed_when:         false
   when:                 pool_server is defined
 
 - name:                 "Executing {{ __bin_dir }}/stopServer.sh {{ __cluster_name }} (pool server)"

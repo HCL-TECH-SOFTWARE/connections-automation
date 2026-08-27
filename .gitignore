@@ -1,5 +1,8 @@
 .vagrant
-cnx-automation
-
-.DS_Store
-environments/hcl
+Dockerfile.centos7
+packer.json
+playbooks/packer-all-in-one.yml
+environments/component_pack/packer
+roles/third_party/vagrant-install/
+playbooks/third_party/setup-vagrant.yml
+.vscode

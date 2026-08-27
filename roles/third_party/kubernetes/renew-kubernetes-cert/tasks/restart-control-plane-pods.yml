@@ -1,5 +1,5 @@
 ---
-  - name:                  Restart {{ item }} pod
+  - name:                  Restart control plane pod
     command:               kubectl delete pod -n kube-system -l component={{ item }}
     become:                true
     become_user:           "{{ __kubectl_user }}"
@@ -8,7 +8,7 @@
     poll:                  0
     register:              delete_apiserver
 
-  - name:                  Wait for {{ item }} pod to be ready again
+  - name:                  Wait for control plane pod to be ready again
     command:               kubectl wait --for=condition=Ready pod -n kube-system -l component={{ item }} --timeout=60s
     become:                true
     become_user:           "{{ __kubectl_user }}"

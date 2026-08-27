@@ -1,0 +1,19 @@
+[Unit]
+Description=HAProxy Load Balancer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+EnvironmentFile=-/etc/sysconfig/haproxy
+ExecStartPre={{ __haproxy_exec_dest }} -f {{ __haproxy_config_file }} -c -q
+ExecStart={{ __haproxy_exec_dest }} -Ws -f {{ __haproxy_config_file }} -p /run/haproxy.pid
+ExecReload={{ __haproxy_exec_dest }} -f {{ __haproxy_config_file }} -c -q
+ExecReload=/bin/kill -USR2 $MAINPID
+KillMode=mixed
+Restart=always
+SuccessExitStatus=143
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

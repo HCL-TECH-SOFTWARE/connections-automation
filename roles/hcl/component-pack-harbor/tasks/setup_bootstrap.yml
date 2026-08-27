@@ -4,7 +4,7 @@
   changed_when:              true
   register:                  bootstrap_already_provisioned
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
 
 - name:                      Delete bootstrap if already exists
   command:                   "helm uninstall bootstrap --namespace {{ __default_namespace }}"
@@ -73,14 +73,14 @@
     msg:                     "{{ bootstrap_chart_version.stdout }}"
 
 - name:                      Record bootstrap chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "bootstrap chart = {{ bootstrap_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade bootstrap
-  command:                   "helm upgrade bootstrap {{ __helm_repository_local_name }}/bootstrap -i --version {{ bootstrap_chart_version.stdout }} -f {{ __bootstrap_install_env }} --namespace {{ __default_namespace }} --wait"
+  command:                   "helm upgrade bootstrap {{ __helm_repository_local_name }}/bootstrap -i --version {{ bootstrap_chart_version.stdout }} -f {{ __bootstrap_install_env }} --namespace {{ __default_namespace }} --wait --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/bootstrap'"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for bootstrap to come up
@@ -92,7 +92,7 @@
   changed_when:              true
   register:                  bootstrap_successful
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
 
 - name:                      Bootstrap's pod name is
   debug:

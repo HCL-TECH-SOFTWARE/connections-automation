@@ -84,18 +84,18 @@
     msg:                     "{{ opensearch_chart_version.stdout }}"
 
 - name:                      Record opensearch chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "opensearch chart = {{ opensearch_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade opensearch master
-  command:                   "helm upgrade opensearch-master {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_master_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
+  command:                   "helm upgrade opensearch-master {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_master_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/opensearch'"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Upgrade opensearch data
-  command:                   "helm upgrade opensearch-data {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_data_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
+  command:                   "helm upgrade opensearch-data {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_data_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/opensearch'"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Wait for OpenSearch master to get ready and accept requests
@@ -165,7 +165,7 @@
   - opensearch_auto_expand_replicas is defined
 
 - name:                      Upgrade opensearch client
-  command:                   "helm upgrade opensearch-client {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_client_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m"
+  command:                   "helm upgrade opensearch-client {{ __helm_repository_local_name }}/opensearch -i --version {{ opensearch_chart_version.stdout }} -f {{ __opensearch_client_env }} --namespace {{ __default_namespace }} --set common.probe.readinessProbe.timeoutSeconds=60 --wait --timeout 10m --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/opensearch'"
   become_user:               "{{ __sudo_user }}"
 
 - name:                      Check if opensearch master is up and running

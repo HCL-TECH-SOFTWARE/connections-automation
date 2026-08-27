@@ -5,7 +5,8 @@
                             kubectl get sc {{ __apisix_storage_class_name }}
   become_user:              "{{ __sudo_user }}"
   register:                 apisix_storage_class_result
-  ignore_errors:            true
+  failed_when:              false
+  changed_when:             false
 
 - name:                     Delete old APISIX StorageClass template if exists
   file:

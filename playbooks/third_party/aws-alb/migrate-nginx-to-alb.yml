@@ -1,0 +1,219 @@
+# Migrate Connections to use ALB hostname
+#
+# Prerequisites:
+#   1. Update cnx_application_ingress in group_vars/all.yml to the new ALB hostname
+#      (e.g. connec.cnx-example.net)
+#   2. Update nginx_custom_cert_sans to include the new domain wildcard
+#      (e.g. "*.internal.example.com,*.example.com,*.cnx-example.net")
+#   3. ALB must already be created (via setup-app-load-balancer.yml)
+#   4. Set cnx_application_ingress_old to the current/old hostname (the one being replaced)
+#      Pass via extra-vars: -e cnx_application_ingress_old=old-host.example.com
+#
+# What this playbook does (in order):
+#   1. Regenerate HAProxy self-signed cert with updated SANs and restart HAProxy
+#   2. Update LotusConnections-config.xml dynamicHosts (href, ssl_href)
+#   3. Update WAS SSO domain names to include new domain
+#   4. Add new hostname certificate to WAS trust store
+#   5. Update OAuth redirect_uri for Outlook Desktop and Kudos Boards
+#   6. Update TinyEditors allowed-origins in application.conf
+#   7. Update Huddo Boards Customizer extension settings.js on NFS
+#   8. Re-deploy Component Pack Helm charts (connections-env, ingress host rules)
+#   9. Synchronize WAS nodes and restart DMGR, node agents, and CNX clusters
+#
+# Usage:
+#   ansible-playbook -i environments/<env>/inventory.ini \
+#     playbooks/third_party/aws-alb/migrate-nginx-to-alb.yml \
+#     -e cnx_application_ingress_old=old-host.example.com
+---
+
+# --- Step 0: Stop and mask Nginx (replaced by HAProxy + ALB) ---
+- name:                    Stop and mask Nginx
+  hosts:                   k8s_load_balancers
+  become:                  true
+  tasks:
+    - name:                Stop, disable and mask nginx
+      systemd:
+        name:              nginx
+        state:             stopped
+        enabled:           false
+        masked:            true
+      failed_when:         false
+
+    - name:                Remove execute permission from nginx binary
+      file:
+        path:              /usr/sbin/nginx
+        mode:              '0644'
+      failed_when:        false
+
+# --- Step 1: Regenerate HAProxy cert with new SANs & restart ---
+- name:                    Regenerate HAProxy certificate and restart
+  hosts:                   k8s_load_balancers
+  become:                  true
+  tasks:
+    - name:                Regenerate HAProxy cert and restart
+      include_role:
+        name:              roles/third_party/haproxy-install
+        tasks_from:        configure_haproxy.yml
+
+# --- Step 2–4: Update WAS config (LCC dynamicHosts, SSO, trust store) ---
+- name:                    Update WAS configuration for new hostname
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/aws-alb/migrate-hostname
+
+# --- Step 5: Update OAuth redirect_uri for apps that embed the hostname ---
+- name:                    Update OAuth client registrations
+  hosts:                   dmgr
+  become:                  true
+  tasks:
+    - name:                Update OAuth redirect_uri for Outlook Desktop
+      include_role:
+        name:              roles/third_party/ibm/wasnd/was-dmgr-update-oauth-app
+      vars:
+        app:
+          oauth_client_id:          "connections-outlook-desktop"
+          oauth_redirect_host_old:  "{{ cnx_application_ingress_old }}"
+          oauth_redirect_host_new:  "{{ cnx_application_ingress }}"
+      when:                cnx_application_ingress_old is defined
+
+    - name:                Update OAuth redirect_uri for Kudos Boards
+      include_role:
+        name:              roles/third_party/ibm/wasnd/was-dmgr-update-oauth-app
+      vars:
+        app:
+          oauth_client_id:          "kudosboards"
+          oauth_redirect_host_old:  "{{ cnx_application_ingress_old }}"
+          oauth_redirect_host_new:  "{{ cnx_application_ingress }}"
+      when:                cnx_application_ingress_old is defined
+
+    - name:                "WARNING - OAuth update skipped (cnx_application_ingress_old not set)"
+      debug:
+        msg:               >-
+          cnx_application_ingress_old is not defined.
+          Pass -e cnx_application_ingress_old=<old-hostname> to update OAuth redirect URIs.
+      when:                cnx_application_ingress_old is not defined
+
+# --- Step 6: Update TinyEditors allowed-origins ---
+- name:                    Update TinyEditors allowed-origins
+  hosts:                   dmgr
+  become:                  true
+  vars:
+    __tinyeditors_config_file_path:  "{{ tinyeditors_config_file_path | default('/opt/ephox') }}"
+    __tinyeditors_config_file_name:  "{{ tinyeditors_config_file_name | default('application.conf') }}"
+  tasks:
+    - name:                Check if TinyEditors application.conf exists
+      stat:
+        path:              "{{ __tinyeditors_config_file_path }}/{{ __tinyeditors_config_file_name }}"
+      register:            tinyeditors_conf_file
+
+    - name:                "Update TinyEditors allowed-origins to {{ cnx_application_ingress }}"
+      replace:
+        path:              "{{ __tinyeditors_config_file_path }}/{{ __tinyeditors_config_file_name }}"
+        regexp:            '{{ cnx_application_ingress_old }}'
+        replace:           '{{ cnx_application_ingress }}'
+      when:
+        - cnx_application_ingress_old is defined
+        - tinyeditors_conf_file.stat.exists
+
+    - name:                "WARNING - TinyEditors update skipped"
+      debug:
+        msg:               >-
+          Skipped: either cnx_application_ingress_old is not defined
+          or {{ __tinyeditors_config_file_path }}/{{ __tinyeditors_config_file_name }} does not exist.
+      when:                cnx_application_ingress_old is not defined or not tinyeditors_conf_file.stat.exists
+
+# --- Step 7: Update Huddo Boards Customizer extension on NFS ---
+- name:                    Update Huddo Boards Customizer extension
+  hosts:                   component_pack_master
+  become:                  true
+  vars:
+    __persistentVolumePath:          "{{ persistentVolumePath | default('pv-connections') }}"
+    __customizer_huddo_extension:    "{{ __persistentVolumePath }}/customizations/boards-extensions"
+  tasks:
+    - name:                Check if Huddo Boards extension exists
+      stat:
+        path:              "/{{ __customizer_huddo_extension }}/settings.js"
+      register:            huddo_ext_settings
+      delegate_to:         "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+
+    - name:                "Update Huddo Boards extension settings.js to {{ cnx_application_ingress }}"
+      replace:
+        path:              "/{{ __customizer_huddo_extension }}/settings.js"
+        regexp:            '{{ cnx_application_ingress_old }}'
+        replace:           '{{ cnx_application_ingress }}'
+      delegate_to:         "{{ hostvars[groups['nfs_servers'][0]]['inventory_hostname'] }}"
+      when:
+        - cnx_application_ingress_old is defined
+        - huddo_ext_settings.stat.exists
+
+    - name:                "WARNING - Huddo extension update skipped"
+      debug:
+        msg:               >-
+          Skipped: either cnx_application_ingress_old is not defined
+          or /{{ __customizer_huddo_extension }}/settings.js does not exist.
+      when:                cnx_application_ingress_old is not defined or not huddo_ext_settings.stat.exists
+
+# --- Step 8: Re-deploy only the CP charts that reference cnx_application_ingress ---
+- name:                    Gather facts for Component Pack
+  hosts:                   nfs_servers, was_servers
+  tasks:                   []
+
+# Keep hardcoded true for the 5 core charts always 
+# needed during migration (setup_installation, setup_credentials, 
+# setup_connections_env, setup_community_ingress, setup_infrastructure).
+#Remove the 5 optional chart vars (setup_orientme, setup_tailored_exp, setup_teams, setup_kudosboards, setup_outlook_addin) 
+# from the playbook's vars: block entirely so they inherit from inventory (or fall back to the role's default).
+- name:                    Re-deploy Component Pack charts with new hostname
+  hosts:                   component_pack_master
+  become:                  true
+  vars:
+    setup_installation:         true
+    setup_credentials:          true
+    setup_connections_volumes:  false
+    setup_bootstrap:            false
+    setup_connections_env:      true
+    setup_community_ingress:    true
+    setup_infrastructure:       true
+    setup_customizer:           false
+    setup_elasticsearch7:       false
+    enable_es_metrics:          false
+    enable_gk_flags:            false
+    setup_ms_teams_extensions:  false
+  roles:
+    - roles/hcl/component-pack-harbor
+
+# --- Step 9: Synchronize WAS nodes ---
+- name:                    Synchronize WAS nodes
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-full-sync-nodes,
+        when: pool_server is not defined }
+
+# --- Step 10: Restart DMGR ---
+- name:                    Restart DMGR
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - { role: roles/third_party/ibm/wasnd/was-dmgr-restart,
+        when: pool_server is not defined }
+
+# --- Step 11: Restart WAS Node Agents ---
+- name:                    Restart WAS Node Agents
+  hosts:                   was_servers
+  serial:                  1
+  become:                  true
+  roles:
+    - { role: roles/third_party/ibm/wasnd/was-nodeagent-stop,
+        when: pool_server is not defined }
+    - { role: roles/third_party/ibm/wasnd/was-nodeagent-start,
+        when: pool_server is not defined }
+
+# --- Step 12: Restart CNX Clusters ---
+- name:                    Restart CNX Clusters
+  hosts:                   dmgr
+  become:                  true
+  roles:
+    - roles/third_party/ibm/wasnd/was-dmgr-stop-cluster
+    - roles/third_party/ibm/wasnd/was-dmgr-start-cluster

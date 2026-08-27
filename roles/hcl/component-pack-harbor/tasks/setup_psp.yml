@@ -8,9 +8,9 @@
     msg:                   "{{ k8s_psp_chart_version.stdout }}"
 
 - name:                    Record PSP chart version
-  local_action:
-    module:                shell
+  shell:
     cmd:                   echo "k8s-psp chart = {{ k8s_psp_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:             localhost
   become:                  false
   when:                    __record_cp_versions|bool
 

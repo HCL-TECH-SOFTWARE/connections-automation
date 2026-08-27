@@ -2,7 +2,7 @@
 - name:              Upgrade java in WAS?
   set_fact:
     __was_upgrade_java:    True
-  when:              "__was_fixes_version is version_compare('8.5.5020', '<')"
+  when:              "__was_fixes_version is version('8.5.5020', '<')"
 
 - debug:            var=__was_fixes_version
 - debug:            var=__was_upgrade_java
@@ -26,6 +26,7 @@
 - name:              Is Product already Installed?
   command:           egrep {{ __was_java_version }} /var/ibm/InstallationManager/installed.xml
   register:          version_already_installed
-  ignore_errors:     true
+  failed_when:       false
+  changed_when:      false
   when:
     - __was_upgrade_java is defined

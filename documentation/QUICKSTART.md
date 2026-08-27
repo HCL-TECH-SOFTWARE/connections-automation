@@ -163,20 +163,37 @@ Please note that you need to either disable password login for root user in your
 
 Ansible needs to be installed only on the controller machine, in our example it is ansible.internal.example.com
 
-```
-[ansible@web ~]$ sudo yum install ansible
+For the complete step-by-step controller setup instructions, see the [Controller Setup Guide](CONTROLLER_SETUP.md).
+
+The quick version:
+
+```bash
+# Install Python 3.11
+sudo dnf install -y python3.11 python3.11-pip python3.11-devel
+
+# Create and activate virtualenv
+cd ~/deployment-ansible/ansible
+python3.11 -m venv venv
+source venv/bin/activate
+
+# Install Ansible and Python dependencies
+pip install --upgrade pip
+pip install -r pip-requirements.txt
+
+# Install Ansible Galaxy collections
+ansible-galaxy collection install -r requirements.yml
 ```
 
-We are supporting Ansible 2.9. Once you are done with installation, check the version (note that minor version can deffer depending at when you performed the installation):
+We are supporting Ansible core 2.19.x with Python 3.11.x and Jinja2 3.1.x. Remember to activate the virtualenv (`source venv/bin/activate`) each time you open a new shell. Once you are done with installation, check the version:
 
 ```
-[ansible@web ~]$ ansible --version
-ansible 2.9.15
-  config file = /etc/ansible/ansible.cfg
-  configured module search path = [u'/home/lcuser/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
-  ansible python module location = /usr/lib/python2.7/site-packages/ansible
-  executable location = /bin/ansible
-  python version = 2.7.5 (default, Oct 14 2020, 14:45:30) [GCC 4.8.5 20150623 (Red Hat 4.8.5-44)]
+(venv) [ansible@ansible ~]$ ansible --version
+ansible [core 2.19.x]
+  config file = /path/to/deployment-ansible/ansible/ansible.cfg
+  ansible python module location = /path/to/deployment-ansible/ansible/venv/lib/python3.11/site-packages/ansible
+  python version = 3.11.x
+  jinja version = 3.1.x
+  pyyaml version = 6.0.x
 ```
 
 Once this is done, you are ready to roll!

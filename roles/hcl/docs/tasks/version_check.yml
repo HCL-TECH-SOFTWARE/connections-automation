@@ -9,7 +9,8 @@
     paths:            "{{ program_path }}/{{ product_file_path}}"
     patterns:         "{{ product_file_pattern }}"
   register:           product_file
-  ignore_errors:      true
+  failed_when:        false
+  changed_when:       false
 
 - name:               "Exit when old {{ name }} install files are found"
   fail:

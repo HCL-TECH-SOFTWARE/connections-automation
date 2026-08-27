@@ -32,12 +32,12 @@
     msg:                     "{{ connections_outlook_desktop_chart_version.stdout }}"
 
 - name:                      Record connections-outlook-desktop chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "connections-outlook-desktop chart = {{ connections_outlook_desktop_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
 - name:                      Upgrade connections-outlook-desktop
-  command:                   "helm upgrade connections-outlook-desktop {{ __helm_repository_local_name }}/connections-outlook-desktop -i --version {{ connections_outlook_desktop_chart_version.stdout }} -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }}"
+  command:                   "helm upgrade connections-outlook-desktop {{ __helm_repository_local_name }}/connections-outlook-desktop -i --version {{ connections_outlook_desktop_chart_version.stdout }} -f {{ __outlook_addin_destination }} --namespace {{ __default_namespace }} --set-string global.annotations.source-registry='{{ __oci_helm_repository }}/connections-outlook-desktop'"
   become_user:               "{{ __sudo_user }}"

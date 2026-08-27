@@ -8,7 +8,7 @@
   changed_when:   true
   register:       helm_already_installed
   become:         false
-  ignore_errors:  true
+  failed_when:    false
 
 - name:
   debug:

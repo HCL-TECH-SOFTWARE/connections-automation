@@ -8,9 +8,9 @@
     msg:                     "{{ sanity_chart_version.stdout }}"
 
 - name:                      Record sanity chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "sanity chart = {{ sanity_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 
@@ -34,9 +34,9 @@
     msg:                     "{{ sanity_watcher_chart_version.stdout }}"
 
 - name:                      Record sanity-watcher chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "sanity-watcher chart = {{ sanity_watcher_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 

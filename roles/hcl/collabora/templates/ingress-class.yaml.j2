@@ -1,0 +1,6 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: {{ __collabora_ingress_class }}
+spec:
+  controller: k8s.io/ingress-nginx

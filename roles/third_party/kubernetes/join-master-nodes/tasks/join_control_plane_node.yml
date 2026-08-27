@@ -7,7 +7,7 @@
   when:
     - inventory_hostname != groups['k8s_masters'][0]
   become:             false
-  ignore_errors:      true
+  failed_when:        false
 
 - name:               Save join command to the file
   template:

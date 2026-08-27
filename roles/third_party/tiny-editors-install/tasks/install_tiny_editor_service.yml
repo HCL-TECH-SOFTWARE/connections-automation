@@ -24,7 +24,8 @@
           -lang jython -f /tmp/install_app.py \
           "{{ __ear_file_path }}" "{{ groups['ihs_servers'] | map('extract', hostvars, ['inventory_hostname_short']) | join(' ') }}" "TinyEditorsServices" "{{ __was_cellname }}" "{{ __tinysvc_link_common }}"
   register:                  wsadmin_output
-  ignore_errors:             yes
+  failed_when:               false
+  changed_when:              false
   no_log:                    true
 
 - name:                      Print TinyEditor service for spell check stdout

@@ -53,7 +53,8 @@
   shell:                     "kubectl wait -n {{ __default_namespace }} --for=jsonpath='{.status.phase}'=Running  pods --selector app.kubernetes.io/name='opensearch' --timeout=5s"
   register:                  opensearch_pod_running
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
+  changed_when:              false
 
 - name:                      Set __setup_opensearch variable if opensearch is deployed and pod is in running state
   set_fact:
@@ -72,7 +73,8 @@
   shell:                     "kubectl wait -n {{ __default_namespace }} --for=jsonpath='{.status.phase}'=Running  pods --selector app='te-creation-wizard' --timeout=1s"
   register:                  tailored_exp_pod_running
   become_user:               "{{ __sudo_user }}"
-  ignore_errors:             true
+  failed_when:               false
+  changed_when:              false
 
 - name:                      Set __setup_tailored_exp variable if Tailored Experience is deployed and pod is in running state
   set_fact:

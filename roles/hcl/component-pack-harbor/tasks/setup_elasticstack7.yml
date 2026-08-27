@@ -14,9 +14,9 @@
     msg:                     "{{ elasticstack7_chart_version.stdout }}"
 
 - name:                      Record elasticstack7 chart version
-  local_action:
-    module:                  shell
+  shell:
     cmd:                     echo "elasticstack7 chart = {{ elasticstack7_chart_version.stdout }}" >> "{{ __cp_versions_file }}"
+  delegate_to:               localhost
   become:                    false
   when:                      __record_cp_versions|bool
 

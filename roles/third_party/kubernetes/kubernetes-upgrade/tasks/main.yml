@@ -5,7 +5,7 @@
 
 - name:          Switch to kubernetes new package repositories hosted at pkgs.k8s.io
   include_tasks: switch_package_repository.yml
-  when:          __kubernetes_version is version_compare('1.24', '>=')
+  when:          __kubernetes_version is version('1.24', '>=')
 
 - name:          Upgrade kubeadm, kubectl and kubelet
   include_tasks: upgrade_binaries.yml

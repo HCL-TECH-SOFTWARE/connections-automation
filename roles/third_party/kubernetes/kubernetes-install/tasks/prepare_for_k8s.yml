@@ -100,4 +100,4 @@
     persistent:      yes
   ignore_errors:     true
   when:
-    - ansible_os_family == "RedHat" or "AlmaLinux"
+    - ansible_os_family in ["RedHat", "AlmaLinux"]

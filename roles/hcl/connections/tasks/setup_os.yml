@@ -2,7 +2,7 @@
 ---
 - name:          Install pre-requisites Zypper
   zypper:
-    name: ['glibc-32bit','libgtk-2_0-0-32bit', 'xorg-x11-fonts', 'xorg-x11-fonts-converted', 'xorg-x11-fonts-core', 'xorg-x11-fonts-legacy']
+    name: ['glibc-32bit','libgtk-2_0-0-32bit', 'xorg-x11-fonts', 'xorg-x11-fonts-converted', 'xorg-x11-fonts-core', 'xorg-x11-fonts-legacy','python311-lxml']
     state: present
   when: ansible_os_family == "Suse"
 
@@ -64,7 +64,7 @@
     state:             present
     disable_gpg_check: yes
   when:
-    - ansible_os_family == "Suse"
+    - hostvars[item].ansible_os_family | default('') == "Suse"
   delegate_to:         "{{ item }}"
   with_items:          "{{ groups['was_servers'] }}"
 
