@@ -1,0 +1,81 @@
+---
+###################################
+# Note: these steps have been replaced by the configure-ingress-tls.yml playbook
+###################################
+
+
+# Create directory for synchronizing Ingress controller's TLS certificate
+- name:                       "Create directory {{ __ingress_controller_cert_location }}"
+  ansible.builtin.file:
+    path:                     "{{ __ingress_controller_cert_location }}"
+    state:                    directory
+    mode:                     "0775"
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       inventory_hostname not in groups['k8s_masters']
+
+# Synchronize Ingress controller's TLS certificate from control node to the IHS server
+- name:                       "Synchronize Ingress controller's TLS certificate from control node to the IHS server ({{ groups['ihs_servers'][0] }})"
+  ansible.posix.synchronize:
+    src:                      "{{ __ingress_controller_cert_location }}/{{ __ingress_controller_cert_pem }}"
+    dest:                     "{{ __ingress_controller_cert_location }}/{{ __ingress_controller_cert_pem }}"
+  become:                     false
+  become_user:                "{{ __sudo_user }}"
+  when:                       inventory_hostname not in groups['k8s_masters']
+
+# List IHS certificates before importing Ingress controller's TLS certificate
+- name:                       List IHS certificates before importing Ingress controller's TLS certificate
+  ansible.builtin.shell: |
+                              {{ __ihs_gsk_api }} -cert \
+                                -list \
+                                -db {{ __ihs_kdb_filename }} \
+                                -pw {{ __ihs_kdb_password }}
+  become:                     true
+  register:                   ihs_cert_list
+
+# Delete the certificate from IHS keystore if it exists
+- name:                       Delete the certificate from IHS keystore if it exists
+  ansible.builtin.shell: |
+                              {{ __ihs_gsk_api }} -cert \
+                                -delete \
+                                -db {{ __ihs_kdb_filename }} \
+                                -pw {{ __ihs_kdb_password }} \
+                                -label {{ __ingress_controller_cert_label }}
+  become:                     true
+  ignore_errors:              true
+  when :                      __ingress_controller_cert_label in ihs_cert_list.stdout
+
+# Import ingress controller's TLS certificate into IHS keystore
+- name:                       Import ingress controller's TLS certificate into IHS keystore
+  ansible.builtin.shell: |
+                              {{ __ihs_gsk_api }} -cert \
+                                -add \
+                                -db {{ __ihs_kdb_filename }} \
+                                -pw {{ __ihs_kdb_password }} \
+                                -label {{ __ingress_controller_cert_label }} \
+                                -file {{ __ingress_controller_cert_location }}/{{ __ingress_controller_cert_pem }} \
+                                -format ascii
+  become:                     true
+
+# List IHS certificates after importing Ingress controller's TLS certificate
+- name:                       List IHS certificates after importing Ingress controller's TLS certificate
+  ansible.builtin.shell: |
+                              {{ __ihs_gsk_api }} -cert \
+                                -list \
+                                -db {{ __ihs_kdb_filename }} \
+                                -pw {{ __ihs_kdb_password }}
+  become:                     true
+  register:                   ihs_cert_list
+
+# Print the list of certificates
+- name:                       Print the list of certificates
+  ansible.builtin.debug:
+    msg:                      "{{ ihs_cert_list.stdout_lines }}"
+
+# Clean certificates
+- name:                       Clean certificates directory
+  ansible.builtin.file:
+    path:                     "{{ __ingress_controller_cert_location }}"
+    state:                    absent
+  become:                     true
+  become_user:                "{{ __sudo_user }}"

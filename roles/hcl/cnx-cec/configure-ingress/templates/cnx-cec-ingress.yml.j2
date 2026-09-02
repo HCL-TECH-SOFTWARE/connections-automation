@@ -1,0 +1,70 @@
+
+{#-- Compute host list for rules and TLS --#}
+{% set computed_hosts = [] %}
+{% if __ingress_multi_domain_enabled | bool %}
+  {% set _ = computed_hosts.append('*.%s' % __load_balancer_domain) %}
+  {% if __frontend_domain != __load_balancer_domain %}
+    {% set _ = computed_hosts.append('*.%s' % __frontend_domain) %}
+  {% endif %}
+{% else %}
+  {% set _ = computed_hosts.append(__frontend_fqdn) %}
+{% endif %}
+
+{% if __ingress_controller == "traefik" %}
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: {{ __cnx_cec_web_engine_servers_transport_name }}
+  namespace: {{ __default_namespace }}
+spec:
+  insecureSkipVerify: true
+{% endif %}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cnx-ingress-web-engine
+  namespace: {{ __default_namespace }}
+  annotations:
+{% if __ingress_controller == "traefik" %}
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+{% else %}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ __ingress_proxy_body_size }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{% endif %}
+spec:
+  ingressClassName: {{ __ingress_class_name }}
+  rules:
+{% for host in computed_hosts %}
+    - host: "{{ host }}"
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ __cnx_cec_web_engine_service_name }}
+                port:
+                  number: {{ __cnx_cec_web_engine_service_port_https | int }}
+            path: /{{ __cnx_cec_web_engine_context_root }}
+            pathType: Prefix
+          - backend:
+              service:
+                name: {{ __cnx_cec_web_engine_service_name }}
+                port:
+                  number: {{ __cnx_cec_web_engine_service_port_https | int }}
+            path: /{{ __cnx_cec_web_engine_blue_print_context_root }}
+            pathType: Prefix
+          - backend:
+              service:
+                name: {{ __cnx_cec_web_engine_service_name }}
+                port:
+                  number: {{ __cnx_cec_web_engine_service_port_https | int }}
+            path: /{{ __cnx_cec_web_engine_dx_context_root }}
+            pathType: Prefix
+{% endfor %}
+  tls:
+    - hosts:
+{% for host in computed_hosts %}
+        - "{{ host }}"
+{% endfor %}
+      secretName: "{{ __cp_tls_secret_name }}"

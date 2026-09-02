@@ -1,0 +1,181 @@
+---
+# Pre-cleanup DB2 scripts directory
+- name:                           Pre-cleanup DB2 scripts directory
+  file:
+    path:                         "{{ __db2_scripts_location }}"
+    state:                        absent
+  become:                         true
+  become_user:                    "{{ __sudo_user }}"
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Create DB2 scripts directory
+- name:                           Create DB2 scripts directory
+  file:
+    path:                         "{{ __db2_scripts_location }}"
+    state:                        directory
+    mode:                         '0755'
+  become:                         true
+  become_user:                    "{{ __sudo_user }}"
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Copy DB2 scripts to the scripts directory
+- name:                           Copy DB2 scripts
+  template:
+    src:                          "{{ item }}.j2"
+    dest:                         "{{ __db2_scripts_location }}/{{ item }}"
+    mode:                         '0755'
+  become:                         true
+  become_user:                    "{{ __sudo_user }}"
+  with_items:
+    - create-db2-databases.sh
+    - setup-db2-permissions.sh
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Get maximum number of concurrent active databases
+- name:                           Get max number of concurrent active databases
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  {{ __db2_bin_location }}/db2 get dbm cfg | grep NUMDB | awk -F'= ' '{print $2}' | awk '{print $1}'
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  register:                       maximum_db2_concurrent_active_databases
+  changed_when:                   false
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Set maximum number of concurrent active databases
+- name:                           Set max number of concurrent active databases
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  {{ __db2_bin_location }}/db2 update dbm cfg using NUMDB {{ __cnx_cec_web_engine_db2_max_active_databases }}
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  when:
+    - __cnx_cec_web_engine_use_external_db|bool
+    - (maximum_db2_concurrent_active_databases.stdout | int) != (__cnx_cec_web_engine_db2_max_active_databases | int)
+
+# Quiesce DB2 instance to stop accepting new connections
+- name:                           Quiesce DB2 instance
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  {{ __db2_bin_location }}/db2 quiesce instance {{ __db_user }} immediate
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  ignore_errors:                  true
+  when:
+    - __cnx_cec_web_engine_use_external_db|bool
+    - (maximum_db2_concurrent_active_databases.stdout | int) != (__cnx_cec_web_engine_db2_max_active_databases | int)
+
+# Force off all applications with retry (2 attempts × 30s delay = 60s total)
+- name:                           Force off all applications
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  {{ __db2_bin_location }}/db2 force applications all
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  ignore_errors:                  true
+  retries:                        2
+  delay:                          30
+  register:                       force_applications_result
+  when:
+    - __cnx_cec_web_engine_use_external_db|bool
+    - (maximum_db2_concurrent_active_databases.stdout | int) != (__cnx_cec_web_engine_db2_max_active_databases | int)
+
+# Deactivate all databases and verify completion
+- name:                           Deactivate all databases
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  for db in $({{ __db2_bin_location }}/db2 list active databases 2>/dev/null | grep -i "Database name" | awk '{print $4}'); do
+                                    {{ __db2_bin_location }}/db2 deactivate database $db 2>/dev/null || true
+                                  done
+                                  # Verify all databases are deactivated (6 attempts × 5s = 30s max)
+                                  for i in {1..6}; do
+                                    count=$({{ __db2_bin_location }}/db2 list active databases 2>/dev/null | grep -c "Database name" || echo "0")
+                                    if [ "$count" -eq 0 ]; then
+                                      echo "All databases deactivated successfully"
+                                      exit 0
+                                    fi
+                                    if [ $i -lt 6 ]; then
+                                      sleep 5
+                                    fi
+                                  done
+                                  echo "Warning: Some databases still active, proceeding with shutdown"
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  ignore_errors:                  true
+  when:
+    - __cnx_cec_web_engine_use_external_db|bool
+    - (maximum_db2_concurrent_active_databases.stdout | int) != (__cnx_cec_web_engine_db2_max_active_databases | int)
+
+# Stop DB2 instance with verification
+- name:                           Stop DB2 instance
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  timeout 120 {{ __db2_admin_location }}/db2stop || {{ __db2_admin_location }}/db2stop force
+                                  # Verify DB2 instance has stopped (12 attempts × 5s = 60s max)
+                                  for i in {1..12}; do
+                                    if ! pgrep -u {{ __db_user }} db2sysc > /dev/null 2>&1; then
+                                      echo "DB2 instance stopped successfully"
+                                      sleep 2
+                                      exit 0
+                                    fi
+                                    if [ $i -lt 12 ]; then
+                                      sleep 5
+                                    fi
+                                  done
+                                  echo "Warning: DB2 process still running, proceeding with restart"
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  ignore_errors:                  true
+  when:
+    - __cnx_cec_web_engine_use_external_db|bool
+    - (maximum_db2_concurrent_active_databases.stdout | int) != (__cnx_cec_web_engine_db2_max_active_databases | int)
+
+# Start DB2 instance
+- name:                           Start DB2 instance
+  shell: |
+                                  source {{ __db2_profile_location }}
+                                  {{ __db2_admin_location }}/db2start
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  when:
+    - __cnx_cec_web_engine_use_external_db|bool
+    - (maximum_db2_concurrent_active_databases.stdout | int) != (__cnx_cec_web_engine_db2_max_active_databases | int)
+
+# Run create DB2 databases script
+- name:                           Run create DB2 databases script as {{ __db_user }}
+  shell: |             
+                                  {{ __db2_scripts_location }}/create-db2-databases.sh
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  register:                       create_db2_databases_output
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Print create DB2 databases script output
+- name:                           Print create DB2 databases script output
+  debug:
+    msg:                          "{{ create_db2_databases_output.stdout_lines | default([]) }}"
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Run setup DB2 permissions script
+- name:                           Run setup DB2 permissions script as {{ __db_user }}
+  shell: |
+                                  {{ __db2_scripts_location }}/setup-db2-permissions.sh
+  become:                         true
+  become_user:                    "{{ __db_user }}"
+  register:                       setup_db2_permissions_output
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Print setup DB2 permissions script output
+- name:                           Print setup DB2 permissions script output
+  debug:
+    msg:                          "{{ setup_db2_permissions_output.stdout_lines | default([]) }}"
+  when:                           __cnx_cec_web_engine_use_external_db|bool
+
+# Cleanup DB2 scripts directory
+- name:                           Cleanup DB2 scripts directory
+  file:
+    path:                         "{{ __db2_scripts_location }}"
+    state:                        absent
+  become:                         true
+  become_user:                    "{{ __sudo_user }}"
+  when:                           __cnx_cec_web_engine_use_external_db|bool

@@ -1,0 +1,17 @@
+---
+- name:                         Backup httpd.conf
+  ansible.builtin.command:      cp {{ __ihs_httpd_conf_file }} {{ __ihs_httpd_conf_file }}_{{ __now }}
+  ignore_errors:                true
+
+- name:                         Insert cec proxy rules above /auth location block (HTTPS)
+  ansible.builtin.blockinfile:
+    path:                       "{{ __ihs_httpd_conf_file }}"
+    marker:                     "# {mark} CEC PROXY RULES (HTTPS)"
+    insertbefore:               '<Location /auth >'
+    block: |
+      ProxyPass "/{{ __cnx_cec_web_engine_context_root }}" "https://{{ __load_balancer_fqdn }}:32443/{{ __cnx_cec_web_engine_context_root }}"
+      ProxyPassReverse "/{{ __cnx_cec_web_engine_context_root }}" "https://{{ __load_balancer_fqdn }}:32443/{{ __cnx_cec_web_engine_context_root }}"
+      ProxyPass "/{{ __cnx_cec_web_engine_blue_print_context_root }}" "https://{{ __load_balancer_fqdn }}:32443/{{ __cnx_cec_web_engine_blue_print_context_root }}"
+      ProxyPassReverse "/{{ __cnx_cec_web_engine_blue_print_context_root }}" "https://{{ __load_balancer_fqdn }}:32443/{{ __cnx_cec_web_engine_blue_print_context_root }}"
+      ProxyPass "/{{ __cnx_cec_web_engine_dx_context_root }}" "https://{{ __load_balancer_fqdn }}:32443/{{ __cnx_cec_web_engine_dx_context_root }}"
+      ProxyPassReverse "/{{ __cnx_cec_web_engine_dx_context_root }}" "https://{{ __load_balancer_fqdn }}:32443/{{ __cnx_cec_web_engine_dx_context_root }}"

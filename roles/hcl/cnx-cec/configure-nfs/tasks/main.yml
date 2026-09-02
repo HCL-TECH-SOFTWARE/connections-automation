@@ -1,0 +1,40 @@
+---
+- name:                                             Setup PV folders for CNX CEC customization
+  ansible.builtin.file:
+    path:                                           "/pv-connections/rwovol-web-engine-customization-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+    owner:                                          "1000"
+    group:                                          "{{ __nogroup }}"
+  with_sequence:                                    start=0 end={{ __cnx_cec_web_engine_customization_replicaset | int - 1 if __cnx_cec_web_engine_customization_replicaset | int != 0 else 0}}
+  when:  __cnx_cec_web_engine_customization_replicaset | int != 0
+
+- name:                                             Setup PV folders for CNX CEC logs
+  ansible.builtin.file:
+    path:                                           "/pv-connections/rwovol-web-engine-log-{{ item }}"
+    mode:                                           '0700'
+    state:                                          directory
+    owner:                                          "1000"
+    group:                                          "{{ __nogroup }}"
+  with_sequence:                                    start=0 end={{ __cnx_cec_web_engine_log_replicaset | int - 1 if __cnx_cec_web_engine_log_replicaset | int != 0 else 0}}
+  when:  __cnx_cec_web_engine_log_replicaset | int != 0
+
+- name:                                            Append NFS exports file with new entries for rwovol-web-engine-customization PVs
+  ansible.builtin.lineinfile:
+    path:                                           "{{ __nfs_exports_destination }}"
+    line:                                           "/{{ __persistentVolumePath }}/rwovol-web-engine-customization-{{ item }}       {{ __nfs_client_network_address }}/{{ __nfs_export_netmask }}(rw,root_squash)"
+  with_sequence:                                    start=0 end={{ __cnx_cec_web_engine_customization_replicaset | int - 1 if __cnx_cec_web_engine_customization_replicaset | int != 0 else 0}}
+  when:  __cnx_cec_web_engine_customization_replicaset | int != 0
+
+- name:                                            Append NFS exports file with new entries for rwovol-web-engine-log PVs
+  ansible.builtin.lineinfile:
+    path:                                           "{{ __nfs_exports_destination }}"
+    line:                                           "/{{ __persistentVolumePath }}/rwovol-web-engine-log-{{ item }}                 {{ __nfs_client_network_address }}/{{ __nfs_export_netmask }}(rw,root_squash)"
+  with_sequence:                                    start=0 end={{ __cnx_cec_web_engine_log_replicaset | int - 1 if __cnx_cec_web_engine_log_replicaset | int != 0 else 0}}
+  when:  __cnx_cec_web_engine_log_replicaset | int != 0
+
+- name:                                             Export file systems
+  ansible.builtin.command:                          exportfs -ra
+
+- name:                                             Fail if there is nothing exported
+  ansible.builtin.shell:                            exportfs -v | grep pv-connections

@@ -61,9 +61,9 @@ cnx_repository_url:                              "http://{{ groups['installer'][
 tinyeditors_download_location:                   http://{{ groups['installer'][0] }}:8001/TinyEditors
 cnx_fixes_repository_url:                        "http://{{ groups['installer'][0] }}:8001/{{ connections_kit_folder }}"
 
-cnx_fixes_version:                               "8.0.0.0_CR15"
+cnx_fixes_version:                               "8.0.0.0_CR14"
 cnx_fixes_files:
-  - { file_name: "HC8.0_CR15.zip" }
+  - { file_name: "HC8.0_CR14.zip" }
 
 cnx_package:                                     "HCL_Connections_8.0_lin.tar"
 connections_wizards_package_name:                "HCL_Connections_8.0_wizards_lin_aix.tar"
@@ -152,3 +152,29 @@ force_destroy_kubernetes:                        True
 force_destroy_db2:                               True
 force_destroy_ihs:                               True
 force_destroy_websphere:                         True
+
+# CEC Web Engine variables. Replace the example hostnames and passwords before use.
+cnx_cec_docker_registry_url:                      hclcr.io/cnx-cec
+cnx_cec_docker_registry_username:                 "{{ lookup('env','HARBOR_USERNAME') }}"
+cnx_cec_docker_registry_password:                 "{{ lookup('env','HARBOR_SECRET') }}"
+cnx_cec_web_engine_admin_user:                    wpsadmin
+cnx_cec_web_engine_admin_password:                changeme
+cnx_cec_web_engine_volume_storage_class:          manual
+
+# Uncomment for first install only — drops and recreates CEC DB tables
+# cnx_cec_web_engine_drop_db_tables_on_startup:       true
+
+# Uncomment to use an external database for CEC Web Engine
+# cnx_cec_web_engine_use_external_db:                 true
+
+# Uncomment to connect to an existing LDAP/Connections user directory and enable SSO
+# cnx_cec_web_engine_ldap_type:                       other
+# cnx_cec_web_engine_ldap_server:                     ldap.example.com
+# cnx_cec_web_engine_ldap_bind_user:                  cn=Admin,dc=example,dc=com
+# cnx_cec_web_engine_ldap_bind_pass:                  changeme
+# cnx_cec_web_engine_ldap_realm:                      dc=example,dc=com
+# cnx_cec_web_engine_ldap_realm_name:                 defaultWIMFileBasedRealm
+
+# Uncomment to enable SSO for CEC Web Engine
+# cnx_cec_web_engine_enable_sso:                      true
+# cnx_cec_web_engine_ltpa_secret_name:                cnx-cec-ltpa-secret

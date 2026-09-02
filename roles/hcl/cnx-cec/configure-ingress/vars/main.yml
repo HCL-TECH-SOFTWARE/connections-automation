@@ -1,0 +1,25 @@
+__sudo_user:                                      "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+__default_namespace:                              "{{ default_namespace | default('connections') }}"
+
+__cnx_cec_temp_dir_location:                      "/home/{{ __sudo_user }}/generated_charts/cnx-cec"
+
+__cnx_cec_web_engine_context_root:                "{{ cnx_cec_web_engine_context_root | default('wps') }}"
+__cnx_cec_web_engine_blue_print_context_root:     "{{ cnx_cec_web_engine_blue_print_context_root | default('BluePrintModule') }}"
+__cnx_cec_web_engine_dx_context_root:             "{{ cnx_cec_web_engine_dx_context_root | default('dx') }}"
+__cnx_cec_web_engine_service_name:                "{{ __cnx_cec_web_engine_release_name }}-web-engine-headless"
+
+__cnx_cec_web_engine_service_port_https:          "{{ cnx_cec_web_engine_service_port_https | default('9443') }}"
+__cnx_cec_web_engine_service_port_name_https:     "{{ cnx_cec_web_engine_service_port_name_https | default('dx-home-secure') }}"
+
+__cnx_cec_web_engine_service_port_http:           "{{ cnx_cec_web_engine_service_port_http | default('9080') }}"
+__cnx_cec_web_engine_service_port_name_http:      "{{ cnx_cec_web_engine_service_port_name_http | default('dx-home') }}"
+
+__load_balancer_fqdn:                             "{{ load_balancer_dns | default(hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname']) }}"
+__load_balancer_domain:                           "{{ __load_balancer_fqdn.split('.', 1)[1] | default( inventory_hostname.split('.', 1)[1] ) }}"
+
+__ingress_controller:                             "{{ ingress_controller | default('traefik') }}"
+__ingress_class_name:                             "{{ 'nginx' if __ingress_controller == 'ingress-nginx' else 'cnx-ingress-traefik' if __ingress_controller == 'traefik' else 'nginx' }}"
+__cp_tls_secret_name:                             "{{ cp_tls_secret_name | default(ingress_nginx_secret_name | default('cnx-tls-secret')) }}"
+__ingress_multi_domain_enabled:                   "{{ ingress_multi_domain_enabled | default(false) }}"
+__ingress_proxy_body_size:                        "{{ ingress_proxy_body_size | default('50m') }}"
+__cnx_cec_web_engine_servers_transport_name:      "cnx-cec-skip-ssl-transport"

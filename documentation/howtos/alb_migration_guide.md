@@ -70,7 +70,7 @@ This guide documents the migration of the HCL Connections 8.0 frontend load bala
       │     WebSphere    │                 │  HAProxy :32443   │
       │     App Server   │                 │  → K8s Traefik    │
       │                  │                 │  → CP Pods        │
-      │                  │                 │  → DX Web Engine  │
+      │                  │                 │  → CNX CEC  │
       └────────┬─────────┘                 └───────────────────┘
                │ Login only
                ▼
@@ -310,7 +310,7 @@ ansible-playbook -i environments/<env>/inventory.ini \
 | 8 | Grafana | `curl -kI https://connections.anotherdomain.net/grafana/` | 302 → grafana login |
 | 9 | Robots.txt | `curl -k https://connections.anotherdomain.net/robots.txt` | `User-agent: *\nDisallow: /` |
 | 10 | comm-template API | `curl -kI https://connections.anotherdomain.net/comm-template/isTemplateAdmin` | 302 → login (NOT 404) |
-| 11 | CEC Web Engine | `curl -kI https://connections.anotherdomain.net/wps/portal` | 200 or 302 (via IHS→Traefik→DX Web Engine) |
+| 11 | CEC Web Engine | `curl -kI https://connections.anotherdomain.net/wps/portal` | 200 or 302 (via IHS→Traefik→CNX CEC) |
 
 ---
 
@@ -332,7 +332,7 @@ After creating the ALB, you need to migrate the Connections application from the
 | K8s `connections-env` `ic.host` | `web1.example.com` | `connections.anotherdomain.net` |
 | K8s Ingress `host:` rules | `web1.example.com` | `connections.anotherdomain.net` |
 | HAProxy self-signed cert SANs | `*.example.com` | `*.example.com,*.anotherdomain.net` |
-| DX Compose | `web1.example.com` | `connections.anotherdomain.net` |
+| CNX CEC | `web1.example.com` | `connections.anotherdomain.net` |
 
 ### Steps
 
@@ -379,7 +379,7 @@ After creating the ALB, you need to migrate the Connections application from the
 | 6 | `dmgr` | Update TinyEditors `allowed-origins` in `application.conf` |
 | 7 | `nfs_servers` (delegated) | Update Huddo Boards Customizer extension `settings.js` |
 | 8 | `component_pack_master` | Re-deploy Component Pack Helm charts (`connections-env`, ingress host rules) |
-| 8a | `component_pack_master` | Re-run DX Compose install + configure-ingress (picks up new `frontend_fqdn` automatically) |
+| 8a | `component_pack_master` | Re-run CNX CEC install + configure-ingress (picks up new `frontend_fqdn` automatically) |
 | 9 | `dmgr` | Synchronize WAS nodes |
 | 10–12 | `dmgr` + `was_servers` | Restart DMGR → Node Agents → CNX Clusters |
 
