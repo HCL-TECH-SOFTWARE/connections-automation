@@ -1,0 +1,18 @@
+__sudo_user:                                        "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+# DB variables
+__db_user:                                          "{{ db2_user | default('db2inst1') }}"
+__db_password:                                      "{{ db_password | default ('password') }}"
+__db_hostname_default:                              "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
+__db_hostname:                                      "{{ db_hostname | default( __db_hostname_default ) }}"
+__db_port:                                          "{{ db_port | default('50001' if ansible_distribution == 'SLES' else '50000') }}"
+__db_group:                                         "{{ db_group | default('db2group') }}"
+
+# DB2 specific variables
+__db2_instance_homedir:                             "{{ db2_instance_homedir | default('/home/db2inst1') }}"
+__db2_sql_lib_location:                             "{{ __db2_instance_homedir }}/sqllib"
+__db2_bin_location:                                 "{{ __db2_sql_lib_location }}/bin"
+__db2_profile_location:                             "{{ __db2_sql_lib_location }}/db2profile"
+__db2_admin_location:                               "{{ __db2_sql_lib_location }}/adm"
+__cnx_cec_web_engine_use_external_db:               "{{ cnx_cec_web_engine_use_external_db | default(true) | bool }}"
+__cnx_cec_web_engine_db2_max_active_databases:      "{{ cnx_cec_web_engine_db2_max_active_databases | default(256) }}"
+__db2_scripts_location:                             "{{ '/tmp/' ~ __sudo_user ~ '/cnx-cec/db2' }}"

@@ -1,0 +1,13 @@
+__sudo_user:                                "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+__default_namespace:                        "{{ default_namespace | default('connections') }}"
+
+__ltpa_keys_file_name:                      "{{ ltpa_keys_file_name | default(hostvars['localhost'].ltpa_keys_file_name | default('cnx-ltpa-' ~ ansible_date_time.iso8601_basic_short ~ '.keys')) }}"
+__ltpa_keys_src_location:                   "{{ ltpa_keys_export_location | default('/tmp/' ~ __sudo_user ~ '/cnx-cec/ltpa') }}"
+__ltpa_keys_src_file_path:                  "{{ __ltpa_keys_src_location }}/{{ __ltpa_keys_file_name }}"
+__ltpa_keys_dest_location:                  "{{ ltpa_keys_import_location | default('/tmp/' ~ __sudo_user ~ '/cnx-cec/ltpa') }}"
+__ltpa_keys_dest_file_path:                 "{{ __ltpa_keys_dest_location }}/{{ __ltpa_keys_file_name }}"
+__ltpa_keys_password:                       "{{ ltpa_keys_password | default('password') }}"
+
+__cnx_cec_web_engine_ldap_type:             "{{ cnx_cec_web_engine_ldap_type | default('other') }}"
+__cnx_cec_web_engine_enable_sso:            "{{ cnx_cec_web_engine_enable_sso | default(__cnx_cec_web_engine_ldap_type != 'none') | bool }}"
+__cnx_cec_web_engine_ltpa_secret_name:      "{{ cnx_cec_web_engine_ltpa_secret_name | default('cnx-cec-ltpa-secret') }}"

@@ -1,0 +1,26 @@
+---
+# Render cxn-ingress-web-engine ingress template
+- name:                       Render ingress template for "/{{ __cnx_cec_web_engine_context_root }}/(.*)"
+  ansible.builtin.template:
+    src:                      cnx-cec-ingress.yml.j2
+    dest:                     "{{ __cnx_cec_temp_dir_location }}/cnx-cec-ingress.yml"
+  become_user:                "{{ __sudo_user }}"
+  become:                     yes
+
+# Delete existing Ingress for CNX CEC Web Engine
+- name:                       Delete existing Ingress for "/{{ __cnx_cec_web_engine_context_root }}/(.*)"
+  ansible.builtin.shell: |
+                              kubectl delete \
+                              -f "{{ __cnx_cec_temp_dir_location }}/cnx-cec-ingress.yml" \
+                              -n {{ __default_namespace }} \
+                              --ignore-not-found
+  become_user:                "{{ __sudo_user }}"
+  become:                     yes
+
+# Create Ingress for CNX CEC Web Engine
+- name:                       Create Ingress for "/{{ __cnx_cec_web_engine_context_root }}/(.*)"
+  ansible.builtin.shell: |
+                              kubectl apply -n {{ __default_namespace }} \
+                              -f "{{ __cnx_cec_temp_dir_location }}/cnx-cec-ingress.yml"
+  become_user:                "{{ __sudo_user }}"
+  become:                     yes

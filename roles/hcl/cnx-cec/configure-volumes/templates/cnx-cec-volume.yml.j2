@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+ name: "{{ item }}-0"
+ labels:
+    attachTo: {{ item }}
+spec:
+  storageClassName: {{ __cnx_cec_web_engine_volume_storage_class }}
+  capacity:
+   storage: {{ __cnx_cec_web_engine_volume_storage_capacity }}
+  accessModes:
+   - {{ __cnx_cec_web_engine_volume_access_mode }}
+  persistentVolumeReclaimPolicy: {{ __cnx_cec_web_engine_volume_reclaim_policy }}
+  volumeMode: Filesystem
+  nfs:
+    path: /{{ __persistentVolumePath }}/{{ item }}-0
+    server: {{ __nfsMasterAddress }}

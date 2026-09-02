@@ -1,0 +1,258 @@
+# Image related configuration
+images:
+{% if cnx_cec_image_pull_secret_exists is defined and cnx_cec_image_pull_secret_exists|bool %}
+  imagePullSecrets:
+    - name: {{ __cnx_cec_image_pull_secret_name }}
+{% endif %}
+{% if __cnx_cec_web_engine_image_path != '' or __cnx_cec_logging_image_path != '' %}
+  names:
+{% if __cnx_cec_web_engine_image_path != '' %}
+    webEngine: {{ __cnx_cec_web_engine_image_path }}
+{% endif %}
+{% if __cnx_cec_logging_image_path != '' %}
+    loggingSidecar: {{ __cnx_cec_logging_image_path }}
+{% endif %}
+{% endif %}
+  repository: {{ __cnx_cec_docker_registry_url }}
+{% if __cnx_cec_logging_image_tag != '' or __cnx_cec_web_engine_image_tag != '' %}
+  tags:
+{% if __cnx_cec_logging_image_tag != '' %}
+    loggingSidecar: {{ __cnx_cec_logging_image_tag }}
+{% endif %}
+{% if __cnx_cec_web_engine_image_tag != '' %}
+    webEngine: {{ __cnx_cec_web_engine_image_tag }}
+{% endif %}
+{% endif %}
+# Persistent Volume Setup
+volumes:
+  webEngine:
+    customization:
+      selector:
+        matchLabels:
+          attachTo: {{ __cnx_cec_web_engine_customization_volume_name }}
+      storageClassName: {{ __cnx_cec_web_engine_volume_storage_class }}
+    log:
+      selector:
+        matchLabels:
+          attachTo: {{ __cnx_cec_web_engine_log_volume_name }}
+      storageClassName: {{ __cnx_cec_web_engine_volume_storage_class }}
+# Networking specific configuration
+networking:
+  webEngine:
+    contextRoot: {{ __cnx_cec_web_engine_context_root }}
+    cookieSameSiteAttribute: ""
+    cspFrameAncestorsAllowedSourceURLs: []
+    cspFrameAncestorsEnabled: false
+    home: {{ __cnx_cec_web_engine_home_path }}
+    host: {{ __frontend_fqdn }}
+    personalizedHome: {{ __cnx_cec_web_engine_personalized_home_path }}
+    port: 443
+    ssl: true
+{% if __ingress_controller == "traefik" %}
+# Service level annotations to support Traefik Ingress Controller when used
+annotations:
+  service:
+    webEngine:
+      - key: traefik.ingress.kubernetes.io/service.serversscheme
+        value: "https"
+      - key: traefik.ingress.kubernetes.io/service.serverstransport
+        value: "{{ __default_namespace }}-{{ __cnx_cec_web_engine_servers_transport_name }}@kubernetescrd"
+{% endif %}
+# Security related configuration, e.g. default credentials
+security:
+  # Security configuration for webEngine
+  webEngine:
+    webEngineUser: "{{ __cnx_cec_web_engine_admin_user }}"
+    webEnginePassword: "{{ __cnx_cec_web_engine_admin_password }}"
+    # The default basic registry configuration. 
+    # This is anyways default values, but in case this changes in the future.
+    # It can be overridden by setting the variables below
+    basicRegistry:
+      # Enable or disable the default basic registry
+      enabled: {{ __cnx_cec_web_engine_basic_registry_enabled|bool|lower }}
+      # Realm for the default basicRegistry
+      realm: "defaultWIMFileBasedRealm"
+# Application specific configuration for webEngine
+configuration:
+  webEngine:
+    propertiesFilesOverrides:
+      WCMConfigService.properties:
+        dynamic.parameter.tag.enabled: "false"
+      ConnectionsIntegrationService.properties:
+        globalBaseURL: "https://{{ __frontend_fqdn }}"
+        resource.serving.url.type: "connections"
+        resource.resolution.url.type: "connections"
+{% if __cnx_cec_web_engine_ldap_type|lower != 'none' and __cnx_cec_web_engine_enable_sso|bool %}
+      AccessControlDataManagementService.properties:
+        accessControlDataManagement.domain.rel.adminuser: "{{ __cnx_cec_web_engine_connections_admin_user_dn }}"
+{% if not __cnx_cec_web_engine_basic_registry_enabled|bool %}
+        accessControlDataManagement.domain.rel.admingroup: ""
+{% endif %}
+{% endif %}  
+    configOverrideFiles:
+{% if __cnx_cec_web_engine_enable_sso is defined and __cnx_cec_web_engine_enable_sso|bool %}
+      sso-config.xml: |
+        <server description="CNX CEC server">
+            <webAppSecurity singleSignonEnabled="true"
+            ssoDomainNames="{{ __cnx_cec_web_engine_sso_cookie_domains }}"
+            ssoCookieName="LtpaToken2"
+            ssoRequiresSSL="true"
+            httpOnlyCookies="true"
+            ssoSameSite="None" />
+        </server>
+{% endif %}
+{% if __cnx_cec_web_engine_ldap_type|lower != 'none' %}
+      ldap-config.xml: |
+        <server description="CNX CEC server">
+          <ldapRegistry id="{{ __cnx_cec_web_engine_ldap_alias }}-ldap"
+            realm="SampleLdapIDSRealm"
+            host="{{ __cnx_cec_web_engine_ldap_server }}"
+            port="{{ __cnx_cec_web_engine_ldap_server_port }}" ignoreCase="true"
+            baseDN="{{ __cnx_cec_web_engine_ldap_realm }}"
+            ldapType="Custom"
+            sslEnabled="false"
+            bindDN="{{ __cnx_cec_web_engine_ldap_bind_user }}"
+            bindPassword="{{ __cnx_cec_web_engine_ldap_bind_pass }}">
+            <customFilters
+              userFilter="{{ __cnx_cec_web_engine_ldap_search_filter|escape }}"
+              groupFilter="{{ __cnx_cec_web_engine_ldap_group_filter|escape }}"
+              userIdMap="*:{{ __cnx_cec_web_engine_ldap_map_guid }}"
+              groupIdMap="*:{{ __cnx_cec_web_engine_ldap_map_uid }}"
+              groupMemberIdMap="groupOfUniqueNames:uniqueMember">
+            </customFilters>
+            <ldapCache>
+              <attributesCache size="4000" sizeLimit="4000" timeout="2400s" />
+              <searchResultsCache resultsSizeLimit="4000" size="4000" timeout="2400s" />
+            </ldapCache>
+            <contextPool preferredSize="20"/>
+          </ldapRegistry>
+          <federatedRepository>
+            <primaryRealm name="{{ __cnx_cec_web_engine_ldap_realm_name }}" allowOpIfRepoDown="true">
+{% if __cnx_cec_web_engine_basic_registry_enabled|bool %}
+              <participatingBaseEntry name="o=defaultWIMFileBasedRealm"/>
+{% endif %}
+              <participatingBaseEntry name="{{ __cnx_cec_web_engine_ldap_realm }}" />
+            </primaryRealm>
+          </federatedRepository>
+        </server>
+{% endif %}
+{% if __cnx_cec_web_engine_use_external_db|bool %}
+    useExternalDatabase: {{ __cnx_cec_web_engine_use_external_db|bool|lower }}
+    dropDatabaseTables: {{ __cnx_cec_web_engine_drop_db_tables_on_startup|bool|lower }}
+    dbDomainProperties:
+      InitializeFeedbackDB: "true"
+      feedback.DbType: "db2"
+      feedback.DbName: "WPFDBK"
+      feedback.DbSchema: "feedback"
+      feedback.DataSourceName: "wpfdbkdbDS"
+      feedback.DbUrl: "jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/WPFDBK:returnAlias=0;"
+      feedback.DbUser: "{{ __db_username }}"
+      feedback.DbPassword: "{{ __db_password }}"
+      feedback.DbRuntimeUser: "{{ __db_username }}"
+      feedback.DbRuntimePassword: "{{ __db_password }}"
+      feedback.DBA.DbUser: "{{ __db_username }}"
+      feedback.DBA.DbPassword: "{{ __db_password }}"
+      feedback.DbConfigRoleName: "{{ __db_group }}"
+      feedback.DbRuntimeRoleName: "{{ __db_group }}"
+      feedback.XDbName: "WPFDBK"
+      feedback.DbNode: "pznNode"
+      likeminds.DbType: "db2"
+      likeminds.DbName: "WPLM"
+      likeminds.DbSchema: "likeminds"
+      likeminds.DataSourceName: "wplmdbDS"
+      likeminds.DbUrl: "jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/WPLM:returnAlias=0;"
+      likeminds.DbUser: "{{ __db_username }}"
+      likeminds.DbPassword: "{{ __db_password }}"
+      likeminds.DbRuntimeUser: "{{ __db_username }}"
+      likeminds.DbRuntimePassword: "{{ __db_password }}"
+      likeminds.DBA.DbUser: "{{ __db_username }}"
+      likeminds.DBA.DbPassword: "{{ __db_password }}"
+      likeminds.DbConfigRoleName: "{{ __db_group }}"
+      likeminds.DbRuntimeRoleName: "{{ __db_group }}"
+      likeminds.XDbName: "WPLM"
+      likeminds.DbNode: "pznNode"
+      release.DbType: "db2"
+      release.DbName: "WPREL"
+      release.DbSchema: "release"
+      release.DataSourceName: "wpreldbDS"
+      release.DbUrl: "jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/WPREL:returnAlias=0;"
+      release.DbUser: "{{ __db_username }}"
+      release.DbPassword: "{{ __db_password }}"
+      release.DbRuntimeUser: "{{ __db_username }}"
+      release.DbRuntimePassword: "{{ __db_password }}"
+      release.DBA.DbUser: "{{ __db_username }}"
+      release.DBA.DbPassword: "{{ __db_password }}"
+      release.DbConfigRoleName: "{{ __db_group }}"
+      release.DbRuntimeRoleName: "{{ __db_group }}"
+      release.XDbName: "WPREL"
+      release.DbNode: "wpsNode"
+      community.DbType: "db2"
+      community.DbName: "WPCOMM"
+      community.DbSchema: "community"
+      community.DataSourceName: "wpcommdbDS"
+      community.DbUrl: "jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/WPCOMM:returnAlias=0;"
+      community.DbUser: "{{ __db_username }}"
+      community.DbPassword: "{{ __db_password }}"
+      community.DbRuntimeUser: "{{ __db_username }}"
+      community.DbRuntimePassword: "{{ __db_password }}"
+      community.DBA.DbUser: "{{ __db_username }}"
+      community.DBA.DbPassword: "{{ __db_password }}"
+      community.DbConfigRoleName: "{{ __db_group }}"
+      community.DbRuntimeRoleName: "{{ __db_group }}"
+      community.XDbName: "WPCOMM"
+      community.DbNode: "wpsNode"
+      customization.DbType: "db2"
+      customization.DbName: "WPCUST"
+      customization.DbSchema: "customization"
+      customization.DataSourceName: "wpcustdbDS"
+      customization.DbUrl: "jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/WPCUST:returnAlias=0;"
+      customization.DbUser: "{{ __db_username }}"
+      customization.DbPassword: "{{ __db_password }}"
+      customization.DbRuntimeUser: "{{ __db_username }}"
+      customization.DbRuntimePassword: "{{ __db_password }}"
+      customization.DBA.DbUser: "{{ __db_username }}"
+      customization.DBA.DbPassword: "{{ __db_password }}"
+      customization.DbConfigRoleName: "{{ __db_group }}"
+      customization.DbRuntimeRoleName: "{{ __db_group }}"
+      customization.XDbName: "WPCUST"
+      customization.DbNode: "wpsNode"
+      jcr.DbType: "db2"
+      jcr.DbName: "WPJCR"
+      jcr.DbSchema: "jcr"
+      jcr.DataSourceName: "wpjcrdbDS"
+      jcr.DbUrl: "jdbc:db2://{{ __db_hostname }}:{{ __db_port }}/WPJCR:returnAlias=0;"
+      jcr.DbUser: "{{ __db_username }}"
+      jcr.DbPassword: "{{ __db_password }}"
+      jcr.DbRuntimeUser: "{{ __db_username }}"
+      jcr.DbRuntimePassword: "{{ __db_password }}"
+      jcr.DBA.DbUser: "{{ __db_username }}"
+      jcr.DBA.DbPassword: "{{ __db_password }}"
+      jcr.DbConfigRoleName: "{{ __db_group }}"
+      jcr.DbRuntimeRoleName: "{{ __db_group }}"
+      jcr.XDbName: "WPJCR"
+      jcr.DbNode: "wpsNode"
+{% endif %}
+{% if cnx_cec_web_engine_ltpa_secret_exists is defined and cnx_cec_web_engine_ltpa_secret_exists|bool|default(false) %}
+    ltpa:
+      # Pass the name of the LTPA secret to be used for LTPA configuration. The secret should contain the following keys:
+      # - ltpa.keys
+      # - password
+      customLtpaSecret: "{{ __cnx_cec_web_engine_ltpa_secret_name }}"
+{% endif %}
+{% if cnx_cec_web_engine_trust_store_secret_exists is defined and cnx_cec_web_engine_trust_store_secret_exists|bool|default(false) %}
+    customTruststoreSecrets:
+      connections-cert: "{{ __trust_store_secret_name }}"
+{% endif %}
+# Probe overrides to tolerate longer startup (e.g. synchronous asset import)
+probes:
+  webEngine:
+    startupProbe:
+      initialDelaySeconds: {{ __cnx_cec_web_engine_startup_probe_initial_delay_seconds }}
+      periodSeconds: {{ __cnx_cec_web_engine_startup_probe_period_seconds }}
+      failureThreshold: {{ __cnx_cec_web_engine_startup_probe_failure_threshold }}
+      successThreshold: {{ __cnx_cec_web_engine_startup_probe_success_threshold }}
+      timeoutSeconds: {{ __cnx_cec_web_engine_startup_probe_timeout_seconds }}
+    livenessProbe:
+      failureThreshold: {{ __cnx_cec_web_engine_liveness_probe_failure_threshold }}
+      periodSeconds: {{ __cnx_cec_web_engine_liveness_probe_period_seconds }}
+      timeoutSeconds: {{ __cnx_cec_web_engine_liveness_probe_timeout_seconds }}

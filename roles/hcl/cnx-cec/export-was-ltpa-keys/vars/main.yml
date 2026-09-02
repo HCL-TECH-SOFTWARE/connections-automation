@@ -1,0 +1,22 @@
+__sudo_user:                          "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+
+__cnx_cec_web_engine_ldap_type:       "{{ cnx_cec_web_engine_ldap_type | default('other') }}"
+__cnx_cec_web_engine_enable_sso:      "{{ cnx_cec_web_engine_enable_sso | default(__cnx_cec_web_engine_ldap_type != 'none') | bool }}"
+
+__was_install_location:               "{{ was_install_location  | default('/opt/IBM/WebSphere/AppServer') }}"
+__dmgr_profile_name:                  "{{ profile_name | default('Dmgr01') }}"
+__dmgr_profile_location:              "{{ __was_install_location }}/profiles/{{ __dmgr_profile_name }}"
+__dmgr_cluster_name:                  "{{ 'server1' if pool_server is defined else 'dmgr' }}"
+__dmgr_pid_file_path:                 "{{ dmgr_pid_file_path | default( __dmgr_profile_location ~ '/logs/' ~ __dmgr_cluster_name ~ '/' ~ __dmgr_cluster_name ~ '.pid') }}"
+
+__dmgr_bin_dir:                       "{{ __dmgr_profile_location ~ '/bin' }}"
+__dmgr_soap_port:                     "{{ dmgr_soap_port | default(8879) }}"
+__was_username:                       "{{ was_username }}"
+__was_password:                       "{{ was_password }}"
+
+__ltpa_keys_location:                 "{{ ltpa_keys_location | default('/tmp/' ~ __sudo_user ~ '/cnx-cec/ltpa') }}"
+__ltpa_keys_file_name:                "{{ ltpa_keys_file_name | default(hostvars['localhost'].ltpa_keys_file_name | default('cnx-ltpa-' ~ ansible_date_time.iso8601_basic_short ~ '.keys')) }}"
+__ltpa_keys_file_path:                "{{ __ltpa_keys_location }}/{{ __ltpa_keys_file_name }}"
+__ltpa_keys_password:                 "{{ ltpa_keys_password | default('password') }}"
+__ltpa_tpl_file:                      "{{ ltpa_tpl_file | default('export-was-ltpa-keys.py.j2') }}"
+__ltpa_rsp_file:                      "{{ __ltpa_keys_location }}/export-was-ltpa-keys.py"

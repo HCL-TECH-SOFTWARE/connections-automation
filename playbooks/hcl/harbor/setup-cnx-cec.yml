@@ -1,0 +1,78 @@
+## This playbook deploys CNX CEC on Component Pack using a Helm chart.[-]
+## Harbor credentials are read from the following variables, which should resolve
+## from environment variables on the Ansible controller — do not store secrets in files:
+##
+##   Set on the controller before running:
+##     export HARBOR_USERNAME=<username>
+##     export HARBOR_SECRET=<secret>
+##
+##   In inventory or group_vars (references env vars, safe to commit):
+##     docker_registry_username: "{{ lookup('env','HARBOR_USERNAME') }}"
+##     docker_registry_password: "{{ lookup('env','HARBOR_SECRET') }}"
+##
+##   Or pass directly at runtime (not recommended for shared environments):
+##     -e docker_registry_username=<username> -e docker_registry_password=<secret>
+
+---
+# Gather controller facts once so the LTPA filename is stable across export and import
+- name:                     Gather controller facts for CNX CEC LTPA keys
+  hosts:                    localhost
+  gather_facts:             true
+  tasks:
+    - name:                 Set shared LTPA filename
+      ansible.builtin.set_fact:
+        ltpa_keys_file_name: "cnx-ltpa-{{ ansible_date_time.iso8601_basic_short }}.keys"
+
+# Provision NFS volumes for CNX CEC
+- name:                     Provision NFS Volumes for CNX CEC
+  hosts:                    nfs_servers
+  become:                   true
+  roles:
+    - roles/hcl/cnx-cec/configure-nfs
+
+# Create PersistentVolumes resources
+- name:                     Create PersistentVolumes resources for CNX CEC
+  hosts:                    k8s_masters[0]
+  become:                   true
+  roles:
+    - roles/hcl/cnx-cec/configure-volumes
+
+# Configure DB2 for CNX CEC
+- name:                     Configure DB2 for CNX CEC
+  hosts:                    db2_servers
+  become:                   true
+  roles:
+    - roles/hcl/cnx-cec/configure-db2
+
+# Export WAS LTPA keys from DMGR
+- name:                     Export WAS LTPA keys from DMGR
+  hosts:                    dmgr
+  become:                   true
+  roles:
+    - roles/hcl/cnx-cec/export-was-ltpa-keys
+
+# Create LTPA secret in Kubernetes
+- name:                     Create LTPA secret in Kubernetes
+  hosts:                    k8s_masters[0]
+  become:                   true
+  roles:
+    - roles/hcl/cnx-cec/import-ltpa-keys
+
+# Deploy CNX CEC on Component Pack using Helm chart
+- name:                     Deploy CNX CEC Helm chart on Component Pack
+  hosts:                    k8s_masters[0]
+  roles:
+    - roles/hcl/cnx-cec/export-trust-store-cert
+    - roles/hcl/cnx-cec/install
+    - roles/hcl/cnx-cec/configure-ingress
+
+# Configure IHS httpd.conf to route traffic to Ingress controller
+- name:                     Configure IHS httpd.conf to route traffic to Ingress controller
+  hosts:                    ihs_servers
+  become:                   true
+  roles:
+    - roles/hcl/cnx-cec/configure-ihs
+
+# Import NGINX TLS certificate into IHS
+- name:                     Import NGINX TLS certificate into IHS
+  import_playbook:          configure-ingress-tls.yml

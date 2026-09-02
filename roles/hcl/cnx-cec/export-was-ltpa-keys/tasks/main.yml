@@ -1,0 +1,101 @@
+---
+- name:                       "Verify if Profile already exists"
+  ansible.builtin.stat:
+    path:                     "{{ __dmgr_profile_location }}"
+  register:                   profile_already_exists
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+- name:                       "Fail if DMGR profile does not exist"
+  ansible.builtin.fail:
+    msg:                      "DMGR profile path {{ __dmgr_profile_location }} does not exist. Cannot export LTPA keys."
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - not profile_already_exists.stat.exists
+
+- name:                       "Is dmgr Running?"
+  ansible.builtin.shell: |
+                              ps -p `cat "{{ __dmgr_pid_file_path }}"` > /dev/null
+  register:                   dmgr_is_running
+  failed_when:                false
+  changed_when:               false
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+- name:                       "Start WAS using shared role"
+  ansible.builtin.include_role:
+    name:                     roles/third_party/ibm/wasnd/was-dmgr-start-cluster
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - dmgr_is_running.rc != 0
+
+- name:                       Wait 60 seconds for DMGR to activate
+  pause:
+    seconds:                  60
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - dmgr_is_running.rc != 0
+
+- name:                       "Verify DMGR is running before export"
+  ansible.builtin.shell: |
+                              ps -p `cat "{{ __dmgr_pid_file_path }}"` > /dev/null
+  register:                   dmgr_is_running_final
+  failed_when:                false
+  changed_when:               false
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+- name:                       "Fail if DMGR is still not running"
+  ansible.builtin.fail:
+    msg:                      "DMGR is not running after startup attempt. Cannot export LTPA keys."
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - dmgr_is_running_final.rc != 0
+
+- name:                       "Clean up LTPA keys directory {{ __ltpa_keys_location }}"
+  ansible.builtin.file:
+    path:                     "{{ __ltpa_keys_location }}"
+    state:                    absent
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+- name:                       "Create LTPA keys directory {{ __ltpa_keys_location }}"
+  ansible.builtin.file:
+    path:                     "{{ __ltpa_keys_location }}"
+    state:                    directory
+    mode:                     '0755'
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+- name:                       "Render {{ __ltpa_rsp_file }}"
+  ansible.builtin.template:
+    src:                      "{{ __ltpa_tpl_file }}"
+    dest:                     "{{ __ltpa_rsp_file }}"
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+- name:                       "Export WAS LTPA keys to {{ __ltpa_keys_file_path }}"
+  ansible.builtin.command:
+                              chdir={{ __dmgr_bin_dir }}
+                              {{ __dmgr_bin_dir }}/wsadmin.sh -lang jython -port {{ __dmgr_soap_port }} -username {{ __was_username }} -password {{ __was_password }} -f {{ __ltpa_rsp_file }}
+  register:                   cout
+  changed_when:               cout.rc == 0
+  become:                     true
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+# Fetch the exported LTPA keys file to the control node
+- name:                       "Fetch exported LTPA keys file to control node"
+  ansible.builtin.fetch:
+    src:                      "{{ __ltpa_keys_file_path }}"
+    dest:                     "{{ __ltpa_keys_file_path }}"
+    flat:                     yes
+  become:                     false
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - pool_server is not defined

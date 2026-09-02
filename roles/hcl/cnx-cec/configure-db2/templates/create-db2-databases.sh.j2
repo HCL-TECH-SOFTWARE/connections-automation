@@ -1,0 +1,64 @@
+#!/bin/bash
+source {{ __db2_profile_location }}
+
+{{ __db2_admin_location }}/db2set DB2COMM=TCPIP
+{{ __db2_admin_location }}/db2set DB2_EVALUNCOMMITTED=YES
+{{ __db2_admin_location }}/db2set DB2_INLIST_TO_NLJN=YES
+{{ __db2_bin_location }}/db2 "UPDATE DBM CFG USING sheapthres 0"
+
+{{ __db2_bin_location }}/db2 "CREATE DB WPREL using codeset UTF-8 territory us PAGESIZE 8192"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPREL USING locktimeout 30"
+{{ __db2_bin_location }}/db2 "CONNECT TO WPREL"
+{{ __db2_bin_location }}/db2 "GRANT DBADM, SECADM ON DATABASE TO USER {{ __db_user }}"
+{{ __db2_bin_location }}/db2 "CONNECT RESET"
+
+{{ __db2_bin_location }}/db2 "CREATE DB WPCOMM using codeset UTF-8 territory us PAGESIZE 8192"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPCOMM USING locktimeout 30"
+{{ __db2_bin_location }}/db2 "CONNECT TO WPCOMM"
+{{ __db2_bin_location }}/db2 "GRANT DBADM, SECADM ON DATABASE TO USER {{ __db_user }}"
+{{ __db2_bin_location }}/db2 "CONNECT RESET"
+
+{{ __db2_bin_location }}/db2 "CREATE DB WPCUST using codeset UTF-8 territory us PAGESIZE 8192"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPCUST USING locktimeout 30"
+{{ __db2_bin_location }}/db2 "CONNECT TO WPCUST"
+{{ __db2_bin_location }}/db2 "GRANT DBADM, SECADM ON DATABASE TO USER {{ __db_user }}"
+{{ __db2_bin_location }}/db2 "CONNECT RESET"
+
+{{ __db2_bin_location }}/db2 "CREATE DB WPJCR using codeset UTF-8 territory us PAGESIZE 8192"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPJCR USING locktimeout 30"
+{{ __db2_bin_location }}/db2 "CONNECT TO WPJCR"
+{{ __db2_bin_location }}/db2 "GRANT DBADM, SECADM ON DATABASE TO USER {{ __db_user }}"
+{{ __db2_bin_location }}/db2 "CONNECT RESET"
+
+{{ __db2_bin_location }}/db2 "CREATE DB WPFDBK using codeset UTF-8 territory us PAGESIZE 8192"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPFDBK USING locktimeout 30"
+{{ __db2_bin_location }}/db2 "CONNECT TO WPFDBK"
+{{ __db2_bin_location }}/db2 "GRANT DBADM, SECADM ON DATABASE TO USER {{ __db_user }}"
+{{ __db2_bin_location }}/db2 "CONNECT RESET"
+
+{{ __db2_bin_location }}/db2 "CREATE DB WPLM using codeset UTF-8 territory us PAGESIZE 8192"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPLM USING locktimeout 30"
+{{ __db2_bin_location }}/db2 "CONNECT TO WPLM"
+{{ __db2_bin_location }}/db2 "GRANT DBADM, SECADM ON DATABASE TO USER {{ __db_user }}"
+{{ __db2_bin_location }}/db2 "CONNECT RESET"
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPJCR USER {{ __db_user }} USING \"{{ __db_password }}\""
+{{ __db2_bin_location }}/db2 "CREATE BUFFERPOOL ICMLSFREQBP4 SIZE 1000 AUTOMATIC PAGESIZE 4K"
+{{ __db2_bin_location }}/db2 "CREATE BUFFERPOOL ICMLSVOLATILEBP4 SIZE 16000 AUTOMATIC PAGESIZE 4K"
+{{ __db2_bin_location }}/db2 "CREATE BUFFERPOOL ICMLSMAINBP32 SIZE 16000 AUTOMATIC PAGESIZE 32K"
+{{ __db2_bin_location }}/db2 "CREATE BUFFERPOOL CMBMAIN4 SIZE 1000 AUTOMATIC PAGESIZE 4K"
+{{ __db2_bin_location }}/db2 "CREATE REGULAR TABLESPACE ICMLFQ32 PAGESIZE 32K BUFFERPOOL ICMLSMAINBP32"
+{{ __db2_bin_location }}/db2 "CREATE REGULAR TABLESPACE ICMLNF32 PAGESIZE 32K BUFFERPOOL ICMLSMAINBP32"
+{{ __db2_bin_location }}/db2 "CREATE REGULAR TABLESPACE ICMVFQ04 PAGESIZE 4K BUFFERPOOL ICMLSVOLATILEBP4"
+{{ __db2_bin_location }}/db2 "CREATE REGULAR TABLESPACE ICMSFQ04 PAGESIZE 4K BUFFERPOOL ICMLSFREQBP4"
+{{ __db2_bin_location }}/db2 "CREATE REGULAR TABLESPACE CMBINV04 PAGESIZE 4K BUFFERPOOL CMBMAIN4"
+{{ __db2_bin_location }}/db2 "CREATE SYSTEM TEMPORARY TABLESPACE ICMLSSYSTSPACE32 PAGESIZE 32K BUFFERPOOL ICMLSMAINBP32"
+{{ __db2_bin_location }}/db2 "CREATE SYSTEM TEMPORARY TABLESPACE ICMLSSYSTSPACE4 PAGESIZE 4K BUFFERPOOL ICMLSVOLATILEBP4"
+{{ __db2_bin_location }}/db2 "CREATE USER TEMPORARY TABLESPACE ICMLSUSRTSPACE4 PAGESIZE 4K BUFFERPOOL ICMLSVOLATILEBP4"
+{{ __db2_bin_location }}/db2 "DISCONNECT WPJCR"
+{{ __db2_bin_location }}/db2 "TERMINATE"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPJCR USING logfilsiz 16000"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPJCR USING logprimary 20"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPJCR USING logsecond 50"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPJCR USING logbufsz 500"
+{{ __db2_bin_location }}/db2 "UPDATE DB CFG FOR WPJCR USING DFT_QUERYOPT 5"

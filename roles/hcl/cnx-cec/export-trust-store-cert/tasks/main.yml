@@ -1,0 +1,45 @@
+- name:                       Create directory "{{ __trust_store_cert_dir_location }}" if it doesn't exist
+  ansible.builtin.file:
+    path:                     "{{ __trust_store_cert_dir_location }}"
+    state:                    directory
+    mode:                     '0755'
+  become_user:                "{{ __sudo_user }}"
+  become:                     true
+
+- name:                       Delete {{ __trust_store_cert_file }} if exists
+  ansible.builtin.file:
+    path:                     "{{ __trust_store_cert_dir_location }}/{{ __trust_store_cert_file }}"
+    state:                    absent
+  become_user:                "{{ __sudo_user }}"
+  become:                     true
+
+- name:                       Save the Connections certificate to "{{ __trust_store_cert_dir_location }}/{{ __trust_store_cert_file }}"
+  ansible.builtin.shell: |
+                              openssl s_client \
+                                -connect {{ __trust_store_host }}:{{ __trust_store_https_port }} \
+                                -showcerts < /dev/null 2>/dev/null \
+                                | openssl x509 -outform PEM \
+                                > {{ __trust_store_cert_dir_location }}/{{ __trust_store_cert_file }}
+  become_user:                "{{ __sudo_user }}"
+  become:                     true
+
+- name:                       Delete Kubernetes secret for trust store certificate if it exists
+  ansible.builtin.shell: |
+                              kubectl delete secret {{ __trust_store_secret_name }} -n {{ __default_namespace }} --ignore-not-found
+  become_user:                "{{ __sudo_user }}"
+  become:                     true
+
+- name:                       Create Kubernetes secret for trust store certificate
+  ansible.builtin.shell: |
+                              kubectl create secret generic {{ __trust_store_secret_name }} \
+                                --from-file={{ __trust_store_secret_key_name }}={{ __trust_store_cert_dir_location }}/{{ __trust_store_cert_file }} \
+                                -n {{ __default_namespace }}
+  become_user:                "{{ __sudo_user }}"
+  become:                     true
+
+- name:                       Clean up by deleting the certificate file
+  ansible.builtin.file:
+    path:                     "{{ __trust_store_cert_dir_location }}/{{ __trust_store_cert_file }}"
+    state:                    absent
+  become_user:                "{{ __sudo_user }}"
+  become:                     true
