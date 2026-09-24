@@ -1,0 +1,42 @@
+---
+###################################
+# Note: these steps have been replaced by the configure-ingress-tls.yml playbook
+###################################
+
+# Remove the directory before we export the certificates
+- name:                       "Delete {{ __ingress_controller_cert_location }} directory"
+  ansible.builtin.file:
+    path:                     "{{ __ingress_controller_cert_location }}"
+    state:                    absent
+  become_user:                "{{ __sudo_user }}"
+
+# Create the directory to export the certificates
+- name:                       "Create {{ __ingress_controller_cert_location }} directory"
+  ansible.builtin.file:
+    path:                     "{{ __ingress_controller_cert_location }}"
+    state:                    directory
+    mode:                     "0775"
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+
+# Get the ingress controller pod name
+- name:                       Get the Ingress controller pod name
+  ansible.builtin.shell: |
+                              kubectl get pods \
+                                -n {{ __default_namespace }} \
+                                -l '{{ __ingress_controller_pod_label }}' \
+                                -o jsonpath='{.items[0].metadata.name}'
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  register:                   nginx_pod_name
+
+# Export TLS certificate and key in PEM format
+- name:                       Export TLS certificate and key in PEM format
+  ansible.builtin.shell: |
+                              kubectl \
+                                -n {{ __default_namespace }} \
+                                exec {{ nginx_pod_name.stdout }} \
+                                -- cat {{ __ingress_controller_cert_path }} \
+                                > {{ __ingress_controller_cert_location }}/{{ __ingress_controller_cert_pem }}
+  become:                     true
+  become_user:                "{{ __sudo_user }}"

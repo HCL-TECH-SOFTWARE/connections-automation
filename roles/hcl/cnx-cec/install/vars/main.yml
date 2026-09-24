@@ -1,0 +1,105 @@
+# Common
+__sudo_user:                                              "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+__frontend_fqdn:                                          "{{ groups['internal_lb'][0] if 'internal_lb' in groups else frontend_fqdn | default( inventory_hostname ) }}"
+__frontend_domain:                                        "{{ cnx_application_ingress.split('.')[1:] | join('.') }}"
+__load_balancer_fqdn:                                     "{{ load_balancer_dns | default(hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname']) }}"
+__load_balancer_domain:                                   "{{ __load_balancer_fqdn.split('.', 1)[1] | default( inventory_hostname.split('.', 1)[1] ) }}"
+__ingress_multi_domain_enabled:                           "{{ ingress_multi_domain_enabled | default(false) }}"
+__default_namespace:                                      "{{ default_namespace | default('connections') }}"
+__cnx_cec_web_engine_release_name:                        "{{ cnx_cec_web_engine_release_name | default('cnx-cec') }}"
+__cnx_cec_temp_dir_location:                              "/home/{{ __sudo_user }}/generated_charts/cnx-cec"
+
+__cnx_cec_docker_registry_url:                            "{{ cnx_cec_docker_registry_url | default(docker_registry_url) }}"
+__cnx_cec_docker_registry_username:                       "{{ cnx_cec_docker_registry_username | default(docker_registry_username) }}"
+__cnx_cec_docker_registry_password:                       "{{ cnx_cec_docker_registry_password | default(docker_registry_password) }}"
+__cnx_cec_image_pull_secret_name:                         "{{ cnx_cec_image_pull_secret_name | default('cnx-cec-docker-image-pull-secret') }}"
+__cnx_cec_docker_registry_email:                          "{{ cnx_cec_docker_registry_email | default('changeme@example.com') }}"
+
+# Container image variables for web-engine and logging-sidecar
+__cnx_cec_web_engine_image_tag:                           "{{ cnx_cec_web_engine_image_tag | default('') }}"
+__cnx_cec_web_engine_image_path:                          "{{ cnx_cec_web_engine_image_path | default('') }}"
+__cnx_cec_logging_image_tag:                              "{{ cnx_cec_logging_image_tag | default('') }}"
+__cnx_cec_logging_image_path:                             "{{ cnx_cec_logging_image_path | default('') }}"
+
+# Helm chart registry variables
+__cnx_cec_helm_repository:                                "{{ cnx_cec_helm_repository | default( __cnx_cec_docker_registry_url ~ '/cnx-cec' ) }}"
+__cnx_cec_helm_chart_name:                                "{{ cnx_cec_helm_chart_name | default('hcl-cnx-cec-deployment') }}"
+__cnx_cec_helm_repo_username:                             "{{ cnx_cec_helm_repo_username | default(__cnx_cec_docker_registry_username) }}"
+__cnx_cec_helm_repo_password:                             "{{ cnx_cec_helm_repo_password | default(__cnx_cec_docker_registry_password) }}"
+
+# CNX CEC context root variables
+__cnx_cec_web_engine_context_root:                        "{{ cnx_cec_web_engine_context_root | default('wps') }}"
+__cnx_cec_web_engine_home_path:                           "{{ cnx_cec_web_engine_home_path | default('portal') }}"
+__cnx_cec_web_engine_personalized_home_path:              "{{ cnx_cec_web_engine_personalized_home_path | default('myportal') }}"
+__cnx_cec_web_engine_admin_user:                          "{{ cnx_cec_web_engine_admin_user | default(__cnx_cec_web_engine_connections_admin_user_dn if not __cnx_cec_web_engine_basic_registry_enabled|bool else 'wpsadmin') }}"
+__cnx_cec_web_engine_admin_password:                      "{{ cnx_cec_web_engine_admin_password | default(connections_admin_password if not __cnx_cec_web_engine_basic_registry_enabled|bool else 'wpsadmin') }}"
+__cnx_cec_web_engine_service_name:                        "{{ __cnx_cec_web_engine_release_name }}-web-engine-headless"
+__cnx_cec_web_engine_service_port_https:                  "{{ cnx_cec_web_engine_service_port_https | default('9443') }}"
+__cnx_cec_web_engine_service_port_http:                   "{{ cnx_cec_web_engine_service_port_http | default('9080') }}"
+
+# Persistent Volumes variables
+__cnx_cec_web_engine_customization_volume_name:           "{{ cnx_cec_web_engine_customization_volume_name | default('rwovol-web-engine-customization') }}"
+__cnx_cec_web_engine_log_volume_name:                     "{{ cnx_cec_web_engine_log_volume_name | default('rwovol-web-engine-log') }}"
+__cnx_cec_web_engine_volume_storage_class:                "{{ cnx_cec_web_engine_volume_storage_class | default('manual') }}"
+__cnx_cec_web_engine_volume_storage_capacity:             "{{ cnx_cec_web_engine_volume_storage_capacity | default('100Gi') }}"
+__cnx_cec_web_engine_volume_access_mode:                  "{{ cnx_cec_web_engine_volume_access_mode | default('ReadWriteOnce') }}"
+__cnx_cec_web_engine_volume_reclaim_policy:               "{{ cnx_cec_web_engine_volume_reclaim_policy | default('Retain') }}"
+
+# Determines which type of LDAP to use for CNX CEC.
+# Accepts: "none", "dx" or "other"
+# "none" - no LDAP configuration
+# "dx" - use DX openLDAP and configure it
+# "other" - use provided configuration for other LDAP
+__cnx_cec_web_engine_ldap_type:                           "{{ cnx_cec_web_engine_ldap_type | default('other') }}"
+__cnx_cec_web_engine_basic_registry_enabled:              "{{ cnx_cec_web_engine_basic_registry_enabled | default(true) }}"
+__cnx_cec_web_engine_ldap_server:                         "{{ cnx_cec_web_engine_ldap_server | default(ldap_server | default(hostvars[groups['ldap_servers'][0]]['inventory_hostname'] if __cnx_cec_web_engine_ldap_type != 'none' else '' )) }}"
+__cnx_cec_web_engine_ldap_alias:                          "{{ cnx_cec_web_engine_ldap_alias | default(ldap_alias | default(hostvars[groups['ldap_servers'][0]]['inventory_hostname_short'] if __cnx_cec_web_engine_ldap_type != 'none' else '' )) }}"
+__cnx_cec_web_engine_ldap_bind_user: >-
+                                                          {{
+                                                           'cn=Directory Manager'
+                                                           if ansible_distribution == 'SLES'
+                                                           else cnx_cec_web_engine_ldap_bind_user | default(ldap_bind_user | default('cn=Admin,dc=cnx,dc=pnp-hcl,dc=com'))
+                                                          }}
+__cnx_cec_web_engine_ldap_bind_pass:                      "{{ cnx_cec_web_engine_ldap_bind_pass | default(ldap_bind_pass | default('password')) }}"
+__cnx_cec_web_engine_ldap_realm:                          "{{ cnx_cec_web_engine_ldap_realm | default(ldap_realm | default('dc=cnx,dc=pnp-hcl,dc=com')) }}"
+__cnx_cec_web_engine_ldap_login_properties:               "{{ cnx_cec_web_engine_ldap_login_properties | default(login_properties | default('uid;mail')) }}"
+__cnx_cec_web_engine_ldap_server_port:                    "{{ cnx_cec_web_engine_ldap_server_port | default(ldap_server_port | default('389')) }}"
+__cnx_cec_web_engine_ldap_realm_name:                     "{{ cnx_cec_web_engine_ldap_realm_name | default(ldap_realm_name | default('defaultWIMFileBasedRealm')) }}"
+__cnx_cec_web_engine_ldap_search_filter:                  "{{ cnx_cec_web_engine_ldap_search_filter | default(ldap_search_filter | default('(&(uid=%v)(objectclass=inetOrgPerson))')) }}"
+__cnx_cec_web_engine_ldap_group_filter:                   "{{ cnx_cec_web_engine_ldap_group_filter | default(ldap_group_filter | default('(&(cn=%v)(objectclass=groupOfUniqueNames))')) }}"
+__cnx_cec_web_engine_ldap_map_guid:                       "{{ cnx_cec_web_engine_ldap_map_guid | default(ldap_map_guid | default('uid')) }}"
+__cnx_cec_web_engine_ldap_map_uid:                        "{{ cnx_cec_web_engine_ldap_map_uid | default(ldap_map_uid | default('cn')) }}"
+__cnx_cec_web_engine_sso_cookie_domains:                  "{% if __ingress_multi_domain_enabled | bool and __frontend_domain != __load_balancer_domain %}.{{ __frontend_domain }}|.{{ __load_balancer_domain }}{% else %}.{{ __frontend_domain }}{% endif %}"
+__cnx_cec_web_engine_connections_admin_user_dn:           "{{ cnx_cec_web_engine_connections_admin_user_dn | default('uid=' ~ connections_admin ~ ',' ~ __cnx_cec_web_engine_ldap_realm) }}"
+
+# DB configuration variables
+# If set to true, the external database specified in dbDomainProperties will be used for the WebEngine database.
+# On the first startup of the WebEngine, the database will be transferred automatically from Derby to the external database.
+__cnx_cec_web_engine_use_external_db:                     "{{ cnx_cec_web_engine_use_external_db | default(true) | bool }}"
+__db_username:                                            "{{ db_username | default('lcuser') }}"
+__db_password:                                            "{{ db_password | default ('password') }}"
+__db_hostname_default:                                    "{{ hostvars[groups['db_servers'][0]]['inventory_hostname'] }}"
+__db_hostname:                                            "{{ db_hostname | default( __db_hostname_default ) }}"
+__db_port:                                                "{{ db_port | default('50001' if ansible_distribution == 'SLES' else '50000') }}"
+__db_group:                                               "{{ db_group | default('db2group') }}"
+__cnx_cec_web_engine_drop_db_tables_on_startup:           "{{ cnx_cec_web_engine_drop_db_tables_on_startup | default(false) | bool }}"
+
+# SSO configuration variables
+__cnx_cec_web_engine_enable_sso:                          "{{ cnx_cec_web_engine_enable_sso | default(__cnx_cec_web_engine_ldap_type != 'none') | bool }}"
+__cnx_cec_web_engine_ltpa_secret_name:                    "{{ cnx_cec_web_engine_ltpa_secret_name | default('cnx-cec-ltpa-secret') }}"
+
+# Trust store configuration variables
+__trust_store_secret_name:                                "{{ trust_store_secret_name | default('connections-trust-secret') }}"
+
+# Traefik ingress controller specific variables
+__ingress_controller:                                     "{{ ingress_controller | default('traefik') }}"
+__cnx_cec_web_engine_servers_transport_name:              "cnx-cec-skip-ssl-transport"
+
+__cnx_cec_web_engine_startup_probe_initial_delay_seconds: 30
+__cnx_cec_web_engine_startup_probe_period_seconds:        10
+__cnx_cec_web_engine_startup_probe_failure_threshold:     60
+__cnx_cec_web_engine_startup_probe_success_threshold:     1
+__cnx_cec_web_engine_startup_probe_timeout_seconds:       5
+__cnx_cec_web_engine_liveness_probe_failure_threshold:    60
+__cnx_cec_web_engine_liveness_probe_period_seconds:       30
+__cnx_cec_web_engine_liveness_probe_timeout_seconds:      5

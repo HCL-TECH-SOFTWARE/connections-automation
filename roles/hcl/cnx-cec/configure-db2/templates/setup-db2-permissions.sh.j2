@@ -1,0 +1,126 @@
+#!/bin/bash
+source {{ __db2_profile_location }}
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPREL USER {{ __db_user }} USING \"{{ __db_password }}\"";
+{{ __db2_bin_location }}/db2 "CREATE SCHEMA release AUTHORIZATION {{ __db_user }}";
+{{ __db2_bin_location }}/db2 "COMMIT";
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT, CREATETAB ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSH200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT ALTERIN, CREATEIN, DROPIN ON SCHEMA release TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE USERSPACE1 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN100 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN300 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+{{ __db2_bin_location }}/db2 "CONNECT RESET";
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPCOMM USER {{ __db_user }} USING \"{{ __db_password }}\"";
+{{ __db2_bin_location }}/db2 "CREATE SCHEMA community AUTHORIZATION {{ __db_user }}";
+{{ __db2_bin_location }}/db2 "COMMIT";
+{{ __db2_bin_location }}/db2 "GRANT CONNECT, CREATETAB ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSH200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT ALTERIN, CREATEIN, DROPIN ON SCHEMA community TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE USERSPACE1 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN100 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN300 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+{{ __db2_bin_location }}/db2 "CONNECT RESET";
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPCUST USER {{ __db_user }} USING \"{{ __db_password }}\"";
+{{ __db2_bin_location }}/db2 "CREATE SCHEMA customization AUTHORIZATION {{ __db_user }}";
+{{ __db2_bin_location }}/db2 "COMMIT";
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT, CREATETAB ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSH200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT ALTERIN, CREATEIN, DROPIN ON SCHEMA customization TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE USERSPACE1 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN100 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN300 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+{{ __db2_bin_location }}/db2 "CONNECT RESET";
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPJCR USER {{ __db_user }} USING \"{{ __db_password }}\"";
+{{ __db2_bin_location }}/db2 "CREATE SCHEMA jcr AUTHORIZATION {{ __db_user }}";
+{{ __db2_bin_location }}/db2 "COMMIT";
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT, CREATETAB ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSH200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT ALTERIN, CREATEIN, DROPIN ON SCHEMA jcr TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE USERSPACE1 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE ICMLFQ32 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE ICMLNF32 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE ICMVFQ04 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE ICMSFQ04 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE CMBINV04 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE ICMLSUSRTSPACE4 TO GROUP {{ __db_group }}";
+
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN100 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN300 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+{{ __db2_bin_location }}/db2 "CONNECT RESET";
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPFDBK USER {{ __db_user }} USING \"{{ __db_password }}\"";
+{{ __db2_bin_location }}/db2 "CREATE SCHEMA feedback AUTHORIZATION {{ __db_user }}";
+{{ __db2_bin_location }}/db2 "COMMIT";
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT, CREATETAB ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSH200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT ALTERIN, CREATEIN, DROPIN ON SCHEMA feedback TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE USERSPACE1 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN100 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN300 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+{{ __db2_bin_location }}/db2 "CONNECT RESET";
+
+{{ __db2_bin_location }}/db2 "CONNECT TO WPLM USER {{ __db_user }} USING \"{{ __db_password }}\"";
+{{ __db2_bin_location }}/db2 "CREATE SCHEMA likeminds AUTHORIZATION {{ __db_user }}";
+{{ __db2_bin_location }}/db2 "COMMIT";
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT, CREATETAB ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSH200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT ALTERIN, CREATEIN, DROPIN ON SCHEMA likeminds TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USE OF TABLESPACE USERSPACE1 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";
+
+
+
+{{ __db2_bin_location }}/db2 "GRANT CONNECT ON DATABASE TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN100 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN200 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT EXECUTE ON PACKAGE NULLID.SYSSN300 TO GROUP {{ __db_group }}";
+{{ __db2_bin_location }}/db2 "GRANT USAGE ON WORKLOAD SYSDEFAULTUSERWORKLOAD TO GROUP {{ __db_group }}";

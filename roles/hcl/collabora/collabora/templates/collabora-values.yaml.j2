@@ -1,0 +1,173 @@
+# Collabora Enterprise (Umbrella Chart) custom values
+# Reference: https://sdk.collaboraonline.com/docs/installation/Kubernetes.html#deploying-collabora-online-with-cool-controller
+
+{% set collabora_domains = [] %}
+{% if __ingress_multi_domain_enabled | bool %}
+  {% set _ = collabora_domains.append("*.%s" % load_balancer_dns.split('.', 1)[1]) %}
+  {% if load_balancer_dns != frontend_fqdn %}
+    {% set _ = collabora_domains.append("*.%s" % frontend_fqdn.split('.', 1)[1]) %}
+  {% endif %}
+{% else %}
+  {% set _ = collabora_domains.append(cnx_application_ingress) %}
+{% endif %}
+
+collabora-online:
+  image:
+    repository: "{{ __collabora_docker_registry_url }}/{{ __collabora_online_image }}"
+{% if __collabora_online_image_tag != '' %}
+    tag: "{{ __collabora_online_image_tag }}"
+{% endif %}
+{% if collabora_image_pull_secret_exists is defined and collabora_image_pull_secret_exists|bool %}
+  imagePullSecrets:
+    - name: {{ __collabora_image_pull_secret }}
+{% endif %}
+
+  collabora:
+    server_name: "{{ __collabora_server_name }}{% if __lb_type == 'clb' %}:{{ __lb_tcp_port }}{% endif %}"
+    extra_params: >-
+{% if __cp_tls_enable|bool %}
+      --o:ssl.enable=true
+      --o:ssl.termination=false
+      --o:ssl.cert_file_path={{ __collabora_tls_secret_mount_path }}/tls.crt
+      --o:ssl.key_file_path={{ __collabora_tls_secret_mount_path }}/tls.key
+      --o:ssl.ca_file_path={{ __collabora_tls_secret_mount_path }}/tls.crt
+{% else %}
+      --o:ssl.enable=false
+      --o:ssl.termination=true
+{% endif %}
+      --o:ssl.ssl_verification=false
+      --o:indirection_endpoint.url=https://{{ __collabora_server_name }}/controller/routeToken
+      --o:monitors.monitor[0]={{ __collabora_controller_ws_endpoint }}
+      --o:monitors.monitor[0][@retryInterval]=5
+      --o:num_prespawn_children={{ __collabora_num_prespawn_children }}
+      --o:per_document.limit_load_secs={{ __collabora_per_doc_limit_load_secs }}
+      --o:per_document.idle_timeout_secs={{ __collabora_per_doc_idle_timeout_secs }}
+{% if __collabora_extra_params | default('') | trim != '' %}
+      {{ __collabora_extra_params }}
+{% endif %}
+    existingSecret:
+      enabled: true
+      secretName: "{{ __collabora_admin_secret_name }}"
+      usernameKey: admin-username
+      passwordKey: admin-password
+    env:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+{% if __cp_tls_enable|bool %}
+  # Mount the TLS secret into the Collabora Pods
+  extraVolumes:
+    - name: certs-volume
+      secret:
+        secretName: "{{ __collabora_ingress_tls_secret }}"
+  
+  extraVolumeMounts:
+    - name: certs-volume
+      mountPath: {{ __collabora_tls_secret_mount_path }}
+      readOnly: true
+  
+  probes:
+    # Scheme used by the kubelet to reach the dynamicConfig probe endpoint.
+    # Set to HTTPS when the dynamicConfig pod terminates SSL itself.
+    scheme: HTTPS
+{% endif %}
+  ingress:
+    enabled: true
+    className: "{{ __collabora_ingress_class }}"
+    annotations:
+      nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_RouteToken"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+{% if __cp_tls_enable|bool %}
+      # Instruct the ingress to route to the pod via HTTPS and skip self-signed validation
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "off"
+{% endif %}
+    hosts:
+{% for domain in collabora_domains %}
+      - host: "{{ domain }}"
+        paths:
+          - path: /cool/
+            pathType: Prefix
+          - path: /browser/
+            pathType: Prefix
+          - path: /hosting/
+            pathType: Prefix
+{% endfor %}
+    tls:
+      - secretName: "{{ __collabora_ingress_tls_secret }}"
+        hosts:
+{% for domain in collabora_domains %}
+          - "{{ domain }}"
+{% endfor %}
+
+  autoscaling:
+    enabled: {{ __collabora_autoscaling_enabled }}
+    minReplicas: {{ __collabora_autoscaling_minreplicas }}
+    maxReplicas: {{ __collabora_autoscaling_maxreplicas }}
+    targetMemoryUtilizationPercentage: {{ __collabora_autoscaling_mem_pct }}
+    targetCPUUtilizationPercentage: {{ __collabora_autoscaling_cpu_pct }}
+
+  resources:
+    limits:
+      cpu: "{{ __collabora_cpu_limit }}"
+      memory: "{{ __collabora_memory_limit }}"
+    requests:
+      cpu: "{{ __collabora_cpu_request }}"
+      memory: "{{ __collabora_memory_request }}"
+
+cool-controller:
+  replicaCount: {{ __controller_replica_count }}
+
+  image:
+    repository: "{{ __collabora_docker_registry_url }}/{{ __cool_controller_image }}"
+{% if __cool_controller_image_tag != '' %}
+    tag: "{{ __cool_controller_image_tag }}"
+{% endif %}
+{% if collabora_image_pull_secret_exists is defined and collabora_image_pull_secret_exists|bool %}
+  imagePullSecrets:
+    - name: {{ __collabora_image_pull_secret }}
+{% endif %}
+
+  ingress:
+    enabled: true
+    className: "{{ __collabora_ingress_class }}"
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    hosts:
+{% for domain in collabora_domains %}
+      - host: "{{ domain }}"
+        paths:
+          - path: "/controller"
+            pathType: Prefix
+{% endfor %}
+    tls:
+      - secretName: "{{ __collabora_ingress_tls_secret }}"
+        hosts:
+{% for domain in collabora_domains %}
+          - "{{ domain }}"
+{% endfor %}
+
+  controller:
+    watchNamespace: "{{ __collabora_namespace }}"
+    resourceName: "{{ __controller_resource_name }}"
+    ingressUrl: "https://{{ __collabora_server_name }}"
+    ingressHostname: "{{ __collabora_server_name }}"
+    # Allow the controller to query the self-signed Collabora endpoints for metrics
+    skipTLSVerification: true
+    enableHashmapParallelization: {{ __controller_hashmap_parallel }}
+    namespacedRole: {{ __controller_namespaced_role }}
+    expectedDocumentMemory: {{ __controller_expected_document_memory }}
+    statsInterval: {{ __controller_stats_interval }}
+    documentMigrator:
+      enabled: {{ __controller_doc_migrator_enabled }}
+      coolMemoryUtilization: {{ __controller_doc_migrator_mem_util }}
+      coolMemoryLimit: "{{ __controller_doc_migrator_mem_limit }}"
+    leaderElection:
+      enabled: {{ __controller_leader_election }}

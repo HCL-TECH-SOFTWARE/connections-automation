@@ -1,0 +1,92 @@
+---
+- name:                     Delete image pull secret for CNX CEC so that we can recreate it
+  ansible.builtin.shell:
+    cmd: |
+                            kubectl delete secret "{{ __cnx_cec_image_pull_secret_name }}" -n "{{ __default_namespace }}"
+  become_user:              "{{ __sudo_user }}"
+  ignore_errors:            true
+  when:                     __cnx_cec_docker_registry_password | string | replace('"', '') | trim | length > 0
+
+- name:                     Create image pull secret for CNX CEC
+  ansible.builtin.shell:
+    cmd: |
+                            kubectl create secret docker-registry "{{ __cnx_cec_image_pull_secret_name }}" \
+                              --docker-server="{{ __cnx_cec_docker_registry_url }}" \
+                              --docker-username="{{ __cnx_cec_docker_registry_username }}" \
+                              --docker-password="{{ __cnx_cec_docker_registry_password }}" \
+                              --docker-email="{{ __cnx_cec_docker_registry_email }}" \
+                              --namespace "{{ __default_namespace }}"
+  become_user:              "{{ __sudo_user }}"
+  register:                 cnx_cec_image_pull_secret_created_result
+  when:                     __cnx_cec_docker_registry_password | string | replace('"', '') | trim | length > 0
+
+# Set a fact based on the image pull secret creation result
+- name: Set image_pull_secret_exists fact
+  ansible.builtin.set_fact:
+    cnx_cec_image_pull_secret_exists: "{{ cnx_cec_image_pull_secret_created_result.rc == 0 }}"
+  when:                     __cnx_cec_docker_registry_password | string | replace('"', '') | trim | length > 0
+
+# Check if the Kubernetes secret exists
+- name:                     Check if the secret exists
+  ansible.builtin.shell: |
+                            kubectl get secret "{{ __cnx_cec_web_engine_ltpa_secret_name }}" -n "{{ __default_namespace }}"
+  become_user:              "{{ __sudo_user }}"
+  failed_when:              false
+  changed_when:             false
+  register:                 cnx_cec_web_engine_ltpa_secret_result
+  when:                     __cnx_cec_web_engine_enable_sso | bool
+
+# Set a fact based on the secret existence
+- name:                     Set secret_exists fact
+  ansible.builtin.set_fact:
+    cnx_cec_web_engine_ltpa_secret_exists: "{{ cnx_cec_web_engine_ltpa_secret_result.rc == 0 }}"
+  when:                     __cnx_cec_web_engine_enable_sso | bool
+
+# Check if the trust store secret exists
+- name:                     Check if the trust store secret exists
+  ansible.builtin.shell: |
+                            kubectl get secret "{{ __trust_store_secret_name }}" -n "{{ __default_namespace }}"
+  become_user:              "{{ __sudo_user }}"
+  failed_when:              false
+  changed_when:             false
+  register:                 cnx_cec_web_engine_trust_store_secret_result
+
+# Set a fact based on the trust store secret existence
+- name:                     Set trust_store_secret_exists fact
+  ansible.builtin.set_fact:
+    cnx_cec_web_engine_trust_store_secret_exists: "{{ cnx_cec_web_engine_trust_store_secret_result.rc == 0 }}"
+
+# Render Helm values for CNX CEC
+- name:                     Render "{{ __cnx_cec_helm_chart_name }}" Helm chart values
+  ansible.builtin.template:
+    src:                    cnx-cec-custom-values.yml.j2
+    dest:                   "{{ __cnx_cec_temp_dir_location }}/cnx-cec-custom-values.yml"
+  become_user:              "{{ __sudo_user }}"
+  become:                   yes
+
+# Login to Harbor OCI registry
+- name:                     "Login to Harbor OCI {{ __cnx_cec_helm_repository }}"
+  ansible.builtin.shell:    'helm registry login -u "{{ __cnx_cec_helm_repo_username }}" -p "{{ __cnx_cec_helm_repo_password }}" "https://{{ __cnx_cec_helm_repository }}"'
+  become_user:              "{{ __sudo_user }}"
+  become:                   yes
+  no_log:                   true
+  ignore_errors:            true
+  register:                 registry_login_result
+  when:                     __cnx_cec_helm_repo_password | string | replace('"', '') | trim | length > 0
+
+- name:                     Fail and report if login failed
+  ansible.builtin.fail:
+    msg:                    "Registry login failed: {{ registry_login_result | string | regex_replace(__cnx_cec_helm_repo_password, '********') }}"
+  when:                     registry_login_result.failed | default(false)
+
+# Install or upgrade HCL CNX CEC Helm chart
+- name:                     Install or upgrade "{{ __cnx_cec_helm_chart_name }}" using OCI based Helm chart registry
+  ansible.builtin.shell: |
+                            helm upgrade -i "{{ __cnx_cec_web_engine_release_name }}" \
+                              "oci://{{ __cnx_cec_helm_repository }}/{{ __cnx_cec_helm_chart_name }}" \
+                              --devel \
+                              --namespace "{{ __default_namespace }}" \
+                              -f "{{ __cnx_cec_temp_dir_location }}/cnx-cec-custom-values.yml" \
+                              --set-string global.annotations.source-registry="oci://{{ __cnx_cec_helm_repository }}/{{ __cnx_cec_helm_chart_name }}"
+  become_user:              "{{ __sudo_user }}"
+  become:                   yes

@@ -1,0 +1,16 @@
+---
+__nginx_conf_file:              "{{ nginx_conf_file | default('/etc/nginx/conf.d/customizer.conf') }}"
+__now:                          "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+
+__load_balancer_fqdn:           "{{ load_balancer_dns | default(hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname']) }}"
+__controller_http_node_port:    "{{ controller_http_node_port | default('32080') }}"
+__controller_https_node_port:   "{{ controller_https_node_port | default('32443') }}"
+
+# Upstream scheme/port for WebSocket proxy_pass must match the rest of customizer.conf.
+# Uses cp_tls_enable (environment-level, defined in group_vars/all.yml) consistent with __cp_tls_enable
+# in component-pack-harbor/vars/main.yml. configure-ingress-tls.yml playbook handles
+# subsequent toggles via regex replace in customizer.conf.
+__ws_upstream_scheme:           "{{ 'https' if (cp_tls_enable | default(false) | bool) else 'http' }}"
+__ws_upstream_port:             "{{ __controller_https_node_port if (cp_tls_enable | default(false) | bool) else __controller_http_node_port }}"
+
+__lb_type:                      "{{ lb_type | default('') }}"

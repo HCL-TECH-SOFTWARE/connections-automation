@@ -1,0 +1,16 @@
+---
+__sudo_user:                                 "{{ kubectl_user | default( ansible_env['SUDO_USER'] ) | default('lcuser') }}"
+
+__ihs_hostname:                              "{{ ihs_hostname | default(inventory_hostname_short) }}"
+__ihs_install_location:                      "{{ ihs_install_location  | default('/opt/IBM/HTTPServer') }}"
+__ihs_bin_directory:                         "{{ __ihs_install_location }}/bin/"
+__ihs_gsk_api:                               "{{ __ihs_bin_directory }}/gskcapicmd"
+__ihs_kdb_filename:                          "{{ __ihs_install_location }}/{{ __ihs_hostname }}-key.kdb"
+__ihs_kdb_password:                          "{{ ihs_kdb_password | default('password') }}"
+__ihs_username:                              "{{ ihs_username | default('ihsadmin') }}"  
+
+__ingress_controller_cert_location:          "/tmp/certs/ingress-controller"
+__ingress_controller_pod_label:              "app.kubernetes.io/name=ingress-nginx,app.kubernetes.io/instance=cnx-ingress,app.kubernetes.io/component=controller"
+__ingress_controller_cert_pem:               "{{ ingress_controller_cert_pem | default('default-fake-certificate.pem') }}"
+__ingress_controller_cert_path:              "/etc/ingress-controller/ssl/{{ __ingress_controller_cert_pem }}"
+__ingress_controller_cert_label:             "{{ ingress_controller_cert_label | default('ingress-tls-cert') }}"

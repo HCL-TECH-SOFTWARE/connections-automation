@@ -1,0 +1,18 @@
+---
+# IHS reverse proxy vars for Collabora
+__now:                          "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+__ihs_install_location:         "{{ ihs_install_location | default('/opt/IBM/HTTPServer') }}"
+__ihs_httpd_conf_file:          "{{ __ihs_install_location }}/conf/httpd.conf"
+
+__load_balancer_fqdn:           "{{ load_balancer_dns | default(hostvars[groups['k8s_load_balancers'][0]]['inventory_hostname']) }}"
+__controller_http_node_port:    "{{ controller_http_node_port | default('32080') }}"
+__controller_https_node_port:   "{{ controller_https_node_port | default('32443') }}"
+
+# Proxy scheme/port follows cp_tls_enable (environment-level, group_vars/all.yml).
+# configure-ingress-tls.yml playbook handles subsequent toggles via regex replace.
+__ihs_proxy_scheme:             "{{ 'https' if (cp_tls_enable | default(false) | bool) else 'http' }}"
+__ihs_proxy_port:               "{{ __controller_https_node_port if (cp_tls_enable | default(false) | bool) else __controller_http_node_port }}"
+
+__files_content_dir:            "{{ files_content_dir | default('/opt/IBM/SharedArea/files/upload') }}"
+__ihs_local_redirect_module:    "{{ ihs_local_redirect_module | default('modules/extra/mod_ibm_local_redirect.so') }}"
+__ihs_local_redirect_module_full_path: "{{ __ihs_install_location }}/{{ __ihs_local_redirect_module }}"

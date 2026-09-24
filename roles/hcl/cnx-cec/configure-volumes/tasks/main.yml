@@ -1,0 +1,67 @@
+---
+# Create temporary directory for CNX CEC
+- name:                       Create "{{ __cnx_cec_temp_dir_location }}" directory
+  ansible.builtin.file:
+    path:                     "{{ __cnx_cec_temp_dir_location }}"
+    state:                    directory
+    mode:                     "0775"
+  become_user:                "{{ __sudo_user }}"
+
+# Check if StorageClass exists for CNX CEC Volumes
+- name:                       Check if "{{ __cnx_cec_web_engine_volume_storage_class }}" storage class exists
+  ansible.builtin.shell: |
+                              kubectl get sc --ignore-not-found | grep -F '{{ __cnx_cec_web_engine_volume_storage_class }}' | awk {'print $1'}
+  become_user:                "{{ __sudo_user }}"
+  register:                   cnx_cec_storage_class
+
+# Render StorageClass template for CNX CEC Volumes
+- name:                       Render "{{ __cnx_cec_web_engine_volume_storage_class }}" storage class template
+  ansible.builtin.template:
+    src:                      cnx-cec-storage-class.yml.j2
+    dest:                     "{{ __cnx_cec_temp_dir_location }}/cnx-cec-storage-class.yml"
+  become_user:                "{{ __sudo_user }}"
+  when:                       "cnx_cec_storage_class.stdout == ''"
+
+# Create StorageClass for CNX CEC Volumes
+- name:                       Create "{{ __cnx_cec_web_engine_volume_storage_class }}" storage class
+  ansible.builtin.shell: |
+                              kubectl apply -f {{ __cnx_cec_temp_dir_location }}/cnx-cec-storage-class.yml
+  become_user:                "{{ __sudo_user }}"
+  when:                       "cnx_cec_storage_class.stdout == ''"
+
+# Check if K8S PV resources exists
+- name:                       Check if persistent volumes exists
+  ansible.builtin.shell: |
+                              kubectl get pv --ignore-not-found | grep -F '{{ item }}' | awk {'print $1'}
+  loop:
+    - "{{ __cnx_cec_web_engine_customization_volume_name }}"
+    - "{{ __cnx_cec_web_engine_log_volume_name }}"
+  register:                   cnx_cec_pv_resources
+  become_user:                "{{ __sudo_user }}"
+  failed_when:                false
+  changed_when:               false
+
+# Render K8S PV resources for CNX CEC customization and logs
+- name:                       Render persistent volume templates
+  ansible.builtin.template:
+    src:                      cnx-cec-volume.yml.j2
+    dest:                     "{{ __cnx_cec_temp_dir_location }}/{{ item }}-0.yml"
+  loop:
+    - "{{ __cnx_cec_web_engine_customization_volume_name }}"
+    - "{{ __cnx_cec_web_engine_log_volume_name }}"
+  loop_control:
+    index_var: item_index
+  become_user:                "{{ __sudo_user }}"
+  when:                       "item not in cnx_cec_pv_resources.results[item_index].stdout"
+
+# Apply K8S PV resources for CNX CEC customization and logs
+- name:                       Create persistent volumes
+  ansible.builtin.shell: |
+                              kubectl apply -f {{ __cnx_cec_temp_dir_location }}/{{ item }}-0.yml
+  loop:
+    - "{{ __cnx_cec_web_engine_customization_volume_name }}"
+    - "{{ __cnx_cec_web_engine_log_volume_name }}"
+  loop_control:
+    index_var: item_index
+  become_user:                "{{ __sudo_user }}"
+  when:                       "item not in cnx_cec_pv_resources.results[item_index].stdout"

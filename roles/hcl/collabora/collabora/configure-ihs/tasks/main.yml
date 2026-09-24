@@ -1,0 +1,74 @@
+---
+# Configure IHS as standard HTTP/HTPPS reverse proxy for Collabora.
+# WebSocket paths are handled by nginx (configure-nginx role).
+
+- name:                         Backup httpd.conf
+  ansible.builtin.command:      cp {{ __ihs_httpd_conf_file }} {{ __ihs_httpd_conf_file }}_{{ __now }}
+  ignore_errors:                true
+
+- name:                         Check if mod_ibm_local_redirect exists
+  ansible.builtin.stat:
+    path:                       "{{ __ihs_local_redirect_module_full_path }}"
+  register:                     __module_stat
+
+- name:                         Fail if mod_ibm_local_redirect is missing
+  ansible.builtin.fail:
+    msg: >
+      CRITICAL: The required module 'mod_ibm_local_redirect.so' was not found at 
+      {{ __ihs_local_redirect_module_full_path }}. This module is mandatory for 
+      HCL Connections file downloads. 
+      Please follow the manual installation steps from HCL: 
+      https://help.hcl-software.com/connections/latest/admin/install/t_install_post_files_downloads.html
+  when: 
+    - not __module_stat.stat.exists
+
+# -- mod_ibm_local_redirect: required for HCL Connections file downloads via IHS --
+- name:                         Ensure mod_ibm_local_redirect is loaded in httpd.conf
+  ansible.builtin.lineinfile:
+    path:                       "{{ __ihs_httpd_conf_file }}"
+    line:                       "LoadModule ibm_local_redirect_module {{ __ihs_local_redirect_module }}"
+    regexp:                     "^LoadModule ibm_local_redirect_module"
+    insertafter:                "^LoadModule alias_module"
+
+- name:                         Insert FILES LOCAL REDIRECT config into httpd.conf
+  ansible.builtin.blockinfile:
+    path:                       "{{ __ihs_httpd_conf_file }}"
+    marker:                     "# {mark} FILES LOCAL REDIRECT CONFIG"
+    insertbefore:               "^LoadModule was_ap"
+    block: |
+      alias /files_content {{ __files_content_dir }}
+
+      <Directory "{{ __files_content_dir }}">
+        Require env REDIRECT_FILES_CONTENT
+      </Directory>
+
+      <Location /files>
+        IBMLocalRedirect On
+        IBMLocalRedirectKeepHeaders X-LConn-Auth,Cache-Control,Content-Type,Content-Disposition,Last-Modified,ETag,Content-Language,Set-Cookie,Title,X-UA-Compatible
+        SetEnv FILES_CONTENT true
+      </Location>
+
+- name:                         Ensure base domain follows 'self' in IHS CSP header
+  ansible.builtin.replace:
+    path:                       "{{ __ihs_httpd_conf_file }}"
+    regexp:                     "('self')(?! https://{{ cnx_application_ingress }})"
+    replace:                    "\\1 https://{{ cnx_application_ingress }}"
+
+# -- Reverse proxy rules for Collabora (WebSocket handled by nginx) --
+- name:                         Insert Collabora proxy rules into httpd.conf
+  ansible.builtin.blockinfile:
+    path:                       "{{ __ihs_httpd_conf_file }}"
+    marker:                     "# {mark} COLLABORA PROXY RULES"
+    insertbefore:               '<Location /auth >'
+    block: |
+      # Collabora needs encoded slashes in URLs to pass through unmodified
+      AllowEncodedSlashes NoDecode
+
+      ProxyPass           /browser  {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/browser retry=0
+      ProxyPassReverse    /browser  {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/browser
+      ProxyPass           /hosting  {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/hosting retry=0
+      ProxyPassReverse    /hosting  {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/hosting
+      ProxyPass           /cool     {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/cool retry=0
+      ProxyPassReverse    /cool     {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/cool
+      ProxyPass           /controller  {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/controller retry=0
+      ProxyPassReverse    /controller  {{ __ihs_proxy_scheme }}://{{ __load_balancer_fqdn }}:{{ __ihs_proxy_port }}/controller

@@ -1,0 +1,7 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+    name: {{ __cnx_cec_web_engine_volume_storage_class }}
+provisioner: kubernetes.io/no-provisioner # Change this to your provisioner
+reclaimPolicy: {{ __cnx_cec_web_engine_volume_reclaim_policy }}
+volumeBindingMode: Immediate

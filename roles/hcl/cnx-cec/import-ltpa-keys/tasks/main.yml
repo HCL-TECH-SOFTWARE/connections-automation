@@ -1,0 +1,74 @@
+---
+# Clean up any existing LTPA keys target directory
+- name:                       "Clean up LTPA keys target directory {{ __ltpa_keys_dest_location }}"
+  ansible.builtin.file:
+    path:                     "{{ __ltpa_keys_dest_location }}"
+    state:                    absent
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - pool_server is not defined
+
+# Create the LTPA keys export directory
+- name:                       "Create LTPA keys target directory {{ __ltpa_keys_dest_location }}"
+  ansible.builtin.file:
+    path:                     "{{ __ltpa_keys_dest_location }}"
+    state:                    "directory"
+    mode:                     "0755"
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - pool_server is not defined
+
+# Copy the LTPA keys export file to the target location
+- name:                       "Copy LTPA secret file to target"
+  ansible.builtin.copy:
+    src:                      "{{ __ltpa_keys_src_file_path }}"
+    dest:                     "{{ __ltpa_keys_dest_file_path }}"
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:
+    - __cnx_cec_web_engine_enable_sso|bool
+    - pool_server is not defined
+
+# Delete the LTPA secret in Kubernetes if it exists
+- name:                       "Delete LTPA secret in Kubernetes if it exists"
+  ansible.builtin.shell: |
+                              kubectl delete secret {{ __cnx_cec_web_engine_ltpa_secret_name }} \
+                                -n {{ __default_namespace }} \
+                                --ignore-not-found
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+# Create the LTPA secret in Kubernetes from the LTPA keys file
+- name:                       "Create LTPA secret in Kubernetes"
+  ansible.builtin.shell: |
+                              kubectl create secret generic {{ __cnx_cec_web_engine_ltpa_secret_name }} \
+                                -n {{ __default_namespace }} \
+                                --from-file=ltpa.keys="{{ __ltpa_keys_dest_file_path }}" \
+                                --from-literal=password="{{ __ltpa_keys_password }}" \
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+# Clean up the LTPA keys target directory
+- name:                       "Clean up LTPA keys target directory {{ __ltpa_keys_dest_location }}"
+  ansible.builtin.file:
+    path:                     "{{ __ltpa_keys_dest_location }}"
+    state:                    "absent"
+  become:                     true
+  become_user:                "{{ __sudo_user }}"
+  when:                       __cnx_cec_web_engine_enable_sso|bool
+
+# Clean up the fetched LTPA keys file on the control node
+- name:                       "Clean up fetched LTPA keys directory on control node"
+  ansible.builtin.file:
+    path:                     "{{ __ltpa_keys_src_file_path }}"
+    state:                    absent
+  delegate_to:                localhost
+  become:                     false
+  ignore_errors:              true
+  when:                       __cnx_cec_web_engine_enable_sso|bool
